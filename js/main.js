@@ -25,7 +25,7 @@ function openApp(appName) {
     
     // Mapping yang sesuai dengan struktur GitHub
     const appMappings = {
-        'monitoring-order': {
+        'monitoring-order-delivery': {
             folder: 'monitoring-order-delivery',
             title: 'Daily Monitoring Order & Delivery'
         },
@@ -80,7 +80,7 @@ function testAllPaths() {
     console.log('=== TESTING ALL APPLICATION PATHS ===');
     
     const apps = {
-        'monitoring-order': 'monitoring-order-delivery/index.html',
+        'monitoring-order-delivery': 'monitoring-order-delivery/index.html',
         'jadwal-pengecoran': 'jadwal-pengecoran/index.html',
         'utilisasi-truck': 'utilisasi-truck/index.html', 
         'production-all-area': 'production-all-area/index.html',
@@ -137,7 +137,7 @@ function testAllPaths() {
 // Quick test single app
 function testApp(appName) {
     const apps = {
-        'monitoring-order': 'monitoring-order-delivery/index.html',
+        'monitoring-order-delivery': 'monitoring-order-delivery/index.html',
         'jadwal-pengecoran': 'jadwal-pengecoran/index.html',
         'utilisasi-truck': 'utilisasi-truck/index.html',
         'production-all-area': 'production-all-area/index.html',
