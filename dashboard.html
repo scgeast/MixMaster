@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Aplikasi Terpadu</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Aplikasi Terpadu</h1>
+            <div class="user-info">
+                <span id="currentUser">Admin</span>
+                <button onclick="logout()" class="btn-logout">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard">
+        <div class="container">
+            <h2>Menu Aplikasi</h2>
+            <div class="app-grid">
+                <div class="app-card" onclick="openApp('monitoring-order')">
+                    <div class="app-icon">📊</div>
+                    <h3>Daily Monitoring Order & Delivery</h3>
+                    <p>Monitoring pesanan dan pengiriman harian</p>
+                </div>
+
+                <div class="app-card" onclick="openApp('jadwal-pengecoran')">
+                    <div class="app-icon">📅</div>
+                    <h3>Jadwal Pengecoran</h3>
+                    <p>Jadwal dan rencana pengecoran</p>
+                </div>
+
+                <div class="app-card" onclick="openApp('utilisasi-truck')">
+                    <div class="app-icon">🚛</div>
+                    <h3>Utilisasi Truck Mixer</h3>
+                    <p>Monitoring utilisasi truck mixer</p>
+                </div>
+
+                <div class="app-card" onclick="openApp('production-all-area')">
+                    <div class="app-icon">🏭</div>
+                    <h3>Production All Area</h3>
+                    <p>Data produksi semua area</p>
+                </div>
+
+                <div class="app-card" onclick="openApp('summary-daily-delivery')">
+                    <div class="app-icon">📦</div>
+                    <h3>Summary Daily Delivery</h3>
+                    <p>Ringkasan pengiriman harian</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
