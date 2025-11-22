@@ -40,6 +40,7 @@ function openApp(appName) {
             .then(response => {
                 if (response.ok) {
                     // File exists, open in new tab
+                    console.log('File found, opening:', appPath);
                     window.open(appPath, '_blank');
                 } else {
                     alert('File aplikasi tidak ditemukan: ' + appPath);
@@ -47,7 +48,7 @@ function openApp(appName) {
                 }
             })
             .catch(error => {
-                alert('Error mengakses aplikasi: ' + appPath);
+                alert('Error mengakses aplikasi: ' + appPath + '\n\nError: ' + error.message);
                 console.error('Error:', error);
             });
     } else {
