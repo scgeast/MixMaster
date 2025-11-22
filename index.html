@@ -6,6 +6,15 @@
     <title>Login - Mix Master CDC EAST</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
+        /* Blood Moon Color Scheme */
+        :root {
+            --blood-moon-primary: #8B0000;
+            --blood-moon-secondary: #B22222;
+            --blood-moon-accent: #DC143C;
+            --blood-moon-dark: #5D0000;
+            --blood-moon-light: #FF6B6B;
+        }
+
         /* Animasi Styles */
         .mixer-animation {
             width: 120px;
@@ -18,13 +27,14 @@
         .mixer-drum {
             width: 100px;
             height: 80px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(45deg, var(--blood-moon-primary), var(--blood-moon-accent));
             border-radius: 10px;
             position: absolute;
             top: 20px;
             left: 10px;
             animation: rotate 3s linear infinite;
             transform-style: preserve-3d;
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.5);
         }
 
         .mixer-drum::before {
@@ -41,28 +51,30 @@
         .mixer-stand {
             width: 20px;
             height: 40px;
-            background: #333;
+            background: var(--blood-moon-dark);
             position: absolute;
             bottom: 0;
             left: 50px;
             transform: translateX(-50%);
+            box-shadow: 0 0 10px rgba(93, 0, 0, 0.3);
         }
 
         .concrete-flow {
             position: absolute;
             width: 30px;
             height: 60px;
-            background: linear-gradient(to bottom, #8B7355, #A52A2A);
+            background: linear-gradient(to bottom, #8B0000, #5D0000);
             border-radius: 0 0 15px 15px;
             bottom: -40px;
             left: 45px;
             animation: flow 2s ease-in-out infinite;
             opacity: 0.8;
+            box-shadow: 0 0 15px rgba(139, 0, 0, 0.4);
         }
 
         .bubble {
             position: absolute;
-            background: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.4);
             border-radius: 50%;
             animation: float 2s ease-in-out infinite;
         }
@@ -82,8 +94,8 @@
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; }
-            50% { transform: translateY(-10px) scale(1.1); opacity: 0.6; }
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.4; }
+            50% { transform: translateY(-10px) scale(1.1); opacity: 0.8; }
         }
 
         .company-logo {
@@ -93,19 +105,21 @@
 
         .company-logo h1 {
             font-size: 2.2em;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, var(--blood-moon-primary), var(--blood-moon-accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 5px;
             font-weight: bold;
+            text-shadow: 0 2px 10px rgba(139, 0, 0, 0.3);
         }
 
         .company-logo .subtitle {
             font-size: 1em;
-            color: #667eea;
+            color: var(--blood-moon-accent);
             font-weight: 600;
             letter-spacing: 2px;
+            text-shadow: 0 1px 5px rgba(139, 0, 0, 0.2);
         }
 
         .login-footer {
@@ -124,7 +138,8 @@
         /* Input focus effects */
         .form-group input:focus {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 5px 15px rgba(139, 0, 0, 0.3);
+            border-color: var(--blood-moon-accent);
         }
 
         /* Button hover effects */
@@ -132,19 +147,120 @@
             position: relative;
             overflow: hidden;
             transition: all 0.3s ease;
+            background: linear-gradient(135deg, var(--blood-moon-primary), var(--blood-moon-accent));
         }
 
         .btn-login:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 25px rgba(139, 0, 0, 0.4);
+            background: linear-gradient(135deg, var(--blood-moon-secondary), var(--blood-moon-light));
         }
 
         .btn-login:active {
             transform: translateY(0);
         }
+
+        /* Blood Moon Background */
+        .login-body {
+            background: linear-gradient(135deg, #2c0c0c 0%, #5D0000 50%, #8B0000 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(220, 20, 60, 0.1) 0%, rgba(139, 0, 0, 0) 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .login-body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(139, 0, 0, 0.1)" points="0,1000 1000,0 1000,1000"/></svg>');
+            background-size: cover;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.1; }
+            50% { transform: scale(1.1); opacity: 0.2; }
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(139, 0, 0, 0.3);
+            overflow: hidden;
+            width: 100%;
+            max-width: 420px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Form styling dengan tema blood moon */
+        .form-group input {
+            border: 2px solid #e1e5e9;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: var(--blood-moon-accent);
+            background: linear-gradient(to bottom, #fff, #fff5f5);
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-login:hover::before {
+            left: 100%;
+        }
+
+        /* Moon effect */
+        .moon-effect {
+            position: absolute;
+            top: 10%;
+            right: 10%;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, var(--blood-moon-light) 0%, var(--blood-moon-primary) 70%);
+            border-radius: 50%;
+            box-shadow: 0 0 50px var(--blood-moon-accent);
+            opacity: 0.3;
+            animation: moonGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes moonGlow {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.1); }
+        }
     </style>
 </head>
 <body class="login-body">
+    <!-- Moon Effect -->
+    <div class="moon-effect"></div>
+    
     <div class="login-container">
         <div class="login-form">
             <!-- Logo dan Animasi -->
