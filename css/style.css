@@ -207,3 +207,37 @@ body {
 .back-button:hover {
     background: #5a6fd8;
 }
+
+.app-path {
+    font-size: 10px;
+    color: #666;
+    margin-top: 8px;
+    font-family: monospace;
+    background: #f5f5f5;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+.welcome-text {
+    text-align: center;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.dashboard-info {
+    background: #e9ecef;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 30px;
+}
+
+.dashboard-info h3 {
+    color: #495057;
+    margin-bottom: 10px;
+}
+
+.dashboard-info p {
+    margin: 5px 0;
+    color: #6c757d;
+    font-size: 14px;
+}
