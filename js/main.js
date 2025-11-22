@@ -17,26 +17,30 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// GitHub Pages configuration
+// GitHub Pages configuration dengan folder app/
 const GITHUB_PAGES_CONFIG = {
     basePath: '/MixMaster/',
+    appFolder: 'app/', // Tambahkan folder app/
     isGitHubPages: window.location.hostname.includes('github.io')
 };
 
-// Function to open applications
+// Function to open applications - PATH YANG BENAR
 function openApp(appName) {
     const basePath = GITHUB_PAGES_CONFIG.isGitHubPages ? GITHUB_PAGES_CONFIG.basePath : '';
+    const appFolder = GITHUB_PAGES_CONFIG.appFolder;
     
     const appPaths = {
-        'monitoring-order': `${basePath}monitoring-order-delivery/index.html`,
-        'jadwal-pengecoran': `${basePath}jadwal-pengecoran/index.html`,
-        'utilisasi-truck': `${basePath}utilisasi-truck/index.html`,
-        'production-all-area': `${basePath}production-all-area/index.html`,
-        'summary-daily-delivery': `${basePath}summary-daily-delivery/index.html`
+        'monitoring-order': `${basePath}${appFolder}monitoring-order-delivery/index.html`,
+        'jadwal-pengecoran': `${basePath}${appFolder}jadwal-pengecoran/index.html`,
+        'utilisasi-truck': `${basePath}${appFolder}utilisasi-truck/index.html`,
+        'production-all-area': `${basePath}${appFolder}production-all-area/index.html`,
+        'summary-daily-delivery': `${basePath}${appFolder}summary-daily-delivery/index.html`
     };
     
     const appPath = appPaths[appName];
     if (appPath) {
+        console.log('Opening:', appPath);
+        
         // Open aplikasi di tab baru
         const newWindow = window.open(appPath, '_blank');
         
@@ -49,16 +53,17 @@ function openApp(appName) {
     }
 }
 
-// Silent test function (no UI output)
+// Silent test function dengan path yang benar
 function testAllPathsSilent() {
     const basePath = GITHUB_PAGES_CONFIG.isGitHubPages ? GITHUB_PAGES_CONFIG.basePath : '';
+    const appFolder = GITHUB_PAGES_CONFIG.appFolder;
     
     const appPaths = {
-        'monitoring-order': `${basePath}monitoring-order-delivery/index.html`,
-        'jadwal-pengecoran': `${basePath}jadwal-pengecoran/index.html`,
-        'utilisasi-truck': `${basePath}utilisasi-truck/index.html`,
-        'production-all-area': `${basePath}production-all-area/index.html`,
-        'summary-daily-delivery': `${basePath}summary-daily-delivery/index.html`
+        'monitoring-order': `${basePath}${appFolder}monitoring-order-delivery/index.html`,
+        'jadwal-pengecoran': `${basePath}${appFolder}jadwal-pengecoran/index.html`,
+        'utilisasi-truck': `${basePath}${appFolder}utilisasi-truck/index.html`,
+        'production-all-area': `${basePath}${appFolder}production-all-area/index.html`,
+        'summary-daily-delivery': `${basePath}${appFolder}summary-daily-delivery/index.html`
     };
     
     // Test semua path di background
@@ -66,13 +71,13 @@ function testAllPathsSilent() {
         fetch(path, { method: 'HEAD' })
             .then(response => {
                 if (response.ok) {
-                    console.log(`✅ ${appName}: Ready`);
+                    console.log(`✅ ${appName}: Ready - ${path}`);
                 } else {
-                    console.log(`❌ ${appName}: Not found`);
+                    console.log(`❌ ${appName}: Not found - ${path}`);
                 }
             })
             .catch(error => {
-                console.log(`❌ ${appName}: Error - ${error.message}`);
+                console.log(`❌ ${appName}: Error - ${path}`);
             });
     });
 }
