@@ -1,6 +1,6 @@
 // Simple authentication system
 const users = [
-    { username: 'admin', password: 'admin123', name: 'Administrator' },
+    { username: 'admin', password: 'San123', name: 'Kim Jong Un' },
     { username: 'user', password: 'user123', name: 'Regular User' },
     { username: 'operator', password: 'operator123', name: 'Operator' },
     { username: 'cdc', password: 'cdc2024', name: 'CDC Operator' }
