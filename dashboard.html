@@ -18,11 +18,11 @@
             background: #6c757d;
             color: white;
             border: none;
-            padding: 8px 15px;
+            padding: 8px 12px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 12px;
-            margin: 2px 5px 2px 0;
+            font-size: 11px;
+            margin: 2px;
         }
         .debug-btn:hover {
             background: #5a6268;
@@ -33,6 +33,25 @@
             background: #e9ecef;
             border-radius: 4px;
             font-size: 12px;
+            line-height: 1.4;
+        }
+        .app-card {
+            position: relative;
+        }
+        .test-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+        .test-btn:hover {
+            background: #138496;
         }
     </style>
 </head>
@@ -51,13 +70,17 @@
         <div class="container">
             <!-- Debug Panel -->
             <div class="debug-panel">
-                <strong>🔧 System Info</strong>
+                <strong>🔧 System Diagnostics</strong>
                 <div style="margin-top: 10px;">
-                    <button class="debug-btn" onclick="testAllPaths()">Check Applications</button>
-                    <button class="debug-btn" onclick="showEnvironment()">Show Environment</button>
+                    <button class="debug-btn" onclick="testAllPaths()">Test All Apps</button>
+                    <button class="debug-btn" onclick="testApp('monitoring-order')">Test Monitoring</button>
+                    <button class="debug-btn" onclick="testApp('jadwal-pengecoran')">Test Jadwal</button>
+                    <button class="debug-btn" onclick="testApp('utilisasi-truck')">Test Truck</button>
+                    <button class="debug-btn" onclick="testApp('production-all-area')">Test Production</button>
+                    <button class="debug-btn" onclick="testApp('summary-daily-delivery')">Test Summary</button>
                 </div>
                 <div id="debugInfo" class="debug-info">
-                    Click "Check Applications" to verify app availability
+                    Click "Test All Apps" to check application availability
                 </div>
             </div>
 
@@ -65,34 +88,44 @@
             <p class="welcome-text">Pilih aplikasi yang ingin Anda gunakan:</p>
             
             <div class="app-grid">
-                <div class="app-card" onclick="openApp('monitoring-order')">
+                <div class="app-card">
+                    <button class="test-btn" onclick="testApp('monitoring-order')">Test</button>
                     <div class="app-icon">📊</div>
                     <h3>Daily Monitoring Order & Delivery</h3>
                     <p>Monitoring pesanan dan pengiriman harian</p>
+                    <small style="color: #666;">monitoring-order-delivery/index.html</small>
                 </div>
 
-                <div class="app-card" onclick="openApp('jadwal-pengecoran')">
+                <div class="app-card">
+                    <button class="test-btn" onclick="testApp('jadwal-pengecoran')">Test</button>
                     <div class="app-icon">📅</div>
                     <h3>Jadwal Pengecoran</h3>
                     <p>Jadwal dan rencana pengecoran</p>
+                    <small style="color: #666;">jadwal-pengecoran/index.html</small>
                 </div>
 
-                <div class="app-card" onclick="openApp('utilisasi-truck')">
+                <div class="app-card">
+                    <button class="test-btn" onclick="testApp('utilisasi-truck')">Test</button>
                     <div class="app-icon">🚛</div>
                     <h3>Utilisasi Truck Mixer</h3>
                     <p>Monitoring utilisasi truck mixer</p>
+                    <small style="color: #666;">utilisasi-truck/index.html</small>
                 </div>
 
-                <div class="app-card" onclick="openApp('production-all-area')">
+                <div class="app-card">
+                    <button class="test-btn" onclick="testApp('production-all-area')">Test</button>
                     <div class="app-icon">🏭</div>
                     <h3>Production All Area</h3>
                     <p>Data produksi semua area</p>
+                    <small style="color: #666;">production-all-area/index.html</small>
                 </div>
 
-                <div class="app-card" onclick="openApp('summary-daily-delivery')">
+                <div class="app-card">
+                    <button class="test-btn" onclick="testApp('summary-daily-delivery')">Test</button>
                     <div class="app-icon">📦</div>
                     <h3>Summary Daily Delivery</h3>
                     <p>Ringkasan pengiriman harian</p>
+                    <small style="color: #666;">summary-daily-delivery/index.html</small>
                 </div>
             </div>
         </div>
@@ -114,27 +147,20 @@
             const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
             document.getElementById('currentUser').textContent = user.name || 'User';
             
-            // Auto check applications after load
-            setTimeout(() => {
-                testAllPaths();
-            }, 1000);
+            // Update app cards dengan event listeners
+            document.querySelectorAll('.app-card').forEach(card => {
+                const testBtn = card.querySelector('.test-btn');
+                const originalOnClick = testBtn.getAttribute('onclick');
+                const appName = originalOnClick.match(/testApp\('([^']+)'\)/)[1];
+                
+                // Main click area opens app
+                card.addEventListener('click', function(e) {
+                    if (!e.target.classList.contains('test-btn')) {
+                        openApp(appName);
+                    }
+                });
+            });
         });
-
-        // Show environment info
-        function showEnvironment() {
-            const isGitHubPages = window.location.hostname.includes('github.io');
-            const info = {
-                'Environment': isGitHubPages ? 'GitHub Pages' : 'Local',
-                'Hostname': window.location.hostname,
-                'URL': window.location.href,
-                'User Agent': navigator.userAgent
-            };
-            
-            alert('Environment Info:\n\n' + 
-                  Object.entries(info).map(([key, value]) => 
-                    `${key}: ${value}`
-                  ).join('\n'));
-        }
     </script>
 </body>
 </html>
