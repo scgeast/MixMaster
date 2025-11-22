@@ -1,6 +1,6 @@
 // Simple authentication system
 const users = [
-    { username: 'admin', password: 'San123', name: 'Kim Jong Un' },
+    { username: 'admin', password: 'admin123', name: 'Administrator' },
     { username: 'user', password: 'user123', name: 'Regular User' },
     { username: 'operator', password: 'operator123', name: 'Operator' },
     { username: 'cdc', password: 'cdc2024', name: 'CDC Operator' }
@@ -15,7 +15,7 @@ function checkAuth() {
     
     if (!isLoggedIn || !currentUser) {
         console.log('User not authenticated, redirecting to login');
-        // Redirect ke login page
+        // Redirect to login page
         if (!window.location.pathname.includes('index.html')) {
             window.location.href = 'index.html';
         }
@@ -38,7 +38,7 @@ function handleLogin(event) {
     // Show loading state
     const loginBtn = document.querySelector('.btn-login');
     const originalText = loginBtn.innerHTML;
-    loginBtn.innerHTML = '<span>Memproses...</span>';
+    loginBtn.innerHTML = '<span>Processing...</span>';
     loginBtn.disabled = true;
     
     // Simulate API call delay
@@ -53,7 +53,7 @@ function handleLogin(event) {
             console.log('Login successful for user:', user.name);
             
             // Show success message
-            loginBtn.innerHTML = '<span>✓ Berhasil!</span>';
+            loginBtn.innerHTML = '<span>✓ Success!</span>';
             loginBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
             
             // Redirect to dashboard after short delay
@@ -75,7 +75,7 @@ function handleLogin(event) {
                 loginBtn.style.animation = '';
             }, 500);
             
-            alert('Username atau password salah! Silakan coba lagi.');
+            alert('Invalid username or password! Please try again.');
             
             // Clear password field
             document.getElementById('password').value = '';
