@@ -84,26 +84,6 @@
                 testAllPathsSilent();
             }, 1000);
         });
-
-        // Silent test untuk memastikan aplikasi ready
-        function testAllPathsSilent() {
-            const basePath = '/MixMaster/';
-            
-            const apps = {
-                'monitoring-order': `${basePath}monitoring-order-delivery/index.html`,
-                'jadwal-pengecoran': `${basePath}jadwal-pengecoran/index.html`,
-                'utilisasi-truck': `${basePath}utilisasi-truck/index.html`,
-                'production-all-area': `${basePath}production-all-area/index.html`,
-                'summary-daily-delivery': `${basePath}summary-daily-delivery/index.html`
-            };
-            
-            // Test semua aplikasi di background
-            Object.values(apps).forEach(path => {
-                fetch(path, { method: 'HEAD' }).catch(() => {});
-            });
-            
-            console.log('🎯 All applications tested silently');
-        }
     </script>
 </body>
 </html>
