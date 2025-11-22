@@ -56,8 +56,8 @@
 
             <div class="dashboard-info">
                 <h3>Informasi Sistem</h3>
-                <p>• Klik pada kartu aplikasi untuk membuka di tab baru</p>
-                <p>• Pastikan popup tidak diblokir oleh browser</p>
+                <p>• Klik pada kartu aplikasi untuk membuka dalam window baru</p>
+                <p>• Setiap aplikasi memiliki header dengan navigasi</p>
                 <p>• Gunakan tombol logout untuk keluar dari sistem</p>
             </div>
         </div>
@@ -70,7 +70,7 @@
     <script>
         // Dashboard functionality
         document.addEventListener('DOMContentLoaded', function() {
-            // Check authentication
+            // Check authentication - HARUS LOGIN
             if (!checkAuth()) {
                 return;
             }
@@ -78,11 +78,6 @@
             // Display user info
             const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
             document.getElementById('currentUser').textContent = user.name || 'User';
-            
-            // Auto test paths in background (silent)
-            setTimeout(() => {
-                testAllPathsSilent();
-            }, 1000);
         });
     </script>
 </body>
