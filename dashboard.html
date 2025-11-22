@@ -27,6 +27,12 @@
         .debug-btn:hover {
             background: #5a6268;
         }
+        .debug-btn.danger {
+            background: #dc3545;
+        }
+        .debug-btn.success {
+            background: #28a745;
+        }
         .debug-info {
             margin-top: 10px;
             padding: 10px;
@@ -34,24 +40,8 @@
             border-radius: 4px;
             font-size: 12px;
             line-height: 1.4;
-        }
-        .app-card {
-            position: relative;
-        }
-        .test-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #17a2b8;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 3px;
-            font-size: 10px;
-            cursor: pointer;
-        }
-        .test-btn:hover {
-            background: #138496;
+            max-height: 300px;
+            overflow-y: auto;
         }
     </style>
 </head>
@@ -70,17 +60,16 @@
         <div class="container">
             <!-- Debug Panel -->
             <div class="debug-panel">
-                <strong>🔧 System Diagnostics</strong>
+                <strong>🔧 Diagnostic Tools</strong>
                 <div style="margin-top: 10px;">
-                    <button class="debug-btn" onclick="testAllPaths()">Test All Apps</button>
-                    <button class="debug-btn" onclick="testApp('monitoring-order-delivery')">Test Monitoring</button>
-                    <button class="debug-btn" onclick="testApp('jadwal-pengecoran')">Test Jadwal</button>
-                    <button class="debug-btn" onclick="testApp('utilisasi-truck')">Test Truck</button>
-                    <button class="debug-btn" onclick="testApp('production-all-area')">Test Production</button>
-                    <button class="debug-btn" onclick="testApp('summary-daily-delivery')">Test Summary</button>
+                    <button class="debug-btn" onclick="testAllPaths()">Quick Test</button>
+                    <button class="debug-btn success" onclick="deepDiagnostic()">Deep Diagnostic</button>
+                    <button class="debug-btn danger" onclick="scanDirectory()">Scan Directory</button>
+                    <button class="debug-btn" onclick="showHelp()">Help</button>
                 </div>
                 <div id="debugInfo" class="debug-info">
-                    Click "Test All Apps" to check application availability
+                    <strong>Problem Detected:</strong> All applications missing<br><br>
+                    <strong>Click "Deep Diagnostic" to identify the exact issue</strong>
                 </div>
             </div>
 
@@ -88,44 +77,34 @@
             <p class="welcome-text">Pilih aplikasi yang ingin Anda gunakan:</p>
             
             <div class="app-grid">
-                <div class="app-card">
-                    <button class="test-btn" onclick="testApp('monitoring-order-delivery')">Test</button>
+                <div class="app-card" onclick="openApp('monitoring-order')">
                     <div class="app-icon">📊</div>
                     <h3>Daily Monitoring Order & Delivery</h3>
                     <p>Monitoring pesanan dan pengiriman harian</p>
-                    <small style="color: #666;">monitoring-order-delivery/index.html</small>
                 </div>
 
-                <div class="app-card">
-                    <button class="test-btn" onclick="testApp('jadwal-pengecoran')">Test</button>
+                <div class="app-card" onclick="openApp('jadwal-pengecoran')">
                     <div class="app-icon">📅</div>
                     <h3>Jadwal Pengecoran</h3>
                     <p>Jadwal dan rencana pengecoran</p>
-                    <small style="color: #666;">jadwal-pengecoran/index.html</small>
                 </div>
 
-                <div class="app-card">
-                    <button class="test-btn" onclick="testApp('utilisasi-truck')">Test</button>
+                <div class="app-card" onclick="openApp('utilisasi-truck')">
                     <div class="app-icon">🚛</div>
                     <h3>Utilisasi Truck Mixer</h3>
                     <p>Monitoring utilisasi truck mixer</p>
-                    <small style="color: #666;">utilisasi-truck/index.html</small>
                 </div>
 
-                <div class="app-card">
-                    <button class="test-btn" onclick="testApp('production-all-area')">Test</button>
+                <div class="app-card" onclick="openApp('production-all-area')">
                     <div class="app-icon">🏭</div>
                     <h3>Production All Area</h3>
                     <p>Data produksi semua area</p>
-                    <small style="color: #666;">production-all-area/index.html</small>
                 </div>
 
-                <div class="app-card">
-                    <button class="test-btn" onclick="testApp('summary-daily-delivery')">Test</button>
+                <div class="app-card" onclick="openApp('summary-daily-delivery')">
                     <div class="app-icon">📦</div>
                     <h3>Summary Daily Delivery</h3>
                     <p>Ringkasan pengiriman harian</p>
-                    <small style="color: #666;">summary-daily-delivery/index.html</small>
                 </div>
             </div>
         </div>
@@ -147,20 +126,33 @@
             const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
             document.getElementById('currentUser').textContent = user.name || 'User';
             
-            // Update app cards dengan event listeners
-            document.querySelectorAll('.app-card').forEach(card => {
-                const testBtn = card.querySelector('.test-btn');
-                const originalOnClick = testBtn.getAttribute('onclick');
-                const appName = originalOnClick.match(/testApp\('([^']+)'\)/)[1];
-                
-                // Main click area opens app
-                card.addEventListener('click', function(e) {
-                    if (!e.target.classList.contains('test-btn')) {
-                        openApp(appName);
-                    }
-                });
-            });
+            // Auto run quick test
+            setTimeout(() => {
+                testAllPaths();
+            }, 1000);
         });
+
+        function showHelp() {
+            alert(`🚨 PROBLEM: All applications missing
+
+🔍 POSSIBLE CAUSES:
+1. Folder aplikasi belum di-upload ke GitHub
+2. Nama folder tidak sesuai
+3. File index.html tidak ada di folder aplikasi
+
+✅ SOLUTIONS:
+1. Upload folder aplikasi ke root directory
+2. Pastikan struktur: folder/index.html
+3. Gunakan "Deep Diagnostic" untuk detail
+4. Gunakan "Scan Directory" untuk cari folder yang ada
+
+📁 REQUIRED FOLDERS:
+• monitoring-order-delivery/
+• jadwal-pengecoran/
+• utilisasi-truck/
+• production-all-area/
+• summary-daily-delivery/`);
+        }
     </script>
 </body>
 </html>
