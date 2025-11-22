@@ -15,6 +15,7 @@ function checkAuth() {
     
     if (!isLoggedIn || !currentUser) {
         console.log('User not authenticated, redirecting to login');
+        // Redirect ke login page
         if (!window.location.pathname.includes('index.html')) {
             window.location.href = 'index.html';
         }
@@ -98,24 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set focus to username field
         document.getElementById('username').focus();
         
-        // Add enter key support
-        document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                handleLogin(e);
-            }
-        });
-    }
-    
-    // Display current user if element exists
-    if (currentUserElement) {
-        const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-        currentUserElement.textContent = user.name || 'User';
-        console.log('Current user displayed:', user.name);
-    }
-    
-    // Auto-redirect to dashboard if already logged in and on login page
-    if (window.location.pathname.includes('index.html') || 
-        window.location.pathname.endsWith('/')) {
+        // Auto-redirect to dashboard if already logged in and on login page
         const isLoggedIn = localStorage.getItem('isLoggedIn');
         const currentUser = localStorage.getItem('currentUser');
         
@@ -123,6 +107,13 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('User already logged in, redirecting to dashboard');
             window.location.href = 'dashboard.html';
         }
+    }
+    
+    // Display current user if element exists
+    if (currentUserElement) {
+        const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        currentUserElement.textContent = user.name || 'User';
+        console.log('Current user displayed:', user.name);
     }
 });
 
@@ -154,4 +145,3 @@ document.head.appendChild(style);
 window.handleLogin = handleLogin;
 window.logout = logout;
 window.checkAuth = checkAuth;
-window.users = users;
