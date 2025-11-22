@@ -19,31 +19,40 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Function to open applications - FIXED PATHS
+// Function to open applications - PATH YANG BENAR
 function openApp(appName) {
     console.log('Opening app:', appName);
     
     const appPaths = {
-        'monitoring-order': './monitoring-order-delivery/index.html',
-        'jadwal-pengecoran': './jadwal-pengecoran/index.html',
-        'utilisasi-truck': './utilisasi-truck/index.html',
-        'production-all-area': './production-all-area/index.html',
-        'summary-daily-delivery': './summary-daily-delivery/index.html'
+        'monitoring-order': 'monitoring-order-delivery/index.html',
+        'jadwal-pengecoran': 'jadwal-pengecoran/index.html',
+        'utilisasi-truck': 'utilisasi-truck/index.html',
+        'production-all-area': 'production-all-area/index.html',
+        'summary-daily-delivery': 'summary-daily-delivery/index.html'
     };
     
     const appPath = appPaths[appName];
     if (appPath) {
         console.log('Trying to open:', appPath);
         
-        // Test if file exists first
-        fetch(appPath, { method: 'HEAD' })
+        // Test if file exists first dengan timeout
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout')), 3000)
+        );
+        
+        const fetchPromise = fetch(appPath, { method: 'HEAD' });
+        
+        Promise.race([fetchPromise, timeoutPromise])
             .then(response => {
                 if (response.ok) {
                     console.log('✓ File found:', appPath);
                     // File exists, open in new tab
                     const newWindow = window.open(appPath, '_blank');
-                    if (!newWindow) {
-                        alert('Popup blocked! Please allow popups for this site.');
+                    if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+                        // Popup blocked, redirect in same window
+                        if (confirm('Popup diblokir! Buka aplikasi di tab ini?')) {
+                            window.location.href = appPath;
+                        }
                     }
                 } else {
                     console.error('✗ File not found:', appPath);
@@ -71,16 +80,28 @@ function showFileError(appName, path) {
     
     const title = appTitles[appName] || appName;
     
+    // Check if it's GitHub Pages environment
+    const isGitHubPages = window.location.hostname.includes('github.io');
+    
     const errorMsg = `
 File aplikasi tidak ditemukan!
 
 Aplikasi: ${title}
 Path: ${path}
+Environment: ${isGitHubPages ? 'GitHub Pages' : 'Local'}
 
-Pastikan:
-1. Folder "${getFolderName(appName)}" ada di root directory
-2. File "index.html" ada di dalam folder tersebut
-3. Nama folder sesuai dengan yang terdaftar
+Kemungkinan masalah:
+1. Folder "${getFolderName(appName)}" tidak ada
+2. File "index.html" tidak ada di folder tersebut  
+3. Case sensitivity (huruf besar/kecil tidak sesuai)
+4. GitHub Pages belum deploy
+
+Folder yang harus ada:
+• monitoring-order-delivery/
+• jadwal-pengecoran/
+• utilisasi-truck/
+• production-all-area/
+• summary-daily-delivery/
     `;
     
     alert(errorMsg);
@@ -98,56 +119,71 @@ function getFolderName(appName) {
     return folders[appName] || appName;
 }
 
+// Test function untuk debugging
+function testAllPaths() {
+    console.log('=== TESTING ALL APPLICATION PATHS ===');
+    const appPaths = {
+        'monitoring-order': 'monitoring-order-delivery/index.html',
+        'jadwal-pengecoran': 'jadwal-pengecoran/index.html',
+        'utilisasi-truck': 'utilisasi-truck/index.html',
+        'production-all-area': 'production-all-area/index.html',
+        'summary-daily-delivery': 'summary-daily-delivery/index.html'
+    };
+    
+    let foundCount = 0;
+    let totalCount = Object.keys(appPaths).length;
+    
+    Object.entries(appPaths).forEach(([appName, path]) => {
+        console.log(`Testing: ${appName} -> ${path}`);
+        
+        fetch(path, { method: 'HEAD' })
+            .then(response => {
+                const status = response.ok ? '✓ FOUND' : '✗ NOT FOUND';
+                console.log(`${appName}: ${path} - ${status}`);
+                
+                if (response.ok) foundCount++;
+                
+                // Update UI jika elemen debug info ada
+                const debugInfo = document.getElementById('debugInfo');
+                if (debugInfo) {
+                    debugInfo.innerHTML = `Tested: ${foundCount}/${totalCount} apps found`;
+                }
+                
+                if (foundCount === totalCount) {
+                    console.log('🎉 All applications found!');
+                    if (debugInfo) {
+                        debugInfo.innerHTML += ' 🎉 All apps available!';
+                    }
+                }
+            })
+            .catch(error => {
+                console.log(`${appName}: ${path} - ✗ ERROR: ${error.message}`);
+            });
+    });
+}
+
 // Check auth function
 function checkAuth() {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     const currentUser = localStorage.getItem('currentUser');
     
+    console.log('Auth check - isLoggedIn:', isLoggedIn, 'currentUser:', currentUser);
+    
     if (!isLoggedIn || !currentUser) {
+        console.log('Not authenticated, redirecting to login');
         window.location.href = 'index.html';
         return false;
     }
+    console.log('User is authenticated');
     return true;
 }
 
 // Logout function
 function logout() {
+    console.log('Logging out...');
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('currentUser');
     window.location.href = 'index.html';
-}
-
-// Utility function to test all paths
-function testAllPaths() {
-    console.log('=== TESTING ALL APPLICATION PATHS ===');
-    const appPaths = {
-        'monitoring-order': './monitoring-order-delivery/index.html',
-        'jadwal-pengecoran': './jadwal-pengecoran/index.html',
-        'utilisasi-truck': './utilisasi-truck/index.html',
-        'production-all-area': './production-all-area/index.html',
-        'summary-daily-delivery': './summary-daily-delivery/index.html'
-    };
-    
-    let results = [];
-    
-    Object.entries(appPaths).forEach(([appName, path]) => {
-        fetch(path, { method: 'HEAD' })
-            .then(response => {
-                const status = response.ok ? '✓ FOUND' : '✗ NOT FOUND';
-                console.log(`${appName}: ${path} - ${status}`);
-                results.push(`${appName}: ${status}`);
-                
-                // Update debug info
-                if (results.length === Object.keys(appPaths).length) {
-                    document.getElementById('debugInfo').textContent = 
-                        'Test selesai. Lihat console untuk detail.';
-                }
-            })
-            .catch(error => {
-                console.log(`${appName}: ${path} - ✗ ERROR: ${error.message}`);
-                results.push(`${appName}: ERROR`);
-            });
-    });
 }
 
 // Export functions for global access
