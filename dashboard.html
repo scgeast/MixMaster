@@ -15,6 +15,227 @@
             --blood-moon-light: #FF6B6B;
         }
 
+        /* Screen Saver Styles */
+        .screensaver {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a0a0a 0%, var(--blood-moon-dark) 50%, var(--blood-moon-primary) 100%);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .screensaver.active {
+            display: flex;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .screensaver-logo {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .screensaver-logo h1 {
+            font-size: 4em;
+            font-weight: bold;
+            margin: 0;
+            background: linear-gradient(135deg, #FF6B6B, #FFD93D);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+        }
+
+        .screensaver-logo .subtitle {
+            font-size: 1.5em;
+            color: var(--blood-moon-light);
+            margin-top: 10px;
+            letter-spacing: 3px;
+        }
+
+        /* Animasi Concrete Mixer */
+        .mixer-animation {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            margin: 30px auto;
+        }
+
+        .mixer-truck {
+            position: absolute;
+            width: 200px;
+            height: 80px;
+            background: linear-gradient(45deg, #333, #555);
+            border-radius: 10px;
+            top: 60px;
+            left: 50px;
+            animation: truckMove 8s ease-in-out infinite;
+        }
+
+        .mixer-drum {
+            position: absolute;
+            width: 100px;
+            height: 80px;
+            background: linear-gradient(45deg, var(--blood-moon-primary), var(--blood-moon-accent));
+            border-radius: 40px;
+            top: 50px;
+            left: 80px;
+            animation: rotateMixer 4s linear infinite;
+            box-shadow: 0 0 30px rgba(220, 20, 60, 0.5);
+        }
+
+        .mixer-drum::before {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 60px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 30px;
+            top: 10px;
+            left: 10px;
+        }
+
+        .wheel {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #111;
+            border-radius: 50%;
+            bottom: -15px;
+            border: 3px solid #333;
+            animation: rotateWheel 2s linear infinite;
+        }
+
+        .wheel::before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #666;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .wheel-front {
+            left: 160px;
+        }
+
+        .wheel-back {
+            left: 40px;
+        }
+
+        .concrete-pour {
+            position: absolute;
+            width: 8px;
+            height: 40px;
+            background: linear-gradient(to bottom, #8B0000, #5D0000);
+            border-radius: 0 0 4px 4px;
+            bottom: -20px;
+            left: 120px;
+            animation: pour 2s ease-in-out infinite;
+            opacity: 0.8;
+        }
+
+        /* Floating Bubbles */
+        .bubble {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .bubble:nth-child(1) { width: 20px; height: 20px; top: 20%; left: 10%; animation-delay: 0s; }
+        .bubble:nth-child(2) { width: 15px; height: 15px; top: 60%; left: 80%; animation-delay: 1s; }
+        .bubble:nth-child(3) { width: 25px; height: 25px; top: 40%; left: 30%; animation-delay: 2s; }
+        .bubble:nth-child(4) { width: 18px; height: 18px; top: 70%; left: 60%; animation-delay: 3s; }
+        .bubble:nth-child(5) { width: 22px; height: 22px; top: 30%; left: 90%; animation-delay: 4s; }
+
+        /* Pulsing Circles */
+        .pulse-circle {
+            position: absolute;
+            border: 2px solid rgba(255, 107, 107, 0.3);
+            border-radius: 50%;
+            animation: pulse 3s ease-out infinite;
+        }
+
+        .pulse-circle:nth-child(1) { width: 100px; height: 100px; top: 20%; left: 20%; animation-delay: 0s; }
+        .pulse-circle:nth-child(2) { width: 150px; height: 150px; top: 60%; left: 70%; animation-delay: 1s; }
+        .pulse-circle:nth-child(3) { width: 80px; height: 80px; top: 80%; left: 30%; animation-delay: 2s; }
+
+        /* Animations */
+        @keyframes truckMove {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(20px); }
+            50% { transform: translateX(0); }
+            75% { transform: translateX(-20px); }
+        }
+
+        @keyframes rotateMixer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes rotateWheel {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pour {
+            0%, 100% { height: 40px; opacity: 0.8; }
+            50% { height: 60px; opacity: 1; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+            25% { transform: translateY(-20px) translateX(10px); opacity: 0.6; }
+            50% { transform: translateY(-40px) translateX(-10px); opacity: 0.8; }
+            75% { transform: translateY(-20px) translateX(10px); opacity: 0.6; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
+        .screensaver-message {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 1.2em;
+            color: rgba(255, 255, 255, 0.8);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 107, 107, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 107, 107, 0.8), 0 0 30px rgba(255, 107, 107, 0.6); }
+        }
+
+        .screensaver-tap {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.6);
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 0.6; }
+            51%, 100% { opacity: 0.3; }
+        }
+
         /* Sidebar Styles */
         .app-container {
             display: flex;
@@ -426,6 +647,18 @@
                 font-size: 0.8em;
                 padding: 3px 8px;
             }
+
+            .screensaver-logo h1 {
+                font-size: 2.5em;
+            }
+
+            .screensaver-logo .subtitle {
+                font-size: 1.1em;
+            }
+
+            .mixer-animation {
+                transform: scale(0.7);
+            }
         }
 
         /* Desktop only */
@@ -437,6 +670,43 @@
     </style>
 </head>
 <body>
+    <!-- Screen Saver -->
+    <div class="screensaver" id="screensaver">
+        <div class="screensaver-logo">
+            <h1>MIX MASTER</h1>
+            <div class="subtitle">CDC EAST</div>
+        </div>
+
+        <!-- Animasi Concrete Mixer -->
+        <div class="mixer-animation">
+            <div class="mixer-truck">
+                <div class="mixer-drum"></div>
+                <div class="wheel wheel-front"></div>
+                <div class="wheel wheel-back"></div>
+                <div class="concrete-pour"></div>
+            </div>
+            
+            <!-- Floating Bubbles -->
+            <div class="bubble"></div>
+            <div class="bubble"></div>
+            <div class="bubble"></div>
+            <div class="bubble"></div>
+            <div class="bubble"></div>
+            
+            <!-- Pulsing Circles -->
+            <div class="pulse-circle"></div>
+            <div class="pulse-circle"></div>
+            <div class="pulse-circle"></div>
+        </div>
+
+        <div class="screensaver-message">
+            System is active and ready
+        </div>
+        <div class="screensaver-tap">
+            Tap anywhere to continue
+        </div>
+    </div>
+
     <div class="app-container">
         <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
@@ -546,6 +816,35 @@
     <script src="js/main.js"></script>
     
     <script>
+        // Screen Saver functionality
+        let inactivityTimer;
+        const SCREENSAVER_TIMEOUT = 5 * 60 * 1000; // 5 menit dalam milliseconds
+
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            hideScreensaver();
+            inactivityTimer = setTimeout(showScreensaver, SCREENSAVER_TIMEOUT);
+        }
+
+        function showScreensaver() {
+            document.getElementById('screensaver').classList.add('active');
+        }
+
+        function hideScreensaver() {
+            document.getElementById('screensaver').classList.remove('active');
+        }
+
+        // Event listeners untuk mendeteksi aktivitas
+        function setupActivityListeners() {
+            const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+            events.forEach(event => {
+                document.addEventListener(event, resetInactivityTimer, true);
+            });
+            
+            // Click pada screensaver untuk menutup
+            document.getElementById('screensaver').addEventListener('click', hideScreensaver);
+        }
+
         // Dashboard functionality dengan sidebar
         document.addEventListener('DOMContentLoaded', function() {
             // Check authentication
@@ -566,6 +865,10 @@
             // Check mobile view
             checkMobileView();
             window.addEventListener('resize', checkMobileView);
+            
+            // Setup screen saver
+            setupActivityListeners();
+            resetInactivityTimer();
         });
 
         // Toggle sidebar collapse/expand
@@ -573,6 +876,7 @@
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('collapsed');
             localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            resetInactivityTimer();
         }
 
         // Load application in iframe
@@ -614,6 +918,7 @@
                 appFrame.onload = function() {
                     loading.style.display = 'none';
                     appFrame.style.display = 'block';
+                    resetInactivityTimer();
                 };
                 
                 // Handle iframe errors
@@ -621,6 +926,7 @@
                     loading.style.display = 'none';
                     welcomeScreen.style.display = 'flex';
                     alert('Failed to load application. Please make sure the application is available.');
+                    resetInactivityTimer();
                 };
             }
             
@@ -628,6 +934,8 @@
             if (window.innerWidth <= 768) {
                 document.getElementById('sidebar').classList.remove('mobile-open');
             }
+            
+            resetInactivityTimer();
         }
 
         // Show welcome screen (Home function)
@@ -650,6 +958,8 @@
             if (window.innerWidth <= 768) {
                 document.getElementById('sidebar').classList.remove('mobile-open');
             }
+            
+            resetInactivityTimer();
         }
 
         // Mobile view handling
@@ -674,6 +984,7 @@
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('mobile-open');
             sidebar.style.left = sidebar.classList.contains('mobile-open') ? '0' : '-250px';
+            resetInactivityTimer();
         }
     </script>
 </body>
