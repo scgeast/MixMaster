@@ -8,23 +8,31 @@
     <style>
         .debug-panel {
             background: #f8f9fa;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0 30px;
+            border-radius: 8px;
             border-left: 4px solid #007bff;
+            font-size: 14px;
         }
         .debug-btn {
             background: #6c757d;
             color: white;
             border: none;
-            padding: 5px 10px;
-            border-radius: 3px;
+            padding: 8px 15px;
+            border-radius: 4px;
             cursor: pointer;
             font-size: 12px;
-            margin: 2px;
+            margin: 2px 5px 2px 0;
         }
         .debug-btn:hover {
             background: #5a6268;
+        }
+        .debug-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 4px;
+            font-size: 12px;
         }
     </style>
 </head>
@@ -41,13 +49,16 @@
 
     <main class="dashboard">
         <div class="container">
-            <!-- Debug Panel (bisa dihapus di production) -->
+            <!-- Debug Panel -->
             <div class="debug-panel">
-                <strong>Debug Info:</strong>
-                <button class="debug-btn" onclick="testAllPaths()">Test Paths</button>
-                <button class="debug-btn" onclick="showLocalStorage()">Show Storage</button>
-                <button class="debug-btn" onclick="clearAllData()">Clear Data</button>
-                <span id="debugInfo"></span>
+                <strong>🔧 System Info</strong>
+                <div style="margin-top: 10px;">
+                    <button class="debug-btn" onclick="testAllPaths()">Check Applications</button>
+                    <button class="debug-btn" onclick="showEnvironment()">Show Environment</button>
+                </div>
+                <div id="debugInfo" class="debug-info">
+                    Click "Check Applications" to verify app availability
+                </div>
             </div>
 
             <h2>Menu Aplikasi</h2>
@@ -58,43 +69,31 @@
                     <div class="app-icon">📊</div>
                     <h3>Daily Monitoring Order & Delivery</h3>
                     <p>Monitoring pesanan dan pengiriman harian</p>
-                    <div class="app-path">monitoring-order-delivery/index.html</div>
                 </div>
 
                 <div class="app-card" onclick="openApp('jadwal-pengecoran')">
                     <div class="app-icon">📅</div>
                     <h3>Jadwal Pengecoran</h3>
                     <p>Jadwal dan rencana pengecoran</p>
-                    <div class="app-path">jadwal-pengecoran/index.html</div>
                 </div>
 
                 <div class="app-card" onclick="openApp('utilisasi-truck')">
                     <div class="app-icon">🚛</div>
                     <h3>Utilisasi Truck Mixer</h3>
                     <p>Monitoring utilisasi truck mixer</p>
-                    <div class="app-path">utilisasi-truck/index.html</div>
                 </div>
 
                 <div class="app-card" onclick="openApp('production-all-area')">
                     <div class="app-icon">🏭</div>
                     <h3>Production All Area</h3>
                     <p>Data produksi semua area</p>
-                    <div class="app-path">production-all-area/index.html</div>
                 </div>
 
                 <div class="app-card" onclick="openApp('summary-daily-delivery')">
                     <div class="app-icon">📦</div>
                     <h3>Summary Daily Delivery</h3>
                     <p>Ringkasan pengiriman harian</p>
-                    <div class="app-path">summary-daily-delivery/index.html</div>
                 </div>
-            </div>
-
-            <div class="dashboard-info">
-                <h3>Informasi</h3>
-                <p>• Klik pada kartu aplikasi untuk membuka di tab baru</p>
-                <p>• Pastikan semua aplikasi tersedia di folder yang sesuai</p>
-                <p>• Gunakan tombol logout untuk keluar dari sistem</p>
             </div>
         </div>
     </main>
@@ -104,10 +103,8 @@
     <script src="js/main.js"></script>
     
     <script>
-        // Additional dashboard functionality
+        // Dashboard functionality
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Dashboard initialized');
-            
             // Check authentication
             if (!checkAuth()) {
                 return;
@@ -117,91 +114,26 @@
             const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
             document.getElementById('currentUser').textContent = user.name || 'User';
             
-            console.log('Dashboard loaded for user:', user.name);
+            // Auto check applications after load
+            setTimeout(() => {
+                testAllPaths();
+            }, 1000);
         });
 
-        // Debug functions
-        function showLocalStorage() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn');
-            const currentUser = localStorage.getItem('currentUser');
-            
-            console.log('LocalStorage:', {
-                isLoggedIn: isLoggedIn,
-                currentUser: currentUser ? JSON.parse(currentUser) : null
-            });
-            
-            alert(`LocalStorage Info:\n\nisLoggedIn: ${isLoggedIn}\ncurrentUser: ${currentUser}`);
-        }
-
-        function clearAllData() {
-            if (confirm('Hapus semua data login?')) {
-                localStorage.clear();
-                alert('Data berhasil dihapus!');
-                window.location.reload();
-            }
-        }
-
-        // Enhanced openApp function with better error handling - FIXED VERSION
-        function openAppFixed(appName) {
-            console.log('Attempting to open:', appName);
-            
-            const appPaths = {
-                'monitoring-order': 'monitoring-order-delivery/index.html',
-                'jadwal-pengecoran': 'jadwal-pengecoran/index.html',
-                'utilisasi-truck': 'utilisasi-truck/index.html',
-                'production-all-area': 'production-all-area/index.html',
-                'summary-daily-delivery': 'summary-daily-delivery/index.html'
+        // Show environment info
+        function showEnvironment() {
+            const isGitHubPages = window.location.hostname.includes('github.io');
+            const info = {
+                'Environment': isGitHubPages ? 'GitHub Pages' : 'Local',
+                'Hostname': window.location.hostname,
+                'URL': window.location.href,
+                'User Agent': navigator.userAgent
             };
             
-            const appPath = appPaths[appName];
-            
-            if (!appPath) {
-                alert('Aplikasi tidak dikenali!');
-                return;
-            }
-            
-            console.log('Full path:', appPath);
-            
-            // Use the original openApp function from main.js
-            openApp(appName);
-        }
-
-        // Replace the onclick handlers to use the fixed version
-        document.addEventListener('DOMContentLoaded', function() {
-            // Update all app cards to use the fixed function
-            const appCards = document.querySelectorAll('.app-card');
-            appCards.forEach(card => {
-                const originalOnClick = card.getAttribute('onclick');
-                if (originalOnClick) {
-                    const appName = originalOnClick.match(/openApp\('([^']+)'\)/)[1];
-                    card.setAttribute('onclick', `openAppFixed('${appName}')`);
-                }
-            });
-        });
-
-        // Test function untuk debugging
-        function testAllPaths() {
-            console.log('=== TESTING ALL APPLICATION PATHS ===');
-            const appPaths = {
-                'monitoring-order': 'monitoring-order-delivery/index.html',
-                'jadwal-pengecoran': 'jadwal-pengecoran/index.html',
-                'utilisasi-truck': 'utilisasi-truck/index.html',
-                'production-all-area': 'production-all-area/index.html',
-                'summary-daily-delivery': 'summary-daily-delivery/index.html'
-            };
-            
-            Object.entries(appPaths).forEach(([appName, path]) => {
-                fetch(path, { method: 'HEAD' })
-                    .then(response => {
-                        const status = response.ok ? '✓ FOUND' : '✗ NOT FOUND';
-                        console.log(`${appName}: ${path} - ${status}`);
-                        alert(`${appName}: ${status}`);
-                    })
-                    .catch(error => {
-                        console.log(`${appName}: ${path} - ✗ ERROR: ${error.message}`);
-                        alert(`${appName}: ERROR - ${error.message}`);
-                    });
-            });
+            alert('Environment Info:\n\n' + 
+                  Object.entries(info).map(([key, value]) => 
+                    `${key}: ${value}`
+                  ).join('\n'));
         }
     </script>
 </body>
