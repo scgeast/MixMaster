@@ -92,6 +92,7 @@
             transition: all 0.3s;
             border-left: 3px solid transparent;
             position: relative;
+            cursor: pointer;
         }
 
         .menu-link:hover {
@@ -444,6 +445,14 @@
                 <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
             </div>
             <ul class="sidebar-menu">
+                <!-- Tombol Home Baru -->
+                <li class="menu-item">
+                    <a href="#" class="menu-link" onclick="showWelcomeScreen()" data-tooltip="Home">
+                        <span class="menu-icon">🏠</span>
+                        <span class="menu-initial">H</span>
+                        <span class="menu-text">Home</span>
+                    </a>
+                </li>
                 <li class="menu-item">
                     <a href="#" class="menu-link" onclick="loadApp('monitoring-order')" data-tooltip="Monitoring Order">
                         <span class="menu-icon">📊</span>
@@ -621,6 +630,28 @@
             }
         }
 
+        // Show welcome screen (Home function)
+        function showWelcomeScreen() {
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            const appFrame = document.getElementById('appFrame');
+            const loading = document.getElementById('loading');
+            const menuLinks = document.querySelectorAll('.menu-link');
+            
+            // Update active menu - set Home as active
+            menuLinks.forEach(link => link.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show welcome screen and hide others
+            welcomeScreen.style.display = 'flex';
+            appFrame.style.display = 'none';
+            loading.style.display = 'none';
+            
+            // Close mobile menu if open
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('mobile-open');
+            }
+        }
+
         // Mobile view handling
         function checkMobileView() {
             const sidebar = document.getElementById('sidebar');
@@ -643,16 +674,6 @@
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('mobile-open');
             sidebar.style.left = sidebar.classList.contains('mobile-open') ? '0' : '-250px';
-        }
-
-        // Back to welcome screen
-        function showWelcomeScreen() {
-            document.getElementById('welcomeScreen').style.display = 'flex';
-            document.getElementById('appFrame').style.display = 'none';
-            document.getElementById('loading').style.display = 'none';
-            
-            // Remove active menu
-            document.querySelectorAll('.menu-link').forEach(link => link.classList.remove('active'));
         }
     </script>
 </body>
