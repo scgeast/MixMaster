@@ -15,6 +15,99 @@
             --blood-moon-light: #FF6B6B;
         }
 
+        /* Layout dengan background image */
+        .login-body {
+            background: 
+                linear-gradient(135deg, rgba(44, 12, 12, 0.9) 0%, rgba(93, 0, 0, 0.8) 50%, rgba(139, 0, 0, 0.7) 100%),
+                url('Gemini_Generated_Image_9ljupz9ljupz9lju.png') center/cover no-repeat;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Container utama dengan flexbox */
+        .main-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 1200px;
+            gap: 50px;
+            padding: 20px;
+        }
+
+        /* Side content untuk gambar dan copyright */
+        .side-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+            z-index: 2;
+        }
+
+        .background-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .copyright {
+            margin-top: 20px;
+            font-size: 1.1em;
+            color: rgba(255, 255, 255, 0.8);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            font-weight: 500;
+        }
+
+        .copyright .year {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--blood-moon-light);
+        }
+
+        /* Login container di tengah */
+        .login-center-container {
+            flex: 0 0 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 
+                0 25px 50px rgba(139, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 420px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 10;
+            transform: scale(1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .login-container:hover {
+            transform: scale(1.02);
+            box-shadow: 
+                0 30px 60px rgba(139, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.2);
+        }
+
         /* Animasi Styles */
         .mixer-animation {
             width: 120px;
@@ -122,6 +215,10 @@
             text-shadow: 0 1px 5px rgba(139, 0, 0, 0.2);
         }
 
+        .login-form {
+            padding: 40px 35px;
+        }
+
         .login-footer {
             text-align: center;
             margin-top: 30px;
@@ -135,19 +232,55 @@
             margin-top: 5px;
         }
 
-        /* Input focus effects */
-        .form-group input:focus {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(139, 0, 0, 0.3);
-            border-color: var(--blood-moon-accent);
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
         }
 
-        /* Button hover effects */
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--blood-moon-accent);
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 0, 0, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: #a0a4a8;
+        }
+
         .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--blood-moon-primary), var(--blood-moon-accent));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            transition: all 0.3s ease;
-            background: linear-gradient(135deg, var(--blood-moon-primary), var(--blood-moon-accent));
         }
 
         .btn-login:hover {
@@ -158,68 +291,6 @@
 
         .btn-login:active {
             transform: translateY(0);
-        }
-
-        /* Blood Moon Background */
-        .login-body {
-            background: linear-gradient(135deg, #2c0c0c 0%, #5D0000 50%, #8B0000 100%);
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-body::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(220, 20, 60, 0.1) 0%, rgba(139, 0, 0, 0) 70%);
-            animation: pulse 4s ease-in-out infinite;
-        }
-
-        .login-body::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(139, 0, 0, 0.1)" points="0,1000 1000,0 1000,1000"/></svg>');
-            background-size: cover;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.1; }
-            50% { transform: scale(1.1); opacity: 0.2; }
-        }
-
-        .login-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(139, 0, 0, 0.3);
-            overflow: hidden;
-            width: 100%;
-            max-width: 420px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Form styling dengan tema blood moon */
-        .form-group input {
-            border: 2px solid #e1e5e9;
-            transition: all 0.3s ease;
-        }
-
-        .form-group input:focus {
-            border-color: var(--blood-moon-accent);
-            background: linear-gradient(to bottom, #fff, #fff5f5);
         }
 
         .btn-login::before {
@@ -237,72 +308,141 @@
             left: 100%;
         }
 
-        /* Moon effect */
-        .moon-effect {
+        /* Overlay efek untuk background */
+        .background-overlay {
             position: absolute;
-            top: 10%;
-            right: 10%;
-            width: 80px;
-            height: 80px;
-            background: radial-gradient(circle, var(--blood-moon-light) 0%, var(--blood-moon-primary) 70%);
-            border-radius: 50%;
-            box-shadow: 0 0 50px var(--blood-moon-accent);
-            opacity: 0.3;
-            animation: moonGlow 3s ease-in-out infinite;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(220, 20, 60, 0.2) 0%, rgba(139, 0, 0, 0) 70%);
+            animation: pulse 4s ease-in-out infinite;
+            z-index: 1;
         }
 
-        @keyframes moonGlow {
-            0%, 100% { opacity: 0.2; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(1.1); }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                gap: 30px;
+            }
+            
+            .side-content {
+                order: 2;
+            }
+            
+            .login-center-container {
+                order: 1;
+                flex: 0 0 auto;
+            }
+            
+            .background-image {
+                max-width: 80%;
+            }
+            
+            .login-container {
+                max-width: 350px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-form {
+                padding: 30px 25px;
+            }
+            
+            .company-logo h1 {
+                font-size: 1.8em;
+            }
+            
+            .main-container {
+                padding: 10px;
+            }
+        }
+
+        /* Brand text styling */
+        .brand-text {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+        }
+
+        .brand-subtitle {
+            font-size: 1.2em;
+            color: var(--blood-moon-light);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+            margin-bottom: 30px;
         }
     </style>
 </head>
 <body class="login-body">
-    <!-- Moon Effect -->
-    <div class="moon-effect"></div>
+    <!-- Background Overlay -->
+    <div class="background-overlay"></div>
     
-    <div class="login-container">
-        <div class="login-form">
-            <!-- Logo dan Animasi -->
-            <div class="company-logo">
-                <h1>MIX MASTER</h1>
-                <div class="subtitle">CDC EAST</div>
+    <div class="main-container">
+        <!-- Side Content dengan Gambar -->
+        <div class="side-content">
+            <div class="brand-text">GO EAST</div>
+            <div class="brand-subtitle">Innovation & Excellence</div>
+            <img src="Gemini_Generated_Image_9ljupz9ljupz9lju.png" alt="Background" class="background-image">
+            <div class="copyright">
+                Copy Right <span class="year">2025</span>
             </div>
+        </div>
 
-            <!-- Animasi Mixer -->
-            <div class="mixer-animation">
-                <div class="mixer-drum">
-                    <div class="bubble"></div>
-                    <div class="bubble"></div>
-                    <div class="bubble"></div>
-                </div>
-                <div class="mixer-stand"></div>
-                <div class="concrete-flow"></div>
-            </div>
+        <!-- Login Container di Tengah -->
+        <div class="login-center-container">
+            <div class="login-container">
+                <div class="login-form">
+                    <!-- Logo dan Animasi -->
+                    <div class="company-logo">
+                        <h1>MIX MASTER</h1>
+                        <div class="subtitle">CDC EAST</div>
+                    </div>
 
-            <!-- Form Login -->
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required 
-                           placeholder="Masukkan username Anda">
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required 
-                           placeholder="Masukkan password Anda">
-                </div>
-                
-                <button type="submit" class="btn-login">
-                    <span>Login ke Sistem</span>
-                </button>
-            </form>
+                    <!-- Animasi Mixer -->
+                    <div class="mixer-animation">
+                        <div class="mixer-drum">
+                            <div class="bubble"></div>
+                            <div class="bubble"></div>
+                            <div class="bubble"></div>
+                        </div>
+                        <div class="mixer-stand"></div>
+                        <div class="concrete-flow"></div>
+                    </div>
 
-            <!-- Footer -->
-            <div class="login-footer">
-                <div>Sistem Manajemen Terpadu</div>
-                <div class="version">v1.0 | Production Ready</div>
+                    <!-- Form Login -->
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" required 
+                                   placeholder="Masukkan username Anda">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" required 
+                                   placeholder="Masukkan password Anda">
+                        </div>
+                        
+                        <button type="submit" class="btn-login">
+                            <span>Login ke Sistem</span>
+                        </button>
+                    </form>
+
+                    <!-- Footer -->
+                    <div class="login-footer">
+                        <div>Sistem Manajemen Terpadu</div>
+                        <div class="version">v1.0 | Production Ready</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
