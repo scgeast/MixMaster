@@ -38,7 +38,7 @@
         }
 
         .sidebar-header {
-            padding: 20px 15px;
+            padding: 15px 15px; /* DIKECILKAN dari 20px */
             border-bottom: 1px solid rgba(255,255,255,0.2);
             display: flex;
             align-items: center;
@@ -47,7 +47,7 @@
 
         .sidebar-header h2 {
             margin: 0;
-            font-size: 1.2em;
+            font-size: 1.1em; /* DIKECILKAN dari 1.2em */
             font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
@@ -61,9 +61,9 @@
             background: none;
             border: none;
             color: white;
-            font-size: 1.2em;
+            font-size: 1.1em; /* DIKECILKAN dari 1.2em */
             cursor: pointer;
-            padding: 5px;
+            padding: 4px; /* DIKECILKAN dari 5px */
             border-radius: 4px;
             transition: background 0.3s;
         }
@@ -86,7 +86,7 @@
         .menu-link {
             display: flex;
             align-items: center;
-            padding: 15px 20px;
+            padding: 12px 15px; /* DIKECILKAN dari 15px 20px */
             color: rgba(255,255,255,0.9);
             text-decoration: none;
             transition: all 0.3s;
@@ -106,9 +106,9 @@
         }
 
         .menu-icon {
-            font-size: 1.3em;
-            margin-right: 15px;
-            width: 20px;
+            font-size: 1.2em; /* DIKECILKAN dari 1.3em */
+            margin-right: 12px; /* DIKECILKAN dari 15px */
+            width: 18px; /* DIKECILKAN dari 20px */
             text-align: center;
         }
 
@@ -120,6 +120,7 @@
             white-space: nowrap;
             transition: opacity 0.3s;
             font-weight: 500;
+            font-size: 0.95em; /* DIKECILKAN */
         }
 
         .sidebar.collapsed .menu-text {
@@ -130,7 +131,7 @@
 
         /* Sidebar Footer untuk Logout */
         .sidebar-footer {
-            padding: 20px 15px;
+            padding: 15px 15px; /* DIKECILKAN dari 20px */
             border-top: 1px solid rgba(255,255,255,0.2);
             margin-top: auto;
         }
@@ -139,14 +140,14 @@
             display: flex;
             align-items: center;
             width: 100%;
-            padding: 12px 15px;
+            padding: 10px 12px; /* DIKECILKAN dari 12px 15px */
             background: rgba(255,255,255,0.1);
             color: white;
             border: 1px solid rgba(255,255,255,0.3);
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s;
-            font-size: 14px;
+            font-size: 13px; /* DIKECILKAN dari 14px */
             font-weight: 500;
         }
 
@@ -156,8 +157,8 @@
         }
 
         .logout-icon {
-            margin-right: 10px;
-            font-size: 1.2em;
+            margin-right: 8px; /* DIKECILKAN dari 10px */
+            font-size: 1.1em; /* DIKECILKAN dari 1.2em */
         }
 
         .sidebar.collapsed .logout-text {
@@ -174,36 +175,38 @@
 
         .top-header {
             background: linear-gradient(135deg, var(--blood-moon-primary) 0%, var(--blood-moon-accent) 100%);
-            padding: 20px 30px;
-            box-shadow: 0 2px 15px rgba(139, 0, 0, 0.3);
+            padding: 12px 25px; /* DIKECILKAN DRASTIS dari 20px 30px */
+            box-shadow: 0 2px 10px rgba(139, 0, 0, 0.3); /* DIKECILKAN shadow */
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 100;
+            min-height: 50px; /* TAMBAHKAN min-height */
         }
 
         .top-header h1 {
             margin: 0;
             color: white;
-            font-size: 1.8em;
+            font-size: 1.4em; /* DIKECILKAN dari 1.8em */
             font-weight: 700;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3); /* DIKECILKAN shadow */
         }
 
         .user-info {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px; /* DIKECILKAN dari 15px */
             color: white;
             font-weight: 500;
         }
 
         .user-badge {
             background: rgba(255,255,255,0.2);
-            padding: 8px 15px;
-            border-radius: 20px;
+            padding: 6px 12px; /* DIKECILKAN dari 8px 15px */
+            border-radius: 15px; /* DIKECILKAN dari 20px */
             border: 1px solid rgba(255,255,255,0.3);
             backdrop-filter: blur(10px);
+            font-size: 0.9em; /* DIKECILKAN */
         }
 
         .app-frame-container {
@@ -232,46 +235,57 @@
         }
 
         .welcome-icon {
-            font-size: 5em;
-            margin-bottom: 25px;
+            font-size: 4em; /* DIKECILKAN dari 5em */
+            margin-bottom: 20px; /* DIKECILKAN dari 25px */
             opacity: 0.8;
             color: var(--blood-moon-primary);
         }
 
         .welcome-screen h2 {
             color: var(--blood-moon-primary);
-            margin-bottom: 15px;
-            font-size: 2.2em;
+            margin-bottom: 12px; /* DIKECILKAN dari 15px */
+            font-size: 1.8em; /* DIKECILKAN dari 2.2em */
             font-weight: 700;
         }
 
         .welcome-screen p {
             max-width: 500px;
             line-height: 1.6;
-            font-size: 1.1em;
+            font-size: 1em; /* DIKECILKAN dari 1.1em */
             color: #666;
         }
 
         .welcome-features {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
+            gap: 15px; /* DIKECILKAN dari 20px */
+            margin-top: 25px; /* DIKECILKAN dari 30px */
             max-width: 600px;
         }
 
         .feature-card {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 15px; /* DIKECILKAN dari 20px */
+            border-radius: 8px; /* DIKECILKAN dari 10px */
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1); /* DIKECILKAN shadow */
             border-left: 4px solid var(--blood-moon-accent);
         }
 
         .feature-icon {
-            font-size: 2em;
-            margin-bottom: 10px;
+            font-size: 1.8em; /* DIKECILKAN dari 2em */
+            margin-bottom: 8px; /* DIKECILKAN dari 10px */
             color: var(--blood-moon-primary);
+        }
+
+        .feature-card h4 {
+            margin: 0 0 8px 0; /* DIKECILKAN dari 10px */
+            font-size: 1em;
+        }
+
+        .feature-card p {
+            font-size: 0.9em;
+            margin: 0;
+            line-height: 1.5;
         }
 
         /* Loading State */
@@ -280,20 +294,20 @@
             align-items: center;
             justify-content: center;
             height: 100%;
-            font-size: 1.2em;
+            font-size: 1.1em; /* DIKECILKAN dari 1.2em */
             color: var(--blood-moon-primary);
             background: #f8f9fa;
         }
 
         .loading::after {
             content: '';
-            width: 20px;
-            height: 20px;
+            width: 18px; /* DIKECILKAN dari 20px */
+            height: 18px; /* DIKECILKAN dari 20px */
             border: 2px solid var(--blood-moon-primary);
             border-top: 2px solid transparent;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-left: 10px;
+            margin-left: 8px; /* DIKECILKAN dari 10px */
         }
 
         @keyframes spin {
@@ -322,19 +336,23 @@
                 display: block;
                 background: none;
                 border: none;
-                font-size: 1.5em;
+                font-size: 1.3em; /* DIKECILKAN dari 1.5em */
                 cursor: pointer;
                 color: white;
-                margin-right: 15px;
+                margin-right: 12px; /* DIKECILKAN dari 15px */
+            }
+
+            .top-header {
+                padding: 10px 20px; /* DIKECILKAN untuk mobile */
             }
 
             .top-header h1 {
-                font-size: 1.4em;
+                font-size: 1.2em; /* DIKECILKAN untuk mobile */
             }
 
             .user-badge {
-                font-size: 0.9em;
-                padding: 6px 12px;
+                font-size: 0.85em; /* DIKECILKAN untuk mobile */
+                padding: 5px 10px; /* DIKECILKAN untuk mobile */
             }
         }
 
