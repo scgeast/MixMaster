@@ -5,52 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Mix Master CDC EAST</title>
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        .debug-panel {
-            background: #f8f9fa;
-            padding: 15px;
-            margin: 10px 0 30px;
-            border-radius: 8px;
-            border-left: 4px solid #007bff;
-            font-size: 14px;
-        }
-        .debug-btn {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 11px;
-            margin: 2px;
-        }
-        .debug-btn:hover {
-            background: #5a6268;
-        }
-        .debug-btn.info {
-            background: #17a2b8;
-        }
-        .debug-btn.success {
-            background: #28a745;
-        }
-        .debug-info {
-            margin-top: 10px;
-            padding: 10px;
-            background: #e9ecef;
-            border-radius: 4px;
-            font-size: 12px;
-            line-height: 1.4;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .repo-info {
-            background: #d4edda;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            border-left: 4px solid #28a745;
-        }
-    </style>
 </head>
 <body>
     <header class="header">
@@ -65,28 +19,6 @@
 
     <main class="dashboard">
         <div class="container">
-            <!-- Debug Panel -->
-            <div class="debug-panel">
-                <div class="repo-info">
-                    <strong>📁 Repository: MixMaster</strong><br>
-                    <strong>🌐 URL: sceeast.github.io/MixMaster/</strong>
-                    <button class="debug-btn" onclick="showSetupGuide()" style="background: #dc3545; color: white;">
-                        🚨 SETUP GUIDE
-                    </button>
-                </div>
-                
-                <strong>🔧 Diagnostic Tools</strong>
-                <div style="margin-top: 10px;">
-                    <button class="debug-btn success" onclick="testAllPaths()">Test Applications</button>
-                    <button class="debug-btn info" onclick="checkGitHubPagesSetup()">Check Setup</button>
-                    <button class="debug-btn" onclick="testDirectUrls()">Test Direct URLs</button>
-                </div>
-                <div id="debugInfo" class="debug-info">
-                    <strong>Repository: MixMaster</strong><br>
-                    Klik "Test Applications" untuk memeriksa ketersediaan aplikasi
-                </div>
-            </div>
-
             <h2>Menu Aplikasi</h2>
             <p class="welcome-text">Pilih aplikasi yang ingin Anda gunakan:</p>
             
@@ -95,36 +27,38 @@
                     <div class="app-icon">📊</div>
                     <h3>Daily Monitoring Order & Delivery</h3>
                     <p>Monitoring pesanan dan pengiriman harian</p>
-                    <small style="color: #666; font-family: monospace;">/MixMaster/monitoring-order-delivery/index.html</small>
                 </div>
 
                 <div class="app-card" onclick="openApp('jadwal-pengecoran')">
                     <div class="app-icon">📅</div>
                     <h3>Jadwal Pengecoran</h3>
                     <p>Jadwal dan rencana pengecoran</p>
-                    <small style="color: #666; font-family: monospace;">/MixMaster/jadwal-pengecoran/index.html</small>
                 </div>
 
                 <div class="app-card" onclick="openApp('utilisasi-truck')">
                     <div class="app-icon">🚛</div>
                     <h3>Utilisasi Truck Mixer</h3>
                     <p>Monitoring utilisasi truck mixer</p>
-                    <small style="color: #666; font-family: monospace;">/MixMaster/utilisasi-truck/index.html</small>
                 </div>
 
                 <div class="app-card" onclick="openApp('production-all-area')">
                     <div class="app-icon">🏭</div>
                     <h3>Production All Area</h3>
                     <p>Data produksi semua area</p>
-                    <small style="color: #666; font-family: monospace;">/MixMaster/production-all-area/index.html</small>
                 </div>
 
                 <div class="app-card" onclick="openApp('summary-daily-delivery')">
                     <div class="app-icon">📦</div>
                     <h3>Summary Daily Delivery</h3>
                     <p>Ringkasan pengiriman harian</p>
-                    <small style="color: #666; font-family: monospace;">/MixMaster/summary-daily-delivery/index.html</small>
                 </div>
+            </div>
+
+            <div class="dashboard-info">
+                <h3>Informasi Sistem</h3>
+                <p>• Klik pada kartu aplikasi untuk membuka di tab baru</p>
+                <p>• Pastikan popup tidak diblokir oleh browser</p>
+                <p>• Gunakan tombol logout untuk keluar dari sistem</p>
             </div>
         </div>
     </main>
@@ -145,11 +79,31 @@
             const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
             document.getElementById('currentUser').textContent = user.name || 'User';
             
-            // Auto test setelah load
+            // Auto test paths in background (silent)
             setTimeout(() => {
-                testAllPaths();
+                testAllPathsSilent();
             }, 1000);
         });
+
+        // Silent test untuk memastikan aplikasi ready
+        function testAllPathsSilent() {
+            const basePath = '/MixMaster/';
+            
+            const apps = {
+                'monitoring-order': `${basePath}monitoring-order-delivery/index.html`,
+                'jadwal-pengecoran': `${basePath}jadwal-pengecoran/index.html`,
+                'utilisasi-truck': `${basePath}utilisasi-truck/index.html`,
+                'production-all-area': `${basePath}production-all-area/index.html`,
+                'summary-daily-delivery': `${basePath}summary-daily-delivery/index.html`
+            };
+            
+            // Test semua aplikasi di background
+            Object.values(apps).forEach(path => {
+                fetch(path, { method: 'HEAD' }).catch(() => {});
+            });
+            
+            console.log('🎯 All applications tested silently');
+        }
     </script>
 </body>
 </html>
