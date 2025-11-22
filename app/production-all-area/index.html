@@ -1,1 +1,1757 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRODUCTION ALL AREA</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        }
+        body {
+            background-color: #f5f7f9;
+            color: #333;
+            padding: 20px;
+            display: flex;
+            transition: margin-left 0.3s ease;
+        }
+        body.sidebar-open {
+            margin-left: 280px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            width: 100%;
+            gap: 20px;
+        }
+        /* Sidebar Filter */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100%;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(108, 92, 231, 0.15);
+            overflow-y: auto;
+            z-index: 1000;
+            transition: left 0.3s ease;
+            border-right: 1px solid #eaeaea;
+        }
+        .sidebar.open {
+            left: 0;
+        }
+        .sidebar-toggle {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #6c5ce7, #4a5dab);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+            transition: all 0.3s ease;
+        }
+        .sidebar-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(108, 92, 231, 0.4);
+        }
+        .filter-section {
+            margin-bottom: 20px;
+        }
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+            padding: 12px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            font-weight: 500;
+            color: #2c3e50;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+        .filter-header:hover {
+            background: #eff2ff;
+            transform: translateY(-1px);
+        }
+        .filter-title {
+            font-size: 1rem;
+        }
+        .filter-content {
+            display: block;
+            background: #fff;
+            border-radius: 10px;
+            padding: 18px;
+            margin-top: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            border: 1px solid #eef1f8;
+        }
+        .filter-group {
+            margin-bottom: 15px;
+        }
+        .filter-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+            font-size: 0.9rem;
+        }
+        .filter-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+        .filter-group select:focus {
+            outline: none;
+            border-color: #6c5ce7;
+            box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.2);
+        }
+        .checkbox-group {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            background: #fafafa;
+        }
+        .checkbox-item {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-item input {
+            margin-right: 8px;
+            width: auto;
+            accent-color: #6c5ce7;
+        }
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            background: #f8f9ff;
+        }
+        .toggle-label {
+            font-weight: 500;
+            color: #555;
+            font-size: 0.95rem;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+            border: 1px solid #e0e0e0;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        input:checked + .toggle-slider {
+            background-color: #6c5ce7;
+            border-color: #6c5ce7;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(28px);
+        }
+        /* Style untuk tombol Terapkan Filter */
+        .apply-filter-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #6c5ce7, #4a5dab);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(108, 92, 231, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .apply-filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(108, 92, 231, 0.4);
+        }
+        .apply-filter-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(108, 92, 231, 0.4);
+        }
+        /* Main Content */
+        .main-content {
+            flex-grow: 1;
+            transition: width 0.3s ease;
+        }
+        header {
+            position: relative;
+            text-align: center;
+            padding: 18px;
+            background: linear-gradient(135deg, #0b2447 0%, #6c5ce7 100%);
+            color: white;
+            border-radius: 16px;
+            margin-bottom: 18px;
+            box-shadow: 0 8px 25px rgba(11, 36, 71, 0.2);
+            overflow: hidden;
+        }
+        header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.3; }
+            50% { transform: scale(1.2); opacity: 0.1; }
+            100% { transform: scale(0.8); opacity: 0.3; }
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .last-update {
+            text-align: left;
+            font-size: 0.9rem;
+            opacity: 0.85;
+            position: absolute;
+            bottom: 18px;
+            left: 28px;
+            font-style: italic;
+        }
+        /* EXPORT BUTTONS */
+        .export-icons {
+            position: absolute;
+            bottom: 18px;
+            right: 28px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+        .export-icon {
+            background: transparent;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+        }
+        .export-icon.excel {
+            background: rgba(30, 123, 30, 0.2);
+        }
+        .export-icon.excel:hover {
+            background: rgba(30, 123, 30, 0.4);
+            transform: translateY(-2px);
+        }
+        .export-icon.pdf {
+            background: rgba(211, 47, 53, 0.2);
+        }
+        .export-icon.pdf:hover {
+            background: rgba(211, 47, 53, 0.4);
+            transform: translateY(-2px);
+        }
+        h1 {
+            font-size: 2.4rem;
+            margin-bottom: 5px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        .period {
+            font-size: 1.3rem;
+            font-weight: 300;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        .upload-container {
+            display: flex;
+            justify-content: center;
+            margin: 25px 0;
+        }
+        #excel-file {
+            display: none;
+        }
+        #upload-area {
+            border: 3px dashed #6c5ce7;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(to bottom, #ffffff, #f8f9ff);
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 6px 20px rgba(108, 92, 231, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+        #upload-area:hover, #upload-area.dragover {
+            border-color: #6c5ce7;
+            background: linear-gradient(to bottom, #f8f9ff, #eef1ff);
+            box-shadow: 0 10px 30px rgba(108, 92, 231, 0.2);
+            transform: translateY(-4px);
+        }
+        #upload-area::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(108, 92, 231, 0.1) 0%, transparent 70%);
+            animation: shine 2s infinite;
+        }
+        @keyframes shine {
+            0% { transform: rotate(120deg); }
+            100% { transform: rotate(-120deg); }
+        }
+        .upload-icon {
+            font-size: 56px;
+            color: #6c5ce7;
+            margin-bottom: 18px;
+            text-shadow: 0 2px 6px rgba(108, 92, 231, 0.1);
+        }
+        .upload-text {
+            color: #555;
+        }
+        .upload-text h3 {
+            margin-bottom: 12px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .upload-text p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 25px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 16px;
+            z-index: 9999;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #6c5ce7;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1.2s linear infinite;
+            margin: 0 auto 18px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* KPI Cards */
+        .kpi-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+        .kpi-card {
+            background: white;
+            padding: 22px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
+            border: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(108, 92, 231, 0.1), transparent);
+            transition: 0.5s;
+        }
+        .kpi-card:hover::before {
+            left: 100%;
+        }
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        .kpi-title {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 12px;
+            font-weight: 500;
+            letter-spacing: -0.2px;
+        }
+        .kpi-value {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #2c3e50;
+            font-family: 'Segoe UI', sans-serif;
+            letter-spacing: -0.5px;
+        }
+        /* Charts Container */
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 28px;
+            margin-bottom: 28px;
+        }
+        .chart-card {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
+            border: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+        }
+        .chart-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.09);
+        }
+        .chart-title {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+        .chart-container {
+            height: 320px;
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        /* Data Preview Table */
+        .data-preview {
+            margin-top: 28px;
+            overflow-x: auto;
+        }
+        .data-preview table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
+            border: 1px solid #f0f0f0;
+        }
+        .data-preview th, .data-preview td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 0.95rem;
+        }
+        .data-preview th {
+            background: linear-gradient(135deg, #6c5ce7, #5a4fcf);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.85rem;
+        }
+        .data-preview tr:hover {
+            background-color: #f8f9ff;
+            transition: background 0.2s;
+        }
+        .percentage-cell {
+            text-align: right;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        /* Error Message */
+        .error-message {
+            color: #e74a3b;
+            text-align: center;
+            padding: 14px;
+            margin: 14px 0;
+            background-color: #fdf2f2;
+            border-radius: 12px;
+            border-left: 4px solid #e74a3b;
+            display: none;
+            font-weight: 500;
+        }
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 24px;
+            margin-top: 40px;
+            color: #777;
+            font-size: 0.9rem;
+            letter-spacing: 0.3px;
+            border-top: 1px solid #eee;
+        }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .kpi-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .sidebar {
+                width: 250px;
+                left: -250px;
+            }
+            body.sidebar-open {
+                margin-left: 250px;
+            }
+            .kpi-title {
+                font-size: 0.8rem;
+            }
+            .kpi-value {
+                font-size: 1.5rem;
+            }
+            .chart-title {
+                font-size: 1.2rem;
+            }
+            .chart-container {
+                height: 280px;
+            }
+        }
+        @media (max-width: 480px) {
+            .kpi-container {
+                grid-template-columns: 1fr;
+            }
+            header {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .export-icons {
+                bottom: 15px;
+                right: 15px;
+            }
+            .export-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
+            .upload-area {
+                padding: 30px;
+            }
+            .upload-icon {
+                font-size: 48px;
+            }
+            .sidebar-toggle {
+                top: 70px;
+                left: 15px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-angle-right" id="sidebar-icon"></i>
+    </button>
+    <div class="sidebar" id="sidebar">
+        <div class="filter-section">
+            <div class="filter-header" onclick="toggleFilter('period-filter')">
+                <div class="filter-title">Periode (Bulan)</div>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="filter-content" id="period-filter">
+                <div class="filter-group">
+                    <label for="period-select">Pilih Bulan</label>
+                    <select id="period-select" onchange="applyPeriodFilter()">
+                        <option value="all">Semua Bulan</option>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="filter-section">
+            <div class="filter-header" onclick="toggleFilter('area-filter')">
+                <div class="filter-title">Area</div>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="filter-content" id="area-filter">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="select-all-areas" onchange="toggleAllAreas(this.checked)">
+                    <label for="select-all-areas">Select All</label>
+                </div>
+                <div class="checkbox-group" id="area-checkboxes">
+                    <!-- Area options will be populated here -->
+                </div>
+                <button class="apply-filter-btn" onclick="applyAreaFilter()">
+                    <i class="fas fa-check"></i> Terapkan Filter
+                </button>
+            </div>
+        </div>
+        <div class="filter-section">
+            <div class="filter-header" onclick="toggleFilter('display-filter')">
+                <div class="filter-title">Tampilan Data</div>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="filter-content" id="display-filter">
+                <div class="toggle-group">
+                    <span class="toggle-label">Tampilkan Data Label</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="data-labels-toggle" onchange="toggleDataLabels()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="main-content">
+        <header>
+            <div class="header-top">
+                <!-- HAPUS SEMUA TOMBOL EXPORT DI ATAS -->
+            </div>
+            <h1 id="dynamic-title">PRODUCTION ALL AREA</h1>
+            <div class="period">Periode: <span id="period-value">Unggah file Excel untuk melihat periode</span></div>
+            <div class="last-update">
+                Last Update: <span id="last-update-time"></span>
+            </div>
+            <!-- EXPORT ICONS -->
+            <div class="export-icons">
+                <button class="export-icon excel" onclick="exportToExcel()" title="Export to Excel">
+                    <i class="fas fa-file-excel"></i>
+                </button>
+                <button class="export-icon pdf" onclick="exportToPDF()" title="Export to PDF">
+                    <i class="fas fa-file-pdf"></i>
+                </button>
+            </div>
+        </header>
+        <div class="error-message" id="error-message"></div>
+        <div class="upload-container" id="upload-container">
+            <input type="file" id="excel-file" accept=".xlsx, .xls">
+            <div id="upload-area">
+                <div class="upload-icon">📤</div>
+                <div class="upload-text">
+                    <h3>Unggah File Excel</h3>
+                    <p>Klik atau seret file Excel ke sini (2KB - 30MB)</p>
+                    <p><small>Pastikan file memiliki kolom: Area, Plant Name, ANN FM Target, MTD VOL, % of Target, Avg Vol.Day, RMC Schedule, Actual Supply</small></p>
+                </div>
+            </div>
+        </div>
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Memproses data...</p>
+        </div>
+        <div id="dashboard-content" style="display: none;">
+            <div class="kpi-container">
+                <div class="kpi-card">
+                    <div class="kpi-title">Total Area</div>
+                    <div class="kpi-value" id="total-area">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Total Plant</div>
+                    <div class="kpi-value" id="total-plant">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">% of Target</div>
+                    <div class="kpi-value" id="target-percent">0%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">% Actual Supply</div>
+                    <div class="kpi-value" id="supply-percent">0%</div>
+                </div>
+            </div>
+            <div class="charts-container" id="charts-container">
+                <div class="chart-card">
+                    <div class="chart-title">MTD VOL x ANN FM Target x % Target per Plant</div>
+                    <div class="chart-container">
+                        <canvas id="volumeTargetChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">RMC Schedule x MTD VOL x % Actual per Plant</div>
+                    <div class="chart-container">
+                        <canvas id="rmcVolumeChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">Avg Vol. Day per Plant</div>
+                    <div class="chart-container">
+                        <canvas id="avgVolumeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="data-preview" id="data-preview">
+                <h3>Pratinjau Data</h3>
+                <table>
+                    <thead id="preview-head">
+                        <tr>
+                            <th>Periode</th>
+                            <th>Area</th>
+                            <th>Plant</th>
+                            <th>ANN FM Target</th>
+                            <th>MTD VOL</th>
+                            <th>% of Target</th>
+                            <th>RMC Schedule</th>
+                            <th>% Actual Supply</th>
+                        </tr>
+                    </thead>
+                    <tbody id="preview-body">
+                        <!-- Data akan diisi oleh JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <footer>
+            Production All Area by L=23-51Xe
+        </footer>
+    </div>
+    <script>
+        // Daftarkan plugin Chart.js
+        Chart.register(ChartDataLabels);
+        // Inisialisasi variabel global untuk chart
+        let charts = {};
+        let rawData = [];
+        let filteredData = [];
+        let allAreas = [];
+        let allPeriods = [];
+        let currentPeriod = "Semua Periode";
+        let isAllAreasSelected = false;
+        let activePeriodFilter = "all";
+        let showDataLabels = false;
+        let selectedAreaName = "ALL";
+        
+        // Update waktu terakhir
+        function updateLastUpdateTime() {
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString('id-ID', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+            const formattedTime = now.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('last-update-time').textContent = `${formattedDate} ${formattedTime}`;
+        }
+        
+        // Update judul berdasarkan area yang dipilih
+        function updateTitle() {
+            let title = "PRODUCTION";
+            if (isAllAreasSelected) {
+                title += " ALL AREA";
+                selectedAreaName = "ALL";
+            } else {
+                const selectedAreas = [];
+                const checkboxes = document.querySelectorAll('input[name="area"]:checked');
+                checkboxes.forEach(checkbox => {
+                    selectedAreas.push(checkbox.value);
+                });
+                if (selectedAreas.length === 1) {
+                    title += " " + selectedAreas[0].toUpperCase() + " AREA";
+                    selectedAreaName = selectedAreas[0].toUpperCase();
+                } else if (selectedAreas.length > 1) {
+                    title += " MULTIPLE AREAS";
+                    selectedAreaName = "MULTIPLE";
+                } else {
+                    title += " ALL AREA";
+                    selectedAreaName = "ALL";
+                }
+            }
+            document.getElementById('dynamic-title').textContent = title;
+        }
+        
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarIcon = document.getElementById('sidebar-icon');
+            sidebar.classList.toggle('open');
+            document.body.classList.toggle('sidebar-open');
+            if (sidebar.classList.contains('open')) {
+                sidebarIcon.className = 'fas fa-angle-left';
+            } else {
+                sidebarIcon.className = 'fas fa-angle-right';
+            }
+        }
+        
+        // Toggle filter content
+        function toggleFilter(filterId) {
+            const filterContent = document.getElementById(filterId);
+            filterContent.style.display = filterContent.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // Toggle data labels
+        function toggleDataLabels() {
+            showDataLabels = document.getElementById('data-labels-toggle').checked;
+            updateChartsWithDataLabels();
+        }
+        
+        // INISIALISASI UTAMA SETELAH DOM SIAP
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('excel-file');
+            const uploadArea = document.getElementById('upload-area');
+            updateLastUpdateTime();
+            
+            // PASTIKAN EVENT LISTENER DIPASANG SETELAH DOM SIAP
+            if (fileInput) {
+                fileInput.addEventListener('change', handleFileUpload);
+            }
+            
+            if (uploadArea) {
+                uploadArea.addEventListener('click', () => fileInput.click());
+                uploadArea.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.add('dragover');
+                });
+                uploadArea.addEventListener('dragleave', () => {
+                    uploadArea.classList.remove('dragover');
+                });
+                uploadArea.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                    if (e.dataTransfer.files.length) {
+                        fileInput.files = e.dataTransfer.files;
+                        handleFileUpload({ target: fileInput });
+                    }
+                });
+            }
+            
+            // INISIALISASI CHART SETELAH DOM SIAP
+            initializeCharts();
+        });
+        
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (file.size < 2 * 1024 || file.size > 30 * 1024 * 1024) {
+                showError('Ukuran file harus antara 2KB dan 30MB');
+                return;
+            }
+            
+            if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+                showError('Hanya file Excel (.xlsx, .xls) yang diperbolehkan');
+                return;
+            }
+            
+            showLoading();
+            hideError();
+            
+            parseExcelFile(file)
+                .then(data => {
+                    setTimeout(() => {
+                        processData(data);
+                        hideUploadArea();
+                        hideLoading();
+                        document.getElementById('dashboard-content').style.display = 'block';
+                        updateLastUpdateTime();
+                    }, 1500);
+                })
+                .catch(error => {
+                    console.error('Error parsing Excel:', error);
+                    showError('Error parsing file Excel: ' + error.message);
+                    hideLoading();
+                });
+        }
+        
+        function parseExcelFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = e.target.result;
+                        const workbook = XLSX.read(data, { type: 'binary', cellDates: true });
+                        const firstSheet = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheet];
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+                        
+                        let period = "Data tidak ditemukan";
+                        if (worksheet['A1'] && worksheet['A1'].v) period = worksheet['A1'].v;
+                        if (worksheet['B1'] && worksheet['B1'].v) period = worksheet['B1'].v;
+                        
+                        currentPeriod = period;
+                        document.getElementById('period-value').textContent = period;
+                        
+                        resolve(jsonData);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                reader.onerror = function(error) {
+                    reject(error);
+                };
+                reader.readAsBinaryString(file);
+            });
+        }
+        
+        function parseIndonesianNumber(value) {
+            if (typeof value === 'number') return value;
+            if (typeof value === 'string') {
+                let cleanedValue = value.replace(/[^\d,.-]/g, '');
+                if (cleanedValue.includes(',') && !cleanedValue.includes('.')) {
+                    cleanedValue = cleanedValue.replace(',', '.');
+                }
+                cleanedValue = cleanedValue.replace(/\./g, '');
+                const result = parseFloat(cleanedValue);
+                return isNaN(result) ? 0 : result;
+            }
+            return 0;
+        }
+        
+        function showError(message) {
+            const errorElement = document.getElementById('error-message');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+        
+        function hideError() {
+            document.getElementById('error-message').style.display = 'none';
+        }
+        
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        function hideUploadArea() {
+            document.getElementById('upload-container').style.display = 'none';
+        }
+        
+        function processData(data) {
+            if (!data || data.length === 0) {
+                showError('Tidak ada data yang ditemukan dalam file');
+                return;
+            }
+            
+            rawData = data;
+            filteredData = data;
+            
+            const normalizedData = normalizeData(data);
+            extractAreas(normalizedData);
+            extractPeriods(normalizedData);
+            showDataPreview(normalizedData);
+            updateDashboard(normalizedData);
+        }
+        
+        function normalizeData(data) {
+            const normalized = [];
+            data.forEach(row => {
+                const normalizedRow = {};
+                for (const key in row) {
+                    if (row.hasOwnProperty(key)) {
+                        const normalizedKey = key.trim().toLowerCase()
+                            .replace(/\s+/g, '')
+                            .replace(/%/g, 'percent')
+                            .replace(/\//g, '')
+                            .replace(/\./g, '')
+                            .replace('-', '');
+                        normalizedRow[normalizedKey] = row[key];
+                    }
+                }
+                normalized.push(normalizedRow);
+            });
+            return normalized;
+        }
+        
+        function extractAreas(data) {
+            const areaSet = new Set();
+            data.forEach(row => {
+                const area = getValue(row, ['area']) || '';
+                if (area) areaSet.add(area);
+            });
+            allAreas = Array.from(areaSet).sort();
+            populateAreaFilter(allAreas);
+        }
+        
+        function extractPeriods(data) {
+            const periodSet = new Set();
+            data.forEach(row => {
+                const period = getValue(row, ['periode', 'period', 'bulan', 'month']) || '';
+                if (period) periodSet.add(period);
+            });
+            allPeriods = Array.from(periodSet).sort();
+            populatePeriodFilter(allPeriods);
+        }
+        
+        function populateAreaFilter(areas) {
+            const container = document.getElementById('area-checkboxes');
+            container.innerHTML = '';
+            
+            areas.forEach(area => {
+                const div = document.createElement('div');
+                div.className = 'checkbox-item';
+                div.innerHTML = `
+                    <input type="checkbox" id="area-${area}" name="area" value="${area}" checked>
+                    <label for="area-${area}">${area}</label>
+                `;
+                container.appendChild(div);
+            });
+            
+            document.getElementById('select-all-areas').checked = true;
+            isAllAreasSelected = true;
+            updateTitle();
+        }
+        
+        function populatePeriodFilter(periods) {
+            const select = document.getElementById('period-select');
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+            
+            periods.forEach(period => {
+                const option = document.createElement('option');
+                option.value = period;
+                option.textContent = period;
+                select.appendChild(option);
+            });
+        }
+        
+        function toggleAllAreas(checked) {
+            const checkboxes = document.querySelectorAll('input[name="area"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = checked;
+            });
+            isAllAreasSelected = checked;
+            updateTitle();
+        }
+        
+        function applyAreaFilter() {
+            const selectedAreas = [];
+            const checkboxes = document.querySelectorAll('input[name="area"]:checked');
+            checkboxes.forEach(checkbox => {
+                selectedAreas.push(checkbox.value);
+            });
+            
+            if (selectedAreas.length === allAreas.length || selectedAreas.length === 0) {
+                isAllAreasSelected = true;
+            } else {
+                isAllAreasSelected = false;
+            }
+            
+            updateTitle();
+            applyFilters();
+        }
+        
+        function applyPeriodFilter() {
+            const periodSelect = document.getElementById('period-select');
+            activePeriodFilter = periodSelect.value;
+            
+            if (activePeriodFilter === 'all') {
+                document.getElementById('period-value').textContent = "Semua Periode";
+            } else {
+                document.getElementById('period-value').textContent = activePeriodFilter;
+            }
+            
+            applyFilters();
+        }
+        
+        function applyFilters() {
+            if (activePeriodFilter === 'all') {
+                filteredData = rawData;
+            } else {
+                filteredData = rawData.filter(row => {
+                    const normalizedRow = normalizeData([row])[0];
+                    const period = getValue(normalizedRow, ['periode', 'period', 'bulan', 'month']) || '';
+                    return period === activePeriodFilter;
+                });
+            }
+            
+            if (!isAllAreasSelected) {
+                const selectedAreas = [];
+                const checkboxes = document.querySelectorAll('input[name="area"]:checked');
+                checkboxes.forEach(checkbox => {
+                    selectedAreas.push(checkbox.value);
+                });
+                
+                if (selectedAreas.length > 0) {
+                    filteredData = filteredData.filter(row => {
+                        const normalizedRow = normalizeData([row])[0];
+                        const area = getValue(normalizedRow, ['area']) || '';
+                        return selectedAreas.includes(area);
+                    });
+                }
+            }
+            
+            const normalizedData = normalizeData(filteredData);
+            showDataPreview(normalizedData);
+            updateDashboard(normalizedData);
+        }
+        
+        function showDataPreview(data) {
+            const previewBody = document.getElementById('preview-body');
+            previewBody.innerHTML = '';
+            
+            if (data.length === 0) {
+                previewBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Tidak ada data untuk ditampilkan</td></tr>';
+                return;
+            }
+            
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                const periode = getValue(row, ['periode', 'period', 'bulan', 'month']) || currentPeriod;
+                const area = getValue(row, ['area']) || 'N/A';
+                const plant = getValue(row, ['plantname', 'plant']) || 'N/A';
+                const target = parseIndonesianNumber(getValue(row, ['annfmtarget', 'annfm', 'target']));
+                const mtdVol = parseIndonesianNumber(getValue(row, ['mtdvol', 'mtdvolume', 'volume']));
+                const rmc = parseIndonesianNumber(getValue(row, ['rmcschedule', 'rmc', 'schedule']));
+                const targetPercent = target > 0 ? (mtdVol / target) * 100 : 0;
+                const actualSupply = rmc > 0 ? (mtdVol / rmc) * 100 : 0;
+                
+                tr.innerHTML = `
+                    <td>${periode}</td>
+                    <td>${area}</td>
+                    <td>${plant}</td>
+                    <td>${target.toLocaleString('id-ID')}</td>
+                    <td>${mtdVol.toLocaleString('id-ID')}</td>
+                    <td class="percentage-cell">${targetPercent.toFixed(2)}%</td>
+                    <td>${rmc.toLocaleString('id-ID')}</td>
+                    <td class="percentage-cell">${actualSupply.toFixed(2)}%</td>
+                `;
+                previewBody.appendChild(tr);
+            });
+        }
+        
+        function getValue(row, possibleKeys) {
+            for (const key of possibleKeys) {
+                if (row[key] !== undefined && row[key] !== null && row[key] !== '') {
+                    return row[key];
+                }
+            }
+            return '';
+        }
+        
+        function initializeCharts() {
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Volume'
+                        },
+                        grid: {
+                            display: false
+                        },
+                        // Tambahkan padding untuk memberi ruang pada data label
+                        suggestedMax: function(context) {
+                            const max = context.chart.data.datasets
+                                .filter(ds => !ds.yAxisID || ds.yAxisID === 'y')
+                                .reduce((max, ds) => Math.max(max, ...ds.data), 0);
+                            return max * 1.15; // Tambah 15% ruang di atas
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('id-ID'); // Format angka dengan pemisah ribuan
+                            }
+                        }
+                    },
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false,
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Percentage (%)'
+                        },
+                        max: 100,
+                        // Tambahkan padding untuk memberi ruang pada data label
+                        suggestedMax: 115, // Beri ruang ekstra 15% di atas
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%'; // Tambahkan simbol persen
+                            }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    datalabels: {
+                        display: false,
+                        color: '#000',
+                        align: 'top',
+                        anchor: 'end',
+                        font: {
+                            size: 10, // Ukuran font lebih kecil
+                            weight: 'bold'
+                        },
+                        formatter: function(value, context) {
+                            // Format angka dengan pemisah ribuan
+                            if (context.datasetIndex === 2) {
+                                return value.toFixed(1) + '%';
+                            } else {
+                                // Format angka dengan pemisah ribuan
+                                return value.toLocaleString('id-ID');
+                            }
+                        },
+                        // Mencegah data label keluar dari chart area
+                        clamp: true,
+                        clip: false
+                    }
+                },
+                // Layout padding untuk memberi ruang bagi data label
+                layout: {
+                    padding: {
+                        top: 20, // Ruang tambahan di atas chart
+                        right: 10
+                    }
+                }
+            };
 
+            // --- CHART 1: MTD VOL x ANN FM Target x % Target ---
+            const volumeTargetCtx = document.getElementById('volumeTargetChart').getContext('2d');
+            const volumeTargetChart = new Chart(volumeTargetCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'MTD VOL',
+                            data: [],
+                            backgroundColor: 'rgba(138, 43, 226, 0.7)',
+                            borderColor: 'rgba(138, 43, 226, 1)',
+                            borderWidth: 1,
+                            order: 3
+                        },
+                        {
+                            label: 'ANN FM Target',
+                            data: [],
+                            backgroundColor: 'rgba(255, 165, 0, 0.7)',
+                            borderColor: 'rgba(255, 165, 0, 1)',
+                            borderWidth: 1,
+                            order: 2
+                        },
+                        {
+                            label: '% Target',
+                            data: [],
+                            type: 'line',
+                            borderColor: 'rgba(255, 165, 0, 1)',
+                            backgroundColor: 'rgba(255, 165, 0, 0.2)',
+                            borderWidth: 3,
+                            fill: false,
+                            yAxisID: 'y1',
+                            order: 1,
+                            borderDash: [5, 5],
+                            pointStyle: 'circle',
+                            pointRadius: 4,
+                            pointBackgroundColor: 'rgba(255, 165, 0, 1)'
+                        }
+                    ]
+                },
+                options: commonOptions
+            });
+            
+            // --- CHART 2: RMC Schedule x MTD VOL x % Actual ---
+            const rmcVolumeCtx = document.getElementById('rmcVolumeChart').getContext('2d');
+            const rmcVolumeChart = new Chart(rmcVolumeCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'RMC Schedule',
+                            data: [],
+                            backgroundColor: 'rgba(128, 0, 128, 0.7)',
+                            borderColor: 'rgba(128, 0, 128, 1)',
+                            borderWidth: 1,
+                            order: 3
+                        },
+                        {
+                            label: 'MTD VOL',
+                            data: [],
+                            backgroundColor: 'rgba(138, 43, 226, 0.7)',
+                            borderColor: 'rgba(138, 43, 226, 1)',
+                            borderWidth: 1,
+                            order: 2
+                        },
+                        {
+                            label: '% Actual',
+                            data: [],
+                            type: 'line',
+                            borderColor: 'rgba(255, 69, 0, 1)',
+                            backgroundColor: 'rgba(255, 69, 0, 0.2)',
+                            borderWidth: 3,
+                            fill: false,
+                            yAxisID: 'y1',
+                            order: 1,
+                            borderDash: [5, 5],
+                            pointStyle: 'circle',
+                            pointRadius: 4,
+                            pointBackgroundColor: 'rgba(255, 69, 0, 1)'
+                        }
+                    ]
+                },
+                options: commonOptions
+            });
+            
+            // --- CHART 3: Avg Vol. Day ---
+            const avgVolumeCtx = document.getElementById('avgVolumeChart').getContext('2d');
+            const avgVolumeChart = new Chart(avgVolumeCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Avg Vol. Day',
+                        data: [],
+                        backgroundColor: 'rgba(153, 102, 255, 0.7)',
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Volume'
+                            },
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('id-ID'); // Format angka dengan pemisah ribuan
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        datalabels: {
+                            display: false,
+                            color: '#000',
+                            align: 'top',
+                            anchor: 'end',
+                            font: {
+                                size: 10,
+                                weight: 'bold'
+                            },
+                            formatter: function(value) {
+                                return value.toLocaleString('id-ID'); // Format angka dengan pemisah ribuan
+                            },
+                            clamp: true,
+                            clip: false
+                        }
+                    },
+                    layout: {
+                        padding: {
+                            top: 20,
+                            right: 10
+                        }
+                    }
+                }
+            });
+            
+            charts.volumeTargetChart = volumeTargetChart;
+            charts.rmcVolumeChart = rmcVolumeChart;
+            charts.avgVolumeChart = avgVolumeChart;
+            
+            // --- APPLY GRADIENTS AFTER INITIALIZATION ---
+            applyGradientColors();
+        }
+        
+        function applyGradientColors() {
+            const volumeTargetCtx = document.getElementById('volumeTargetChart').getContext('2d');
+            const rmcVolumeCtx = document.getElementById('rmcVolumeChart').getContext('2d');
+            
+            // 1. ANN FM Target: ORANGE GRADIENT (Light → Dark)
+            const targetGradient = volumeTargetCtx.createLinearGradient(0, 0, 0, 300);
+            targetGradient.addColorStop(0, '#ffd6a7'); // Light orange
+            targetGradient.addColorStop(1, '#ff8c00'); // Dark orange
+            
+            // 2. MTD VOL: GREEN → PURPLE GRADIENT
+            const mtdVolGradient = volumeTargetCtx.createLinearGradient(0, 0, 0, 300);
+            mtdVolGradient.addColorStop(0, '#a8e6cf'); // Light green
+            mtdVolGradient.addColorStop(1, '#6c5ce7'); // Deep purple
+            
+            // 3. RMC Schedule: PURPLE GRADIENT (Light → Dark)
+            const rmcGradient = rmcVolumeCtx.createLinearGradient(0, 0, 0, 300);
+            rmcGradient.addColorStop(0, '#e0bbff'); // Light purple
+            rmcGradient.addColorStop(1, '#6c5ce7'); // Dark purple
+            
+            // Terapkan gradient ke dataset
+            charts.volumeTargetChart.data.datasets[0].backgroundColor = mtdVolGradient; // MTD VOL
+            charts.volumeTargetChart.data.datasets[1].backgroundColor = targetGradient; // ANN FM Target
+            charts.rmcVolumeChart.data.datasets[0].backgroundColor = rmcGradient; // RMC Schedule
+            
+            // Update chart
+            charts.volumeTargetChart.update();
+            charts.rmcVolumeChart.update();
+        }
+        
+        function updateDashboard(data) {
+            if (!data || data.length === 0) {
+                showError('Tidak ada data yang valid untuk ditampilkan');
+                return;
+            }
+            
+            const areas = new Set();
+            const plants = new Set();
+            let totalTarget = 0;
+            let totalMtdVol = 0;
+            let totalRmcSchedule = 0;
+            let totalTargetPercent = 0;
+            let totalActualSupply = 0;
+            let count = 0;
+            
+            data.forEach(row => {
+                const area = getValue(row, ['area']) || '';
+                const plant = getValue(row, ['plantname', 'plant']) || '';
+                const target = parseIndonesianNumber(getValue(row, ['annfmtarget', 'annfm', 'target']));
+                const mtdVol = parseIndonesianNumber(getValue(row, ['mtdvol', 'mtdvolume', 'volume']));
+                const rmcSchedule = parseIndonesianNumber(getValue(row, ['rmcschedule', 'rmc', 'schedule']));
+                const targetPercent = target > 0 ? (mtdVol / target) * 100 : 0;
+                const actualSupply = rmcSchedule > 0 ? (mtdVol / rmcSchedule) * 100 : 0;
+                
+                if (area) areas.add(area);
+                if (plant) plants.add(plant);
+                
+                totalTarget += isNaN(target) ? 0 : target;
+                totalMtdVol += isNaN(mtdVol) ? 0 : mtdVol;
+                totalRmcSchedule += isNaN(rmcSchedule) ? 0 : rmcSchedule;
+                totalTargetPercent += isNaN(targetPercent) ? 0 : targetPercent;
+                totalActualSupply += isNaN(actualSupply) ? 0 : actualSupply;
+                count++;
+            });
+            
+            document.getElementById('total-area').textContent = areas.size.toLocaleString('id-ID');
+            document.getElementById('total-plant').textContent = plants.size.toLocaleString('id-ID');
+            
+            const avgTargetPercent = count > 0 ? (totalTargetPercent / count) : 0;
+            const avgActualSupply = count > 0 ? (totalActualSupply / count) : 0;
+            
+            document.getElementById('target-percent').textContent = `${avgTargetPercent.toFixed(2)}%`;
+            document.getElementById('supply-percent').textContent = `${avgActualSupply.toFixed(2)}%`;
+            
+            const plantData = {};
+            data.forEach(row => {
+                const plant = getValue(row, ['plantname', 'plant']) || 'Unknown';
+                if (!plantData[plant]) {
+                    plantData[plant] = {
+                        target: 0,
+                        mtdVol: 0,
+                        targetPercent: 0,
+                        avgVolDay: 0,
+                        rmcSchedule: 0,
+                        actualSupply: 0,
+                        count: 0
+                    };
+                }
+                
+                const target = parseIndonesianNumber(getValue(row, ['annfmtarget', 'annfm', 'target']));
+                const mtdVol = parseIndonesianNumber(getValue(row, ['mtdvol', 'mtdvolume', 'volume']));
+                const rmcSchedule = parseIndonesianNumber(getValue(row, ['rmcschedule', 'rmc', 'schedule']));
+                const avgVolDay = parseIndonesianNumber(getValue(row, ['avgvolday', 'avgvolume', 'average']));
+                const targetPercent = target > 0 ? (mtdVol / target) * 100 : 0;
+                const actualSupply = rmcSchedule > 0 ? (mtdVol / rmcSchedule) * 100 : 0;
+                
+                plantData[plant].target += isNaN(target) ? 0 : target;
+                plantData[plant].mtdVol += isNaN(mtdVol) ? 0 : mtdVol;
+                plantData[plant].targetPercent += isNaN(targetPercent) ? 0 : targetPercent;
+                plantData[plant].avgVolDay += isNaN(avgVolDay) ? 0 : avgVolDay;
+                plantData[plant].rmcSchedule += isNaN(rmcSchedule) ? 0 : rmcSchedule;
+                plantData[plant].actualSupply += isNaN(actualSupply) ? 0 : actualSupply;
+                plantData[plant].count += 1;
+            });
+            
+            const plantNames = Object.keys(plantData);
+            if (plantNames.length === 0) {
+                showError('Tidak ada data plant yang valid untuk ditampilkan');
+                return;
+            }
+            
+            updateVolumeTargetChart(plantNames, plantData);
+            updateRmcVolumeChart(plantNames, plantData);
+            updateAvgVolumeChart(plantNames, plantData);
+        }
+        
+        function updateVolumeTargetChart(plantNames, plantData) {
+            const mtdVolData = plantNames.map(p => plantData[p].mtdVol);
+            const targetData = plantNames.map(p => plantData[p].target);
+            const targetPercentData = plantNames.map(p => plantData[p].targetPercent / plantData[p].count);
+            
+            if (charts.volumeTargetChart) {
+                charts.volumeTargetChart.data.labels = plantNames;
+                charts.volumeTargetChart.data.datasets[0].data = mtdVolData;
+                charts.volumeTargetChart.data.datasets[1].data = targetData;
+                charts.volumeTargetChart.data.datasets[2].data = targetPercentData;
+                charts.volumeTargetChart.update();
+            }
+        }
+        
+        function updateRmcVolumeChart(plantNames, plantData) {
+            const rmcScheduleData = plantNames.map(p => plantData[p].rmcSchedule);
+            const mtdVolData = plantNames.map(p => plantData[p].mtdVol);
+            const actualSupplyData = plantNames.map(p => plantData[p].actualSupply / plantData[p].count);
+            
+            if (charts.rmcVolumeChart) {
+                charts.rmcVolumeChart.data.labels = plantNames;
+                charts.rmcVolumeChart.data.datasets[0].data = rmcScheduleData;
+                charts.rmcVolumeChart.data.datasets[1].data = mtdVolData;
+                charts.rmcVolumeChart.data.datasets[2].data = actualSupplyData;
+                charts.rmcVolumeChart.update();
+            }
+        }
+        
+        function updateAvgVolumeChart(plantNames, plantData) {
+            const avgVolDayData = plantNames.map(p => plantData[p].avgVolDay / plantData[p].count);
+            
+            if (charts.avgVolumeChart) {
+                charts.avgVolumeChart.data.labels = plantNames;
+                charts.avgVolumeChart.data.datasets[0].data = avgVolDayData;
+                charts.avgVolumeChart.update();
+            }
+        }
+        
+        function updateChartsWithDataLabels() {
+            const chartIds = ['volumeTargetChart', 'rmcVolumeChart', 'avgVolumeChart'];
+            chartIds.forEach(chartId => {
+                if (charts[chartId]) {
+                    if (!charts[chartId].options.plugins.datalabels) {
+                        charts[chartId].options.plugins.datalabels = {
+                            display: showDataLabels,
+                            color: '#000',
+                            align: 'top',
+                            anchor: 'end',
+                            font: {
+                                size: 10,
+                                weight: 'bold'
+                            },
+                            formatter: function(value, context) {
+                                if (context.datasetIndex === 2) {
+                                    return value.toFixed(1) + '%';
+                                } else {
+                                    return value.toLocaleString('id-ID'); // Format angka dengan pemisah ribuan
+                                }
+                            },
+                            clamp: true,
+                            clip: false
+                        };
+                    } else {
+                        charts[chartId].options.plugins.datalabels.display = showDataLabels;
+                    }
+                    charts[chartId].update();
+                }
+            });
+            document.getElementById('data-labels-toggle').checked = showDataLabels;
+        }
+        
+        // EXPORT EXCEL
+        function exportToExcel() {
+            if (filteredData.length === 0) {
+                alert('Tidak ada data untuk diexport');
+                return;
+            }
+            
+            const ws = XLSX.utils.json_to_sheet(filteredData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Production Data");
+            XLSX.writeFile(wb, "production_data.xlsx");
+        }
+        
+        // EXPORT PDF
+        function exportToPDF() {
+            if (filteredData.length === 0) {
+                alert('Tidak ada data untuk diexport');
+                return;
+            }
+            
+            showLoading();
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('landscape', 'mm', 'a4');
+            
+            doc.setFontSize(18);
+            doc.text(document.getElementById('dynamic-title').textContent, 145, 15, { align: 'center' });
+            doc.setFontSize(12);
+            doc.text(`Periode: ${document.getElementById('period-value').textContent}`, 145, 22, { align: 'center' });
+            doc.text(`Tanggal Export: ${new Date().toLocaleDateString('id-ID')}`, 145, 28, { align: 'center' });
+            
+            const chartIds = ['volumeTargetChart', 'rmcVolumeChart', 'avgVolumeChart'];
+            const chartPromises = [];
+            
+            chartIds.forEach(chartId => {
+                const canvas = document.getElementById(chartId);
+                chartPromises.push(
+                    html2canvas(canvas, {
+                        scale: 2,
+                        logging: false,
+                        useCORS: true
+                    })
+                );
+            });
+            
+            Promise.all(chartPromises)
+                .then(canvases => {
+                    let yPosition = 40;
+                    canvases.forEach((canvas, index) => {
+                        const imgData = canvas.toDataURL('image/png');
+                        const imgWidth = 120;
+                        const imgHeight = canvas.height * imgWidth / canvas.width;
+                        
+                        if (yPosition + imgHeight > 180) {
+                            doc.addPage();
+                            yPosition = 20;
+                        }
+                        
+                        const xPosition = (index % 2 === 0) ? 15 : 145;
+                        doc.addImage(imgData, 'PNG', xPosition, yPosition, imgWidth, imgHeight);
+                        
+                        if (index % 2 === 1) {
+                            yPosition += imgHeight + 10;
+                        }
+                    });
+                    
+                    doc.addPage();
+                    
+                    const tableData = [];
+                    filteredData.forEach(row => {
+                        const normalizedRow = normalizeData([row])[0];
+                        const periode = getValue(normalizedRow, ['periode', 'period', 'bulan', 'month']) || currentPeriod;
+                        const area = getValue(normalizedRow, ['area']) || 'N/A';
+                        const plant = getValue(normalizedRow, ['plantname', 'plant']) || 'N/A';
+                        const target = parseIndonesianNumber(getValue(normalizedRow, ['annfmtarget', 'annfm', 'target']));
+                        const mtdVol = parseIndonesianNumber(getValue(normalizedRow, ['mtdvol', 'mtdvolume', 'volume']));
+                        const rmc = parseIndonesianNumber(getValue(normalizedRow, ['rmcschedule', 'rmc', 'schedule']));
+                        const targetPercent = target > 0 ? (mtdVol / target) * 100 : 0;
+                        const actualSupply = rmc > 0 ? (mtdVol / rmc) * 100 : 0;
+                        
+                        tableData.push([
+                            periode,
+                            area,
+                            plant,
+                            target.toLocaleString('id-ID'),
+                            mtdVol.toLocaleString('id-ID'),
+                            `${targetPercent.toFixed(2)}%`,
+                            rmc.toLocaleString('id-ID'),
+                            `${actualSupply.toFixed(2)}%`
+                        ]);
+                    });
+                    
+                    doc.autoTable({
+                        head: [['Periode', 'Area', 'Plant', 'ANN FM Target', 'MTD VOL', '% of Target', 'RMC Schedule', '% Actual Supply']],
+                        body: tableData,
+                        startY: 20,
+                        theme: 'grid',
+                        headStyles: {
+                            fillColor: [74, 100, 145],
+                            textColor: 255
+                        },
+                        styles: {
+                            fontSize: 8,
+                            cellPadding: 1
+                        },
+                        margin: { left: 10, right: 10 }
+                    });
+                    
+                    doc.save('production_report.pdf');
+                    hideLoading();
+                })
+                .catch(error => {
+                    console.error('Error generating PDF:', error);
+                    alert('Terjadi kesalahan saat membuat PDF: ' + error.message);
+                    hideLoading();
+                });
+        }
+    </script>
+</body>
+</html>
