@@ -1,1 +1,2467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Truck Usage Analysis - Excel</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+        /* Sidebar Styles */
+        .sidebar {
+            width: 350px;
+            min-width: 350px;
+            background: rgba(255, 255, 255, 0.98);
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            transition: transform 0.3s ease, width 0.3s ease;
+            z-index: 1000;
+            position: relative;
+        }
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+            width: 0;
+            min-width: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        /* PERUBAHAN: Hilangkan background pada toggle button */
+        .sidebar-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: transparent; /* Background dihilangkan */
+            color: #2c3e50; /* Warna gelap untuk kontras */
+            border: none;
+            padding: 12px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1001;
+            font-size: 1.5em; /* Sedikit lebih besar untuk visibility */
+            transition: left 0.3s ease;
+            box-shadow: none; /* Hilangkan shadow */
+        }
+        .sidebar-toggle.sidebar-open {
+            left: 370px;
+        }
+        .sidebar-toggle:hover {
+            color: #3498db; /* Warna biru saat hover */
+            background: rgba(52, 152, 219, 0.1); /* Sedikit background saat hover */
+        }
+        .sidebar h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+        }
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .main-content.expanded {
+            margin-left: 0;
+            width: 100%;
+        }
+        /* Header Styles - Diperbarui dengan gradient merah ke ungu dan tinggi ditambah */
+        .header {
+            background: linear-gradient(135deg, #e74c3c 0%, #9b59b6 100%);
+            color: white;
+            padding: 25px; /* Padding diperbesar dari 20px ke 25px */
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 25px;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-left: 80px;
+            min-height: 100px; /* Tinggi minimum ditambahkan */
+        }
+        .header h1 {
+            color: white;
+            font-size: 2em;
+            margin-bottom: 10px;
+            flex: 1;
+        }
+        .header-info {
+            color: #f0f0f0;
+            font-size: 0.9em;
+            text-align: right;
+            margin-left: 20px;
+        }
+        .upload-area {
+            border: 3px dashed #3498db;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 15px 0;
+            background: rgba(52, 152, 219, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-align: center;
+        }
+        .upload-area:hover {
+            background: rgba(52, 152, 219, 0.1);
+            border-color: #2980b9;
+        }
+        .file-input {
+            display: none;
+        }
+        .upload-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+            width: 100%;
+        }
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .filter-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+        .filter-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-group {
+            margin-bottom: 15px;
+        }
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+        .filter-group input,
+        .filter-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        .file-info {
+            background: #e8f4fd;
+            border: 1px solid #3498db;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.9em;
+        }
+        /* Dashboard Styles */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Lebar minimum card dikurangi */
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 12px; /* Padding dikurangi */
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+            border-left: 4px solid #3498db;
+        }
+        .metric-card:hover {
+            transform: translateY(-3px);
+        }
+        .metric-value {
+            font-size: 1.5em; /* Ukuran font dikurangi */
+            font-weight: bold;
+            margin: 5px 0;
+            color: #ffffff; /* Warna putih untuk angka */
+        }
+        .metric-label {
+            font-size: 0.8em; /* Ukuran font dikurangi */
+            font-weight: 500;
+            color: #ffffff; /* Warna putih untuk label */
+        }
+        /* Warna Khusus untuk KPI - DIPERBARUI: TM Big dengan gradient biru ke ungu */
+        .metric-card.kpi-big {
+            background: linear-gradient(135deg, #3498db 0%, #9b59b6 100%);
+            border-left-color: #2980b9;
+        }
+        .metric-card.kpi-mini {
+            background: linear-gradient(135deg, #27ae60 0%, #9b59b6 100%);
+            border-left-color: #27ae60;
+        }
+        .metric-card.kpi-total {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-left-color: #3498db;
+        }
+        /* Warna Khusus untuk KPI Allocation - Sesuaikan dengan TM Big dan TM Mini */
+        .metric-card.kpi-allocation.kpi-big {
+            background: linear-gradient(135deg, #3498db 0%, #9b59b6 100%);
+            border-left-color: #2980b9;
+        }
+        .metric-card.kpi-allocation.kpi-mini {
+            background: linear-gradient(135deg, #27ae60 0%, #9b59b6 100%);
+            border-left-color: #27ae60;
+        }
 
+        /* Warna Khusus untuk KPI Allocation - Gradient Orange ke Ungu */
+        .metric-card.kpi-allocation {
+            background: linear-gradient(135deg, #f39c12 0%, #9b59b6 100%);
+            border-left-color: #f39c12;
+        }
+        /* Tab Styles - Diperbarui (tinggi diperkecil) */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: transparent;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+        .tab {
+            flex: 1;
+            padding: 12px; /* Padding diperkecil dari 15px ke 12px */
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #2c3e50; /* Warna gelap untuk teks tab */
+            border-right: 1px solid #e0e0e0;
+            background: #f8f9fa; /* Warna netral untuk tab */
+        }
+        .tab:last-child {
+            border-right: none;
+        }
+        .tab.active {
+            background: #ffffff; /* Warna putih untuk tab aktif */
+            box-shadow: inset 0 -3px 0 #3498db;
+        }
+        .tab:hover {
+            background: #e9ecef; /* Warna hover netral */
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* Chart Layout - Vertikal untuk TM Big */
+        .chart-container-vert {
+            margin-bottom: 25px;
+        }
+        .chart-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            margin-bottom: 25px;
+        }
+        .chart-section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        .chart-container {
+            height: 350px;
+            width: 100%;
+        }
+        .table-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            margin-bottom: 25px;
+            overflow-x: auto;
+        }
+        .table-section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        .table-filter {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .table-filter .filter-group {
+            margin-bottom: 0;
+            flex: 1;
+            min-width: 200px;
+        }
+        .table-filter label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .data-table th,
+        .data-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 0.9em;
+        }
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+        }
+        .data-table th:hover {
+            background: #e9ecef;
+        }
+        .data-table th.sort-asc::after {
+            content: " ▲";
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+        .data-table th.sort-desc::after {
+            content: " ▼";
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+        .truck-big {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .truck-mini {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        .hidden {
+            display: none;
+        }
+        /* Footer Styles - BARU DITAMBAHKAN */
+        .footer {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.9em;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .footer p {
+            margin: 0;
+            font-weight: 500;
+        }
+        /* Styles for Truck Allocation Tab */
+        .allocation-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #f39c12;
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap; /* Memungkinkan wrap jika perlu */
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 180px; /* Lebar minimum sedikit dikurangi untuk fleksibilitas */
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        .btn-edit {
+            background: #f39c12;
+            color: white;
+            padding: 5px 10px;
+            font-size: 0.8em;
+        }
+        .btn-save {
+            background: #27ae60;
+            color: white;
+            padding: 5px 10px;
+            font-size: 0.8em;
+        }
+        .btn-cancel {
+            background: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            font-size: 0.8em;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        .status-bd-minor {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        .status-bd-major {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .status-non-active {
+            color: #7f8c8d;
+            font-weight: bold;
+        }
+        .status-active {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .duration-over-30 {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .chart-section {
+                width: 100%;
+            }
+            .sidebar {
+                width: 300px;
+                min-width: 300px;
+            }
+            .sidebar-toggle.sidebar-open {
+                left: 320px;
+            }
+        }
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            .metric-value {
+                font-size: 1.5em;
+            }
+            .sidebar {
+                width: 280px;
+                min-width: 280px;
+                position: fixed;
+                height: 100vh;
+                z-index: 1000;
+            }
+            .sidebar-toggle {
+                position: fixed;
+                z-index: 1001;
+            }
+            .sidebar-toggle.sidebar-open {
+                left: 300px;
+            }
+            .main-content {
+                padding: 10px;
+            }
+            .header {
+                padding-left: 70px;
+            }
+            .header h1 {
+                font-size: 1.5em;
+            }
+            .header-info {
+                font-size: 0.8em;
+            }
+            .chart-container {
+                height: 300px;
+            }
+            .table-filter {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .table-filter .filter-group {
+                min-width: 100%;
+            }
+            .footer {
+                padding: 12px 15px;
+                font-size: 0.85em;
+            }
+            .form-row {
+                flex-direction: column; /* Input menjadi vertikal di mobile */
+            }
+            .form-group {
+                min-width: 100%;
+            }
+        }
+        @media (max-width: 480px) {
+            .dashboard {
+                grid-template-columns: 1fr 1fr;
+            }
+            .tabs {
+                flex-direction: column;
+            }
+            .tab {
+                padding: 10px;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            .tab:last-child {
+                border-bottom: none;
+            }
+            .sidebar {
+                width: 100%;
+                min-width: 100%;
+            }
+            .sidebar-toggle.sidebar-open {
+                left: calc(100% - 50px);
+            }
+            .chart-container {
+                height: 250px;
+            }
+            .header {
+                padding-left: 60px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header-info {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+            .footer {
+                padding: 10px 12px;
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <h2>📊 Analysis Control</h2>
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <h3>📁 Upload Excel File</h3>
+                <div class="upload-area" id="uploadArea">
+                    <p>Drag & Drop Excel file</p>
+                    <p><small>.xlsx, .xls</small></p>
+                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                        Select Excel File
+                    </button>
+                    <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls">
+                </div>
+                <div id="fileInfo" class="hidden">
+                    <div class="file-info">
+                        <p><strong>File:</strong> <span id="fileName"></span></p>
+                        <p><strong>Size:</strong> <span id="fileSize"></span></p>
+                    </div>
+                    <div id="sheetSelector" class="filter-group hidden">
+                        <label for="sheetSelect"><strong>Select Sheet:</strong></label>
+                        <select id="sheetSelect" onchange="onSheetChange()"></select>
+                    </div>
+                    <button class="upload-btn" onclick="processExcelData()">Process Data</button>
+                </div>
+            </div>
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <h3>🔧 Filter Data</h3>
+                <div class="filter-group">
+                    <label for="startDate">Start Date:</label>
+                    <input type="date" id="startDate" onchange="applyFilters()">
+                </div>
+                <div class="filter-group">
+                    <label for="endDate">End Date:</label>
+                    <input type="date" id="endDate" onchange="applyFilters()">
+                </div>
+                <button class="upload-btn" onclick="resetFilters()">🔄 Reset Filter</button>
+            </div>
+            <!-- Data Info -->
+            <div class="filter-section">
+                <h3>📈 Data Info</h3>
+                <div id="dataInfo">
+                    <p>Upload Excel file to see data info</p>
+                </div>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Header -->
+            <div class="header">
+                <h1>🚛 Truck Mixer Utilization East All Area</h1>
+                <div class="header-info">
+                    <p>Period: <span id="periodeInfo">-</span></p>
+                </div>
+            </div>
+            <!-- Tabs -->
+            <div class="tabs" id="tabsContainer">
+                <div class="tab active" onclick="switchTab('big')">🚛 TM Big</div>
+                <div class="tab" onclick="switchTab('mini')">🚚 TM Mini</div>
+                <div class="tab" onclick="switchTab('allocation')">🏭 Truck Allocation</div>
+            </div>
+            <!-- Dashboard Metrics -->
+            <div id="dashboard" class="hidden">
+                <!-- TM Big Tab Content -->
+                <div id="tab-big" class="tab-content active">
+                    <!-- Key Metrics -->
+                    <div class="dashboard">
+                        <div class="metric-card kpi-big">
+                            <div class="metric-label">Total Trip TM Big</div>
+                            <div class="metric-value" id="totalBigTrips">0</div>
+                        </div>
+                        <div class="metric-card kpi-big">
+                            <div class="metric-label">Avg Trip/Day per Truck</div>
+                            <div class="metric-value" id="avgBigDaily">0</div>
+                        </div>
+                        <div class="metric-card kpi-big">
+                            <div class="metric-label">Avg Load/Trip TM Big</div>
+                            <div class="metric-value" id="avgBigLoad">0 m³</div>
+                        </div>
+                        <div class="metric-card kpi-big">
+                            <div class="metric-label">Total Volume TM Big</div>
+                            <div class="metric-value" id="totalBigVolume">0 m³</div>
+                        </div>
+                         <!-- Total Truck KPI -->
+                        <div class="metric-card kpi-big">
+                            <div class="metric-label">Total Truck TM Big</div>
+                            <div class="metric-value" id="totalBigTrucks">0</div>
+                        </div>
+                    </div>
+                    <!-- Charts Section - Vertikal untuk TM Big -->
+                    <div class="chart-container-vert">
+                        <div class="chart-section">
+                            <h2>📦 Total Volume per Truck</h2>
+                            <div class="chart-container" id="volumeTripChartBig"></div>
+                        </div>
+                        <div class="chart-section">
+                            <h2>🚛 Total Trip per Truck</h2>
+                            <div class="chart-container" id="totalTripChartBig"></div>
+                        </div>
+                        <div class="chart-section">
+                            <h2>📈 Avg Load per Trip per Truck</h2>
+                            <div class="chart-container" id="avgLoadChartBig"></div>
+                        </div>
+                        <div class="chart-section">
+                            <h2>📊 Avg Trip/Day per Truck</h2>
+                            <div class="chart-container" id="avgTripDayChartBig"></div>
+                        </div>
+                        <!-- NEW: Total Distance Chart for TM Big -->
+                        <div class="chart-section">
+                            <h2>📍 Total Distance per Truck</h2>
+                            <div class="chart-container" id="totalDistanceChartBig"></div>
+                        </div>
+                        <!-- NEW: Avg Distance Chart for TM Big (Terpisah) -->
+                        <div class="chart-section">
+                            <h2>📏 Avg Distance per Truck</h2>
+                            <div class="chart-container" id="avgDistanceChartBig"></div>
+                        </div>
+                    </div>
+                    <!-- Data Table -->
+                    <div class="table-section">
+                        <h2>📋 TM Big Trip Detail Data</h2>
+                        <div class="table-filter">
+                            <div class="filter-group">
+                                <label for="allocationFilterBig">Filter by Allocation Truck:</label>
+                                <select id="allocationFilterBig" onchange="filterTableData()">
+                                    <option value="">All Allocations</option>
+                                </select>
+                            </div>
+                            <button class="upload-btn" onclick="resetTableFilters()" style="width: auto; margin-top: 20px;">Reset Table Filter</button>
+                        </div>
+                        <div id="dataTableContainerBig"></div>
+                    </div>
+                    <!-- Footer untuk TM Big -->
+                    <div class="footer">
+                        <p>Truck Mixer Utilization East All Area Created By Kim Jong Un CDC East</p>
+                    </div>
+                </div>
+                <!-- TM Mini Tab Content -->
+                <div id="tab-mini" class="tab-content">
+                    <!-- Key Metrics -->
+                    <div class="dashboard">
+                        <div class="metric-card kpi-mini">
+                            <div class="metric-label">Total Trip TM Mini</div>
+                            <div class="metric-value" id="totalMiniTrips">0</div>
+                        </div>
+                        <div class="metric-card kpi-mini">
+                            <div class="metric-label">Avg Trip/Day per Truck</div>
+                            <div class="metric-value" id="avgMiniDaily">0</div>
+                        </div>
+                        <div class="metric-card kpi-mini">
+                            <div class="metric-label">Avg Load/Trip TM Mini</div>
+                            <div class="metric-value" id="avgMiniLoad">0 m³</div>
+                        </div>
+                        <div class="metric-card kpi-mini">
+                            <div class="metric-label">Total Volume TM Mini</div>
+                            <div class="metric-value" id="totalMiniVolume">0 m³</div>
+                        </div>
+                         <!-- Total Truck KPI -->
+                        <div class="metric-card kpi-mini">
+                            <div class="metric-label">Total Truck TM Mini</div>
+                            <div class="metric-value" id="totalMiniTrucks">0</div>
+                        </div>
+                    </div>
+                    <!-- Charts Section - Row 1 -->
+                    <div class="chart-container-vert">
+                        <div class="chart-section">
+                            <h2>📦 Total Volume x Total Trip x Avg Trip per Day per Truck</h2>
+                            <div class="chart-container" id="volumeTripAvgChartMini"></div>
+                        </div>
+                        <div class="chart-section">
+                            <h2>📈 Avg Load per Trip per Truck</h2>
+                            <div class="chart-container" id="avgLoadChartMini"></div>
+                        </div>
+                        <!-- Additional Chart for TM Mini - Allocation Truck -->
+                        <div class="chart-section">
+                            <h2>🏭 Total Volume x Total Trip By Allocation Truck</h2>
+                            <div class="chart-container" id="allocationChartMini"></div>
+                        </div>
+                        <!-- NEW: Distance Chart for TM Mini (Tanpa Secondary Axis) -->
+                        <div class="chart-section">
+                            <h2>📍 Total Distance x Avg Distance per Truck</h2>
+                            <div class="chart-container" id="distanceChartMini"></div>
+                        </div>
+                    </div>
+                    <!-- Data Table -->
+                    <div class="table-section">
+                        <h2>📋 TM Mini Trip Detail Data</h2>
+                        <div class="table-filter">
+                            <div class="filter-group">
+                                <label for="allocationFilterMini">Filter by Allocation Truck:</label>
+                                <select id="allocationFilterMini" onchange="filterTableData()">
+                                    <option value="">All Allocations</option>
+                                </select>
+                            </div>
+                            <button class="upload-btn" onclick="resetTableFilters()" style="width: auto; margin-top: 20px;">Reset Table Filter</button>
+                        </div>
+                        <div id="dataTableContainerMini"></div>
+                    </div>
+                    <!-- Footer untuk TM Mini -->
+                    <div class="footer">
+                        <p>Monitoring Truck Mixer utilization East All Area Created By Kim Jong Un CDC East</p>
+                    </div>
+                </div>
+                <!-- Truck Allocation Tab Content -->
+                <div id="tab-allocation" class="tab-content">
+                    <!-- KPI Dashboard for Truck Allocation -->
+                    <div class="dashboard">
+                        <div class="metric-card kpi-allocation kpi-big">
+                            <div class="metric-label">Total Truck Big</div>
+                            <div class="metric-value" id="totalTruckBig">0</div>
+                        </div>
+                        <div class="metric-card kpi-allocation kpi-big">
+                            <div class="metric-label">Active Big</div>
+                            <div class="metric-value" id="activeBig">0</div>
+                        </div>
+                        <div class="metric-card kpi-allocation kpi-big">
+                            <div class="metric-label">BD Minor Big</div>
+                            <div class="metric-value" id="bdMinorBig">0</div>
+                        </div>
+                        <div class="metric-card kpi-allocation kpi-big">
+                            <div class="metric-label">BD Major Big</div>
+                            <div class="metric-value" id="bdMajorBig">0</div>
+                        </div>
+                        <div class="metric-card kpi-allocation kpi-mini">
+                            <div class="metric-label">Total Truck Mini</div>
+                            <div class="metric-value" id="totalTruckMini">0</div>
+                        </div>
+                        <div class="metric-card kpi-allocation kpi-mini">
+                            <div class="metric-label">Active Mini</div>
+                            <div class="metric-value" id="activeMini">0</div>
+                        </div>
+                        <div class="metric-card kpi-allocation kpi-mini">
+                            <div class="metric-label">BD Minor Mini</div>
+                            <div class="metric-value" id="bdMinorMini">0</div>
+                        </div>
+                        <div class="metric-card kpi-allocation kpi-mini">
+                            <div class="metric-label">BD Major Mini</div>
+                            <div class="metric-value" id="bdMajorMini">0</div>
+                        </div>
+                    </div>
+                    <!-- Form for Adding/Editing Truck Allocation -->
+                    <div class="allocation-form">
+                        <h2>🏭 Add/Edit Truck Allocation</h2>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="truckType">Truck Type</label>
+                                <select id="truckType">
+                                    <option value="TM Big">TM Big</option>
+                                    <option value="TM Mini">TM Mini</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="truckNo">Truck No</label>
+                                <input type="text" id="truckNo" placeholder="Enter truck number">
+                            </div>
+                            <div class="form-group">
+                                <label for="plantAllocation">Plant Allocation</label>
+                                <input type="text" id="plantAllocation" placeholder="Enter plant allocation">
+                            </div>
+                            <div class="form-group">
+                                <label for="status">Status</label>
+                                <select id="status" onchange="toggleBreakdownFields()">
+                                    <option value="Active">Active</option>
+                                    <option value="BD Minor">BD Minor</option>
+                                    <option value="BD Major">BD Major</option>
+                                    <option value="Non Active/Matee">Non Active/Matee</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group" id="dateInfoGroup" style="display: none;">
+                                <label for="dateInfo">Date Info</label>
+                                <input type="date" id="dateInfo">
+                            </div>
+                            <div class="form-group" id="remarksGroup" style="display: none;">
+                                <label for="remarks">Remarks</label>
+                                <textarea id="remarks" placeholder="Enter breakdown details"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn btn-secondary" onclick="clearAllocationForm()">Clear</button>
+                            <button class="btn btn-primary" onclick="saveAllocation()">Save Allocation</button>
+                        </div>
+                    </div>
+                    <!-- Table for Truck Allocation Data -->
+                    <div class="table-section">
+                        <h2>📋 Truck Allocation Data</h2>
+                        <div id="allocationTableContainer"></div>
+                    </div>
+                    <!-- Footer untuk Truck Allocation -->
+                    <div class="footer">
+                        <p>Truck Mixer Allocation East All Area Created By Kim Jong Un CDC East</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Loading -->
+            <div id="loading" class="loading hidden">
+                <h2>Processing Excel Data...</h2>
+                <p>Reading and analyzing data from Excel file</p>
+                <div style="margin-top: 20px;">⏳</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let uploadedData = null;
+        let filteredData = null;
+        let excelSheets = [];
+        let currentSheet = '';
+        let isSidebarCollapsed = false;
+        let currentTab = 'big';
+        let tableData = {
+            'Big': [],
+            'Mini': []
+        };
+        let currentSort = {
+            column: null,
+            direction: 'asc'
+        };
+        let truckAllocations = [];
+        let editingAllocationId = null; // Menyimpan ID truk yang sedang diedit
+        let allocationCurrentSort = {
+            column: null,
+            direction: 'asc'
+        };
+
+        // Initialize truck allocations from localStorage
+        function initializeTruckAllocations() {
+            const savedAllocations = localStorage.getItem('truckAllocations');
+            if (savedAllocations) {
+                truckAllocations = JSON.parse(savedAllocations);
+            }
+            updateAllocationTable();
+            updateAllocationKPIs();
+        }
+
+        // Sidebar toggle for all screen sizes
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            isSidebarCollapsed = !isSidebarCollapsed;
+            if (isSidebarCollapsed) {
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('expanded');
+                sidebarToggle.classList.remove('sidebar-open');
+            } else {
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.remove('expanded');
+                sidebarToggle.classList.add('sidebar-open');
+            }
+            // Update charts on resize
+            setTimeout(() => {
+                if (filteredData) {
+                    const analysis = performAnalysis(filteredData);
+                    createChartsForTab(analysis, 'Big');
+                    createChartsForTab(analysis, 'Mini');
+                }
+            }, 300);
+        }
+
+        // Switch between tabs
+        function switchTab(tab) {
+            currentTab = tab;
+            // Update tab styles
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tc => tc.classList.remove('active'));
+            if (tab === 'big') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('tab-big').classList.add('active');
+            } else if (tab === 'mini') {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('tab-mini').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab')[2].classList.add('active');
+                document.getElementById('tab-allocation').classList.add('active');
+            }
+            // Update charts and tables for the selected tab
+            if (filteredData && tab !== 'allocation') {
+                updateTabContent();
+            }
+        }
+
+        // Event listener untuk upload file Excel
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleExcelFileSelection(file);
+            }
+        });
+
+        function handleExcelFileSelection(file) {
+            if (!file.name.match(/\.(xlsx|xls)$/)) {
+                alert('Only Excel (.xlsx, .xls) files are supported!');
+                return;
+            }
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = formatFileSize(file.size);
+            document.getElementById('fileInfo').classList.remove('hidden');
+            readExcelFile(file);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function readExcelFile(file) {
+            document.getElementById('loading').classList.remove('hidden');
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    excelSheets = workbook.SheetNames;
+                    const sheetSelect = document.getElementById('sheetSelect');
+                    sheetSelect.innerHTML = '';
+                    excelSheets.forEach(sheet => {
+                        const option = document.createElement('option');
+                        option.value = sheet;
+                        option.textContent = sheet;
+                        sheetSelect.appendChild(option);
+                    });
+                    document.getElementById('sheetSelector').classList.remove('hidden');
+                    document.getElementById('loading').classList.add('hidden');
+                    currentSheet = excelSheets[0];
+                    loadSheetData(workbook, currentSheet);
+                } catch (error) {
+                    console.error('Error reading Excel file:', error);
+                    alert('Error reading file Excel: ' + error.message);
+                    document.getElementById('loading').classList.add('hidden');
+                }
+            };
+            reader.onerror = function() {
+                alert('Error reading file!');
+                document.getElementById('loading').classList.add('hidden');
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function loadSheetData(workbook, sheetName) {
+            try {
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                if (jsonData.length === 0) {
+                    alert(`Sheet "${sheetName}" is empty!`);
+                    return;
+                }
+                uploadedData = convertExcelData(jsonData);
+                filteredData = [...uploadedData];
+                updateDataInfo();
+                applyFilters();
+            } catch (error) {
+                console.error('Error loading sheet data:', error);
+                alert('Error loading data from sheet: ' + error.message);
+            }
+        }
+
+        function convertExcelData(excelData) {
+            if (excelData.length < 2) return [];
+            const headers = excelData[0].map(header => header ? header.toString().trim() : '');
+            const data = [];
+            // Cari indeks kolom yang diperlukan
+            const dpNoIndex = headers.findIndex(h => h.includes('DP') && h.includes('No'));
+            const dateIndex = headers.findIndex(h => h.includes('Date') || h.includes('Tanggal'));
+            const truckTypeIndex = headers.findIndex(h => h.includes('Truck') && h.includes('Type'));
+            const truckNoIndex = headers.findIndex(h => h.includes('Truck') && h.includes('No'));
+            const allocationIndex = headers.findIndex(h => h.includes('Allocation') || h.includes('Alokasi'));
+            const qtyIndex = headers.findIndex(h => h.includes('QTY') || h.includes('Quantity') || h.includes('Qty'));
+            const siteNoIndex = headers.findIndex(h => h.includes('Site') && h.includes('No'));
+            const siteNameIndex = headers.findIndex(h => h.includes('Site') && h.includes('Name'));
+            const distanceIndex = headers.findIndex(h => h.includes('Distance') || h.includes('Jarak'));
+            const finalIndices = {
+                dpNo: dpNoIndex !== -1 ? dpNoIndex : 0,
+                date: dateIndex !== -1 ? dateIndex : 1,
+                truckType: truckTypeIndex !== -1 ? truckTypeIndex : 6,
+                truckNo: truckNoIndex !== -1 ? truckNoIndex : 18, // Kolom S (Truck No)
+                allocation: allocationIndex !== -1 ? allocationIndex : 17,
+                qty: qtyIndex !== -1 ? qtyIndex : 15,
+                siteNo: siteNoIndex !== -1 ? siteNoIndex : 19,
+                siteName: siteNameIndex !== -1 ? siteNameIndex : 20,
+                distance: distanceIndex !== -1 ? distanceIndex : 21 // Kolom V (Distance)
+            };
+            console.log('Column indices:', finalIndices);
+            for (let i = 1; i < excelData.length; i++) {
+                const row = excelData[i];
+                if (row.length === 0) continue;
+                const dpNo = row[finalIndices.dpNo];
+                const date = row[finalIndices.date];
+                const truckType = row[finalIndices.truckType];
+                const truckNo = row[finalIndices.truckNo];
+                const allocation = row[finalIndices.allocation];
+                const qty = row[finalIndices.qty];
+                const siteNo = row[finalIndices.siteNo];
+                const siteName = row[finalIndices.siteName];
+                const distance = row[finalIndices.distance];
+                if (truckType && allocation && qty !== undefined && qty !== null && qty !== '') {
+                    data.push({
+                        'Date': formatExcelDate(date),
+                        'Truck No': truckNo ? truckNo.toString().trim() : 'Unknown',
+                        'Allocation Truck': allocation.toString().trim(),
+                        'Site No': siteNo ? siteNo.toString().trim() : '-',
+                        'Site Name': siteName ? siteName.toString().trim() : '-',
+                        'Qty': parseFloat(qty) || 0,
+                        'Truck Type': truckType.toString().trim(),
+                        'Distance': parseFloat(distance) || 0
+                    });
+                }
+            }
+            return data;
+        }
+
+        function formatExcelDate(dateValue) {
+            if (!dateValue) return '';
+            if (typeof dateValue === 'string') return dateValue;
+            if (typeof dateValue === 'number') {
+                const date = XLSX.SSF.parse_date_code(dateValue);
+                return `${date.y}-${String(date.m).padStart(2, '0')}-${String(date.d).padStart(2, '0')}`;
+            }
+            if (dateValue instanceof Date) {
+                return dateValue.toISOString().split('T')[0];
+            }
+            return dateValue.toString();
+        }
+
+        function onSheetChange() {
+            const sheetSelect = document.getElementById('sheetSelect');
+            currentSheet = sheetSelect.value;
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput.files.length > 0) {
+                readExcelFile(fileInput.files[0]);
+            }
+        }
+
+        // Drag and drop functionality
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.style.background = 'rgba(52, 152, 219, 0.15)';
+        });
+        uploadArea.addEventListener('dragleave', function() {
+            uploadArea.style.background = 'rgba(52, 152, 219, 0.05)';
+        });
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.style.background = 'rgba(52, 152, 219, 0.05)';
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                document.getElementById('fileInput').files = e.dataTransfer.files;
+                handleExcelFileSelection(file);
+            }
+        });
+
+        function applyFilters() {
+            if (!uploadedData) return;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            filteredData = uploadedData.filter(row => {
+                const dateMatch = (!startDate || row['Date'] >= startDate) && 
+                                 (!endDate || row['Date'] <= endDate);
+                return dateMatch;
+            });
+            processExcelData();
+        }
+
+        function resetFilters() {
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            filteredData = [...uploadedData];
+            processExcelData();
+        }
+
+        function updateDataInfo() {
+            if (!uploadedData) return;
+            const dates = uploadedData.map(row => row['Date']).filter(Boolean);
+            const startDate = dates.sort()[0];
+            const endDate = dates.sort().pop();
+            const totalRecords = uploadedData.length;
+            document.getElementById('dataInfo').innerHTML = `
+                <p><strong>Period:</strong> ${startDate} to ${endDate}</p>
+                <p><strong>Total Records:</strong> ${totalRecords.toLocaleString()}</p>
+                <p><strong>Sheet:</strong> ${currentSheet}</p>
+            `;
+            // Update periode di header
+            document.getElementById('periodeInfo').textContent = `${startDate} to ${endDate}`;
+        }
+
+        function processExcelData() {
+            if (!filteredData || filteredData.length === 0) {
+                alert('No data available to process from the Excel file!');
+                return;
+            }
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('dashboard').classList.add('hidden');
+            setTimeout(() => {
+                try {
+                    const analysis = performAnalysis(filteredData);
+                    updateDashboard(analysis);
+                    createCharts(analysis);
+                    updateTabContent();
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('dashboard').classList.remove('hidden');
+                } catch (error) {
+                    console.error('Error processing data:', error);
+                    alert('An error occurred while processing data: ' + error.message);
+                    document.getElementById('loading').classList.add('hidden');
+                }
+            }, 1000);
+        }
+
+        function updateTabContent() {
+            if (!filteredData) return;
+            const analysis = performAnalysis(filteredData);
+            if (currentTab === 'big') {
+                tableData['Big'] = filteredData.filter(row => row['Truck Type'] === 'TM Big');
+                updateAllocationFilter('Big');
+                displayDataTable(tableData['Big'], 'Big');
+                createChartsForTab(analysis, 'Big');
+            } else {
+                tableData['Mini'] = filteredData.filter(row => row['Truck Type'] === 'TM Mini');
+                updateAllocationFilter('Mini');
+                displayDataTable(tableData['Mini'], 'Mini');
+                createChartsForTab(analysis, 'Mini');
+            }
+        }
+
+        function updateAllocationFilter(tabType) {
+            const filterId = `allocationFilter${tabType}`;
+            const selectElement = document.getElementById(filterId);
+            const currentData = tableData[tabType];
+            // Get unique allocations
+            const allocations = [...new Set(currentData.map(row => row['Allocation Truck']))].sort();
+            // Clear existing options except the first one
+            selectElement.innerHTML = '<option value="">All Allocations</option>';
+            // Add allocation options
+            allocations.forEach(allocation => {
+                const option = document.createElement('option');
+                option.value = allocation;
+                option.textContent = allocation;
+                selectElement.appendChild(option);
+            });
+        }
+
+        function performAnalysis(data) {
+            const analysis = {
+                totalTrips: { 'TM Big': 0, 'TM Mini': 0 },
+                totalQty: { 'TM Big': 0, 'TM Mini': 0 },
+                tripsByTruckNo: {},
+                qtyByTruckNo: {},
+                tripsByDay: {},
+                allocationBreakdown: {},
+                tripsByAllocation: {},
+                qtyByAllocation: {},
+                distanceByTruckNo: {}, // NEW: Menyimpan total jarak per truck
+                uniqueTrucks: { 'TM Big': new Set(), 'TM Mini': new Set() } // Untuk Total Truck
+            };
+            data.forEach(row => {
+                const truckType = row['Truck Type'];
+                const truckNo = row['Truck No'];
+                const allocation = row['Allocation Truck'];
+                const qty = parseFloat(row['Qty']) || 0;
+                const date = row['Date'];
+                const distance = parseFloat(row['Distance']) || 0; // NEW: Ambil jarak
+                if (!truckType || !allocation) return;
+                // Track unique trucks
+                analysis.uniqueTrucks[truckType].add(truckNo);
+                // Total trips by truck type
+                analysis.totalTrips[truckType]++;
+                analysis.totalQty[truckType] += qty;
+                // Trips and Qty by truck number
+                if (!analysis.tripsByTruckNo[truckNo]) {
+                    analysis.tripsByTruckNo[truckNo] = {
+                        trips: 0,
+                        totalQty: 0,
+                        truckType: truckType
+                    };
+                }
+                analysis.tripsByTruckNo[truckNo].trips++;
+                analysis.tripsByTruckNo[truckNo].totalQty += qty;
+                // Quantity by truck number (duplicate, but kept for clarity in aggregation)
+                if (!analysis.qtyByTruckNo[truckNo]) {
+                    analysis.qtyByTruckNo[truckNo] = 0;
+                }
+                analysis.qtyByTruckNo[truckNo] += qty;
+                // NEW: Distance by truck number (dikalikan 2 karena pergi-pulang)
+                if (!analysis.distanceByTruckNo[truckNo]) {
+                    analysis.distanceByTruckNo[truckNo] = 0;
+                }
+                analysis.distanceByTruckNo[truckNo] += distance * 2;
+                // Trips by allocation
+                if (!analysis.tripsByAllocation[allocation]) {
+                    analysis.tripsByAllocation[allocation] = 0;
+                }
+                analysis.tripsByAllocation[allocation]++;
+                // Quantity by allocation
+                if (!analysis.qtyByAllocation[allocation]) {
+                    analysis.qtyByAllocation[allocation] = 0;
+                }
+                analysis.qtyByAllocation[allocation] += qty;
+                // Other analytics
+                if (!analysis.tripsByDay[date]) {
+                    analysis.tripsByDay[date] = { 'TM Big': 0, 'TM Mini': 0, total: 0 };
+                }
+                analysis.tripsByDay[date][truckType]++;
+                analysis.tripsByDay[date].total++;
+                if (!analysis.allocationBreakdown[allocation]) {
+                    analysis.allocationBreakdown[allocation] = 0;
+                }
+                analysis.allocationBreakdown[allocation]++;
+            });
+            // Calculate totals for trucks
+            analysis.totalTrucks = {
+                'TM Big': analysis.uniqueTrucks['TM Big'].size,
+                'TM Mini': analysis.uniqueTrucks['TM Mini'].size
+            };
+            analysis.totalTrucksAll = analysis.totalTrucks['TM Big'] + analysis.totalTrucks['TM Mini'];
+            // Calculate averages - PERUBAHAN: Avg Trip/Day dibagi dengan jumlah truck
+            const uniqueDays = Object.keys(analysis.tripsByDay).length;
+            analysis.avgTripsPerDay = {
+                'TM Big': (analysis.totalTrips['TM Big'] / uniqueDays / analysis.totalTrucks['TM Big']).toFixed(1),
+                'TM Mini': (analysis.totalTrips['TM Mini'] / uniqueDays / analysis.totalTrucks['TM Mini']).toFixed(1)
+            };
+            analysis.avgLoadPerTrip = {
+                'TM Big': analysis.totalTrips['TM Big'] > 0 ? 
+                    (analysis.totalQty['TM Big'] / analysis.totalTrips['TM Big']).toFixed(2) : '0',
+                'TM Mini': analysis.totalTrips['TM Mini'] > 0 ? 
+                    (analysis.totalQty['TM Mini'] / analysis.totalTrips['TM Mini']).toFixed(2) : '0'
+            };
+            // Calculate average load per trip for each truck number
+            analysis.avgLoadByTruckNo = {};
+            for (const truckNo in analysis.tripsByTruckNo) {
+                const truckData = analysis.tripsByTruckNo[truckNo];
+                analysis.avgLoadByTruckNo[truckNo] = truckData.trips > 0 ? (truckData.totalQty / truckData.trips).toFixed(2) : '0';
+            }
+            // Calculate average trip per day for each truck number
+            analysis.avgTripPerDayByTruckNo = {};
+            for (const truckNo in analysis.tripsByTruckNo) {
+                const truckData = analysis.tripsByTruckNo[truckNo];
+                // Hitung jumlah hari unik truk ini melakukan trip dalam data yang difilter
+                const uniqueDaysForTruck = new Set();
+                filteredData.forEach(row => {
+                    if (row['Truck No'] === truckNo && row['Truck Type'] === truckData.truckType) {
+                        uniqueDaysForTruck.add(row['Date']);
+                    }
+                });
+                const daysActive = uniqueDaysForTruck.size;
+                analysis.avgTripPerDayByTruckNo[truckNo] = daysActive > 0 ? (truckData.trips / daysActive).toFixed(2) : 0;
+            }
+            // NEW: Calculate average distance per trip for each truck number
+            analysis.avgDistanceByTruckNo = {};
+            for (const truckNo in analysis.tripsByTruckNo) {
+                const truckData = analysis.tripsByTruckNo[truckNo];
+                analysis.avgDistanceByTruckNo[truckNo] = truckData.trips > 0 ? 
+                    (analysis.distanceByTruckNo[truckNo] / truckData.trips).toFixed(2) : '0';
+            }
+            analysis.totalVolume = (analysis.totalQty['TM Big'] + analysis.totalQty['TM Mini']).toFixed(1);
+            analysis.totalTripsAll = analysis.totalTrips['TM Big'] + analysis.totalTrips['TM Mini'];
+            return analysis;
+        }
+
+        function updateDashboard(analysis) {
+            // Format angka dengan separator koma dan warna putih
+            document.getElementById('totalBigTrips').textContent = analysis.totalTrips['TM Big'].toLocaleString();
+            document.getElementById('totalMiniTrips').textContent = analysis.totalTrips['TM Mini'].toLocaleString();
+            document.getElementById('avgBigDaily').textContent = analysis.avgTripsPerDay['TM Big'];
+            document.getElementById('avgMiniDaily').textContent = analysis.avgTripsPerDay['TM Mini'];
+            document.getElementById('avgBigLoad').textContent = analysis.avgLoadPerTrip['TM Big'] + ' m³';
+            document.getElementById('avgMiniLoad').textContent = analysis.avgLoadPerTrip['TM Mini'] + ' m³';
+            document.getElementById('totalBigVolume').textContent = parseFloat(analysis.totalQty['TM Big']).toFixed(1).toLocaleString() + ' m³';
+            document.getElementById('totalMiniVolume').textContent = parseFloat(analysis.totalQty['TM Mini']).toFixed(1).toLocaleString() + ' m³';
+            // Update Total Truck KPIs
+            document.getElementById('totalBigTrucks').textContent = analysis.totalTrucks['TM Big'].toLocaleString();
+            document.getElementById('totalMiniTrucks').textContent = analysis.totalTrucks['TM Mini'].toLocaleString();
+        }
+
+        function createCharts(analysis) {
+            // Create charts for both tabs initially
+            createChartsForTab(analysis, 'Big');
+            createChartsForTab(analysis, 'Mini');
+        }
+
+        function createChartsForTab(analysis, tabType) {
+            const isBig = tabType === 'Big';
+            const truckType = isBig ? 'TM Big' : 'TM Mini';
+            const color = isBig ? '#3498db' : '#27ae60'; // TM Big: biru, TM Mini: hijau
+            const color2 = isBig ? '#2980b9' : '#2ecc71'; // TM Big: biru tua, TM Mini: hijau muda
+            const color3 = isBig ? '#9b59b6' : '#f39c12'; // TM Big: ungu, TM Mini: orange
+            // Filter data for this truck type
+            const truckNos = Object.keys(analysis.tripsByTruckNo).filter(
+                truckNo => analysis.tripsByTruckNo[truckNo].truckType === truckType
+            );
+            // --- Chart 1: Total Volume per Truck No TM Big ---
+            if (isBig) {
+                // Sort data dari terbesar ke terkecil untuk TM Big
+                const sortedData = truckNos.map(truckNo => ({
+                    truckNo,
+                    volume: analysis.qtyByTruckNo[truckNo],
+                    trips: analysis.tripsByTruckNo[truckNo].trips,
+                    avgLoad: analysis.avgLoadByTruckNo[truckNo],
+                    avgTripPerDay: analysis.avgTripPerDayByTruckNo[truckNo],
+                    totalDistance: analysis.distanceByTruckNo[truckNo], // NEW
+                    avgDistance: analysis.avgDistanceByTruckNo[truckNo] // NEW
+                })).sort((a, b) => b.volume - a.volume);
+                const sortedTruckNos = sortedData.map(item => item.truckNo);
+                const volumesPerTruck = sortedData.map(item => item.volume);
+                const volumeColors = sortedTruckNos.map(truckNo => {
+                    if (truckNo === 'A448') return '#FFD700';
+                    if (truckNo === 'A969') return '#FF6347';
+                    return color2;
+                });
+                const volumeTrace = {
+                    x: sortedTruckNos,
+                    y: volumesPerTruck,
+                    type: 'bar',
+                    name: 'Total Volume',
+                    marker: { color: volumeColors },
+                    text: volumesPerTruck.map(v => v.toLocaleString(undefined, {maximumFractionDigits: 1}) + ' m³'),
+                    textposition: 'auto',
+                    textfont: { color: 'white', size: 10 }
+                };
+                Plotly.newPlot(`volumeTripChartBig`, [volumeTrace], {
+                    yaxis: { title: 'Total Volume (m³)' },
+                    xaxis: { title: 'Truck No', tickangle: -45 },
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    height: 350,
+                    responsive: true,
+                    barmode: 'group'
+                });
+            } else {
+                // TM Mini: Total Volume & Trip & Avg Trip per Day per Truck No
+                const volumesPerTruck = truckNos.map(truckNo => analysis.qtyByTruckNo[truckNo]);
+                const tripsPerTruck = truckNos.map(truckNo => analysis.tripsByTruckNo[truckNo].trips);
+                const avgTripPerDayPerTruck = truckNos.map(truckNo => analysis.avgTripPerDayByTruckNo[truckNo]);
+                // Trace untuk Volume (Bar Chart) - Diperbarui: biru gradient ke ungu
+                const volumeTrace = {
+                    x: truckNos,
+                    y: volumesPerTruck,
+                    type: 'bar',
+                    name: 'Total Volume',
+                    marker: { 
+                        color: volumesPerTruck.map(() => '#3498db'), // Warna biru untuk volume
+                        gradient: {
+                            type: 'vertical',
+                            color: ['#3498db', '#9b59b6'] // Gradient dari biru ke ungu
+                        }
+                    },
+                    text: volumesPerTruck.map(v => v.toLocaleString(undefined, {maximumFractionDigits: 1}) + ' m³'),
+                    textposition: 'auto',
+                    textfont: { color: 'white', size: 10 },
+                    yaxis: 'y1'
+                };
+                // Trace untuk Trip (Bar Chart) - Diperbarui: hijau gradient ke orange
+                const tripTrace = {
+                    x: truckNos,
+                    y: tripsPerTruck,
+                    type: 'bar',
+                    name: 'Total Trip',
+                    marker: { 
+                        color: tripsPerTruck.map(() => '#27ae60'), // Warna hijau untuk trip
+                        gradient: {
+                            type: 'vertical',
+                            color: ['#27ae60', '#f39c12'] // Gradient dari hijau ke orange
+                        }
+                    },
+                    text: tripsPerTruck.map(t => t.toLocaleString()),
+                    textposition: 'auto',
+                    textfont: { color: 'white', size: 10 },
+                    yaxis: 'y1'
+                };
+                // PERUBAHAN: Trace untuk Avg Trip per Day (Line Chart dengan dash) - sebagai secondary axis
+                const avgTripTrace = {
+                    x: truckNos,
+                    y: avgTripPerDayPerTruck,
+                    type: 'scatter',
+                    mode: 'lines+markers+text',
+                    name: 'Avg Trip per Day',
+                    line: {
+                        color: '#9b59b6',
+                        width: 3,
+                        dash: 'dash'
+                    },
+                    marker: {
+                        color: '#9b59b6',
+                        size: 8
+                    },
+                    text: avgTripPerDayPerTruck.map(avg => parseFloat(avg).toFixed(2)),
+                    textposition: 'top center',
+                    textfont: { 
+                        color: '#000000', // <- HITAM 
+                        size: 13, 
+                        weight: 'bold', // <- BOLD BIASA
+                        family: 'Arial, sans-serif' // <- FONT NORMAL
+                    },
+                    yaxis: 'y2'
+                };
+                const volumeTripAvgLayout = {
+                    yaxis: { 
+                        title: 'Volume & Trip Amount',
+                        side: 'left'
+                    },
+                    yaxis2: {
+                        title: 'Avg Trip per Day',
+                        side: 'right',
+                        overlaying: 'y',
+                        range: [0, Math.max(...avgTripPerDayPerTruck) * 1.2] // Tambah margin untuk text
+                    },
+                    xaxis: { title: 'Truck No', tickangle: -45 },
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    height: 350,
+                    responsive: true,
+                    barmode: 'group',
+                    legend: {
+                        orientation: 'h',
+                        y: 1.25, // Legend lebih naik/jauh dari chart
+                        x: 0.5,
+                        xanchor: 'center'
+                    }
+                };
+                Plotly.newPlot(`volumeTripAvgChartMini`, [volumeTrace, tripTrace, avgTripTrace], volumeTripAvgLayout);
+            }
+            // --- Chart 2: Total Trip per Truck No (TM Big only) ---
+            if (isBig) {
+                // Sort data dari terbesar ke terkecil untuk TM Big
+                const sortedData = truckNos.map(truckNo => ({
+                    truckNo,
+                    volume: analysis.qtyByTruckNo[truckNo],
+                    trips: analysis.tripsByTruckNo[truckNo].trips,
+                    avgLoad: analysis.avgLoadByTruckNo[truckNo],
+                    avgTripPerDay: analysis.avgTripPerDayByTruckNo[truckNo],
+                    totalDistance: analysis.distanceByTruckNo[truckNo], // NEW
+                    avgDistance: analysis.avgDistanceByTruckNo[truckNo] // NEW
+                })).sort((a, b) => b.trips - a.trips);
+                const sortedTruckNos = sortedData.map(item => item.truckNo);
+                const tripsPerTruck = sortedData.map(item => item.trips);
+                const tripColors = sortedTruckNos.map(truckNo => {
+                    if (truckNo === 'A448') return '#FFD700';
+                    if (truckNo === 'A969') return '#FF6347';
+                    return color;
+                });
+                const totalTripTrace = {
+                    x: sortedTruckNos,
+                    y: tripsPerTruck,
+                    type: 'bar',
+                    marker: { color: tripColors },
+                    text: tripsPerTruck.map(trips => trips.toLocaleString()),
+                    textposition: 'auto',
+                    textfont: { color: 'white', size: 10 }
+                };
+                Plotly.newPlot(`totalTripChartBig`, [totalTripTrace], {
+                    yaxis: { title: 'Number of Trips' },
+                    xaxis: { title: 'Truck No', tickangle: -45 },
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    height: 350,
+                    responsive: true
+                });
+            }
+            // --- Chart 3: Avg Load per Trip per Truck No (Both tabs) ---
+            if (!isBig) {
+                const avgLoads = truckNos.map(truckNo => analysis.avgLoadByTruckNo[truckNo]);
+                const avgLoadTrace = {
+                    x: truckNos,
+                    y: avgLoads,
+                    type: 'bar',
+                    marker: { 
+                        color: '#27ae60', // Warna hijau untuk avg load
+                        gradient: {
+                            type: 'vertical',
+                            color: ['#27ae60', '#f39c12'] // Gradient dari hijau ke orange
+                        }
+                    },
+                    text: avgLoads.map(load => parseFloat(load).toFixed(2) + ' m³'),
+                    textposition: 'auto',
+                    textfont: { color: 'white', size: 10 }
+                };
+                Plotly.newPlot(`avgLoadChartMini`, [avgLoadTrace], {
+                    yaxis: { title: 'Average Load (m³)' },
+                    xaxis: { title: 'Truck No', tickangle: -45 },
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    height: 350,
+                    responsive: true
+                });
+            } else {
+                 // TM Big: Avg Load per Trip - Sort dari terbesar ke terkecil
+                const sortedData = truckNos.map(truckNo => ({
+                    truckNo,
+                    volume: analysis.qtyByTruckNo[truckNo],
+                    trips: analysis.tripsByTruckNo[truckNo].trips,
+                    avgLoad: analysis.avgLoadByTruckNo[truckNo],
+                    avgTripPerDay: analysis.avgTripPerDayByTruckNo[truckNo],
+                    totalDistance: analysis.distanceByTruckNo[truckNo], // NEW
+                    avgDistance: analysis.avgDistanceByTruckNo[truckNo] // NEW
+                })).sort((a, b) => b.avgLoad - a.avgLoad);
+                const sortedTruckNos = sortedData.map(item => item.truckNo);
+                const avgLoads = sortedData.map(item => item.avgLoad);
+                const avgLoadColors = sortedTruckNos.map(truckNo => {
+                    if (truckNo === 'A448') return '#FFD700';
+                    if (truckNo === 'A969') return '#FF6347';
+                    return color2;
+                });
+                const avgLoadTrace = {
+                    x: sortedTruckNos,
+                    y: avgLoads,
+                    type: 'bar',
+                    marker: { color: avgLoadColors },
+                    text: avgLoads.map(load => parseFloat(load).toFixed(2) + ' m³'),
+                    textposition: 'auto',
+                    textfont: { color: 'white', size: 10 }
+                };
+                Plotly.newPlot(`avgLoadChartBig`, [avgLoadTrace], {
+                    yaxis: { title: 'Average Load (m³)' },
+                    xaxis: { title: 'Truck No', tickangle: -45 },
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    height: 350,
+                    responsive: true
+                });
+            }
+            // --- Chart 4: Avg Trip/Day per Truck No (TM Big only) ---
+            if (isBig) {
+                // Sort data dari terbesar ke terkecil untuk TM Big
+                const sortedData = truckNos.map(truckNo => ({
+                    truckNo,
+                    volume: analysis.qtyByTruckNo[truckNo],
+                    trips: analysis.tripsByTruckNo[truckNo].trips,
+                    avgLoad: analysis.avgLoadByTruckNo[truckNo],
+                    avgTripPerDay: analysis.avgTripPerDayByTruckNo[truckNo],
+                    totalDistance: analysis.distanceByTruckNo[truckNo], // NEW
+                    avgDistance: analysis.avgDistanceByTruckNo[truckNo] // NEW
+                })).sort((a, b) => b.avgTripPerDay - a.avgTripPerDay);
+                const sortedTruckNos = sortedData.map(item => item.truckNo);
+                const avgTripPerDayPerTruck = sortedData.map(item => item.avgTripPerDay);
+                const avgTripDayColors = sortedTruckNos.map(truckNo => {
+                    if (truckNo === 'A448') return '#FFD700';
+                    if (truckNo === 'A969') return '#FF6347';
+                    return color3;
+                });
+                const avgTripDayTrace = {
+                    x: sortedTruckNos,
+                    y: avgTripPerDayPerTruck,
+                    type: 'bar',
+                    marker: { color: avgTripDayColors },
+                    text: avgTripPerDayPerTruck.map(avg => parseFloat(avg).toFixed(2)),
+                    textposition: 'auto',
+                    textfont: { color: 'white', size: 10 }
+                };
+                Plotly.newPlot(`avgTripDayChartBig`, [avgTripDayTrace], {
+                    yaxis: { title: 'Avg Trip/Day' },
+                    xaxis: { title: 'Truck No', tickangle: -45 },
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    height: 350,
+                    responsive: true
+                });
+            }
+            // --- NEW: Chart 5: Total Distance per Truck No (TM Big only) ---
+            if (isBig) {
+                // Sort data dari terbesar ke terkecil untuk total distance
+                const distanceData = truckNos.map(truckNo => ({
+                    truckNo,
+                    totalDistance: analysis.distanceByTruckNo[truckNo],
+                    avgDistance: analysis.avgDistanceByTruckNo[truckNo]
+                })).sort((a, b) => b.totalDistance - a.totalDistance);
+                const sortedTruckNosDistance = distanceData.map(item => item.truckNo);
+                const sortedTotalDistances = distanceData.map(item => item.totalDistance);
+                const totalDistanceColors = sortedTruckNosDistance.map(truckNo => {
+                    if (truckNo === 'A448') return '#FFD700';
+                    if (truckNo === 'A969') return '#FF6347';
+                    return '#3498db';
+                });
+                const totalDistanceTrace = {
+                    x: sortedTruckNosDistance,
+                    y: sortedTotalDistances,
+                    type: 'bar',
+                    name: 'Total Distance (km)',
+                    marker: { 
+                        color: totalDistanceColors,
+                        gradient: {
+                            type: 'vertical',
+                            color: ['#3498db', '#9b59b6']
+                        }
+                    },
+                    text: sortedTotalDistances.map(d => d.toLocaleString(undefined, {maximumFractionDigits: 1}) + ' km'),
+                    textposition: 'auto',
+                    textfont: { color: 'white', size: 10 }
+                };
+                const totalDistanceLayout = {
+                    yaxis: { 
+                        title: 'Total Distance (km)'
+                    },
+                    xaxis: { title: 'Truck No', tickangle: -45 },
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    height: 350,
+                    responsive: true
+                };
+                Plotly.newPlot(`totalDistanceChartBig`, [totalDistanceTrace], totalDistanceLayout);
+            }
+            // --- NEW: Chart 6: Avg Distance per Truck No (TM Big only) ---
+            if (isBig) {
+                // Sort data dari terbesar ke terkecil untuk avg distance
+                const avgDistanceData = truckNos.map(truckNo => ({
+                    truckNo,
+                    totalDistance: analysis.distanceByTruckNo[truckNo],
+                    avgDistance: analysis.avgDistanceByTruckNo[truckNo]
+                })).sort((a, b) => b.avgDistance - a.avgDistance);
+                const sortedTruckNosAvgDistance = avgDistanceData.map(item => item.truckNo);
+                const sortedAvgDistances = avgDistanceData.map(item => item.avgDistance);
+                const avgDistanceColors = sortedTruckNosAvgDistance.map(truckNo => {
+                    if (truckNo === 'A448') return '#FFD700';
+                    if (truckNo === 'A969') return '#FF6347';
+                    return '#e74c3c';
+                });
+                const avgDistanceTrace = {
+                    x: sortedTruckNosAvgDistance,
+                    y: sortedAvgDistances,
+                    type: 'bar',
+                    name: 'Avg Distance per Trip (km)',
+                    marker: { 
+                        color: avgDistanceColors,
+                        gradient: {
+                            type: 'vertical',
+                            color: ['#e74c3c', '#f39c12']
+                        }
+                    },
+                    text: sortedAvgDistances.map(avg => parseFloat(avg).toFixed(2) + ' km'),
+                    textposition: 'auto',
+                    textfont: { color: 'white', size: 10 }
+                };
+                const avgDistanceLayout = {
+                    yaxis: { 
+                        title: 'Avg Distance per Trip (km)'
+                    },
+                    xaxis: { title: 'Truck No', tickangle: -45 },
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    height: 350,
+                    responsive: true
+                };
+                Plotly.newPlot(`avgDistanceChartBig`, [avgDistanceTrace], avgDistanceLayout);
+            }
+            // --- NEW: Chart 7: Distance Chart for TM Mini (Tanpa Secondary Axis) ---
+            if (!isBig) {
+                const totalDistances = truckNos.map(truckNo => analysis.distanceByTruckNo[truckNo]);
+                const avgDistances = truckNos.map(truckNo => analysis.avgDistanceByTruckNo[truckNo]);
+                // Sort data dari terbesar ke terkecil untuk total distance
+                const distanceData = truckNos.map((truckNo, index) => ({
+                    truckNo,
+                    totalDistance: totalDistances[index],
+                    avgDistance: avgDistances[index]
+                })).sort((a, b) => b.totalDistance - a.totalDistance);
+                const sortedTruckNosDistance = distanceData.map(item => item.truckNo);
+                const sortedTotalDistances = distanceData.map(item => item.totalDistance);
+                const sortedAvgDistances = distanceData.map(item => item.avgDistance);
+                // Trace untuk Total Distance (Bar Chart)
+                const totalDistanceTrace = {
+                    x: sortedTruckNosDistance,
+                    y: sortedTotalDistances,
+                    type: 'bar',
+                    name: 'Total Distance (km)',
+                    marker: { 
+                        color: '#FFA500',
+                        gradient: {
+                            type: 'vertical',
+                            color: ['#FFA500', '#FF8C00'] // Gradient dari Orange ke Orange tua
+                        }
+                    },
+                    text: sortedTotalDistances.map(d => d.toLocaleString(undefined, {maximumFractionDigits: 1}) + ' km'),
+                    textposition: 'auto',
+                    textfont: { color: 'white', size: 10 }
+                };
+                // Trace untuk Avg Distance (Line Chart dengan dash)
+                const avgDistanceTrace = {
+                    x: sortedTruckNosDistance,
+                    y: sortedAvgDistances,
+                    type: 'scatter',
+                    mode: 'lines+markers+text',
+                    name: 'Avg Distance per Trip (km)',
+                    line: {
+                        color: '#9B59B6', // Ganti dengan warna Ungu
+                        width: 3,
+                        dash: 'dash'
+                    },
+                    marker: {
+                        color: '#9B59B6', // Ganti dengan warna Ungu
+                        size: 8
+                    },
+                    text: sortedAvgDistances.map(avg => parseFloat(avg).toFixed(2) + ' km'),
+                    textposition: 'top center',
+                    textfont: { 
+                        color: '#000000',
+                        size: 13, 
+                        weight: 'bold',
+                        family: 'Arial, sans-serif'
+                    }
+                };
+                const distanceLayout = {
+                    yaxis: { 
+                        title: 'Distance (km)'
+                    },
+                    xaxis: { title: 'Truck No', tickangle: -45 },
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    height: 350,
+                    responsive: true,
+                    barmode: 'group',
+                    legend: {
+                        orientation: 'h',
+                        y: 1.25,
+                        x: 0.5,
+                        xanchor: 'center'
+                    }
+                };
+                Plotly.newPlot(`distanceChartMini`, [totalDistanceTrace, avgDistanceTrace], distanceLayout);
+            }
+            // --- Additional Chart for TM Mini - Allocation Truck (Corrected) ---
+            if (!isBig) {
+                const allocations = Object.keys(analysis.tripsByAllocation).filter(alloc => {
+                    return filteredData.some(row => 
+                        row['Allocation Truck'] === alloc && row['Truck Type'] === 'TM Mini'
+                    );
+                });
+                // Recalculate trips and volume specifically for TM Mini and these allocations
+                const tripsByAllocation = allocations.map(allocation => {
+                    let sum = 0;
+                    filteredData.forEach(row => {
+                        if (row['Allocation Truck'] === allocation && row['Truck Type'] === 'TM Mini') {
+                            sum++;
+                        }
+                    });
+                    return sum;
+                });
+                const qtyByAllocation = allocations.map(allocation => {
+                    let sum = 0;
+                    filteredData.forEach(row => {
+                        if (row['Allocation Truck'] === allocation && row['Truck Type'] === 'TM Mini') {
+                            sum += parseFloat(row['Qty']) || 0;
+                        }
+                    });
+                    return sum;
+                });
+                // Calculate percentages for trips
+                const totalTrips = tripsByAllocation.reduce((sum, trips) => sum + trips, 0);
+                const tripPercentages = tripsByAllocation.map(trips => 
+                    totalTrips > 0 ? ((trips / totalTrips) * 100).toFixed(1) : 0
+                );
+                // Trace untuk Volume (Bar Chart) - Diperbarui: biru gradient ke ungu
+                const allocationTrace1 = {
+                    x: allocations,
+                    y: qtyByAllocation,
+                    type: 'bar',
+                    name: 'Total Volume (m³)',
+                    marker: { 
+                        color: '#3498db', // Warna biru untuk volume
+                        gradient: {
+                            type: 'vertical',
+                            color: ['#3498db', '#9b59b6'] // Gradient dari biru ke ungu
+                        }
+                    },
+                    text: qtyByAllocation.map(qty => qty.toLocaleString(undefined, {maximumFractionDigits: 1}) + ' m³'),
+                    textposition: 'auto',
+                    textfont: { color: 'white', size: 10 },
+                    yaxis: 'y1'
+                };
+                // Trace untuk Trip (Bar Chart) - Diperbarui: hijau gradient ke orange
+                const allocationTrace2 = {
+                    x: allocations,
+                    y: tripsByAllocation,
+                    type: 'bar',
+                    name: 'Number of Trips',
+                    marker: { 
+                        color: '#27ae60', // Warna hijau untuk trip
+                        gradient: {
+                            type: 'vertical',
+                            color: ['#27ae60', '#f39c12'] // Gradient dari hijau ke orange
+                        }
+                    },
+                    text: tripsByAllocation.map(trips => trips.toLocaleString()),
+                    textposition: 'auto',
+                    textfont: { color: 'white', size: 10 },
+                    yaxis: 'y1'
+                };
+                // Trace untuk Percentage (Line Chart dengan dash dan warna orange)
+                const allocationTrace3 = {
+                    x: allocations,
+                    y: tripPercentages,
+                    type: 'scatter',
+                    mode: 'lines+markers+text',
+                    name: 'Trip Percentage (%)',
+                    line: {
+                        color: '#f39c12',
+                        width: 3,
+                        dash: 'dash'
+                    },
+                    marker: {
+                        color: '#f39c12',
+                        size: 8
+                    },
+                    text: tripPercentages.map(p => p + '%'),
+                    textposition: 'top center',
+                    textfont: { 
+                        color: '#000000',
+                        size: 13, 
+                        weight: 'bold',
+                        family: 'Arial, sans-serif'
+                    },
+                    yaxis: 'y2'
+                };
+                const allocationLayout = {
+                    yaxis: { 
+                        title: 'Amount',
+                        side: 'left'
+                    },
+                    yaxis2: {
+                        title: 'Percentage (%)',
+                        side: 'right',
+                        overlaying: 'y',
+                        range: [0, Math.max(...tripPercentages) * 1.2] // Tambah margin untuk text
+                    },
+                    xaxis: { title: 'Allocation Truck', tickangle: -45 },
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    height: 350,
+                    responsive: true,
+                    barmode: 'group',
+                    legend: {
+                        orientation: 'h',
+                        y: 1.25, // Legend lebih naik/jauh dari chart
+                        x: 0.5,
+                        xanchor: 'center'
+                    }
+                };
+                Plotly.newPlot('allocationChartMini', [allocationTrace1, allocationTrace2, allocationTrace3], allocationLayout);
+            }
+        }
+
+        function sortTable(columnIndex, tabType) {
+            const containerId = `dataTableContainer${tabType}`;
+            const table = document.querySelector(`#${containerId} table`);
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            // Remove existing sort classes
+            table.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+            // Determine sort direction
+            if (currentSort.column === columnIndex) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = columnIndex;
+                currentSort.direction = 'asc';
+            }
+            // Add sort class to current column
+            table.querySelectorAll('th')[columnIndex].classList.add(`sort-${currentSort.direction}`);
+            // Sort rows
+            rows.sort((a, b) => {
+                const aValue = a.cells[columnIndex].textContent.trim();
+                const bValue = b.cells[columnIndex].textContent.trim();
+                // Handle numeric values
+                if (columnIndex === 5) { // Qty column
+                    const aNum = parseFloat(aValue) || 0;
+                    const bNum = parseFloat(bValue) || 0;
+                    return currentSort.direction === 'asc' ? aNum - bNum : bNum - aNum;
+                }
+                // Handle date values
+                if (columnIndex === 0) { // Date column
+                    const aDate = new Date(aValue);
+                    const bDate = new Date(bValue);
+                    return currentSort.direction === 'asc' ? aDate - bDate : bDate - aDate;
+                }
+                // Handle text values
+                return currentSort.direction === 'asc' 
+                    ? aValue.localeCompare(bValue)
+                    : bValue.localeCompare(aValue);
+            });
+            // Reappend sorted rows
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function filterTableData() {
+            const tabType = currentTab === 'big' ? 'Big' : 'Mini';
+            const allocationFilter = document.getElementById(`allocationFilter${tabType}`).value;
+            let filteredTableData = tableData[tabType];
+            if (allocationFilter) {
+                filteredTableData = tableData[tabType].filter(row => 
+                    row['Allocation Truck'] === allocationFilter
+                );
+            }
+            displayDataTable(filteredTableData, tabType);
+        }
+
+        function resetTableFilters() {
+            const tabType = currentTab === 'big' ? 'Big' : 'Mini';
+            document.getElementById(`allocationFilter${tabType}`).value = '';
+            displayDataTable(tableData[tabType], tabType);
+        }
+
+        function displayDataTable(data, tabType) {
+            const limitedData = data.slice(0, 100); // Increased limit for better usability
+            const containerId = `dataTableContainer${tabType}`;
+            let tableHTML = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable(0, '${tabType}')">Date</th>
+                            <th onclick="sortTable(1, '${tabType}')">Truck No</th>
+                            <th onclick="sortTable(2, '${tabType}')">Allocation Truck</th>
+                            <th onclick="sortTable(3, '${tabType}')">Site No</th>
+                            <th onclick="sortTable(4, '${tabType}')">Site Name</th>
+                            <th onclick="sortTable(5, '${tabType}')">Qty (m³)</th>
+                            <th onclick="sortTable(6, '${tabType}')">Distance (km)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            limitedData.forEach(row => {
+                tableHTML += `
+                    <tr>
+                        <td>${row['Date']}</td>
+                        <td>${row['Truck No']}</td>
+                        <td>${row['Allocation Truck']}</td>
+                        <td>${row['Site No']}</td>
+                        <td>${row['Site Name']}</td>
+                        <td>${parseFloat(row['Qty']).toFixed(1)}</td>
+                        <td>${parseFloat(row['Distance']).toFixed(1)}</td>
+                    </tr>
+                `;
+            });
+            tableHTML += `
+                    </tbody>
+                </table>
+                <p style="margin-top: 15px; color: #7f8c8d;">
+                    Showing ${limitedData.length} of ${data.length} records
+                </p>
+            `;
+            document.getElementById(containerId).innerHTML = tableHTML;
+        }
+
+        // ========== TRUCK ALLOCATION FUNCTIONS ==========
+        function toggleBreakdownFields() {
+            const status = document.getElementById('status').value;
+            const dateInfoGroup = document.getElementById('dateInfoGroup');
+            const remarksGroup = document.getElementById('remarksGroup');
+            if (status === 'BD Minor' || status === 'BD Major') {
+                dateInfoGroup.style.display = 'block';
+                remarksGroup.style.display = 'block';
+            } else {
+                dateInfoGroup.style.display = 'none';
+                remarksGroup.style.display = 'none';
+            }
+        }
+
+        function calculateDuration(dateInfo) {
+            if (!dateInfo) return 0;
+            const startDate = new Date(dateInfo);
+            const today = new Date();
+            const diffTime = Math.abs(today - startDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+
+        function saveAllocation() {
+            const truckType = document.getElementById('truckType').value;
+            const truckNo = document.getElementById('truckNo').value.trim();
+            const plantAllocation = document.getElementById('plantAllocation').value.trim();
+            const status = document.getElementById('status').value;
+            const dateInfo = document.getElementById('dateInfo').value;
+            const remarks = document.getElementById('remarks').value.trim();
+
+            // Validation
+            if (!truckNo) {
+                alert('Please enter Truck No');
+                return;
+            }
+            if (!plantAllocation) {
+                alert('Please enter Plant Allocation');
+                return;
+            }
+            if ((status === 'BD Minor' || status === 'BD Major') && !dateInfo) {
+                alert('Please enter Date Info for breakdown status');
+                return;
+            }
+
+            // Calculate duration
+            const duration = calculateDuration(dateInfo);
+
+            // Create allocation object
+            const allocation = {
+                id: editingAllocationId || Date.now().toString(), // Gunakan ID yang sedang diedit, atau buat baru
+                truckType,
+                truckNo,
+                plantAllocation,
+                status,
+                dateInfo,
+                duration,
+                remarks,
+                lastUpdated: new Date().toISOString()
+            };
+
+            // Save to array and localStorage
+            if (editingAllocationId) {
+                // Update existing allocation
+                const index = truckAllocations.findIndex(a => a.id === editingAllocationId);
+                if (index !== -1) {
+                    truckAllocations[index] = allocation;
+                }
+                // Reset ID setelah penyimpanan
+                editingAllocationId = null;
+            } else {
+                // Add new allocation
+                truckAllocations.push(allocation);
+            }
+
+            // Save to localStorage
+            localStorage.setItem('truckAllocations', JSON.stringify(truckAllocations));
+
+            // Update UI
+            updateAllocationTable();
+            updateAllocationKPIs();
+
+            // Clear form
+            clearAllocationForm();
+            alert('Truck allocation saved successfully!');
+        }
+
+        function clearAllocationForm() {
+            document.getElementById('truckType').value = 'TM Big';
+            document.getElementById('truckNo').value = '';
+            document.getElementById('plantAllocation').value = '';
+            document.getElementById('status').value = 'Active';
+            document.getElementById('dateInfo').value = '';
+            document.getElementById('remarks').value = '';
+            // Jangan reset editingAllocationId di sini jika ingin form tetap dalam mode edit
+            // editingAllocationId = null;
+            toggleBreakdownFields(); // Pastikan elemen breakdown disembunyikan
+        }
+
+        function editAllocation(id) {
+            const allocation = truckAllocations.find(a => a.id === id);
+            if (!allocation) return;
+
+            // Fill form with allocation data
+            document.getElementById('truckType').value = allocation.truckType;
+            document.getElementById('truckNo').value = allocation.truckNo;
+            document.getElementById('plantAllocation').value = allocation.plantAllocation;
+            document.getElementById('status').value = allocation.status;
+            document.getElementById('dateInfo').value = allocation.dateInfo;
+            document.getElementById('remarks').value = allocation.remarks || '';
+
+            // Set editing mode
+            editingAllocationId = id; // Simpan ID yang sedang diedit
+
+            // Show/hide breakdown fields based on status
+            toggleBreakdownFields();
+
+            // Scroll to form
+            document.querySelector('.allocation-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateAllocationStatus(id, newStatus) {
+            const allocation = truckAllocations.find(a => a.id === id);
+            if (!allocation) return;
+
+            allocation.status = newStatus;
+            allocation.lastUpdated = new Date().toISOString();
+
+            // If status is changed to Active, clear breakdown fields
+            if (newStatus === 'Active') {
+                allocation.dateInfo = '';
+                allocation.remarks = '';
+                allocation.duration = 0;
+            } else {
+                 // Recalculate duration if status changes back to BD
+                 allocation.duration = calculateDuration(allocation.dateInfo);
+            }
+
+            // Save to localStorage
+            localStorage.setItem('truckAllocations', JSON.stringify(truckAllocations));
+
+            // Update UI
+            updateAllocationTable();
+            updateAllocationKPIs();
+            alert(`Truck status updated to ${newStatus}`);
+        }
+
+        // NEW: Filter function for allocation table
+        function filterAllocationTable() {
+            updateAllocationTable();
+        }
+
+        // NEW: Reset filter for allocation table
+        function resetAllocationFilters() {
+            document.getElementById('allocationStatusFilter').value = '';
+            updateAllocationTable();
+        }
+
+        // NEW: Sort function for allocation table
+        function sortAllocationTable(columnIndex) {
+            const container = document.getElementById('allocationTableContainer');
+            const table = container.querySelector('table');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            // Remove existing sort classes
+            table.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+
+            // Determine sort direction
+            if (allocationCurrentSort.column === columnIndex) {
+                allocationCurrentSort.direction = allocationCurrentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                allocationCurrentSort.column = columnIndex;
+                allocationCurrentSort.direction = 'asc';
+            }
+
+            // Add sort class to current column
+            table.querySelectorAll('th')[columnIndex].classList.add(`sort-${allocationCurrentSort.direction}`);
+
+            // Get current filter value
+            const statusFilter = document.getElementById('allocationStatusFilter')?.value || '';
+            
+            // Filter data based on status
+            let filteredAllocations = truckAllocations;
+            if (statusFilter) {
+                filteredAllocations = truckAllocations.filter(allocation => 
+                    allocation.status === statusFilter
+                );
+            }
+
+            // Sort the filtered data
+            filteredAllocations.sort((a, b) => {
+                let aValue, bValue;
+                
+                switch (columnIndex) {
+                    case 0: // No column
+                        return allocationCurrentSort.direction === 'asc' ? 
+                            filteredAllocations.indexOf(a) - filteredAllocations.indexOf(b) : 
+                            filteredAllocations.indexOf(b) - filteredAllocations.indexOf(a);
+                    case 1: // Truck Type
+                        aValue = a.truckType;
+                        bValue = b.truckType;
+                        break;
+                    case 2: // Truck No
+                        aValue = a.truckNo;
+                        bValue = b.truckNo;
+                        break;
+                    case 3: // Plant Allocation
+                        aValue = a.plantAllocation;
+                        bValue = b.plantAllocation;
+                        break;
+                    case 4: // Status
+                        aValue = a.status;
+                        bValue = b.status;
+                        break;
+                    case 5: // Date Info
+                        aValue = a.dateInfo || '';
+                        bValue = b.dateInfo || '';
+                        break;
+                    case 6: // Duration
+                        aValue = a.duration;
+                        bValue = b.duration;
+                        break;
+                    case 7: // Remarks
+                        aValue = a.remarks || '';
+                        bValue = b.remarks || '';
+                        break;
+                    default:
+                        return 0;
+                }
+
+                // Handle numeric values
+                if (columnIndex === 6) { // Duration column
+                    return allocationCurrentSort.direction === 'asc' ? aValue - bValue : bValue - aValue;
+                }
+
+                // Handle date values
+                if (columnIndex === 5 && aValue && bValue) { // Date Info column
+                    const aDate = new Date(aValue);
+                    const bDate = new Date(bValue);
+                    return allocationCurrentSort.direction === 'asc' ? aDate - bDate : bDate - aDate;
+                }
+
+                // Handle text values
+                return allocationCurrentSort.direction === 'asc' 
+                    ? aValue.localeCompare(bValue)
+                    : bValue.localeCompare(aValue);
+            });
+
+            // Rebuild the table with sorted data
+            updateAllocationTableWithData(filteredAllocations);
+        }
+
+        // NEW: Helper function to update allocation table with specific data
+        function updateAllocationTableWithData(data) {
+            const container = document.getElementById('allocationTableContainer');
+            
+            let tableHTML = `
+                <div class="table-filter">
+                    <div class="filter-group">
+                        <label for="allocationStatusFilter">Filter by Status:</label>
+                        <select id="allocationStatusFilter" onchange="filterAllocationTable()">
+                            <option value="">All Status</option>
+                            <option value="Active">Active</option>
+                            <option value="BD Minor">BD Minor</option>
+                            <option value="BD Major">BD Major</option>
+                            <option value="Non Active/Matee">Non Active/Matee</option>
+                        </select>
+                    </div>
+                    <button class="upload-btn" onclick="resetAllocationFilters()" style="width: auto; margin-top: 20px;">Reset Filter</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th onclick="sortAllocationTable(0)">No</th>
+                            <th onclick="sortAllocationTable(1)">Truck Type</th>
+                            <th onclick="sortAllocationTable(2)">Truck No</th>
+                            <th onclick="sortAllocationTable(3)">Plant Allocation</th>
+                            <th onclick="sortAllocationTable(4)">Status</th>
+                            <th onclick="sortAllocationTable(5)">Date Info</th>
+                            <th onclick="sortAllocationTable(6)">Duration (Days)</th>
+                            <th onclick="sortAllocationTable(7)">Remarks</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            data.forEach((allocation, index) => {
+                const durationClass = allocation.duration > 30 ? 'duration-over-30' : '';
+                const statusClass = `status-${allocation.status.toLowerCase().replace(/ /g, '-')}`;
+
+                tableHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${allocation.truckType}</td>
+                        <td>${allocation.truckNo}</td>
+                        <td>${allocation.plantAllocation}</td>
+                        <td class="${statusClass}">${allocation.status}</td>
+                        <td>${allocation.dateInfo || '-'}</td>
+                        <td class="${durationClass}">${allocation.duration}</td>
+                        <td>${allocation.remarks || '-'}</td>
+                        <td>
+                            <button class="btn-edit" onclick="editAllocation('${allocation.id}')">Edit</button>
+                            ${allocation.status !== 'Active' ? 
+                                `<button class="btn-save" onclick="updateAllocationStatus('${allocation.id}', 'Active')">Set Active</button>` : 
+                                ''
+                            }
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    </tbody>
+                </table>
+                <p style="margin-top: 15px; color: #7f8c8d;">
+                    Showing ${data.length} of ${truckAllocations.length} records
+                </p>
+            `;
+
+            container.innerHTML = tableHTML;
+
+            // Set the current filter value
+            const statusFilter = document.getElementById('allocationStatusFilter');
+            if (statusFilter) {
+                statusFilter.value = document.getElementById('allocationStatusFilter')?.value || '';
+            }
+        }
+
+        function updateAllocationTable() {
+            const container = document.getElementById('allocationTableContainer');
+            if (truckAllocations.length === 0) {
+                container.innerHTML = '<p>No truck allocation data available. Add new allocations using the form above.</p>';
+                return;
+            }
+
+            // Get current filter value
+            const statusFilter = document.getElementById('allocationStatusFilter')?.value || '';
+            
+            // Filter data based on status
+            let filteredAllocations = truckAllocations;
+            if (statusFilter) {
+                filteredAllocations = truckAllocations.filter(allocation => 
+                    allocation.status === statusFilter
+                );
+            }
+
+            updateAllocationTableWithData(filteredAllocations);
+        }
+
+        function updateAllocationKPIs() {
+            // Count trucks by type and status
+            const counts = {
+                'TM Big': { total: 0, active: 0, bdMinor: 0, bdMajor: 0 },
+                'TM Mini': { total: 0, active: 0, bdMinor: 0, bdMajor: 0 }
+            };
+
+            truckAllocations.forEach(allocation => {
+                const type = allocation.truckType;
+                const status = allocation.status;
+                counts[type].total++;
+                if (status === 'Active') {
+                    counts[type].active++;
+                } else if (status === 'BD Minor') {
+                    counts[type].bdMinor++;
+                } else if (status === 'BD Major') {
+                    counts[type].bdMajor++;
+                }
+            });
+
+            // Update KPI cards
+            document.getElementById('totalTruckBig').textContent = counts['TM Big'].total;
+            document.getElementById('activeBig').textContent = counts['TM Big'].active;
+            document.getElementById('bdMinorBig').textContent = counts['TM Big'].bdMinor;
+            document.getElementById('bdMajorBig').textContent = counts['TM Big'].bdMajor;
+            document.getElementById('totalTruckMini').textContent = counts['TM Mini'].total;
+            document.getElementById('activeMini').textContent = counts['TM Mini'].active;
+            document.getElementById('bdMinorMini').textContent = counts['TM Mini'].bdMinor;
+            document.getElementById('bdMajorMini').textContent = counts['TM Mini'].bdMajor;
+        }
+
+        // Initialize date filters with current month
+        window.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            document.getElementById('startDate').value = firstDay.toISOString().split('T')[0];
+            document.getElementById('endDate').value = lastDay.toISOString().split('T')[0];
+
+            // Initialize sidebar toggle
+            document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
+
+            // Initialize truck allocations
+            initializeTruckAllocations();
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (filteredData) {
+                const analysis = performAnalysis(filteredData);
+                createChartsForTab(analysis, 'Big');
+                createChartsForTab(analysis, 'Mini');
+            }
+        });
+    </script>
+</body>
+</html>
