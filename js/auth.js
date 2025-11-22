@@ -2,7 +2,8 @@
 const users = [
     { username: 'admin', password: 'admin123', name: 'Administrator' },
     { username: 'user', password: 'user123', name: 'Regular User' },
-    { username: 'operator', password: 'operator123', name: 'Operator' }
+    { username: 'operator', password: 'operator123', name: 'Operator' },
+    { username: 'cdc', password: 'cdc2024', name: 'CDC Operator' }
 ];
 
 // Check if user is logged in
@@ -33,26 +34,53 @@ function handleLogin(event) {
     
     console.log('Login attempt:', username);
     
-    const user = users.find(u => u.username === username && u.password === password);
+    // Show loading state
+    const loginBtn = document.querySelector('.btn-login');
+    const originalText = loginBtn.innerHTML;
+    loginBtn.innerHTML = '<span>Memproses...</span>';
+    loginBtn.disabled = true;
     
-    if (user) {
-        // Login successful
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('currentUser', JSON.stringify(user));
+    // Simulate API call delay
+    setTimeout(() => {
+        const user = users.find(u => u.username === username && u.password === password);
         
-        console.log('Login successful for user:', user.name);
-        
-        // Redirect to dashboard
-        window.location.href = 'dashboard.html';
-    } else {
-        // Login failed
-        console.log('Login failed for user:', username);
-        alert('Username atau password salah! Silakan coba lagi.');
-        
-        // Clear password field
-        document.getElementById('password').value = '';
-        document.getElementById('username').focus();
-    }
+        if (user) {
+            // Login successful
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            
+            console.log('Login successful for user:', user.name);
+            
+            // Show success message
+            loginBtn.innerHTML = '<span>✓ Berhasil!</span>';
+            loginBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+            
+            // Redirect to dashboard after short delay
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1000);
+            
+        } else {
+            // Login failed
+            console.log('Login failed for user:', username);
+            
+            // Reset button
+            loginBtn.innerHTML = originalText;
+            loginBtn.disabled = false;
+            
+            // Shake animation for error
+            loginBtn.style.animation = 'shake 0.5s ease-in-out';
+            setTimeout(() => {
+                loginBtn.style.animation = '';
+            }, 500);
+            
+            alert('Username atau password salah! Silakan coba lagi.');
+            
+            // Clear password field
+            document.getElementById('password').value = '';
+            document.getElementById('username').focus();
+        }
+    }, 1000);
 }
 
 // Initialize auth system
@@ -69,6 +97,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Set focus to username field
         document.getElementById('username').focus();
+        
+        // Add enter key support
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleLogin(e);
+            }
+        });
     }
     
     // Display current user if element exists
@@ -100,10 +135,20 @@ function logout() {
     localStorage.removeItem('currentUser');
     
     console.log('User logged out:', user.name);
-    alert('Anda telah logout!');
     
     window.location.href = 'index.html';
 }
+
+// Add shake animation for login error
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+`;
+document.head.appendChild(style);
 
 // Export functions for global access
 window.handleLogin = handleLogin;
