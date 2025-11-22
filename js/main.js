@@ -1,78 +1,108 @@
 // Main application functionality
 document.addEventListener('DOMContentLoaded', function() {
-    // Check authentication on dashboard and app pages
-    if (window.location.pathname !== '/index.html' && 
+    console.log('Main.js loaded');
+    
+    // Check authentication on pages other than login
+    if (!window.location.pathname.includes('index.html') && 
+        window.location.pathname !== '/' &&
         !window.location.pathname.endsWith('index.html')) {
+        console.log('Checking authentication...');
         checkAuth();
+    }
+    
+    // Display current user in dashboard
+    const currentUserElement = document.getElementById('currentUser');
+    if (currentUserElement) {
+        const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        currentUserElement.textContent = user.name || 'User';
+        console.log('Current user:', user.name);
     }
 });
 
-// Function to open applications
+// Function to open applications - SESUAI STRUKTUR GITHUB
 function openApp(appName) {
+    console.log('Opening app:', appName);
+    
     const appPaths = {
-        'monitoring-order': 'apps/monitoring-order/index.html',
-        'jadwal-pengecoran': 'apps/jadwal-pengecoran/index.html',
-        'utilisasi-truck': 'apps/utilisasi-truck/index.html',
-        'production-all-area': 'apps/production-all-area/index.html',
-        'summary-daily-delivery': 'apps/summary-daily-delivery/index.html'
+        'monitoring-order': 'monitoring-order-delivery/index.html',
+        'jadwal-pengecoran': 'jadwal-pengecoran/index.html',
+        'utilisasi-truck': 'utilisasi-truck/index.html',
+        'production-all-area': 'production-all-area/index.html',
+        'summary-daily-delivery': 'summary-daily-delivery/index.html'
     };
     
     const appPath = appPaths[appName];
     if (appPath) {
-        // Create a new page with iframe
-        const appPage = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>${appName} - Aplikasi Terpadu</title>
-                <link rel="stylesheet" href="css/style.css">
-            </head>
-            <body>
-                <header class="header">
-                    <div class="header-content">
-                        <h1>Aplikasi Terpadu - ${getAppTitle(appName)}</h1>
-                        <div class="user-info">
-                            <span id="currentUser">Admin</span>
-                            <button onclick="goBackToDashboard()" class="btn-logout">Kembali ke Dashboard</button>
-                            <button onclick="logout()" class="btn-logout">Logout</button>
-                        </div>
-                    </div>
-                </header>
-                <main>
-                    <div class="container">
-                        <iframe src="${appPath}" class="app-frame" 
-                                title="${getAppTitle(appName)}"></iframe>
-                    </div>
-                </main>
-                <script>
-                    function goBackToDashboard() {
-                        window.location.href = 'dashboard.html';
-                    }
-                    ${checkAuth.toString()}
-                    ${logout.toString()}
-                    
-                    // Set current user
-                    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-                    document.getElementById('currentUser').textContent = user.name || 'User';
-                </script>
-            </body>
-            </html>
-        `;
+        console.log('Full path:', appPath);
         
-        // Open in new window or tab
-        const newWindow = window.open('', '_blank');
-        newWindow.document.write(appPage);
-        newWindow.document.close();
+        // Test if file exists first
+        fetch(appPath, { method: 'HEAD' })
+            .then(response => {
+                if (response.ok) {
+                    // File exists, open in new tab
+                    window.open(appPath, '_blank');
+                } else {
+                    alert('File aplikasi tidak ditemukan: ' + appPath);
+                    console.error('File not found:', appPath);
+                }
+            })
+            .catch(error => {
+                alert('Error mengakses aplikasi: ' + appPath);
+                console.error('Error:', error);
+            });
+    } else {
+        alert('Aplikasi tidak dikonfigurasi dengan benar!');
     }
 }
 
-function getAppTitle(appName) {
-    const titles = {
-        'monitoring-order': 'Daily Monitoring Order & Delivery',
-        'jadwal-pengecoran': 'Jadwal Pengecoran',
-        'utilisasi-truck': 'Utilisasi Truck Mixer',
-        'production-all-area': 'Production All Area',
-        'summary-daily-delivery': 'Summary Daily Delivery'
-    };
-    return titles[appName] || 'Aplikasi';
+// Check auth function
+function checkAuth() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const currentUser = localStorage.getItem('currentUser');
+    
+    console.log('Auth check - isLoggedIn:', isLoggedIn, 'currentUser:', currentUser);
+    
+    if (!isLoggedIn || !currentUser) {
+        console.log('Not authenticated, redirecting to login');
+        window.location.href = 'index.html';
+        return false;
+    }
+    console.log('User is authenticated');
+    return true;
 }
+
+// Logout function
+function logout() {
+    console.log('Logging out...');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('currentUser');
+    window.location.href = 'index.html';
+}
+
+// Utility function to test all paths
+function testAllPaths() {
+    console.log('=== TESTING ALL APPLICATION PATHS ===');
+    const appPaths = {
+        'monitoring-order': 'monitoring-order-delivery/index.html',
+        'jadwal-pengecoran': 'jadwal-pengecoran/index.html',
+        'utilisasi-truck': 'utilisasi-truck/index.html',
+        'production-all-area': 'production-all-area/index.html',
+        'summary-daily-delivery': 'summary-daily-delivery/index.html'
+    };
+    
+    for (const [appName, path] of Object.entries(appPaths)) {
+        fetch(path, { method: 'HEAD' })
+            .then(response => {
+                console.log(`${appName}: ${path} - ${response.ok ? '✓ FOUND' : '✗ NOT FOUND'}`);
+            })
+            .catch(error => {
+                console.log(`${appName}: ${path} - ✗ ERROR: ${error.message}`);
+            });
+    }
+}
+
+// Export functions for global access
+window.openApp = openApp;
+window.logout = logout;
+window.checkAuth = checkAuth;
+window.testAllPaths = testAllPaths;
