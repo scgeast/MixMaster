@@ -19,100 +19,217 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Function to open applications - SESUAI STRUKTUR GITHUB
+// Function to open applications
 function openApp(appName) {
     console.log('Opening app:', appName);
     
-    // Mapping yang sesuai dengan struktur GitHub
-    const appMappings = {
-        'monitoring-order-delivery': {
-            folder: 'monitoring-order-delivery',
-            title: 'Daily Monitoring Order & Delivery'
-        },
-        'jadwal-pengecoran': {
-            folder: 'jadwal-pengecoran', 
-            title: 'Jadwal Pengecoran'
-        },
-        'utilisasi-truck': {
-            folder: 'utilisasi-truck',
-            title: 'Utilisasi Truck Mixer'
-        },
-        'production-all-area': {
-            folder: 'production-all-area',
-            title: 'Production All Area'
-        },
-        'summary-daily-delivery': {
-            folder: 'summary-daily-delivery',
-            title: 'Summary Daily Delivery'
-        }
+    const appPaths = {
+        'monitoring-order': 'monitoring-order-delivery/index.html',
+        'jadwal-pengecoran': 'jadwal-pengecoran/index.html',
+        'utilisasi-truck': 'utilisasi-truck/index.html',
+        'production-all-area': 'production-all-area/index.html',
+        'summary-daily-delivery': 'summary-daily-delivery/index.html'
     };
     
-    const appConfig = appMappings[appName];
-    
-    if (appConfig) {
-        const appPath = `${appConfig.folder}/index.html`;
-        console.log('Opening:', appPath);
-        console.log('App Title:', appConfig.title);
-        
-        // Direct open - lebih simple
-        try {
-            const newWindow = window.open(appPath, '_blank');
-            
-            if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-                // Popup blocked
-                if (confirm(`Popup diblokir. Buka "${appConfig.title}" di tab ini?`)) {
-                    window.location.href = appPath;
-                }
-            } else {
-                console.log('✓ Successfully opened:', appPath);
-            }
-        } catch (error) {
-            console.error('Error opening app:', error);
-            alert(`Error membuka aplikasi: ${appConfig.title}\n\nPath: ${appPath}\nError: ${error.message}`);
-        }
-    } else {
-        alert('Aplikasi tidak ditemukan!');
+    const appPath = appPaths[appName];
+    if (appPath) {
+        console.log('Trying to open:', appPath);
+        window.open(appPath, '_blank');
     }
+}
+
+// Deep diagnostic function
+function deepDiagnostic() {
+    console.log('=== DEEP DIAGNOSTIC ===');
+    
+    const tests = [
+        // Test folder existence
+        { type: 'folder', path: 'monitoring-order-delivery/', name: 'Monitoring Order' },
+        { type: 'folder', path: 'jadwal-pengecoran/', name: 'Jadwal Pengecoran' },
+        { type: 'folder', path: 'utilisasi-truck/', name: 'Utilisasi Truck' },
+        { type: 'folder', path: 'production-all-area/', name: 'Production Area' },
+        { type: 'folder', path: 'summary-daily-delivery/', name: 'Summary Delivery' },
+        
+        // Test index.html files
+        { type: 'file', path: 'monitoring-order-delivery/index.html', name: 'Monitoring Index' },
+        { type: 'file', path: 'jadwal-pengecoran/index.html', name: 'Jadwal Index' },
+        { type: 'file', path: 'utilisasi-truck/index.html', name: 'Truck Index' },
+        { type: 'file', path: 'production-all-area/index.html', name: 'Production Index' },
+        { type: 'file', path: 'summary-daily-delivery/index.html', name: 'Summary Index' },
+        
+        // Test root files
+        { type: 'file', path: 'index.html', name: 'Main Index' },
+        { type: 'file', path: 'dashboard.html', name: 'Dashboard' },
+        { type: 'file', path: 'css/style.css', name: 'CSS File' },
+        { type: 'file', path: 'js/auth.js', name: 'Auth JS' },
+        { type: 'file', path: 'js/main.js', name: 'Main JS' }
+    ];
+    
+    let results = [];
+    let completed = 0;
+    
+    const debugInfo = document.getElementById('debugInfo');
+    if (debugInfo) {
+        debugInfo.innerHTML = 'Running deep diagnostic...';
+    }
+    
+    tests.forEach(test => {
+        fetch(test.path, { method: 'HEAD' })
+            .then(response => {
+                completed++;
+                const status = response.ok ? '✅' : '❌';
+                results.push(`${status} ${test.name}: ${test.path}`);
+                
+                if (debugInfo) {
+                    debugInfo.innerHTML = `
+                        <strong>Deep Diagnostic (${completed}/${tests.length}):</strong><br>
+                        ${results.join('<br>')}
+                    `;
+                }
+                
+                if (completed === tests.length) {
+                    showDiagnosticSummary(results);
+                }
+            })
+            .catch(error => {
+                completed++;
+                results.push(`❌ ${test.name}: ${test.path} (ERROR)`);
+                
+                if (debugInfo) {
+                    debugInfo.innerHTML = `
+                        <strong>Deep Diagnostic (${completed}/${tests.length}):</strong><br>
+                        ${results.join('<br>')}
+                    `;
+                }
+                
+                if (completed === tests.length) {
+                    showDiagnosticSummary(results);
+                }
+            });
+    });
+}
+
+function showDiagnosticSummary(results) {
+    const folderResults = results.filter(r => r.includes('/') && !r.includes('.html'));
+    const fileResults = results.filter(r => r.includes('.html'));
+    
+    const missingFolders = folderResults.filter(r => r.includes('❌'));
+    const missingFiles = fileResults.filter(r => r.includes('❌'));
+    
+    let summary = `
+<strong>📊 DIAGNOSTIC SUMMARY</strong><br><br>
+<strong>Folder Status:</strong><br>
+${folderResults.join('<br>')}<br><br>
+<strong>File Status:</strong><br>
+${fileResults.join('<br>')}<br><br>
+`;
+
+    if (missingFolders.length > 0) {
+        summary += `<strong>🚨 MASALAH UTAMA:</strong><br>`;
+        summary += `Folder berikut TIDAK DITEMUKAN:<br>`;
+        missingFolders.forEach(folder => {
+            const folderName = folder.split(':')[1].trim();
+            summary += `• ${folderName}<br>`;
+        });
+        summary += `<br><strong>SOLUSI:</strong><br>`;
+        summary += `1. Pastikan folder aplikasi ada di root<br>`;
+        summary += `2. Upload folder aplikasi ke GitHub<br>`;
+        summary += `3. Nama folder harus sama persis<br>`;
+    }
+    
+    const debugInfo = document.getElementById('debugInfo');
+    if (debugInfo) {
+        debugInfo.innerHTML = summary;
+    }
+}
+
+// Check what actually exists
+function scanDirectory() {
+    console.log('=== DIRECTORY SCAN ===');
+    
+    // Common possible folder names
+    const possiblePaths = [
+        'app/',
+        'apps/',
+        'applications/',
+        'monitoring/',
+        'delivery/',
+        'order/',
+        'production/',
+        'schedule/',
+        'truck/',
+        'utilization/',
+        'summary/',
+        'jadwal/',
+        'pengecoran/'
+    ];
+    
+    let foundItems = [];
+    
+    possiblePaths.forEach(path => {
+        fetch(path, { method: 'HEAD' })
+            .then(response => {
+                if (response.ok) {
+                    console.log('✅ Found:', path);
+                    foundItems.push(path);
+                }
+            })
+            .catch(() => {});
+    });
+    
+    // Check after all requests
+    setTimeout(() => {
+        const debugInfo = document.getElementById('debugInfo');
+        if (debugInfo) {
+            if (foundItems.length > 0) {
+                debugInfo.innerHTML = `
+                    <strong>📁 Found Directories:</strong><br>
+                    ${foundItems.join('<br>')}<br><br>
+                    <strong>💡 Solution:</strong><br>
+                    Update app paths in main.js to match these directories
+                `;
+            } else {
+                debugInfo.innerHTML = `
+                    <strong>❌ No directories found!</strong><br><br>
+                    <strong>Problem:</strong> Application folders missing<br>
+                    <strong>Solution:</strong> Upload application folders to root directory
+                `;
+            }
+        }
+    }, 2000);
 }
 
 // Test function untuk debugging
 function testAllPaths() {
     console.log('=== TESTING ALL APPLICATION PATHS ===');
     
-    const apps = {
-        'monitoring-order-delivery': 'monitoring-order-delivery/index.html',
+    const appPaths = {
+        'monitoring-order': 'monitoring-order-delivery/index.html',
         'jadwal-pengecoran': 'jadwal-pengecoran/index.html',
-        'utilisasi-truck': 'utilisasi-truck/index.html', 
+        'utilisasi-truck': 'utilisasi-truck/index.html',
         'production-all-area': 'production-all-area/index.html',
         'summary-daily-delivery': 'summary-daily-delivery/index.html'
     };
     
     let results = [];
     let tested = 0;
-    const total = Object.keys(apps).length;
+    const total = Object.keys(appPaths).length;
     
     const debugInfo = document.getElementById('debugInfo');
     if (debugInfo) {
         debugInfo.innerHTML = 'Testing application paths...';
     }
     
-    Object.entries(apps).forEach(([appName, path]) => {
-        console.log(`Testing: ${appName} -> ${path}`);
-        
+    Object.entries(appPaths).forEach(([appName, path]) => {
         fetch(path, { method: 'HEAD' })
             .then(response => {
                 tested++;
                 const status = response.ok ? '✅' : '❌';
-                const message = response.ok ? 'FOUND' : 'NOT FOUND';
-                
-                console.log(`${status} ${appName}: ${path} - ${message}`);
                 results.push(`${status} ${appName}`);
                 
-                // Update UI
                 if (debugInfo) {
-                    const progress = `(${tested}/${total})`;
                     debugInfo.innerHTML = `
-                        <strong>Application Status ${progress}:</strong><br>
+                        <strong>Application Status (${tested}/${total}):</strong><br>
                         ${results.join('<br>')}
                         ${tested === total ? '<br><br>🎉 Testing completed!' : ''}
                     `;
@@ -120,43 +237,16 @@ function testAllPaths() {
             })
             .catch(error => {
                 tested++;
-                console.log(`❌ ${appName}: ${path} - ERROR: ${error.message}`);
-                results.push(`❌ ${appName} (ERROR)`);
+                results.push(`❌ ${appName}`);
                 
                 if (debugInfo) {
-                    const progress = `(${tested}/${total})`;
                     debugInfo.innerHTML = `
-                        <strong>Application Status ${progress}:</strong><br>
+                        <strong>Application Status (${tested}/${total}):</strong><br>
                         ${results.join('<br>')}
                     `;
                 }
             });
     });
-}
-
-// Quick test single app
-function testApp(appName) {
-    const apps = {
-        'monitoring-order-delivery': 'monitoring-order-delivery/index.html',
-        'jadwal-pengecoran': 'jadwal-pengecoran/index.html',
-        'utilisasi-truck': 'utilisasi-truck/index.html',
-        'production-all-area': 'production-all-area/index.html',
-        'summary-daily-delivery': 'summary-daily-delivery/index.html'
-    };
-    
-    const path = apps[appName];
-    if (path) {
-        console.log(`Testing single app: ${appName} -> ${path}`);
-        
-        fetch(path, { method: 'HEAD' })
-            .then(response => {
-                const status = response.ok ? '✅ FOUND' : '❌ NOT FOUND';
-                alert(`${appName}\nPath: ${path}\nStatus: ${status}`);
-            })
-            .catch(error => {
-                alert(`${appName}\nPath: ${path}\nStatus: ❌ ERROR\n${error.message}`);
-            });
-    }
 }
 
 // Check auth function
@@ -183,4 +273,5 @@ window.openApp = openApp;
 window.logout = logout;
 window.checkAuth = checkAuth;
 window.testAllPaths = testAllPaths;
-window.testApp = testApp;
+window.deepDiagnostic = deepDiagnostic;
+window.scanDirectory = scanDirectory;
