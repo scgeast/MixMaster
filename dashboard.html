@@ -5,13 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Aplikasi Terpadu</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .debug-panel {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .debug-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 2px;
+        }
+        .debug-btn:hover {
+            background: #5a6268;
+        }
+    </style>
 </head>
 <body>
     <header class="header">
         <div class="header-content">
             <h1>Aplikasi Terpadu</h1>
             <div class="user-info">
-                <span id="currentUser">Admin</span>
+                <span>Selamat datang, <span id="currentUser">User</span></span>
                 <button onclick="logout()" class="btn-logout">Logout</button>
             </div>
         </div>
@@ -19,42 +41,132 @@
 
     <main class="dashboard">
         <div class="container">
+            <!-- Debug Panel (bisa dihapus di production) -->
+            <div class="debug-panel">
+                <strong>Debug Info:</strong>
+                <button class="debug-btn" onclick="testAllPaths()">Test Paths</button>
+                <button class="debug-btn" onclick="showLocalStorage()">Show Storage</button>
+                <button class="debug-btn" onclick="clearAllData()">Clear Data</button>
+                <span id="debugInfo"></span>
+            </div>
+
             <h2>Menu Aplikasi</h2>
+            <p class="welcome-text">Pilih aplikasi yang ingin Anda gunakan:</p>
+            
             <div class="app-grid">
                 <div class="app-card" onclick="openApp('monitoring-order')">
                     <div class="app-icon">📊</div>
                     <h3>Daily Monitoring Order & Delivery</h3>
                     <p>Monitoring pesanan dan pengiriman harian</p>
+                    <div class="app-path">monitoring-order-delivery/index.html</div>
                 </div>
 
                 <div class="app-card" onclick="openApp('jadwal-pengecoran')">
                     <div class="app-icon">📅</div>
                     <h3>Jadwal Pengecoran</h3>
                     <p>Jadwal dan rencana pengecoran</p>
+                    <div class="app-path">jadwal-pengecoran/index.html</div>
                 </div>
 
                 <div class="app-card" onclick="openApp('utilisasi-truck')">
                     <div class="app-icon">🚛</div>
                     <h3>Utilisasi Truck Mixer</h3>
                     <p>Monitoring utilisasi truck mixer</p>
+                    <div class="app-path">utilisasi-truck/index.html</div>
                 </div>
 
                 <div class="app-card" onclick="openApp('production-all-area')">
                     <div class="app-icon">🏭</div>
                     <h3>Production All Area</h3>
                     <p>Data produksi semua area</p>
+                    <div class="app-path">production-all-area/index.html</div>
                 </div>
 
                 <div class="app-card" onclick="openApp('summary-daily-delivery')">
                     <div class="app-icon">📦</div>
                     <h3>Summary Daily Delivery</h3>
                     <p>Ringkasan pengiriman harian</p>
+                    <div class="app-path">summary-daily-delivery/index.html</div>
                 </div>
+            </div>
+
+            <div class="dashboard-info">
+                <h3>Informasi</h3>
+                <p>• Klik pada kartu aplikasi untuk membuka di tab baru</p>
+                <p>• Pastikan semua aplikasi tersedia di folder yang sesuai</p>
+                <p>• Gunakan tombol logout untuk keluar dari sistem</p>
             </div>
         </div>
     </main>
 
+    <!-- JavaScript Files -->
     <script src="js/auth.js"></script>
     <script src="js/main.js"></script>
+    
+    <script>
+        // Additional dashboard functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard initialized');
+            
+            // Check authentication
+            if (!checkAuth()) {
+                return;
+            }
+            
+            // Display user info
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            document.getElementById('currentUser').textContent = user.name || 'User';
+            
+            console.log('Dashboard loaded for user:', user.name);
+        });
+
+        // Debug functions
+        function showLocalStorage() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            const currentUser = localStorage.getItem('currentUser');
+            
+            console.log('LocalStorage:', {
+                isLoggedIn: isLoggedIn,
+                currentUser: currentUser ? JSON.parse(currentUser) : null
+            });
+            
+            alert(`LocalStorage Info:\n\nisLoggedIn: ${isLoggedIn}\ncurrentUser: ${currentUser}`);
+        }
+
+        function clearAllData() {
+            if (confirm('Hapus semua data login?')) {
+                localStorage.clear();
+                alert('Data berhasil dihapus!');
+                window.location.reload();
+            }
+        }
+
+        // Enhanced openApp function with better error handling
+        function openAppWithCheck(appName) {
+            console.log('Attempting to open:', appName);
+            
+            const appPaths = {
+                'monitoring-order': 'monitoring-order-delivery/index.html',
+                'jadwal-pengecoran': 'jadwal-pengecoran/index.html',
+                'utilisasi-truck': 'utilisasi-truck/index.html',
+                'production-all-area': 'production-all-area/index.html',
+                'summary-daily-delivery': 'summary-daily-delivery/index.html'
+            };
+            
+            const appPath = appPaths[appName];
+            
+            if (!appPath) {
+                alert('Aplikasi tidak dikenali!');
+                return;
+            }
+            
+            // Try to open the application
+            openApp(appName);
+        }
+
+        // Override the original openApp to use enhanced version
+        const originalOpenApp = window.openApp;
+        window.openApp = openAppWithCheck;
+    </script>
 </body>
 </html>
