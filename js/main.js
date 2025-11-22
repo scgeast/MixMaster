@@ -19,97 +19,144 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Function to open applications - AUTO DETECT ENVIRONMENT
+// Function to open applications - SESUAI STRUKTUR GITHUB
 function openApp(appName) {
     console.log('Opening app:', appName);
     
-    // Auto-detect if we're on GitHub Pages
-    const isGitHubPages = window.location.hostname.includes('github.io');
-    const basePath = isGitHubPages ? '' : './';
-    
-    const appPaths = {
-        'monitoring-order': `${basePath}monitoring-order-delivery/index.html`,
-        'jadwal-pengecoran': `${basePath}jadwal-pengecoran/index.html`,
-        'utilisasi-truck': `${basePath}utilisasi-truck/index.html`,
-        'production-all-area': `${basePath}production-all-area/index.html`,
-        'summary-daily-delivery': `${basePath}summary-daily-delivery/index.html`
+    // Mapping yang sesuai dengan struktur GitHub
+    const appMappings = {
+        'monitoring-order': {
+            folder: 'monitoring-order-delivery',
+            title: 'Daily Monitoring Order & Delivery'
+        },
+        'jadwal-pengecoran': {
+            folder: 'jadwal-pengecoran', 
+            title: 'Jadwal Pengecoran'
+        },
+        'utilisasi-truck': {
+            folder: 'utilisasi-truck',
+            title: 'Utilisasi Truck Mixer'
+        },
+        'production-all-area': {
+            folder: 'production-all-area',
+            title: 'Production All Area'
+        },
+        'summary-daily-delivery': {
+            folder: 'summary-daily-delivery',
+            title: 'Summary Daily Delivery'
+        }
     };
     
-    const appPath = appPaths[appName];
-    if (appPath) {
-        console.log('Environment:', isGitHubPages ? 'GitHub Pages' : 'Local');
-        console.log('Trying to open:', appPath);
+    const appConfig = appMappings[appName];
+    
+    if (appConfig) {
+        const appPath = `${appConfig.folder}/index.html`;
+        console.log('Opening:', appPath);
+        console.log('App Title:', appConfig.title);
         
-        // Direct open tanpa test fetch dulu (lebih cepat)
-        console.log('✓ Opening application directly:', appPath);
-        const newWindow = window.open(appPath, '_blank');
-        
-        if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-            // Popup blocked, redirect in same window after confirmation
-            if (confirm('Popup mungkin diblokir browser. Buka aplikasi di tab yang sama?')) {
-                window.location.href = appPath;
+        // Direct open - lebih simple
+        try {
+            const newWindow = window.open(appPath, '_blank');
+            
+            if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+                // Popup blocked
+                if (confirm(`Popup diblokir. Buka "${appConfig.title}" di tab ini?`)) {
+                    window.location.href = appPath;
+                }
+            } else {
+                console.log('✓ Successfully opened:', appPath);
             }
+        } catch (error) {
+            console.error('Error opening app:', error);
+            alert(`Error membuka aplikasi: ${appConfig.title}\n\nPath: ${appPath}\nError: ${error.message}`);
         }
     } else {
-        alert('Aplikasi tidak dikonfigurasi dengan benar!');
+        alert('Aplikasi tidak ditemukan!');
     }
 }
 
 // Test function untuk debugging
 function testAllPaths() {
     console.log('=== TESTING ALL APPLICATION PATHS ===');
-    const isGitHubPages = window.location.hostname.includes('github.io');
-    const basePath = isGitHubPages ? '' : './';
     
-    const appPaths = {
-        'monitoring-order': `${basePath}monitoring-order-delivery/index.html`,
-        'jadwal-pengecoran': `${basePath}jadwal-pengecoran/index.html`,
-        'utilisasi-truck': `${basePath}utilisasi-truck/index.html`,
-        'production-all-area': `${basePath}production-all-area/index.html`,
-        'summary-daily-delivery': `${basePath}summary-daily-delivery/index.html`
+    const apps = {
+        'monitoring-order': 'monitoring-order-delivery/index.html',
+        'jadwal-pengecoran': 'jadwal-pengecoran/index.html',
+        'utilisasi-truck': 'utilisasi-truck/index.html', 
+        'production-all-area': 'production-all-area/index.html',
+        'summary-daily-delivery': 'summary-daily-delivery/index.html'
     };
     
-    let foundCount = 0;
-    let totalCount = Object.keys(appPaths).length;
+    let results = [];
+    let tested = 0;
+    const total = Object.keys(apps).length;
     
-    // Clear previous results
     const debugInfo = document.getElementById('debugInfo');
     if (debugInfo) {
-        debugInfo.innerHTML = 'Testing...';
+        debugInfo.innerHTML = 'Testing application paths...';
     }
     
-    Object.entries(appPaths).forEach(([appName, path]) => {
+    Object.entries(apps).forEach(([appName, path]) => {
         console.log(`Testing: ${appName} -> ${path}`);
         
         fetch(path, { method: 'HEAD' })
             .then(response => {
-                const status = response.ok ? '✓ FOUND' : '✗ NOT FOUND';
-                console.log(`${appName}: ${path} - ${status}`);
+                tested++;
+                const status = response.ok ? '✅' : '❌';
+                const message = response.ok ? 'FOUND' : 'NOT FOUND';
                 
-                if (response.ok) foundCount++;
+                console.log(`${status} ${appName}: ${path} - ${message}`);
+                results.push(`${status} ${appName}`);
                 
                 // Update UI
                 if (debugInfo) {
+                    const progress = `(${tested}/${total})`;
                     debugInfo.innerHTML = `
-                        <strong>Test Results:</strong><br>
-                        Environment: ${isGitHubPages ? 'GitHub Pages' : 'Local'}<br>
-                        Found: ${foundCount}/${totalCount} applications<br>
-                        ${foundCount === totalCount ? '🎉 All apps available!' : '⚠️ Some apps missing'}
+                        <strong>Application Status ${progress}:</strong><br>
+                        ${results.join('<br>')}
+                        ${tested === total ? '<br><br>🎉 Testing completed!' : ''}
                     `;
                 }
             })
             .catch(error => {
-                console.log(`${appName}: ${path} - ✗ ERROR: ${error.message}`);
+                tested++;
+                console.log(`❌ ${appName}: ${path} - ERROR: ${error.message}`);
+                results.push(`❌ ${appName} (ERROR)`);
+                
                 if (debugInfo) {
+                    const progress = `(${tested}/${total})`;
                     debugInfo.innerHTML = `
-                        <strong>Test Results:</strong><br>
-                        Environment: ${isGitHubPages ? 'GitHub Pages' : 'Local'}<br>
-                        Error: ${error.message}<br>
-                        ⚠️ Check console for details
+                        <strong>Application Status ${progress}:</strong><br>
+                        ${results.join('<br>')}
                     `;
                 }
             });
     });
+}
+
+// Quick test single app
+function testApp(appName) {
+    const apps = {
+        'monitoring-order': 'monitoring-order-delivery/index.html',
+        'jadwal-pengecoran': 'jadwal-pengecoran/index.html',
+        'utilisasi-truck': 'utilisasi-truck/index.html',
+        'production-all-area': 'production-all-area/index.html',
+        'summary-daily-delivery': 'summary-daily-delivery/index.html'
+    };
+    
+    const path = apps[appName];
+    if (path) {
+        console.log(`Testing single app: ${appName} -> ${path}`);
+        
+        fetch(path, { method: 'HEAD' })
+            .then(response => {
+                const status = response.ok ? '✅ FOUND' : '❌ NOT FOUND';
+                alert(`${appName}\nPath: ${path}\nStatus: ${status}`);
+            })
+            .catch(error => {
+                alert(`${appName}\nPath: ${path}\nStatus: ❌ ERROR\n${error.message}`);
+            });
+    }
 }
 
 // Check auth function
@@ -136,3 +183,4 @@ window.openApp = openApp;
 window.logout = logout;
 window.checkAuth = checkAuth;
 window.testAllPaths = testAllPaths;
+window.testApp = testApp;
