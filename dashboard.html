@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Aplikasi Terpadu</title>
+    <title>Dashboard - Mix Master CDC EAST</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         .debug-panel {
@@ -31,7 +31,7 @@
 <body>
     <header class="header">
         <div class="header-content">
-            <h1>Aplikasi Terpadu</h1>
+            <h1>Mix Master CDC EAST</h1>
             <div class="user-info">
                 <span>Selamat datang, <span id="currentUser">User</span></span>
                 <button onclick="logout()" class="btn-logout">Logout</button>
@@ -141,8 +141,8 @@
             }
         }
 
-        // Enhanced openApp function with better error handling
-        function openAppWithCheck(appName) {
+        // Enhanced openApp function with better error handling - FIXED VERSION
+        function openAppFixed(appName) {
             console.log('Attempting to open:', appName);
             
             const appPaths = {
@@ -160,13 +160,49 @@
                 return;
             }
             
-            // Try to open the application
+            console.log('Full path:', appPath);
+            
+            // Use the original openApp function from main.js
             openApp(appName);
         }
 
-        // Override the original openApp to use enhanced version
-        const originalOpenApp = window.openApp;
-        window.openApp = openAppWithCheck;
+        // Replace the onclick handlers to use the fixed version
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update all app cards to use the fixed function
+            const appCards = document.querySelectorAll('.app-card');
+            appCards.forEach(card => {
+                const originalOnClick = card.getAttribute('onclick');
+                if (originalOnClick) {
+                    const appName = originalOnClick.match(/openApp\('([^']+)'\)/)[1];
+                    card.setAttribute('onclick', `openAppFixed('${appName}')`);
+                }
+            });
+        });
+
+        // Test function untuk debugging
+        function testAllPaths() {
+            console.log('=== TESTING ALL APPLICATION PATHS ===');
+            const appPaths = {
+                'monitoring-order': 'monitoring-order-delivery/index.html',
+                'jadwal-pengecoran': 'jadwal-pengecoran/index.html',
+                'utilisasi-truck': 'utilisasi-truck/index.html',
+                'production-all-area': 'production-all-area/index.html',
+                'summary-daily-delivery': 'summary-daily-delivery/index.html'
+            };
+            
+            Object.entries(appPaths).forEach(([appName, path]) => {
+                fetch(path, { method: 'HEAD' })
+                    .then(response => {
+                        const status = response.ok ? '✓ FOUND' : '✗ NOT FOUND';
+                        console.log(`${appName}: ${path} - ${status}`);
+                        alert(`${appName}: ${status}`);
+                    })
+                    .catch(error => {
+                        console.log(`${appName}: ${path} - ✗ ERROR: ${error.message}`);
+                        alert(`${appName}: ERROR - ${error.message}`);
+                    });
+            });
+        }
     </script>
 </body>
 </html>
