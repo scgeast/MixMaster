@@ -27,8 +27,8 @@
         .debug-btn:hover {
             background: #5a6268;
         }
-        .debug-btn.danger {
-            background: #dc3545;
+        .debug-btn.info {
+            background: #17a2b8;
         }
         .debug-btn.success {
             background: #28a745;
@@ -42,6 +42,13 @@
             line-height: 1.4;
             max-height: 300px;
             overflow-y: auto;
+        }
+        .repo-info {
+            background: #d4edda;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 4px solid #28a745;
         }
     </style>
 </head>
@@ -60,16 +67,20 @@
         <div class="container">
             <!-- Debug Panel -->
             <div class="debug-panel">
+                <div class="repo-info">
+                    <strong>📁 Repository: MixMaster</strong><br>
+                    <strong>🌐 URL: sceeast.github.io/MixMaster/</strong>
+                </div>
+                
                 <strong>🔧 Diagnostic Tools</strong>
                 <div style="margin-top: 10px;">
-                    <button class="debug-btn" onclick="testAllPaths()">Quick Test</button>
-                    <button class="debug-btn success" onclick="deepDiagnostic()">Deep Diagnostic</button>
-                    <button class="debug-btn danger" onclick="scanDirectory()">Scan Directory</button>
-                    <button class="debug-btn" onclick="showHelp()">Help</button>
+                    <button class="debug-btn success" onclick="testAllPaths()">Test Applications</button>
+                    <button class="debug-btn info" onclick="checkGitHubPagesSetup()">Check Setup</button>
+                    <button class="debug-btn" onclick="testDirectUrls()">Test Direct URLs</button>
                 </div>
                 <div id="debugInfo" class="debug-info">
-                    <strong>Problem Detected:</strong> All applications missing<br><br>
-                    <strong>Click "Deep Diagnostic" to identify the exact issue</strong>
+                    <strong>Repository: MixMaster</strong><br>
+                    Klik "Test Applications" untuk memeriksa ketersediaan aplikasi
                 </div>
             </div>
 
@@ -81,30 +92,35 @@
                     <div class="app-icon">📊</div>
                     <h3>Daily Monitoring Order & Delivery</h3>
                     <p>Monitoring pesanan dan pengiriman harian</p>
+                    <small style="color: #666; font-family: monospace;">/MixMaster/monitoring-order-delivery/index.html</small>
                 </div>
 
                 <div class="app-card" onclick="openApp('jadwal-pengecoran')">
                     <div class="app-icon">📅</div>
                     <h3>Jadwal Pengecoran</h3>
                     <p>Jadwal dan rencana pengecoran</p>
+                    <small style="color: #666; font-family: monospace;">/MixMaster/jadwal-pengecoran/index.html</small>
                 </div>
 
                 <div class="app-card" onclick="openApp('utilisasi-truck')">
                     <div class="app-icon">🚛</div>
                     <h3>Utilisasi Truck Mixer</h3>
                     <p>Monitoring utilisasi truck mixer</p>
+                    <small style="color: #666; font-family: monospace;">/MixMaster/utilisasi-truck/index.html</small>
                 </div>
 
                 <div class="app-card" onclick="openApp('production-all-area')">
                     <div class="app-icon">🏭</div>
                     <h3>Production All Area</h3>
                     <p>Data produksi semua area</p>
+                    <small style="color: #666; font-family: monospace;">/MixMaster/production-all-area/index.html</small>
                 </div>
 
                 <div class="app-card" onclick="openApp('summary-daily-delivery')">
                     <div class="app-icon">📦</div>
                     <h3>Summary Daily Delivery</h3>
                     <p>Ringkasan pengiriman harian</p>
+                    <small style="color: #666; font-family: monospace;">/MixMaster/summary-daily-delivery/index.html</small>
                 </div>
             </div>
         </div>
@@ -126,33 +142,11 @@
             const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
             document.getElementById('currentUser').textContent = user.name || 'User';
             
-            // Auto run quick test
+            // Auto test setelah load
             setTimeout(() => {
                 testAllPaths();
             }, 1000);
         });
-
-        function showHelp() {
-            alert(`🚨 PROBLEM: All applications missing
-
-🔍 POSSIBLE CAUSES:
-1. Folder aplikasi belum di-upload ke GitHub
-2. Nama folder tidak sesuai
-3. File index.html tidak ada di folder aplikasi
-
-✅ SOLUTIONS:
-1. Upload folder aplikasi ke root directory
-2. Pastikan struktur: folder/index.html
-3. Gunakan "Deep Diagnostic" untuk detail
-4. Gunakan "Scan Directory" untuk cari folder yang ada
-
-📁 REQUIRED FOLDERS:
-• monitoring-order-delivery/
-• jadwal-pengecoran/
-• utilisasi-truck/
-• production-all-area/
-• summary-daily-delivery/`);
-        }
     </script>
 </body>
 </html>
