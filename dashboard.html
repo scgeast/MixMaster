@@ -34,11 +34,11 @@
         }
 
         .sidebar.collapsed {
-            width: 60px;
+            width: 50px; /* DIKECILKAN LAGI dari 60px */
         }
 
         .sidebar-header {
-            padding: 10px 10px; /* DIKECILKAN dari 20px */
+            padding: 12px 10px; /* DIKECILKAN LAGI dari 15px */
             border-bottom: 1px solid rgba(255,255,255,0.2);
             display: flex;
             align-items: center;
@@ -47,7 +47,7 @@
 
         .sidebar-header h2 {
             margin: 0;
-            font-size: 1em; /* DIKECILKAN dari 1.2em */
+            font-size: 1em; /* DIKECILKAN LAGI dari 1.1em */
             font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
@@ -61,10 +61,10 @@
             background: none;
             border: none;
             color: white;
-            font-size: 1.1em; /* DIKECILKAN dari 1.2em */
+            font-size: 1em; /* DIKECILKAN LAGI dari 1.1em */
             cursor: pointer;
-            padding: 4px; /* DIKECILKAN dari 5px */
-            border-radius: 4px;
+            padding: 3px; /* DIKECILKAN LAGI dari 4px */
+            border-radius: 3px;
             transition: background 0.3s;
         }
 
@@ -86,11 +86,12 @@
         .menu-link {
             display: flex;
             align-items: center;
-            padding: 12px 15px; /* DIKECILKAN dari 15px 20px */
+            padding: 10px 12px; /* DIKECILKAN LAGI dari 12px 15px */
             color: rgba(255,255,255,0.9);
             text-decoration: none;
             transition: all 0.3s;
             border-left: 3px solid transparent;
+            position: relative;
         }
 
         .menu-link:hover {
@@ -106,21 +107,33 @@
         }
 
         .menu-icon {
-            font-size: 1.2em; /* DIKECILKAN dari 1.3em */
-            margin-right: 12px; /* DIKECILKAN dari 15px */
-            width: 18px; /* DIKECILKAN dari 20px */
+            font-size: 1.1em; /* DIKECILKAN LAGI dari 1.2em */
+            margin-right: 10px; /* DIKECILKAN LAGI dari 12px */
+            width: 16px; /* DIKECILKAN LAGI dari 18px */
             text-align: center;
         }
 
+        .menu-initial {
+            display: none;
+            font-weight: 700;
+            font-size: 0.9em;
+            text-align: center;
+            width: 100%;
+        }
+
         .sidebar.collapsed .menu-icon {
-            margin-right: 0;
+            display: none;
+        }
+
+        .sidebar.collapsed .menu-initial {
+            display: block;
         }
 
         .menu-text {
             white-space: nowrap;
             transition: opacity 0.3s;
             font-weight: 500;
-            font-size: 0.95em; /* DIKECILKAN */
+            font-size: 0.9em; /* DIKECILKAN LAGI dari 0.95em */
         }
 
         .sidebar.collapsed .menu-text {
@@ -129,9 +142,35 @@
             display: none;
         }
 
+        /* Tooltip untuk collapsed state */
+        .menu-link::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .sidebar.collapsed .menu-link:hover::after {
+            opacity: 1;
+            visibility: visible;
+            left: 110%;
+        }
+
         /* Sidebar Footer untuk Logout */
         .sidebar-footer {
-            padding: 15px 15px; /* DIKECILKAN dari 20px */
+            padding: 12px 10px; /* DIKECILKAN LAGI dari 15px */
             border-top: 1px solid rgba(255,255,255,0.2);
             margin-top: auto;
         }
@@ -140,15 +179,17 @@
             display: flex;
             align-items: center;
             width: 100%;
-            padding: 10px 12px; /* DIKECILKAN dari 12px 15px */
+            padding: 8px 10px; /* DIKECILKAN LAGI dari 10px 12px */
             background: rgba(255,255,255,0.1);
             color: white;
             border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 5px;
+            border-radius: 4px; /* DIKECILKAN dari 5px */
             cursor: pointer;
             transition: all 0.3s;
-            font-size: 13px; /* DIKECILKAN dari 14px */
+            font-size: 12px; /* DIKECILKAN LAGI dari 13px */
             font-weight: 500;
+            justify-content: center;
+            position: relative;
         }
 
         .logout-btn:hover {
@@ -157,12 +198,42 @@
         }
 
         .logout-icon {
-            margin-right: 8px; /* DIKECILKAN dari 10px */
-            font-size: 1.1em; /* DIKECILKAN dari 1.2em */
+            margin-right: 6px; /* DIKECILKAN LAGI dari 8px */
+            font-size: 1em; /* DIKECILKAN LAGI dari 1.1em */
         }
 
         .sidebar.collapsed .logout-text {
             display: none;
+        }
+
+        .sidebar.collapsed .logout-icon {
+            margin-right: 0;
+        }
+
+        /* Tooltip untuk logout */
+        .logout-btn::after {
+            content: 'Logout';
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .sidebar.collapsed .logout-btn:hover::after {
+            opacity: 1;
+            visibility: visible;
+            left: 110%;
         }
 
         /* Main Content Styles */
@@ -175,38 +246,38 @@
 
         .top-header {
             background: linear-gradient(135deg, var(--blood-moon-primary) 0%, var(--blood-moon-accent) 100%);
-            padding: 12px 25px; /* DIKECILKAN DRASTIS dari 20px 30px */
-            box-shadow: 0 2px 10px rgba(139, 0, 0, 0.3); /* DIKECILKAN shadow */
+            padding: 8px 20px; /* DIKECILKAN DRASTIS LAGI dari 12px 25px */
+            box-shadow: 0 1px 5px rgba(139, 0, 0, 0.3); /* DIKECILKAN LAGI shadow */
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 100;
-            min-height: 50px; /* TAMBAHKAN min-height */
+            min-height: 40px; /* DIKECILKAN dari 50px */
         }
 
         .top-header h1 {
             margin: 0;
             color: white;
-            font-size: 1.4em; /* DIKECILKAN dari 1.8em */
+            font-size: 1.2em; /* DIKECILKAN LAGI dari 1.4em */
             font-weight: 700;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.3); /* DIKECILKAN shadow */
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3); /* DIKECILKAN LAGI shadow */
         }
 
         .user-info {
             display: flex;
             align-items: center;
-            gap: 12px; /* DIKECILKAN dari 15px */
+            gap: 10px; /* DIKECILKAN LAGI dari 12px */
             color: white;
             font-weight: 500;
         }
 
         .user-badge {
             background: rgba(255,255,255,0.2);
-            padding: 6px 12px; /* DIKECILKAN dari 8px 15px */
-            border-radius: 15px; /* DIKECILKAN dari 20px */
+            padding: 4px 10px; /* DIKECILKAN LAGI dari 6px 12px */
+            border-radius: 12px; /* DIKECILKAN LAGI dari 15px */
             border: 1px solid rgba(255,255,255,0.3);
             backdrop-filter: blur(10px);
-            font-size: 0.9em; /* DIKECILKAN */
+            font-size: 0.85em; /* DIKECILKAN LAGI dari 0.9em */
         }
 
         .app-frame-container {
@@ -235,57 +306,57 @@
         }
 
         .welcome-icon {
-            font-size: 4em; /* DIKECILKAN dari 5em */
-            margin-bottom: 20px; /* DIKECILKAN dari 25px */
+            font-size: 3.5em; /* DIKECILKAN LAGI dari 4em */
+            margin-bottom: 15px; /* DIKECILKAN LAGI dari 20px */
             opacity: 0.8;
             color: var(--blood-moon-primary);
         }
 
         .welcome-screen h2 {
             color: var(--blood-moon-primary);
-            margin-bottom: 12px; /* DIKECILKAN dari 15px */
-            font-size: 1.8em; /* DIKECILKAN dari 2.2em */
+            margin-bottom: 10px; /* DIKECILKAN LAGI dari 12px */
+            font-size: 1.6em; /* DIKECILKAN LAGI dari 1.8em */
             font-weight: 700;
         }
 
         .welcome-screen p {
             max-width: 500px;
-            line-height: 1.6;
-            font-size: 1em; /* DIKECILKAN dari 1.1em */
+            line-height: 1.5;
+            font-size: 0.95em; /* DIKECILKAN LAGI dari 1em */
             color: #666;
         }
 
         .welcome-features {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px; /* DIKECILKAN dari 20px */
-            margin-top: 25px; /* DIKECILKAN dari 30px */
-            max-width: 600px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* DIKECILKAN dari 200px */
+            gap: 12px; /* DIKECILKAN LAGI dari 15px */
+            margin-top: 20px; /* DIKECILKAN LAGI dari 25px */
+            max-width: 550px; /* DIKECILKAN dari 600px */
         }
 
         .feature-card {
             background: white;
-            padding: 15px; /* DIKECILKAN dari 20px */
-            border-radius: 8px; /* DIKECILKAN dari 10px */
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1); /* DIKECILKAN shadow */
-            border-left: 4px solid var(--blood-moon-accent);
+            padding: 12px; /* DIKECILKAN LAGI dari 15px */
+            border-radius: 6px; /* DIKECILKAN LAGI dari 8px */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* DIKECILKAN LAGI shadow */
+            border-left: 3px solid var(--blood-moon-accent); /* DIKECILKAN dari 4px */
         }
 
         .feature-icon {
-            font-size: 1.8em; /* DIKECILKAN dari 2em */
-            margin-bottom: 8px; /* DIKECILKAN dari 10px */
+            font-size: 1.6em; /* DIKECILKAN LAGI dari 1.8em */
+            margin-bottom: 6px; /* DIKECILKAN LAGI dari 8px */
             color: var(--blood-moon-primary);
         }
 
         .feature-card h4 {
-            margin: 0 0 8px 0; /* DIKECILKAN dari 10px */
-            font-size: 1em;
+            margin: 0 0 6px 0; /* DIKECILKAN LAGI dari 8px */
+            font-size: 0.95em;
         }
 
         .feature-card p {
-            font-size: 0.9em;
+            font-size: 0.85em; /* DIKECILKAN LAGI dari 0.9em */
             margin: 0;
-            line-height: 1.5;
+            line-height: 1.4;
         }
 
         /* Loading State */
@@ -294,20 +365,20 @@
             align-items: center;
             justify-content: center;
             height: 100%;
-            font-size: 1.1em; /* DIKECILKAN dari 1.2em */
+            font-size: 1em; /* DIKECILKAN LAGI dari 1.1em */
             color: var(--blood-moon-primary);
             background: #f8f9fa;
         }
 
         .loading::after {
             content: '';
-            width: 18px; /* DIKECILKAN dari 20px */
-            height: 18px; /* DIKECILKAN dari 20px */
+            width: 16px; /* DIKECILKAN LAGI dari 18px */
+            height: 16px; /* DIKECILKAN LAGI dari 18px */
             border: 2px solid var(--blood-moon-primary);
             border-top: 2px solid transparent;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-left: 8px; /* DIKECILKAN dari 10px */
+            margin-left: 6px; /* DIKECILKAN LAGI dari 8px */
         }
 
         @keyframes spin {
@@ -329,30 +400,30 @@
             }
 
             .sidebar.collapsed {
-                left: -60px;
+                left: -50px;
             }
 
             .mobile-menu-btn {
                 display: block;
                 background: none;
                 border: none;
-                font-size: 1.3em; /* DIKECILKAN dari 1.5em */
+                font-size: 1.2em; /* DIKECILKAN LAGI dari 1.3em */
                 cursor: pointer;
                 color: white;
-                margin-right: 12px; /* DIKECILKAN dari 15px */
+                margin-right: 10px; /* DIKECILKAN LAGI dari 12px */
             }
 
             .top-header {
-                padding: 10px 20px; /* DIKECILKAN untuk mobile */
+                padding: 6px 15px; /* DIKECILKAN LAGI untuk mobile */
             }
 
             .top-header h1 {
-                font-size: 1.2em; /* DIKECILKAN untuk mobile */
+                font-size: 1.1em; /* DIKECILKAN LAGI untuk mobile */
             }
 
             .user-badge {
-                font-size: 0.85em; /* DIKECILKAN untuk mobile */
-                padding: 5px 10px; /* DIKECILKAN untuk mobile */
+                font-size: 0.8em; /* DIKECILKAN LAGI untuk mobile */
+                padding: 3px 8px; /* DIKECILKAN LAGI untuk mobile */
             }
         }
 
@@ -374,32 +445,37 @@
             </div>
             <ul class="sidebar-menu">
                 <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="loadApp('monitoring-order')">
+                    <a href="#" class="menu-link" onclick="loadApp('monitoring-order')" data-tooltip="Monitoring Order">
                         <span class="menu-icon">📊</span>
+                        <span class="menu-initial">M</span>
                         <span class="menu-text">Monitoring Order</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="loadApp('jadwal-pengecoran')">
+                    <a href="#" class="menu-link" onclick="loadApp('jadwal-pengecoran')" data-tooltip="Jadwal Pengecoran">
                         <span class="menu-icon">📅</span>
+                        <span class="menu-initial">J</span>
                         <span class="menu-text">Jadwal Pengecoran</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="loadApp('utilisasi-truck')">
+                    <a href="#" class="menu-link" onclick="loadApp('utilisasi-truck')" data-tooltip="Utilisasi Truck">
                         <span class="menu-icon">🚛</span>
+                        <span class="menu-initial">U</span>
                         <span class="menu-text">Utilisasi Truck</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="loadApp('production-all-area')">
+                    <a href="#" class="menu-link" onclick="loadApp('production-all-area')" data-tooltip="Production Area">
                         <span class="menu-icon">🏭</span>
+                        <span class="menu-initial">P</span>
                         <span class="menu-text">Production Area</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="loadApp('summary-daily-delivery')">
+                    <a href="#" class="menu-link" onclick="loadApp('summary-daily-delivery')" data-tooltip="Summary Delivery">
                         <span class="menu-icon">📦</span>
+                        <span class="menu-initial">S</span>
                         <span class="menu-text">Summary Delivery</span>
                     </a>
                 </li>
@@ -422,7 +498,7 @@
                     <h1>Mix Master CDC EAST</h1>
                 </div>
                 <div class="user-info">
-                    <div class="user-badge" id="currentUser">Administrator</div>
+                    <div class="user-badge" id="currentUser">Kim Jong Un</div>
                 </div>
             </div>
 
