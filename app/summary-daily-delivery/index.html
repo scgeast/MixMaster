@@ -1,1 +1,1892 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Daily Delivery Monitoring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --gray: #7f8c8d;
+            --sidebar-width: 300px;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        .logo h1 {
+            font-size: 24px;
+            margin-left: 10px;
+        }
+        .date-filter {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+        .date-filter i {
+            margin-right: 8px;
+        }
+        /* Tab Styles */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        .tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .tab.active {
+            background-color: var(--secondary);
+            color: white;
+        }
+        .tab:not(.active):hover {
+            background-color: var(--light);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* Input Section */
+        .input-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        .input-row {
+            display: grid;
+            grid-template-columns: 0.8fr 0.8fr 0.8fr 1fr 1.2fr 0.5fr 0.5fr 0.5fr 0.5fr 1.5fr;
+            gap: 8px;
+            margin-bottom: 15px;
+            align-items: end;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .input-group label {
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 12px;
+        }
+        .input-group input, .input-group select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 12px;
+            height: 38px;
+        }
+        /* Force smaller width for quantity inputs */
+        #input-qtyOrder,
+        #input-qtyDelivered,
+        #input-qtyRemain,
+        #input-qtyCancel {
+            width: 80px;
+            max-width: 80px;
+        }
+        /* Remarks input - sedikit lebih lebar */
+        #input-remarks {
+            width: 100%;
+            max-width: 150px;
+        }
+        /* Dashboard Styles */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+            margin-right: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .card-header h2 {
+            font-size: 18px;
+            color: var(--primary);
+        }
+        .card-content {
+            height: 250px;
+        }
+        .filter-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+        .filter-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .filter-title h2 {
+            color: var(--primary);
+            margin-left: 10px;
+        }
+        .filter-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .filter-group label {
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 14px;
+        }
+        .filter-group input, .filter-group select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        .btn-secondary {
+            background-color: var(--light);
+            color: var(--dark);
+        }
+        .btn-secondary:hover {
+            background-color: #dde4e6;
+        }
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        .btn-danger {
+            background-color: var(--accent);
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        .update-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f4fc;
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
+        .last-update {
+            display: flex;
+            align-items: center;
+        }
+        .last-update i {
+            margin-right: 10px;
+            color: var(--secondary);
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .kpi-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            color: white;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .kpi-card h3 {
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .kpi-card .value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .summary {
+            grid-column: 1 / -1;
+        }
+        .summary-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .plant-summary {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        .plant-summary:hover {
+            transform: translateY(-3px);
+        }
+        .plant-summary h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .progress-bar {
+            height: 10px;
+            background: #eee;
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress {
+            height: 100%;
+            border-radius: 5px;
+        }
+        .progress-delivered {
+            background: var(--success);
+        }
+        .progress-remaining {
+            background: var(--warning);
+        }
+        .progress-cancel {
+            background: var(--accent);
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .data-table th {
+            background-color: var(--light);
+            color: var(--dark);
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+        }
+        .data-table th i {
+            margin-left: 5px;
+            font-size: 12px;
+        }
+        .data-table th.sort-asc i.fa-sort,
+        .data-table th.sort-desc i.fa-sort {
+            display: none;
+        }
+        .data-table th.sort-asc::after {
+            content: '\f0de';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            margin-left: 5px;
+        }
+        .data-table th.sort-desc::after {
+            content: '\f0dd';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            margin-left: 5px;
+        }
+        .data-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        /* Untuk tabel - kolom quantity lebih sempit */
+        .data-table th:nth-child(6),
+        .data-table th:nth-child(7),
+        .data-table th:nth-child(8),
+        .data-table th:nth-child(9),
+        .data-table th:nth-child(10),
+        .data-table td:nth-child(6),
+        .data-table td:nth-child(7),
+        .data-table td:nth-child(8),
+        .data-table td:nth-child(9),
+        .data-table td:nth-child(10) {
+            width: 80px;
+            min-width: 80px;
+            max-width: 100px;
+            text-align: center;
+        }
+        .data-table th:nth-child(11),
+        .data-table td:nth-child(11) {
+            width: 120px;
+            min-width: 120px;
+        }
+        .status-delivered {
+            color: var(--success);
+            font-weight: 500;
+        }
+        .status-pending {
+            color: var(--warning);
+            font-weight: 500;
+        }
+        .status-cancel {
+            color: var(--accent);
+            font-weight: 500;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .action-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-edit {
+            background-color: var(--warning);
+            color: white;
+        }
+        .btn-delete {
+            background-color: var(--accent);
+            color: white;
+        }
+        .btn-save {
+            background-color: var(--success);
+            color: white;
+        }
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: var(--gray);
+            font-size: 14px;
+        }
+        /* Sidebar Filter */
+        .sidebar-toggle {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: right 0.3s ease;
+        }
+        /* Saat sidebar terbuka, pindahkan toggle button */
+        .filter-sidebar.open + .sidebar-toggle {
+            right: calc(var(--sidebar-width) + 20px);
+        }
+        /* Overlay saat sidebar terbuka */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .sidebar-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .filter-sidebar {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: var(--sidebar-width);
+            height: 100%;
+            background: white;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            z-index: 999;
+            transition: right 0.3s ease;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .filter-sidebar.open {
+            right: 0;
+        }
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .close-sidebar {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--dark);
+        }
+        @media (max-width: 1200px) {
+            .input-row {
+                grid-template-columns: 1fr 1fr 1fr 1fr;
+            }
+        }
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .date-filter {
+                margin-top: 15px;
+                width: 100%;
+                justify-content: center;
+            }
+            .card-content {
+                height: 200px;
+            }
+            .data-table {
+                font-size: 14px;
+            }
+            .data-table th, .data-table td {
+                padding: 8px 10px;
+            }
+            .filter-controls {
+                grid-template-columns: 1fr;
+            }
+            .update-section {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .input-row {
+                grid-template-columns: 1fr 1fr;
+            }
+            .tabs {
+                flex-direction: column;
+            }
+            .kpi-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .filter-sidebar {
+                width: 85%;
+                right: -85%;
+            }
+            .filter-sidebar.open + .sidebar-toggle {
+                right: calc(85% + 20px);
+            }
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            .card {
+                padding: 15px;
+            }
+            .logo h1 {
+                font-size: 20px;
+            }
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <div class="logo">
+                    <i class="fas fa-hard-hat fa-2x"></i>
+                    <h1>Daily Delivery Monitoring</h1>
+                </div>
+                <div class="date-filter">
+                    <i class="far fa-calendar-alt"></i>
+                    <span id="current-date">02 September 2025</span>
+                </div>
+            </div>
+        </header>
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <div class="tab active" data-tab="create">
+                <i class="fas fa-plus-circle"></i>
+                <span>Create List Order</span>
+            </div>
+            <div class="tab" data-tab="list">
+                <i class="fas fa-list"></i>
+                <span>List Order</span>
+            </div>
+            <div class="tab" data-tab="dashboard">
+                <i class="fas fa-chart-bar"></i>
+                <span>Dashboard</span>
+            </div>
+        </div>
+        <!-- Create List Order Tab -->
+        <div class="tab-content active" id="create-tab">
+            <div class="input-section">
+                <div class="filter-title">
+                    <i class="fas fa-plus-circle"></i>
+                    <h2>Create List Order</h2>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="input-date">Tanggal</label>
+                        <input type="date" id="input-date" value="2025-09-02">
+                    </div>
+                    <div class="input-group">
+                        <label for="input-plant">Plant</label>
+                        <select id="input-plant">
+                            <option value="DENPASAR 2">Denpasar 2</option>
+                            <option value="GIANYAR">Gianyar</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="input-status">Status</label>
+                        <select id="input-status">
+                            <option value="PENDING">Pending</option>
+                            <option value="DELIVERED">Delivery</option>
+                            <option value="CANCEL">Cancel</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="input-siteNo">Site No</label>
+                        <input type="text" id="input-siteNo" placeholder="Nomor Site">
+                    </div>
+                    <div class="input-group">
+                        <label for="input-siteName">Site Name</label>
+                        <input type="text" id="input-siteName" placeholder="Nama Site" oninput="autoFillSiteNo()">
+                    </div>
+                    <div class="input-group">
+                        <label for="input-qtyOrder">Qty Order</label>
+                        <input type="number" id="input-qtyOrder" placeholder="m³" min="0" oninput="calculateRemain()">
+                    </div>
+                    <div class="input-group">
+                        <label for="input-qtyDelivered">Qty Delivery</label>
+                        <input type="number" id="input-qtyDelivered" placeholder="m³" min="0" oninput="calculateRemain()">
+                    </div>
+                    <div class="input-group">
+                        <label for="input-qtyRemain">Qty Remain</label>
+                        <input type="number" id="input-qtyRemain" placeholder="m³" min="0" readonly>
+                    </div>
+                    <div class="input-group">
+                        <label for="input-qtyCancel">Qty Cancel</label>
+                        <input type="number" id="input-qtyCancel" placeholder="m³" min="0" oninput="calculateRemainFromCancel()">
+                    </div>
+                    <!-- Kolom BARU: Remarks -->
+                    <div class="input-group">
+                        <label for="input-remarks">Remarks</label>
+                        <input type="text" id="input-remarks" placeholder="Catatan (wajib jika Qty Cancel > 0)">
+                    </div>
+                </div>
+                <div class="filter-buttons">
+                    <button class="btn btn-success" id="add-data">
+                        <i class="fas fa-plus"></i> Add Row
+                    </button>
+                    <button class="btn btn-primary" id="save-data">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- List Order Tab -->
+        <div class="tab-content" id="list-tab">
+            <div class="filter-section">
+                <div class="filter-title">
+                    <i class="fas fa-filter"></i>
+                    <h2>Filter Data</h2>
+                </div>
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label for="list-start-date">Dari Tanggal:</label>
+                        <input type="date" id="list-start-date" value="2025-09-01">
+                    </div>
+                    <div class="filter-group">
+                        <label for="list-end-date">Sampai Tanggal:</label>
+                        <input type="date" id="list-end-date" value="2025-09-05">
+                    </div>
+                    <div class="filter-group">
+                        <label for="list-plant-filter">Plant:</label>
+                        <select id="list-plant-filter">
+                            <option value="all">Semua Plant</option>
+                            <option value="DENPASAR 2">Denpasar 2</option>
+                            <option value="GIANYAR">Gianyar</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="list-status-filter">Status:</label>
+                        <select id="list-status-filter">
+                            <option value="all">Semua Status</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="DELIVERED">Delivery</option>
+                            <option value="CANCEL">Cancel</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-buttons">
+                    <button class="btn btn-primary" id="list-apply-filter">
+                        <i class="fas fa-check"></i> Terapkan Filter
+                    </button>
+                    <button class="btn btn-secondary" id="list-reset-filter">
+                        <i class="fas fa-sync"></i> Reset Filter
+                    </button>
+                    <button class="btn btn-success" id="list-update-data">
+                        <i class="fas fa-save"></i> Update
+                    </button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2>List Order</h2>
+                    <i class="fas fa-list"></i>
+                    <button class="btn btn-success btn-export-excel" onclick="exportToExcel()" title="Ekspor ke Excel">
+                        <i class="fas fa-file-excel"></i>
+                    </button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable(0)">Tanggal <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable(1)">Plant <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable(2)">Status <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable(3)">Site No <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable(4)">Site Name <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable(5)">Qty Order (m³) <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable(6)">Qty Delivery (m³) <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable(7)">Qty Remain (m³) <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable(8)">Qty Cancel (m³) <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable(9)">Remarks <i class="fas fa-sort"></i></th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="list-order-data">
+                            <!-- Data akan diisi secara dinamis -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Dashboard Tab -->
+        <div class="tab-content" id="dashboard-tab">
+            <!-- Overlay untuk sidebar -->
+            <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+            <!-- Sidebar Toggle Button -->
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <span id="sidebar-toggle-icon">>></span>
+            </button>
+            <!-- Filter Sidebar -->
+            <div class="filter-sidebar" id="filter-sidebar">
+                <div class="sidebar-header">
+                    <h2>Filter Dashboard</h2>
+                    <button class="close-sidebar" onclick="toggleSidebar()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label for="dashboard-start-date">Dari Tanggal:</label>
+                        <input type="date" id="dashboard-start-date" value="2025-09-01">
+                    </div>
+                    <div class="filter-group">
+                        <label for="dashboard-end-date">Sampai Tanggal:</label>
+                        <input type="date" id="dashboard-end-date" value="2025-09-05">
+                    </div>
+                    <div class="filter-group">
+                        <label for="dashboard-plant-filter">Plant:</label>
+                        <select id="dashboard-plant-filter">
+                            <option value="all">Semua Plant</option>
+                            <option value="DENPASAR 2">Denpasar 2</option>
+                            <option value="GIANYAR">Gianyar</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="dashboard-status-filter">Status:</label>
+                        <select id="dashboard-status-filter">
+                            <option value="all">Semua Status</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="DELIVERED">Delivery</option>
+                            <option value="CANCEL">Cancel</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-buttons">
+                    <button class="btn btn-primary" id="dashboard-apply-filter">
+                        <i class="fas fa-check"></i> Terapkan Filter
+                    </button>
+                    <button class="btn btn-secondary" id="dashboard-reset-filter">
+                        <i class="fas fa-sync"></i> Reset Filter
+                    </button>
+                </div>
+                <div class="last-update" style="margin-top: 20px;">
+                    <i class="fas fa-clock"></i>
+                    <span>Last update: <span id="last-update-time">--:--:--</span></span>
+                </div>
+            </div>
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <h3>Total Qty Order</h3>
+                    <div class="value" id="total-order">0 m³</div>
+                </div>
+                <div class="kpi-card">
+                    <h3>Total Plant</h3>
+                    <div class="value" id="total-plant">0</div>
+                </div>
+                <div class="kpi-card">
+                    <h3>Total Qty Delivery</h3>
+                    <div class="value" id="total-delivery">0 m³</div>
+                </div>
+                <div class="kpi-card">
+                    <h3>Total Qty Remain</h3>
+                    <div class="value" id="total-remain">0 m³</div>
+                </div>
+                <div class="kpi-card">
+                    <h3>Total Qty Cancel</h3>
+                    <div class="value" id="total-cancel">0 m³</div>
+                </div>
+                <div class="kpi-card">
+                    <h3>Total Project</h3>
+                    <div class="value" id="total-project">0</div>
+                </div>
+                <div class="kpi-card">
+                    <h3>Total Project Remain</h3>
+                    <div class="value" id="total-project-remain">0</div>
+                </div>
+            </div>
+            <div class="dashboard">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Qty Delivery by Status</h2>
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Plant Performance</h2>
+                        <i class="fas fa-industry"></i>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="plantChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Qty Order Per Day</h2>
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="dailyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="summary">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Daily Delivery Summary</h2>
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="summary-content">
+                        <div class="plant-summary">
+                            <h3>Daily Delivery Denpasar</h3>
+                            <p><strong>Volume order:</strong> <span id="denpasar-order">0</span> M3</p>
+                            <p><strong>Volume Delivered:</strong> <span id="denpasar-delivered">0</span> M3</p>
+                            <p><strong>Volume Remain:</strong> <span id="denpasar-remain">0</span> M3</p>
+                            <p><strong>Project Remain:</strong> <span id="denpasar-project-remain">0</span></p>
+                            <div class="progress-bar">
+                                <div class="progress progress-delivered" id="denpasar-progress-delivered" style="width: 0%"></div>
+                                <div class="progress progress-remaining" id="denpasar-progress-remain" style="width: 0%"></div>
+                                <div class="progress progress-cancel" id="denpasar-progress-cancel" style="width: 0%"></div>
+                            </div>
+                            <p><strong>Prosentase Pencapaian:</strong> <span id="denpasar-percentage">0</span>%</p>
+                        </div>
+                        <div class="plant-summary">
+                            <h3>Daily Delivery Gianyar</h3>
+                            <p><strong>Volume order:</strong> <span id="gianyar-order">0</span> M3</p>
+                            <p><strong>Volume Delivered:</strong> <span id="gianyar-delivered">0</span> M3</p>
+                            <p><strong>Volume Remain:</strong> <span id="gianyar-remain">0</span> M3</p>
+                            <p><strong>Project Remain:</strong> <span id="gianyar-project-remain">0</span></p>
+                            <div class="progress-bar">
+                                <div class="progress progress-delivered" id="gianyar-progress-delivered" style="width: 0%"></div>
+                                <div class="progress progress-remaining" id="gianyar-progress-remain" style="width: 0%"></div>
+                                <div class="progress progress-cancel" id="gianyar-progress-cancel" style="width: 0%"></div>
+                            </div>
+                            <p><strong>Prosentase Pencapaian:</strong> <span id="gianyar-percentage">0</span>%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2>Project Remain Details</h2>
+                    <i class="fas fa-list"></i>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Plant</th>
+                                <th>Status</th>
+                                <th>Site No</th>
+                                <th>Site Name</th>
+                                <th>Qty Order (m³)</th>
+                                <th>Qty Delivery (m³)</th>
+                                <th>Qty Remain (m³)</th>
+                                <th>Qty Cancel (m³)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboard-project-data">
+                            <!-- Data akan diisi secara dinamis -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <footer>
+            <p>Dashboard Daily Delivery Monitoring &copy; 2025 - L=23-51Xe</p>
+        </footer>
+    </div>
+    <script>
+        // Data untuk simulasi
+        let orderData = JSON.parse(localStorage.getItem('orderData')) || [];
+        let editIndex = -1;
+        // Chart instances
+        let statusChart, plantChart, dailyChart;
+        // Variabel global untuk menyimpan status sorting
+        let currentSort = {
+            column: -1,
+            direction: 'asc' // 'asc' or 'desc'
+        };
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCurrentDate();
+            updateLastUpdateTime();
+            initCharts();
+            renderListData();
+            updateDashboard();
+            // Set up event listeners
+            document.getElementById('add-data').addEventListener('click', addData);
+            document.getElementById('save-data').addEventListener('click', saveDataToLocalStorage);
+            // List tab filters
+            document.getElementById('list-apply-filter').addEventListener('click', applyListFilter);
+            document.getElementById('list-reset-filter').addEventListener('click', resetListFilter);
+            document.getElementById('list-update-data').addEventListener('click', updateListData);
+            // Dashboard tab filters
+            document.getElementById('dashboard-apply-filter').addEventListener('click', applyDashboardFilter);
+            document.getElementById('dashboard-reset-filter').addEventListener('click', resetDashboardFilter);
+            // Tab functionality
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetTab = tab.dataset.tab;
 
+                    // Reset editIndex jika berpindah dari tab create
+                    if (document.querySelector('.tab.active').dataset.tab === 'create' && targetTab !== 'create') {
+                        resetCreateTabState();
+                    }
+
+                    // Reset editIndex dan kembalikan tombol jika masuk ke tab create dari tab lain (bukan dari editData)
+                    if (targetTab === 'create' && document.querySelector('.tab.active').dataset.tab !== 'create') {
+                        // Jika bukan dalam mode edit (misalnya kembali dari list/dashboard), reset
+                        if (editIndex !== -1) {
+                             // Hanya reset jika tombol bukan "Update" saat ini, artinya proses edit dibatalkan
+                             if (document.getElementById('add-data').innerHTML.includes('Update')) {
+                                 // Jika tombol adalah "Update", berarti kembali dari editData, jangan reset sekarang
+                                 // Tapi jika pengguna lalu pindah ke tab lain dan kembali ke create tanpa klik update/add, reset.
+                                 // Kita reset di sini karena pengguna meninggalkan tab create sebelum klik update/add.
+                                 resetCreateTabState();
+                             }
+                             // Jika tombol bukan "Update", reset langsung.
+                             else {
+                                 resetCreateTabState();
+                             }
+                        }
+                    }
+
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+                    document.getElementById(`${targetTab}-tab`).classList.add('active');
+                    // If switching to dashboard, update it
+                    if (targetTab === 'dashboard') {
+                        updateDashboard();
+                    } else if (targetTab === 'list') {
+                        renderListData();
+                    }
+                    // Jika kembali ke tab create, pastikan kondisi bersih kecuali sedang edit
+                    if (targetTab === 'create' && editIndex === -1) {
+                        // Hanya reset jika tidak sedang dalam mode edit
+                        resetCreateTabState();
+                    }
+                });
+            });
+            // Set default date values to today and 7 days ago
+            const today = new Date();
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(today.getDate() - 7);
+            document.getElementById('list-start-date').value = formatDate(sevenDaysAgo);
+            document.getElementById('list-end-date').value = formatDate(today);
+            document.getElementById('dashboard-start-date').value = formatDate(sevenDaysAgo);
+            document.getElementById('dashboard-end-date').value = formatDate(today);
+        });
+
+        // Fungsi untuk mereset keadaan tab Create ke kondisi awal
+        function resetCreateTabState() {
+            editIndex = -1;
+            document.getElementById('add-data').innerHTML = '<i class="fas fa-plus"></i> Add Row';
+            // Kosongkan semua input field
+            document.getElementById('input-date').value = formatDate(new Date());
+            document.getElementById('input-plant').value = 'DENPASAR 2';
+            document.getElementById('input-status').value = 'PENDING';
+            document.getElementById('input-siteNo').value = '';
+            document.getElementById('input-siteName').value = '';
+            document.getElementById('input-qtyOrder').value = '';
+            document.getElementById('input-qtyDelivered').value = '';
+            document.getElementById('input-qtyRemain').value = '';
+            document.getElementById('input-qtyCancel').value = '';
+            document.getElementById('input-remarks').value = '';
+        }
+
+        // Toggle sidebar dengan overlay
+        function toggleSidebar() {
+            const sidebar = document.getElementById('filter-sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const isOpen = sidebar.classList.toggle('open');
+            overlay.classList.toggle('open', isOpen);
+            // Ubah ikon toggle
+            const icon = document.getElementById('sidebar-toggle-icon');
+            icon.textContent = isOpen ? '<<' : '>>';
+            // Pindahkan tombol toggle
+            const toggleButton = document.querySelector('.sidebar-toggle');
+            if (isOpen) {
+                toggleButton.style.right = 'calc(var(--sidebar-width) + 20px)';
+            } else {
+                toggleButton.style.right = '20px';
+            }
+        }
+        // Format date to YYYY-MM-DD for input[type="date"]
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        // Format date to DD/MM/YYYY for display
+        function formatDisplayDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+        // Update current date display
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { day: '2-digit', month: 'long', year: 'numeric' };
+            document.getElementById('current-date').textContent = now.toLocaleDateString('id-ID', options);
+        }
+        // Update last update time
+        function updateLastUpdateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('id-ID');
+            document.getElementById('last-update-time').textContent = timeString;
+        }
+        // Calculate Qty Remain
+        function calculateRemain() {
+            const qtyOrder = parseInt(document.getElementById('input-qtyOrder').value) || 0;
+            const qtyDelivered = parseInt(document.getElementById('input-qtyDelivered').value) || 0;
+            const qtyCancel = parseInt(document.getElementById('input-qtyCancel').value) || 0;
+            // Calculate remain considering both delivery and cancel
+            const qtyRemain = qtyOrder - qtyDelivered - qtyCancel;
+            document.getElementById('input-qtyRemain').value = qtyRemain > 0 ? qtyRemain : 0;
+        }
+        // Calculate Qty Remain when Cancel changes
+        function calculateRemainFromCancel() {
+            const qtyOrder = parseInt(document.getElementById('input-qtyOrder').value) || 0;
+            const qtyDelivered = parseInt(document.getElementById('input-qtyDelivered').value) || 0;
+            const qtyCancel = parseInt(document.getElementById('input-qtyCancel').value) || 0;
+            // Validate that cancel + delivered doesn't exceed order
+            if (qtyDelivered + qtyCancel > qtyOrder) {
+                alert('Jumlah Delivery + Cancel tidak boleh melebihi Quantity Order!');
+                document.getElementById('input-qtyCancel').value = Math.max(0, qtyOrder - qtyDelivered);
+            }
+            // Calculate remain
+            const qtyRemain = qtyOrder - qtyDelivered - qtyCancel;
+            document.getElementById('input-qtyRemain').value = qtyRemain > 0 ? qtyRemain : 0;
+        }
+        // Initialize charts
+        function initCharts() {
+            // Status Pengiriman Chart
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            statusChart = new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending', 'Delivered', 'Canceled'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: [
+                            '#f39c12',
+                            '#2ecc71',
+                            '#e74c3c'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            // Plant Performance Chart
+            const plantCtx = document.getElementById('plantChart').getContext('2d');
+            plantChart = new Chart(plantCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Denpasar 2', 'Gianyar'],
+                    datasets: [
+                        {
+                            label: 'Qty Order',
+                            data: [0, 0],
+                            backgroundColor: '#3498db',
+                            borderColor: '#2980b9',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Qty Delivery',
+                            data: [0, 0],
+                            backgroundColor: '#2ecc71',
+                            borderColor: '#27ae60',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Qty Remain',
+                            data: [0, 0],
+                            backgroundColor: '#f39c12',
+                            borderColor: '#e67e22',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            // Daily Order Chart
+            const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+            dailyChart = new Chart(dailyCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Qty Order Per Day',
+                        data: [],
+                        backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                        borderColor: '#3498db',
+                        borderWidth: 2,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        // Render list data to table
+        function renderListData(data = orderData) {
+            const tableBody = document.getElementById('list-order-data');
+            tableBody.innerHTML = '';
+            if (data.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="11" style="text-align: center;">Tidak ada data</td>`;
+                tableBody.appendChild(row);
+                return;
+            }
+            data.forEach((item, index) => {
+                const row = document.createElement('tr');
+                // Calculate remaining quantity
+                const qtyRemain = item.status === 'CANCEL' ? 0 : item.qtyOrder - item.qtyDelivered - (item.qtyCancel || 0);
+                // Determine status class
+                let statusClass = '';
+                if (item.status === 'DELIVERED') statusClass = 'status-delivered';
+                else if (item.status === 'PENDING') statusClass = 'status-pending';
+                else if (item.status === 'CANCEL') statusClass = 'status-cancel';
+                row.innerHTML = `
+                    <td>${formatDisplayDate(item.date)}</td>
+                    <td>${item.plant}</td>
+                    <td class="${statusClass}">${item.status === 'DELIVERED' ? 'DELIVERY' : item.status === 'PENDING' ? 'PENDING' : 'CANCEL'}</td>
+                    <td>${item.siteNo}</td>
+                    <td>${item.siteName}</td>
+                    <td>${item.qtyOrder}</td>
+                    <td>${item.qtyDelivered}</td>
+                    <td>${qtyRemain}</td>
+                    <td>${item.qtyCancel || 0}</td>
+                    <td>${item.remarks || '-'}</td>
+                    <td class="action-buttons">
+                        <button class="action-btn btn-edit" onclick="editData(${index})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn btn-delete" onclick="deleteData(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            // Reset sorting indicators
+            const headerCells = document.querySelectorAll('.data-table th');
+            headerCells.forEach(cell => {
+                cell.classList.remove('sort-asc', 'sort-desc');
+            });
+            // If there's an active sort, apply it
+            if (currentSort.column !== -1) {
+                headerCells[currentSort.column].classList.add(`sort-${currentSort.direction}`);
+            }
+        }
+        // Fungsi untuk mengurutkan tabel
+        function sortTable(columnIndex) {
+            const table = document.getElementById('list-order-data');
+            const rows = Array.from(table.querySelectorAll('tr'));
+            const headerCells = document.querySelectorAll('.data-table th');
+            // Hapus class sorting dari semua header
+            headerCells.forEach(cell => {
+                cell.classList.remove('sort-asc', 'sort-desc');
+            });
+            // Tentukan arah sorting
+            if (currentSort.column === columnIndex) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = columnIndex;
+                currentSort.direction = 'asc';
+            }
+            // Tambahkan class sorting ke header yang aktif
+            headerCells[columnIndex].classList.add(`sort-${currentSort.direction}`);
+            // Urutkan baris
+            rows.sort((a, b) => {
+                let aValue = a.cells[columnIndex].textContent.trim();
+                let bValue = b.cells[columnIndex].textContent.trim();
+                // Konversi ke angka jika kolom numerik
+                if ([5, 6, 7, 8, 9].includes(columnIndex)) {
+                    aValue = parseFloat(aValue) || 0;
+                    bValue = parseFloat(bValue) || 0;
+                }
+                // Bandingkan nilai
+                if (aValue < bValue) return currentSort.direction === 'asc' ? -1 : 1;
+                if (aValue > bValue) return currentSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+            // Hapus semua baris dari tabel
+            while (table.firstChild) {
+                table.removeChild(table.firstChild);
+            }
+            // Tambahkan baris yang telah diurutkan
+            rows.forEach(row => table.appendChild(row));
+            // Simpan status sorting
+            currentSort.column = columnIndex;
+            // Render ulang untuk memperbarui indeks baris yang ditampilkan
+             renderListData(getCurrentFilteredData()); // Gunakan data yang saat ini ditampilkan
+        }
+
+        // Fungsi bantu untuk mendapatkan data yang sedang difilter/diurutkan
+        // Karena renderListData bisa menerima data parameter, kita simpan data terakhir yang ditampilkan
+        let currentDisplayData = orderData; // Inisialisasi dengan semua data
+        function renderListData(data = orderData) {
+            currentDisplayData = data; // Simpan referensi ke data yang ditampilkan
+            const tableBody = document.getElementById('list-order-data');
+            tableBody.innerHTML = '';
+            if (data.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="11" style="text-align: center;">Tidak ada data</td>`;
+                tableBody.appendChild(row);
+                return;
+            }
+            data.forEach((item, index) => {
+                const row = document.createElement('tr');
+                // Calculate remaining quantity
+                const qtyRemain = item.status === 'CANCEL' ? 0 : item.qtyOrder - item.qtyDelivered - (item.qtyCancel || 0);
+                // Determine status class
+                let statusClass = '';
+                if (item.status === 'DELIVERED') statusClass = 'status-delivered';
+                else if (item.status === 'PENDING') statusClass = 'status-pending';
+                else if (item.status === 'CANCEL') statusClass = 'status-cancel';
+                row.innerHTML = `
+                    <td>${formatDisplayDate(item.date)}</td>
+                    <td>${item.plant}</td>
+                    <td class="${statusClass}">${item.status === 'DELIVERED' ? 'DELIVERY' : item.status === 'PENDING' ? 'PENDING' : 'CANCEL'}</td>
+                    <td>${item.siteNo}</td>
+                    <td>${item.siteName}</td>
+                    <td>${item.qtyOrder}</td>
+                    <td>${item.qtyDelivered}</td>
+                    <td>${qtyRemain}</td>
+                    <td>${item.qtyCancel || 0}</td>
+                    <td>${item.remarks || '-'}</td>
+                    <td class="action-buttons">
+                        <button class="action-btn btn-edit" onclick="editData(${index})"> <!-- Indeks relatif terhadap array data yang ditampilkan -->
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn btn-delete" onclick="deleteData(${index})"> <!-- Indeks relatif terhadap array data yang ditampilkan -->
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            // Reset sorting indicators
+            const headerCells = document.querySelectorAll('.data-table th');
+            headerCells.forEach(cell => {
+                cell.classList.remove('sort-asc', 'sort-desc');
+            });
+            // If there's an active sort, apply it
+            if (currentSort.column !== -1) {
+                headerCells[currentSort.column].classList.add(`sort-${currentSort.direction}`);
+            }
+        }
+
+        function getCurrentFilteredData() {
+            // Ambil nilai filter
+            const startDate = new Date(document.getElementById('list-start-date').value);
+            const endDate = new Date(document.getElementById('list-end-date').value);
+            const plantFilter = document.getElementById('list-plant-filter').value;
+            const statusFilter = document.getElementById('list-status-filter').value;
+
+            // Filter data
+            let filteredData = orderData.filter(item => {
+                const itemDate = new Date(item.date);
+                if (itemDate < startDate || itemDate > endDate) return false;
+                if (plantFilter !== 'all' && item.plant !== plantFilter) return false;
+                if (statusFilter !== 'all' && item.status !== statusFilter) return false;
+                return true;
+            });
+
+            // Jika ada sorting aktif, terapkan sorting
+            if (currentSort.column !== -1) {
+                filteredData = sortFilteredData(filteredData, currentSort.column, currentSort.direction);
+            }
+            return filteredData;
+        }
+
+        // Fungsi untuk mengurutkan data yang difilter
+        function sortFilteredData(data, columnIndex, direction) {
+            return data.sort((a, b) => {
+                let aValue, bValue;
+                // Ambil nilai berdasarkan indeks kolom
+                switch(columnIndex) {
+                    case 0: aValue = a.date; bValue = b.date; break;
+                    case 1: aValue = a.plant; bValue = b.plant; break;
+                    case 2: aValue = a.status; bValue = b.status; break;
+                    case 3: aValue = a.siteNo; bValue = b.siteNo; break;
+                    case 4: aValue = a.siteName; bValue = b.siteName; break;
+                    case 5: aValue = a.qtyOrder; bValue = b.qtyOrder; break;
+                    case 6: aValue = a.qtyDelivered; bValue = b.qtyDelivered; break;
+                    case 7:
+                        aValue = a.status === 'CANCEL' ? 0 : a.qtyOrder - a.qtyDelivered - (a.qtyCancel || 0);
+                        bValue = b.status === 'CANCEL' ? 0 : b.qtyOrder - b.qtyDelivered - (b.qtyCancel || 0);
+                        break;
+                    case 8: aValue = a.qtyCancel || 0; bValue = b.qtyCancel || 0; break;
+                    case 9: aValue = a.remarks || ''; bValue = b.remarks || ''; break;
+                    default: return 0;
+                }
+                // Konversi ke angka jika kolom numerik
+                if ([5, 6, 7, 8].includes(columnIndex)) {
+                    aValue = parseFloat(aValue) || 0;
+                    bValue = parseFloat(bValue) || 0;
+                }
+                // Bandingkan nilai
+                if (aValue < bValue) return direction === 'asc' ? -1 : 1;
+                if (aValue > bValue) return direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+        // Add new data
+        function addData() {
+            const date = document.getElementById('input-date').value;
+            const plant = document.getElementById('input-plant').value;
+            const status = document.getElementById('input-status').value;
+            const siteNo = document.getElementById('input-siteNo').value;
+            const siteName = document.getElementById('input-siteName').value;
+            const qtyOrder = parseInt(document.getElementById('input-qtyOrder').value) || 0;
+            const qtyDelivered = parseInt(document.getElementById('input-qtyDelivered').value) || 0;
+            const qtyCancel = parseInt(document.getElementById('input-qtyCancel').value) || 0;
+            const remarks = document.getElementById('input-remarks').value.trim(); // Ambil nilai remarks
+            // Validate input
+            if (!date || !siteNo || !siteName || qtyOrder <= 0) {
+                alert('Harap isi semua field dengan benar!');
+                return;
+            }
+            if (qtyDelivered + qtyCancel > qtyOrder) {
+                alert('Jumlah Delivery + Cancel tidak boleh melebihi Quantity Order!');
+                return;
+            }
+            // Validasi: Jika Qty Cancel > 0, maka Remarks wajib diisi
+            if (qtyCancel > 0 && remarks === '') {
+                alert('Kolom Remarks wajib diisi jika Qty Cancel > 0!');
+                return;
+            }
+            if (editIndex === -1) {
+                // Add new data
+                orderData.push({
+                    date,
+                    plant,
+                    status,
+                    siteNo,
+                    siteName,
+                    qtyOrder,
+                    qtyDelivered,
+                    qtyCancel,
+                    remarks // Simpan remarks ke objek
+                });
+                showNotification('Data berhasil ditambahkan!');
+            } else {
+                // Update existing data
+                orderData[editIndex] = {
+                    date,
+                    plant,
+                    status,
+                    siteNo,
+                    siteName,
+                    qtyOrder,
+                    qtyDelivered,
+                    qtyCancel,
+                    remarks
+                };
+                editIndex = -1;
+                document.getElementById('add-data').innerHTML = '<i class="fas fa-plus"></i> Add Row';
+                showNotification('Data berhasil diupdate!');
+            }
+            // Clear input fields
+            document.getElementById('input-siteNo').value = '';
+            document.getElementById('input-siteName').value = '';
+            document.getElementById('input-qtyOrder').value = '';
+            document.getElementById('input-qtyDelivered').value = '';
+            document.getElementById('input-qtyRemain').value = '';
+            document.getElementById('input-qtyCancel').value = '';
+            document.getElementById('input-remarks').value = ''; // Kosongkan remarks
+            // Update display
+            updateLastUpdateTime();
+            renderListData(); // Perbarui tabel setelah add/update
+            saveDataToLocalStorage();
+        }
+        // Edit data
+        function editData(index) {
+            // Karena tabel menampilkan data yang difilter/terurut (currentDisplayData),
+            // indeks yang dikirim ke sini adalah indeks dalam array currentDisplayData.
+            // Kita perlu mendapatkan indeks sebenarnya dalam array orderData asli.
+            // Kita ambil data asli yang sesuai dengan baris yang diklik.
+            const item = currentDisplayData[index];
+            // Cari indeks asli dalam orderData
+            const realIndex = orderData.findIndex(dataItem => dataItem === item);
+
+            if (realIndex === -1) {
+                alert('Data tidak ditemukan di database utama.');
+                return;
+            }
+
+            const itemToEdit = orderData[realIndex];
+            document.getElementById('input-date').value = itemToEdit.date;
+            document.getElementById('input-plant').value = itemToEdit.plant;
+            document.getElementById('input-status').value = itemToEdit.status;
+            document.getElementById('input-siteNo').value = itemToEdit.siteNo;
+            document.getElementById('input-siteName').value = itemToEdit.siteName;
+            document.getElementById('input-qtyOrder').value = itemToEdit.qtyOrder;
+            document.getElementById('input-qtyDelivered').value = itemToEdit.qtyDelivered;
+            document.getElementById('input-qtyCancel').value = itemToEdit.qtyCancel || 0;
+            document.getElementById('input-remarks').value = itemToEdit.remarks || ''; // Tampilkan remarks saat edit
+            // Calculate and set remain value
+            calculateRemain();
+            editIndex = realIndex; // Simpan indeks asli dari orderData
+            document.getElementById('add-data').innerHTML = '<i class="fas fa-save"></i> Update';
+            // Switch to create tab
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelector('[data-tab="create"]').classList.add('active');
+            document.getElementById('create-tab').classList.add('active');
+            // Scroll to input section
+            document.querySelector('.input-section').scrollIntoView({ behavior: 'smooth' });
+        }
+        // Delete data
+        function deleteData(index) {
+            // Sama seperti edit, indeks dari tabel adalah indeks dalam currentDisplayData
+            const item = currentDisplayData[index];
+            const realIndex = orderData.findIndex(dataItem => dataItem === item);
+
+            if (realIndex === -1) {
+                alert('Data tidak ditemukan di database utama.');
+                return;
+            }
+
+            if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+                orderData.splice(realIndex, 1); // Hapus dari array asli
+                updateLastUpdateTime();
+                renderListData(); // Perbarui tampilan tabel
+                updateDashboard();
+                saveDataToLocalStorage();
+                showNotification('Data berhasil dihapus!');
+            }
+        }
+        // Save data to localStorage
+        function saveDataToLocalStorage() {
+            localStorage.setItem('orderData', JSON.stringify(orderData));
+            showNotification('Data berhasil disimpan!');
+        }
+        // Update list data
+        function updateListData() {
+            saveDataToLocalStorage();
+            updateDashboard();
+            showNotification('Data berhasil diupdate! Dashboard telah diperbarui.');
+        }
+        // Apply list filter
+        function applyListFilter() {
+            const startDate = new Date(document.getElementById('list-start-date').value);
+            const endDate = new Date(document.getElementById('list-end-date').value);
+            const plantFilter = document.getElementById('list-plant-filter').value;
+            const statusFilter = document.getElementById('list-status-filter').value;
+            // Filter data based on criteria
+            let filteredData = orderData.filter(item => {
+                const itemDate = new Date(item.date);
+                // Date filter
+                if (itemDate < startDate || itemDate > endDate) return false;
+                // Plant filter
+                if (plantFilter !== 'all' && item.plant !== plantFilter) return false;
+                // Status filter
+                if (statusFilter !== 'all' && item.status !== statusFilter) return false;
+                return true;
+            });
+            // Jika ada sorting aktif, terapkan sorting
+            if (currentSort.column !== -1) {
+                filteredData = sortFilteredData(filteredData, currentSort.column, currentSort.direction);
+            }
+            // Render filtered data
+            renderListData(filteredData);
+            // Show notification
+            showNotification(`Filter diterapkan. Menampilkan ${filteredData.length} data.`);
+        }
+        // Reset list filter
+        function resetListFilter() {
+            document.getElementById('list-start-date').value = '2025-09-01';
+            document.getElementById('list-end-date').value = '2025-09-05';
+            document.getElementById('list-plant-filter').value = 'all';
+            document.getElementById('list-status-filter').value = 'all';
+            // Reset sorting
+            currentSort.column = -1;
+            currentSort.direction = 'asc';
+            // Render all data
+            renderListData();
+            // Show notification
+            showNotification('Filter direset. Menampilkan semua data.');
+        }
+        // Apply dashboard filter
+        function applyDashboardFilter() {
+            updateDashboard();
+            showNotification('Filter dashboard diterapkan.');
+        }
+        // Reset dashboard filter
+        function resetDashboardFilter() {
+            document.getElementById('dashboard-start-date').value = '2025-09-01';
+            document.getElementById('dashboard-end-date').value = '2025-09-05';
+            document.getElementById('dashboard-plant-filter').value = 'all';
+            document.getElementById('dashboard-status-filter').value = 'all';
+            updateDashboard();
+            showNotification('Filter dashboard direset.');
+        }
+        // Update dashboard information
+        function updateDashboard() {
+            const startDate = new Date(document.getElementById('dashboard-start-date').value);
+            const endDate = new Date(document.getElementById('dashboard-end-date').value);
+            const plantFilter = document.getElementById('dashboard-plant-filter').value;
+            const statusFilter = document.getElementById('dashboard-status-filter').value;
+            // Filter data based on criteria
+            let filteredData = orderData.filter(item => {
+                const itemDate = new Date(item.date);
+                // Date filter
+                if (itemDate < startDate || itemDate > endDate) return false;
+                // Plant filter
+                if (plantFilter !== 'all' && item.plant !== plantFilter) return false;
+                // Status filter
+                if (statusFilter !== 'all' && item.status !== statusFilter) return false;
+                return true;
+            });
+            // Calculate totals
+            let totalOrder = 0;
+            let totalDelivery = 0;
+            let totalRemain = 0;
+            let totalCancel = 0;
+            // Calculate plant-specific stats
+            const plants = new Set();
+            const projects = new Set();
+            const projectsRemain = new Set();
+            const denpasarData = filteredData.filter(item => item.plant === 'DENPASAR 2');
+            const gianyarData = filteredData.filter(item => item.plant === 'GIANYAR');
+            let denpasarOrder = 0;
+            let denpasarDelivery = 0;
+            let denpasarRemain = 0;
+            let denpasarCancel = 0;
+            let denpasarProjectsRemain = new Set();
+            let gianyarOrder = 0;
+            let gianyarDelivery = 0;
+            let gianyarRemain = 0;
+            let gianyarCancel = 0;
+            let gianyarProjectsRemain = new Set();
+            // PERBAIKAN: Hitung data untuk Denpasar
+            denpasarData.forEach(item => {
+                const qtyRemain = item.status === 'CANCEL' ? 0 : item.qtyOrder - item.qtyDelivered - (item.qtyCancel || 0);
+                denpasarOrder += item.qtyOrder;
+                denpasarDelivery += item.qtyDelivered;
+                denpasarRemain += qtyRemain;
+                denpasarCancel += (item.qtyCancel || 0);
+                if (qtyRemain > 0) {
+                    denpasarProjectsRemain.add(item.siteNo);
+                }
+            });
+            // PERBAIKAN: Hitung data untuk Gianyar
+            gianyarData.forEach(item => {
+                const qtyRemain = item.status === 'CANCEL' ? 0 : item.qtyOrder - item.qtyDelivered - (item.qtyCancel || 0);
+                gianyarOrder += item.qtyOrder;
+                gianyarDelivery += item.qtyDelivered;
+                gianyarRemain += qtyRemain;
+                gianyarCancel += (item.qtyCancel || 0);
+                if (qtyRemain > 0) {
+                    gianyarProjectsRemain.add(item.siteNo);
+                }
+            });
+            // Hitung total
+            filteredData.forEach(item => {
+                const qtyRemain = item.status === 'CANCEL' ? 0 : item.qtyOrder - item.qtyDelivered - (item.qtyCancel || 0);
+                totalOrder += item.qtyOrder;
+                totalDelivery += item.qtyDelivered;
+                totalRemain += qtyRemain;
+                totalCancel += (item.qtyCancel || 0);
+                plants.add(item.plant);
+                projects.add(item.siteNo);
+                if (qtyRemain > 0) {
+                    projectsRemain.add(item.siteNo);
+                }
+            });
+            // Update KPI cards
+            document.getElementById('total-order').textContent = `${totalOrder} m³`;
+            document.getElementById('total-plant').textContent = plants.size;
+            document.getElementById('total-delivery').textContent = `${totalDelivery} m³`;
+            document.getElementById('total-remain').textContent = `${totalRemain} m³`;
+            document.getElementById('total-cancel').textContent = `${totalCancel} m³`;
+            document.getElementById('total-project').textContent = projects.size;
+            document.getElementById('total-project-remain').textContent = projectsRemain.size;
+            // Update plant summaries - PERBAIKAN: Gunakan data yang sudah dihitung dengan benar
+            document.getElementById('denpasar-order').textContent = denpasarOrder;
+            document.getElementById('denpasar-delivered').textContent = denpasarDelivery;
+            document.getElementById('denpasar-remain').textContent = denpasarRemain;
+            document.getElementById('denpasar-project-remain').textContent = denpasarProjectsRemain.size;
+            document.getElementById('gianyar-order').textContent = gianyarOrder;
+            document.getElementById('gianyar-delivered').textContent = gianyarDelivery;
+            document.getElementById('gianyar-remain').textContent = gianyarRemain;
+            document.getElementById('gianyar-project-remain').textContent = gianyarProjectsRemain.size;
+            // Calculate percentages
+            const denpasarPercentage = denpasarOrder > 0 ? Math.round((denpasarDelivery / denpasarOrder) * 100) : 0;
+            const gianyarPercentage = gianyarOrder > 0 ? Math.round((gianyarDelivery / gianyarOrder) * 100) : 0;
+            document.getElementById('denpasar-percentage').textContent = denpasarPercentage;
+            document.getElementById('gianyar-percentage').textContent = gianyarPercentage;
+            // Update progress bars
+            const denpasarDeliveredPercent = denpasarOrder > 0 ? Math.round((denpasarDelivery / denpasarOrder) * 100) : 0;
+            const denpasarRemainPercent = denpasarOrder > 0 ? Math.round((denpasarRemain / denpasarOrder) * 100) : 0;
+            const denpasarCancelPercent = denpasarOrder > 0 ? Math.round((denpasarCancel / denpasarOrder) * 100) : 0;
+            const gianyarDeliveredPercent = gianyarOrder > 0 ? Math.round((gianyarDelivery / gianyarOrder) * 100) : 0;
+            const gianyarRemainPercent = gianyarOrder > 0 ? Math.round((gianyarRemain / gianyarOrder) * 100) : 0;
+            const gianyarCancelPercent = gianyarOrder > 0 ? Math.round((gianyarCancel / gianyarOrder) * 100) : 0;
+            document.getElementById('denpasar-progress-delivered').style.width = `${denpasarDeliveredPercent}%`;
+            document.getElementById('denpasar-progress-remain').style.width = `${denpasarRemainPercent}%`;
+            document.getElementById('denpasar-progress-cancel').style.width = `${denpasarCancelPercent}%`;
+            document.getElementById('gianyar-progress-delivered').style.width = `${gianyarDeliveredPercent}%`;
+            document.getElementById('gianyar-progress-remain').style.width = `${gianyarRemainPercent}%`;
+            document.getElementById('gianyar-progress-cancel').style.width = `${gianyarCancelPercent}%`;
+            // Update charts
+            updateCharts(filteredData, denpasarOrder, denpasarDelivery, denpasarRemain, gianyarOrder, gianyarDelivery, gianyarRemain);
+            // Render project remain details
+            renderProjectRemainDetails(filteredData.filter(item => {
+                const qtyRemain = item.status === 'CANCEL' ? 0 : item.qtyOrder - item.qtyDelivered - (item.qtyCancel || 0);
+                return qtyRemain > 0;
+            }));
+        }
+        // Update charts with new data
+        function updateCharts(data, denpasarOrder, denpasarDelivery, denpasarRemain, gianyarOrder, gianyarDelivery, gianyarRemain) {
+            // Count status
+            let pendingCount = 0;
+            let deliveredCount = 0;
+            let canceledCount = 0;
+            data.forEach(item => {
+                if (item.status === 'PENDING') pendingCount++;
+                else if (item.status === 'DELIVERED') deliveredCount++;
+                else if (item.status === 'CANCEL') canceledCount++;
+            });
+            // Update status chart
+            statusChart.data.datasets[0].data = [pendingCount, deliveredCount, canceledCount];
+            statusChart.update();
+            // Update plant chart
+            plantChart.data.datasets[0].data = [denpasarOrder, gianyarOrder];
+            plantChart.data.datasets[1].data = [denpasarDelivery, gianyarDelivery];
+            plantChart.data.datasets[2].data = [denpasarRemain, gianyarRemain];
+            plantChart.update();
+            // Update daily chart with dates
+            const dateData = {};
+            data.forEach(item => {
+                const date = formatDisplayDate(item.date);
+                if (!dateData[date]) {
+                    dateData[date] = 0;
+                }
+                dateData[date] += item.qtyOrder;
+            });
+            const dates = Object.keys(dateData).sort();
+            const orderData = dates.map(date => dateData[date]);
+            dailyChart.data.labels = dates;
+            dailyChart.data.datasets[0].data = orderData;
+            dailyChart.update();
+        }
+        // Render project remain details
+        function renderProjectRemainDetails(data) {
+            const tableBody = document.getElementById('dashboard-project-data');
+            tableBody.innerHTML = '';
+            if (data.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="9" style="text-align: center;">Tidak ada data project remain</td>`;
+                tableBody.appendChild(row);
+                return;
+            }
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                // Calculate remaining quantity
+                const qtyRemain = item.status === 'CANCEL' ? 0 : item.qtyOrder - item.qtyDelivered - (item.qtyCancel || 0);
+                // Determine status class
+                let statusClass = '';
+                if (item.status === 'DELIVERED') statusClass = 'status-delivered';
+                else if (item.status === 'PENDING') statusClass = 'status-pending';
+                else if (item.status === 'CANCEL') statusClass = 'status-cancel';
+                row.innerHTML = `
+                    <td>${formatDisplayDate(item.date)}</td>
+                    <td>${item.plant}</td>
+                    <td class="${statusClass}">${item.status === 'DELIVERED' ? 'DELIVERY' : item.status === 'PENDING' ? 'PENDING' : 'CANCEL'}</td>
+                    <td>${item.siteNo}</td>
+                    <td>${item.siteName}</td>
+                    <td>${item.qtyOrder}</td>
+                    <td>${item.qtyDelivered}</td>
+                    <td>${qtyRemain}</td>
+                    <td>${item.qtyCancel || 0}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        // Show notification
+        function showNotification(message) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.position = 'fixed';
+            notification.style.bottom = '20px';
+            notification.style.right = '20px';
+            notification.style.backgroundColor = '#2c3e50';
+            notification.style.color = 'white';
+            notification.style.padding = '10px 15px';
+            notification.style.borderRadius = '5px';
+            notification.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+            notification.style.zIndex = '1000';
+            notification.style.opacity = '0';
+            notification.style.transition = 'opacity 0.3s ease';
+            document.body.appendChild(notification);
+            // Animate in
+            setTimeout(() => {
+                notification.style.opacity = '1';
+            }, 10);
+            // Animate out and remove after 3 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+        // ======== FITUR BARU: EXPORT TO EXCEL ========
+        function exportToExcel() {
+            // Ambil data dari localStorage (bukan dari tabel)
+            const orderData = JSON.parse(localStorage.getItem('orderData')) || [];
+            // Buat array untuk data
+            const data = [];
+            // Header
+            const headers = [
+                'Tanggal',
+                'Plant',
+                'Status',
+                'Site No',
+                'Site Name',
+                'Qty Order (m³)',
+                'Qty Delivery (m³)',
+                'Qty Remain (m³)',
+                'Qty Cancel (m³)',
+                'Remarks'
+            ];
+            data.push(headers);
+            // Data baris
+            orderData.forEach(item => {
+                const qtyRemain = item.status === 'CANCEL' ? 0 : item.qtyOrder - item.qtyDelivered - (item.qtyCancel || 0);
+                const row = [
+                    formatDisplayDate(item.date),
+                    item.plant,
+                    item.status === 'DELIVERED' ? 'DELIVERY' : item.status === 'PENDING' ? 'PENDING' : 'CANCEL',
+                    item.siteNo,
+                    item.siteName,
+                    item.qtyOrder,
+                    item.qtyDelivered,
+                    qtyRemain,
+                    item.qtyCancel || 0,
+                    item.remarks || '-'
+                ];
+                data.push(row);
+            });
+            // Gunakan SheetJS
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "List Order");
+            XLSX.writeFile(wb, "Daily-Delivery-Monitoring.xlsx");
+        }
+        // ======== FITUR BARU: AUTO-FILL SITE NO DARI SITE NAME ========
+        function autoFillSiteNo() {
+            const siteName = document.getElementById('input-siteName').value;
+            const siteNoInput = document.getElementById('input-siteNo');
+            // Cari 6 digit angka pertama di awal string
+            const match = siteName.match(/^\d{6}/);
+            if (match) {
+                siteNoInput.value = match[0]; // Isi dengan 6 digit pertama
+            } else {
+                siteNoInput.value = ''; // Kosongkan jika tidak ada 6 digit
+            }
+        }
+    </script>
+</body>
+</html>
