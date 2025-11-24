@@ -43,54 +43,69 @@
         .container.expanded {
             margin-left: var(--sidebar-width);
         }
+        /* HEADER YANG DIPERBAIKI */
         header {
             background: linear-gradient(135deg, #880808 0%, #6a0dad 100%);
             color: white;
             padding: 15px 0;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            position: fixed;
-            top: 0;
-            width: 100%; /* UBAH dari 100vw ke 100% */
-            margin-left: 0; /* UBAH dari calc(-50vw + 50%) ke 0 */
-            margin-top: 0; /* UBAH dari -20px ke 0 */
             margin-bottom: 20px;
             height: 80px;
             display: flex;
             align-items: center;
+            width: 100%;
+            position: relative;
         }
-        
+
+        .header-wrapper {
+            display: flex;
+            width: 100%;
+            margin-left: var(--sidebar-collapsed-width);
+            transition: margin-left 0.3s ease;
+            padding-right: 20px;
+            box-sizing: border-box;
+        }
+
+        .container.expanded ~ header .header-wrapper {
+            margin-left: var(--sidebar-width);
+        }
+
         .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            max-width: 100%;
-            margin: 0 auto;
-            padding: 0 20px 0 90px; /* KANAN: kurangi dari 20px ke 15px */
-            position: relative;
             width: 100%;
-            box-sizing: border-box; /* TAMBAHKAN ini */
+            padding: 0 20px;
+            box-sizing: border-box;
         }
+
         .header-text {
             flex: 1;
             margin-left: 20px;
+            min-width: 0; /* Prevent text overflow */
         }
+
         header h1 {
             margin-bottom: 5px;
             font-size: 1.8rem;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
             font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
+
         header p {
             opacity: 0.95;
             font-size: 1rem;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
             font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
+
         .datetime {
-            position: absolute;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
             font-size: 0.85rem;
             font-weight: 600;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
@@ -99,6 +114,9 @@
             border-radius: 4px;
             background: rgba(0,0,0,0.2);
             backdrop-filter: blur(5px);
+            white-space: nowrap;
+            margin-left: 20px;
+            flex-shrink: 0;
         }
         .sidebar {
             position: fixed;
@@ -707,6 +725,10 @@
                 height: auto;
                 padding: 12px 0;
             }
+            .header-wrapper {
+                margin-left: 0 !important;
+                padding-right: 15px;
+            }
             .header-content {
                 padding: 0 15px;
                 flex-direction: column;
@@ -717,17 +739,16 @@
                 margin-bottom: 10px;
             }
             .datetime {
-                position: relative;
-                top: auto;
-                right: auto;
-                transform: none;
+                margin-left: 0;
                 margin-top: 5px;
             }
             header h1 {
                 font-size: 1.5rem;
+                white-space: normal;
             }
             header p {
                 font-size: 0.9rem;
+                white-space: normal;
             }
             .summary-grid, .chart-container {
                 grid-template-columns: 1fr;
@@ -813,17 +834,20 @@
         </div>
     </div>
 
-    <div class="container">
-        <header>
+    <!-- HEADER YANG DIPERBAIKI -->
+    <header>
+        <div class="header-wrapper">
             <div class="header-content">
                 <div class="header-text">
                     <h1><i class="fas fa-hard-hat"></i> Concrete Pouring Schedule Monitoring</h1>
                     <p>Manage pouring schedules for Manukan, Manyar, Gempol, Krian, Kediri, Denpasar2, and Gianyar plants</p>
                 </div>
-                <div class="datetime" id="current-date">05/11/2025</div>
+                <div class="datetime" id="current-date">24/11/2025</div>
             </div>
-        </header>
-        
+        </div>
+    </header>
+
+    <div class="container">
         <nav>
             <ul>
                 <li><a href="#" class="nav-link active" data-target="input-section">
@@ -911,7 +935,7 @@
             </div>
         </section>
         
-        <!-- Schedule Detail Section -->
+        <!-- Monitoring Section -->
         <section id="monitoring-section" class="content-section hidden">
             <div class="card">
                 <h2>
@@ -1290,6 +1314,15 @@
             sidebar.classList.toggle('collapsed');
             sidebar.classList.toggle('expanded');
             container.classList.toggle('expanded');
+            
+            // Update header wrapper margin
+            const headerWrapper = document.querySelector('.header-wrapper');
+            if (sidebar.classList.contains('collapsed')) {
+                headerWrapper.style.marginLeft = 'var(--sidebar-collapsed-width)';
+            } else {
+                headerWrapper.style.marginLeft = 'var(--sidebar-width)';
+            }
+            
             const icon = toggleBtn.querySelector('i');
             if (sidebar.classList.contains('collapsed')) {
                 icon.className = 'fas fa-chevron-right';
