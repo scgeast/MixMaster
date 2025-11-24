@@ -34,36 +34,41 @@
             transition: transform 0.3s ease, width 0.3s ease;
             z-index: 1000;
             position: relative;
-        }
-        .sidebar.collapsed {
             transform: translateX(-100%);
             width: 0;
             min-width: 0;
             padding: 0;
             overflow: hidden;
         }
+        .sidebar.open {
+            transform: translateX(0);
+            width: 350px;
+            min-width: 350px;
+            padding: 20px;
+            overflow-y: auto;
+        }
         /* PERUBAHAN: Hilangkan background pada toggle button */
         .sidebar-toggle {
             position: fixed;
-            top: 20px;
+            top: 85px; /* Disesuaikan dengan tinggi header baru */
             left: 20px;
-            background: transparent; /* Background dihilangkan */
-            color: #2c3e50; /* Warna gelap untuk kontras */
+            background: transparent;
+            color: #2c3e50;
             border: none;
             padding: 12px 15px;
             border-radius: 5px;
             cursor: pointer;
             z-index: 1001;
-            font-size: 1.5em; /* Sedikit lebih besar untuk visibility */
+            font-size: 1.5em;
             transition: left 0.3s ease;
-            box-shadow: none; /* Hilangkan shadow */
+            box-shadow: none;
         }
         .sidebar-toggle.sidebar-open {
             left: 370px;
         }
         .sidebar-toggle:hover {
-            color: #3498db; /* Warna biru saat hover */
-            background: rgba(52, 152, 219, 0.1); /* Sedikit background saat hover */
+            color: #3498db;
+            background: rgba(52, 152, 219, 0.1);
         }
         .sidebar h2 {
             color: #2c3e50;
@@ -78,34 +83,39 @@
             overflow-y: auto;
             transition: all 0.3s ease;
             width: 100%;
+            margin-left: 0;
         }
         .main-content.expanded {
             margin-left: 0;
             width: 100%;
         }
-        /* Header Styles - Diperbarui dengan gradient merah ke ungu dan tinggi ditambah */
+        /* Header Styles - DIPERBARUI: tinggi dikurangi lagi dan nempel atas */
         .header {
             background: linear-gradient(135deg, #e74c3c 0%, #9b59b6 100%);
             color: white;
-            padding: 25px; /* Padding diperbesar dari 20px ke 25px */
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 12px 25px; /* Padding vertikal dikurangi lagi */
+            border-radius: 0 0 15px 15px; /* Sudut bawah saja yang dibulatkan */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             margin-bottom: 25px;
             text-align: left;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            min-height: 100px; /* Tinggi minimum ditambahkan */
+            min-height: 60px; /* Tinggi minimum dikurangi lagi */
+            width: 100vw;
+            position: relative;
+             margin-left: calc(-50vw + 50%);
+            margin-top: 0; /* Pastikan nempel ke atas */
         }
         .header h1 {
             color: white;
-            font-size: 2em;
-            margin-bottom: 10px;
+            font-size: 1.5em; /* Ukuran font dikurangi */
+            margin-bottom: 3px;
             flex: 1;
         }
         .header-info {
             color: #f0f0f0;
-            font-size: 0.9em;
+            font-size: 0.8em; /* Ukuran font dikurangi */
             text-align: right;
             margin-left: 20px;
         }
@@ -186,13 +196,13 @@
         /* Dashboard Styles */
         .dashboard {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Lebar minimum card dikurangi */
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
             margin-bottom: 25px;
         }
         .metric-card {
             background: rgba(255, 255, 255, 0.95);
-            padding: 12px; /* Padding dikurangi */
+            padding: 12px;
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             text-align: center;
@@ -203,17 +213,17 @@
             transform: translateY(-3px);
         }
         .metric-value {
-            font-size: 1.5em; /* Ukuran font dikurangi */
+            font-size: 1.5em;
             font-weight: bold;
             margin: 5px 0;
-            color: #ffffff; /* Warna putih untuk angka */
+            color: #ffffff;
         }
         .metric-label {
-            font-size: 0.8em; /* Ukuran font dikurangi */
+            font-size: 0.8em;
             font-weight: 500;
-            color: #ffffff; /* Warna putih untuk label */
+            color: #ffffff;
         }
-        /* Warna Khusus untuk KPI - DIPERBARUI: TM Big dengan gradient biru ke ungu */
+        /* Warna Khusus untuk KPI */
         .metric-card.kpi-big {
             background: linear-gradient(135deg, #3498db 0%, #9b59b6 100%);
             border-left-color: #2980b9;
@@ -226,7 +236,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-left-color: #3498db;
         }
-        /* Warna Khusus untuk KPI Allocation - Sesuaikan dengan TM Big dan TM Mini */
+        /* Warna Khusus untuk KPI Allocation */
         .metric-card.kpi-allocation.kpi-big {
             background: linear-gradient(135deg, #3498db 0%, #9b59b6 100%);
             border-left-color: #2980b9;
@@ -252,25 +262,25 @@
         }
         .tab {
             flex: 1;
-            padding: 12px; /* Padding diperkecil dari 15px ke 12px */
+            padding: 12px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 600;
             font-size: 1.1em;
-            color: #2c3e50; /* Warna gelap untuk teks tab */
+            color: #2c3e50;
             border-right: 1px solid #e0e0e0;
-            background: #f8f9fa; /* Warna netral untuk tab */
+            background: #f8f9fa;
         }
         .tab:last-child {
             border-right: none;
         }
         .tab.active {
-            background: #ffffff; /* Warna putih untuk tab aktif */
+            background: #ffffff;
             box-shadow: inset 0 -3px 0 #3498db;
         }
         .tab:hover {
-            background: #e9ecef; /* Warna hover netral */
+            background: #e9ecef;
         }
         .tab-content {
             display: none;
@@ -407,13 +417,13 @@
         }
         .form-row {
             display: flex;
-            flex-wrap: wrap; /* Memungkinkan wrap jika perlu */
+            flex-wrap: wrap;
             gap: 15px;
             margin-bottom: 15px;
         }
         .form-group {
             flex: 1;
-            min-width: 180px; /* Lebar minimum sedikit dikurangi untuk fleksibilitas */
+            min-width: 180px;
         }
         .form-group label {
             display: block;
@@ -502,7 +512,7 @@
             .chart-section {
                 width: 100%;
             }
-            .sidebar {
+            .sidebar.open {
                 width: 300px;
                 min-width: 300px;
             }
@@ -517,7 +527,7 @@
             .metric-value {
                 font-size: 1.5em;
             }
-            .sidebar {
+            .sidebar.open {
                 width: 280px;
                 min-width: 280px;
                 position: fixed;
@@ -527,6 +537,7 @@
             .sidebar-toggle {
                 position: fixed;
                 z-index: 1001;
+                top: 75px; /* Disesuaikan untuk mobile */
             }
             .sidebar-toggle.sidebar-open {
                 left: 300px;
@@ -535,13 +546,21 @@
                 padding: 10px;
             }
             .header {
-                padding-left: 70px;
+                flex-direction: column;
+                align-items: flex-start;
+                text-align: center;
+                padding: 10px 20px; /* Padding dikurangi untuk mobile */
+                min-height: 55px; /* Tinggi dikurangi untuk mobile */
             }
             .header h1 {
-                font-size: 1.5em;
+                font-size: 1.3em; /* Font lebih kecil untuk mobile */
+                margin-bottom: 2px;
             }
             .header-info {
-                font-size: 0.8em;
+                font-size: 0.75em; /* Font lebih kecil untuk mobile */
+                margin-left: 0;
+                margin-top: 8px;
+                text-align: center;
             }
             .chart-container {
                 height: 300px;
@@ -558,7 +577,7 @@
                 font-size: 0.85em;
             }
             .form-row {
-                flex-direction: column; /* Input menjadi vertikal di mobile */
+                flex-direction: column;
             }
             .form-group {
                 min-width: 100%;
@@ -579,7 +598,7 @@
             .tab:last-child {
                 border-bottom: none;
             }
-            .sidebar {
+            .sidebar.open {
                 width: 100%;
                 min-width: 100%;
             }
@@ -590,13 +609,20 @@
                 height: 250px;
             }
             .header {
-                padding-left: 60px;
                 flex-direction: column;
-                align-items: flex-start;
+                align-items: center;
+                text-align: center;
+                padding: 8px 15px; /* Padding lebih kecil untuk mobile kecil */
+                min-height: 50px; /* Tinggi lebih kecil untuk mobile kecil */
+            }
+            .header h1 {
+                font-size: 1.1em; /* Font lebih kecil untuk mobile kecil */
             }
             .header-info {
                 margin-left: 0;
-                margin-top: 10px;
+                margin-top: 5px;
+                text-align: center;
+                font-size: 0.7em; /* Font lebih kecil untuk mobile kecil */
             }
             .footer {
                 padding: 10px 12px;
@@ -917,7 +943,7 @@
         let filteredData = null;
         let excelSheets = [];
         let currentSheet = '';
-        let isSidebarCollapsed = false;
+        let isSidebarCollapsed = true; // Default sidebar tertutup
         let currentTab = 'big';
         let tableData = {
             'Big': [],
@@ -928,7 +954,7 @@
             direction: 'asc'
         };
         let truckAllocations = [];
-        let editingAllocationId = null; // Menyimpan ID truk yang sedang diedit
+        let editingAllocationId = null;
         let allocationCurrentSort = {
             column: null,
             direction: 'asc'
@@ -951,11 +977,11 @@
             const sidebarToggle = document.getElementById('sidebarToggle');
             isSidebarCollapsed = !isSidebarCollapsed;
             if (isSidebarCollapsed) {
-                sidebar.classList.add('collapsed');
+                sidebar.classList.remove('open');
                 mainContent.classList.add('expanded');
                 sidebarToggle.classList.remove('sidebar-open');
             } else {
-                sidebar.classList.remove('collapsed');
+                sidebar.classList.add('open');
                 mainContent.classList.remove('expanded');
                 sidebarToggle.classList.add('sidebar-open');
             }
@@ -1064,11 +1090,30 @@
                 uploadedData = convertExcelData(jsonData);
                 filteredData = [...uploadedData];
                 updateDataInfo();
+                // Set filter dates berdasarkan data yang diupload
+                setDateFiltersFromData();
                 applyFilters();
             } catch (error) {
                 console.error('Error loading sheet data:', error);
                 alert('Error loading data from sheet: ' + error.message);
             }
+        }
+
+        // Function to set date filters based on uploaded data
+        function setDateFiltersFromData() {
+            if (!uploadedData || uploadedData.length === 0) return;
+            
+            const dates = uploadedData.map(row => row['Date']).filter(Boolean);
+            if (dates.length === 0) return;
+            
+            // Sort dates and get min and max
+            const sortedDates = dates.sort();
+            const startDate = sortedDates[0];
+            const endDate = sortedDates[sortedDates.length - 1];
+            
+            // Set filter values
+            document.getElementById('startDate').value = startDate;
+            document.getElementById('endDate').value = endDate;
         }
 
         function convertExcelData(excelData) {
@@ -1179,8 +1224,8 @@
         }
 
         function resetFilters() {
-            document.getElementById('startDate').value = '';
-            document.getElementById('endDate').value = '';
+            // Reset to the original date range from the data
+            setDateFiltersFromData();
             filteredData = [...uploadedData];
             processExcelData();
         }
@@ -1266,8 +1311,8 @@
                 allocationBreakdown: {},
                 tripsByAllocation: {},
                 qtyByAllocation: {},
-                distanceByTruckNo: {}, // NEW: Menyimpan total jarak per truck
-                uniqueTrucks: { 'TM Big': new Set(), 'TM Mini': new Set() } // Untuk Total Truck
+                distanceByTruckNo: {},
+                uniqueTrucks: { 'TM Big': new Set(), 'TM Mini': new Set() }
             };
             data.forEach(row => {
                 const truckType = row['Truck Type'];
@@ -1275,7 +1320,7 @@
                 const allocation = row['Allocation Truck'];
                 const qty = parseFloat(row['Qty']) || 0;
                 const date = row['Date'];
-                const distance = parseFloat(row['Distance']) || 0; // NEW: Ambil jarak
+                const distance = parseFloat(row['Distance']) || 0;
                 if (!truckType || !allocation) return;
                 // Track unique trucks
                 analysis.uniqueTrucks[truckType].add(truckNo);
@@ -1397,9 +1442,9 @@
         function createChartsForTab(analysis, tabType) {
             const isBig = tabType === 'Big';
             const truckType = isBig ? 'TM Big' : 'TM Mini';
-            const color = isBig ? '#3498db' : '#27ae60'; // TM Big: biru, TM Mini: hijau
-            const color2 = isBig ? '#2980b9' : '#2ecc71'; // TM Big: biru tua, TM Mini: hijau muda
-            const color3 = isBig ? '#9b59b6' : '#f39c12'; // TM Big: ungu, TM Mini: orange
+            const color = isBig ? '#3498db' : '#27ae60';
+            const color2 = isBig ? '#2980b9' : '#2ecc71';
+            const color3 = isBig ? '#9b59b6' : '#f39c12';
             // Filter data for this truck type
             const truckNos = Object.keys(analysis.tripsByTruckNo).filter(
                 truckNo => analysis.tripsByTruckNo[truckNo].truckType === truckType
@@ -1413,8 +1458,8 @@
                     trips: analysis.tripsByTruckNo[truckNo].trips,
                     avgLoad: analysis.avgLoadByTruckNo[truckNo],
                     avgTripPerDay: analysis.avgTripPerDayByTruckNo[truckNo],
-                    totalDistance: analysis.distanceByTruckNo[truckNo], // NEW
-                    avgDistance: analysis.avgDistanceByTruckNo[truckNo] // NEW
+                    totalDistance: analysis.distanceByTruckNo[truckNo],
+                    avgDistance: analysis.avgDistanceByTruckNo[truckNo]
                 })).sort((a, b) => b.volume - a.volume);
                 const sortedTruckNos = sortedData.map(item => item.truckNo);
                 const volumesPerTruck = sortedData.map(item => item.volume);
@@ -1454,10 +1499,10 @@
                     type: 'bar',
                     name: 'Total Volume',
                     marker: { 
-                        color: volumesPerTruck.map(() => '#3498db'), // Warna biru untuk volume
+                        color: volumesPerTruck.map(() => '#3498db'),
                         gradient: {
                             type: 'vertical',
-                            color: ['#3498db', '#9b59b6'] // Gradient dari biru ke ungu
+                            color: ['#3498db', '#9b59b6']
                         }
                     },
                     text: volumesPerTruck.map(v => v.toLocaleString(undefined, {maximumFractionDigits: 1}) + ' m³'),
@@ -1472,10 +1517,10 @@
                     type: 'bar',
                     name: 'Total Trip',
                     marker: { 
-                        color: tripsPerTruck.map(() => '#27ae60'), // Warna hijau untuk trip
+                        color: tripsPerTruck.map(() => '#27ae60'),
                         gradient: {
                             type: 'vertical',
-                            color: ['#27ae60', '#f39c12'] // Gradient dari hijau ke orange
+                            color: ['#27ae60', '#f39c12']
                         }
                     },
                     text: tripsPerTruck.map(t => t.toLocaleString()),
@@ -1502,10 +1547,10 @@
                     text: avgTripPerDayPerTruck.map(avg => parseFloat(avg).toFixed(2)),
                     textposition: 'top center',
                     textfont: { 
-                        color: '#000000', // <- HITAM 
+                        color: '#000000',
                         size: 13, 
-                        weight: 'bold', // <- BOLD BIASA
-                        family: 'Arial, sans-serif' // <- FONT NORMAL
+                        weight: 'bold',
+                        family: 'Arial, sans-serif'
                     },
                     yaxis: 'y2'
                 };
@@ -1518,7 +1563,7 @@
                         title: 'Avg Trip per Day',
                         side: 'right',
                         overlaying: 'y',
-                        range: [0, Math.max(...avgTripPerDayPerTruck) * 1.2] // Tambah margin untuk text
+                        range: [0, Math.max(...avgTripPerDayPerTruck) * 1.2]
                     },
                     xaxis: { title: 'Truck No', tickangle: -45 },
                     plot_bgcolor: 'rgba(0,0,0,0)',
@@ -1528,7 +1573,7 @@
                     barmode: 'group',
                     legend: {
                         orientation: 'h',
-                        y: 1.25, // Legend lebih naik/jauh dari chart
+                        y: 1.25,
                         x: 0.5,
                         xanchor: 'center'
                     }
@@ -1544,8 +1589,8 @@
                     trips: analysis.tripsByTruckNo[truckNo].trips,
                     avgLoad: analysis.avgLoadByTruckNo[truckNo],
                     avgTripPerDay: analysis.avgTripPerDayByTruckNo[truckNo],
-                    totalDistance: analysis.distanceByTruckNo[truckNo], // NEW
-                    avgDistance: analysis.avgDistanceByTruckNo[truckNo] // NEW
+                    totalDistance: analysis.distanceByTruckNo[truckNo],
+                    avgDistance: analysis.avgDistanceByTruckNo[truckNo]
                 })).sort((a, b) => b.trips - a.trips);
                 const sortedTruckNos = sortedData.map(item => item.truckNo);
                 const tripsPerTruck = sortedData.map(item => item.trips);
@@ -1580,10 +1625,10 @@
                     y: avgLoads,
                     type: 'bar',
                     marker: { 
-                        color: '#27ae60', // Warna hijau untuk avg load
+                        color: '#27ae60',
                         gradient: {
                             type: 'vertical',
-                            color: ['#27ae60', '#f39c12'] // Gradient dari hijau ke orange
+                            color: ['#27ae60', '#f39c12']
                         }
                     },
                     text: avgLoads.map(load => parseFloat(load).toFixed(2) + ' m³'),
@@ -1606,8 +1651,8 @@
                     trips: analysis.tripsByTruckNo[truckNo].trips,
                     avgLoad: analysis.avgLoadByTruckNo[truckNo],
                     avgTripPerDay: analysis.avgTripPerDayByTruckNo[truckNo],
-                    totalDistance: analysis.distanceByTruckNo[truckNo], // NEW
-                    avgDistance: analysis.avgDistanceByTruckNo[truckNo] // NEW
+                    totalDistance: analysis.distanceByTruckNo[truckNo],
+                    avgDistance: analysis.avgDistanceByTruckNo[truckNo]
                 })).sort((a, b) => b.avgLoad - a.avgLoad);
                 const sortedTruckNos = sortedData.map(item => item.truckNo);
                 const avgLoads = sortedData.map(item => item.avgLoad);
@@ -1643,8 +1688,8 @@
                     trips: analysis.tripsByTruckNo[truckNo].trips,
                     avgLoad: analysis.avgLoadByTruckNo[truckNo],
                     avgTripPerDay: analysis.avgTripPerDayByTruckNo[truckNo],
-                    totalDistance: analysis.distanceByTruckNo[truckNo], // NEW
-                    avgDistance: analysis.avgDistanceByTruckNo[truckNo] // NEW
+                    totalDistance: analysis.distanceByTruckNo[truckNo],
+                    avgDistance: analysis.avgDistanceByTruckNo[truckNo]
                 })).sort((a, b) => b.avgTripPerDay - a.avgTripPerDay);
                 const sortedTruckNos = sortedData.map(item => item.truckNo);
                 const avgTripPerDayPerTruck = sortedData.map(item => item.avgTripPerDay);
@@ -1780,7 +1825,7 @@
                         color: '#FFA500',
                         gradient: {
                             type: 'vertical',
-                            color: ['#FFA500', '#FF8C00'] // Gradient dari Orange ke Orange tua
+                            color: ['#FFA500', '#FF8C00']
                         }
                     },
                     text: sortedTotalDistances.map(d => d.toLocaleString(undefined, {maximumFractionDigits: 1}) + ' km'),
@@ -1795,12 +1840,12 @@
                     mode: 'lines+markers+text',
                     name: 'Avg Distance per Trip (km)',
                     line: {
-                        color: '#9B59B6', // Ganti dengan warna Ungu
+                        color: '#9B59B6',
                         width: 3,
                         dash: 'dash'
                     },
                     marker: {
-                        color: '#9B59B6', // Ganti dengan warna Ungu
+                        color: '#9B59B6',
                         size: 8
                     },
                     text: sortedAvgDistances.map(avg => parseFloat(avg).toFixed(2) + ' km'),
@@ -1869,10 +1914,10 @@
                     type: 'bar',
                     name: 'Total Volume (m³)',
                     marker: { 
-                        color: '#3498db', // Warna biru untuk volume
+                        color: '#3498db',
                         gradient: {
                             type: 'vertical',
-                            color: ['#3498db', '#9b59b6'] // Gradient dari biru ke ungu
+                            color: ['#3498db', '#9b59b6']
                         }
                     },
                     text: qtyByAllocation.map(qty => qty.toLocaleString(undefined, {maximumFractionDigits: 1}) + ' m³'),
@@ -1887,10 +1932,10 @@
                     type: 'bar',
                     name: 'Number of Trips',
                     marker: { 
-                        color: '#27ae60', // Warna hijau untuk trip
+                        color: '#27ae60',
                         gradient: {
                             type: 'vertical',
-                            color: ['#27ae60', '#f39c12'] // Gradient dari hijau ke orange
+                            color: ['#27ae60', '#f39c12']
                         }
                     },
                     text: tripsByAllocation.map(trips => trips.toLocaleString()),
@@ -1933,7 +1978,7 @@
                         title: 'Percentage (%)',
                         side: 'right',
                         overlaying: 'y',
-                        range: [0, Math.max(...tripPercentages) * 1.2] // Tambah margin untuk text
+                        range: [0, Math.max(...tripPercentages) * 1.2]
                     },
                     xaxis: { title: 'Allocation Truck', tickangle: -45 },
                     plot_bgcolor: 'rgba(0,0,0,0)',
@@ -1943,7 +1988,7 @@
                     barmode: 'group',
                     legend: {
                         orientation: 'h',
-                        y: 1.25, // Legend lebih naik/jauh dari chart
+                        y: 1.25,
                         x: 0.5,
                         xanchor: 'center'
                     }
@@ -2014,7 +2059,7 @@
         }
 
         function displayDataTable(data, tabType) {
-            const limitedData = data.slice(0, 100); // Increased limit for better usability
+            const limitedData = data.slice(0, 100);
             const containerId = `dataTableContainer${tabType}`;
             let tableHTML = `
                 <table class="data-table">
@@ -2104,7 +2149,7 @@
 
             // Create allocation object
             const allocation = {
-                id: editingAllocationId || Date.now().toString(), // Gunakan ID yang sedang diedit, atau buat baru
+                id: editingAllocationId || Date.now().toString(),
                 truckType,
                 truckNo,
                 plantAllocation,
@@ -2148,9 +2193,7 @@
             document.getElementById('status').value = 'Active';
             document.getElementById('dateInfo').value = '';
             document.getElementById('remarks').value = '';
-            // Jangan reset editingAllocationId di sini jika ingin form tetap dalam mode edit
-            // editingAllocationId = null;
-            toggleBreakdownFields(); // Pastikan elemen breakdown disembunyikan
+            toggleBreakdownFields();
         }
 
         function editAllocation(id) {
@@ -2166,7 +2209,7 @@
             document.getElementById('remarks').value = allocation.remarks || '';
 
             // Set editing mode
-            editingAllocationId = id; // Simpan ID yang sedang diedit
+            editingAllocationId = id;
 
             // Show/hide breakdown fields based on status
             toggleBreakdownFields();
@@ -2438,14 +2481,8 @@
             document.getElementById('bdMajorMini').textContent = counts['TM Mini'].bdMajor;
         }
 
-        // Initialize date filters with current month
+        // Initialize when page loads
         window.addEventListener('DOMContentLoaded', function() {
-            const now = new Date();
-            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-            document.getElementById('startDate').value = firstDay.toISOString().split('T')[0];
-            document.getElementById('endDate').value = lastDay.toISOString().split('T')[0];
-
             // Initialize sidebar toggle
             document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
 
