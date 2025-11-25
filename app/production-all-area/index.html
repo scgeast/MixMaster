@@ -237,7 +237,7 @@
         header {
             position: relative;
             text-align: center;
-            padding: 5px; /* Sudah diperkecil */
+            padding: 3px; /* Sudah diperkecil */
             background: linear-gradient(135deg, #8B0000 0%, #6c5ce7 100%);
             color: white;
             border-radius: 0 0 16px 16px;
@@ -245,6 +245,12 @@
             box-shadow: 0 8px 25px rgba(139, 0, 0, 0.2);
             overflow: hidden;
             margin-top: 0;
+            width: 100vw;
+            position: relative;
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+            margin-right: -50vw;
         }
         header::after {
             content: '';
@@ -265,24 +271,24 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 8px; /* Kecilkan dari 15px */
+            margin-bottom: 6px; /* Kecilkan dari 15px */
         }
         .last-update {
             text-align: left;
             font-size: 0.8rem; /* Kecilkan dari 0.9rem */
             opacity: 0.85;
             position: absolute;
-            bottom: 8px; /* Kecilkan dari 18px */
-            left: 15px; /* Kecilkan dari 28px */
+            bottom: 6px; /* Kecilkan dari 18px */
+            left: 12px; /* Kecilkan dari 28px */
             font-style: italic;
         }
         /* EXPORT BUTTONS */
         .export-icons {
             position: absolute;
-            bottom: 8px; /* Kecilkan dari 18px */
-            right: 15px; /* Kecilkan dari 28px */
+            bottom: 7px; /* Kecilkan dari 18px */
+            right: 13px; /* Kecilkan dari 28px */
             display: flex;
-            gap: 8px; /* Kecilkan dari 10px */
+            gap: 7px; /* Kecilkan dari 10px */
             z-index: 10;
         }
         .export-icon {
@@ -290,13 +296,13 @@
             color: white;
             border: none;
             border-radius: 50%;
-            width: 30px; /* Kecilkan dari 36px */
-            height: 30px; /* Kecilkan dari 36px */
+            width: 28px; /* Kecilkan dari 36px */
+            height: 28px; /* Kecilkan dari 36px */
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 16px; /* Kecilkan dari 18px */
+            font-size: 14px; /* Kecilkan dari 18px */
             box-shadow: 0 2px 6px rgba(0,0,0,0.2);
             transition: all 0.2s ease;
         }
@@ -315,16 +321,16 @@
             transform: translateY(-2px);
         }
         h1 {
-            font-size: 1.8rem; /* Kecilkan dari 2.4rem */
-            margin-bottom: 3px; /* Kecilkan margin */
+            font-size: 1.4rem; /* Kecilkan dari 2.4rem */
+            margin-bottom: 2px; /* Kecilkan margin */
             font-weight: 700;
             letter-spacing: -0.5px;
         }
         .period {
-            font-size: 1.0rem; /* Kecilkan dari 1.3rem */
+            font-size: 0.8rem; /* Kecilkan dari 1.3rem */
             font-weight: 300;
             opacity: 0.9;
-            margin-top: 3px; /* Kecilkan margin */
+            margin-top: 2px; /* Kecilkan margin */
         }
         .upload-container {
             display: flex;
