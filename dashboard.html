@@ -483,6 +483,7 @@
             font-size: 1.2em;
             font-weight: 700;
             text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            transition: opacity 0.3s ease;
         }
 
         .user-info {
@@ -709,7 +710,30 @@
             line-height: 1.2;
         }
 
-        .sidebar.collapsed .vertical-title {
+        .vertical-title.active {
+            display: flex;
+        }
+
+        /* Style untuk judul aplikasi di vertical title */
+        .vertical-app-title {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.2);
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.7em;
+            letter-spacing: 0.5px;
+        }
+
+        .vertical-app-title span {
+            display: block;
+            line-height: 1.1;
+        }
+
+        .vertical-app-title.active {
             display: flex;
         }
     </style>
@@ -765,7 +789,7 @@
                 <h3 id="sidebarTitleText">Mix Master CDC EAST</h3>
             </div>
             
-            <!-- Vertical Title for Collapsed Sidebar -->
+            <!-- Vertical Title for Collapsed Sidebar - Default "MIX MASTER" -->
             <div class="vertical-title" id="verticalTitle">
                 <span>M</span>
                 <span>I</span>
@@ -776,6 +800,11 @@
                 <span>T</span>
                 <span>E</span>
                 <span>R</span>
+            </div>
+            
+            <!-- Vertical Title for App Names -->
+            <div class="vertical-app-title" id="verticalAppTitle">
+                <!-- Akan diisi secara dinamis -->
             </div>
             
             <ul class="sidebar-menu">
@@ -875,10 +904,6 @@
         </div>
     </div>
 
-    <!-- JavaScript Files -->
-    <script src="js/auth.js"></script>
-    <script src="js/main.js"></script>
-    
     <script>
         // Screen Saver functionality
         let inactivityTimer;
@@ -924,6 +949,7 @@
             const sidebarState = localStorage.getItem('sidebarCollapsed');
             if (sidebarState === 'true') {
                 document.getElementById('sidebar').classList.add('collapsed');
+                document.getElementById('verticalTitle').classList.add('active');
             }
             
             // Check mobile view
@@ -938,8 +964,44 @@
         // Toggle sidebar collapse/expand
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
+            const sidebarTitle = document.getElementById('sidebarTitle');
+            const verticalTitle = document.getElementById('verticalTitle');
+            const verticalAppTitle = document.getElementById('verticalAppTitle');
+            const mainTitle = document.getElementById('mainTitle');
+            
             sidebar.classList.toggle('collapsed');
-            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            
+            // Update title display based on sidebar state
+            if (isCollapsed) {
+                // Sidebar ditutup
+                sidebarTitle.classList.remove('active');
+                
+                // Cek apakah ada aplikasi yang aktif
+                const activeMenu = document.querySelector('.menu-link.active');
+                if (activeMenu && !activeMenu.querySelector('.menu-text').textContent.includes('Home')) {
+                    // Ada aplikasi aktif - tampilkan judul aplikasi secara vertikal
+                    verticalTitle.classList.remove('active');
+                    verticalAppTitle.classList.add('active');
+                } else {
+                    // Tidak ada aplikasi aktif atau di Home - tampilkan "MIX MASTER"
+                    verticalTitle.classList.add('active');
+                    verticalAppTitle.classList.remove('active');
+                }
+            } else {
+                // Sidebar dibuka
+                verticalTitle.classList.remove('active');
+                verticalAppTitle.classList.remove('active');
+                
+                // Cek apakah ada aplikasi yang aktif
+                const activeMenu = document.querySelector('.menu-link.active');
+                if (activeMenu && !activeMenu.querySelector('.menu-text').textContent.includes('Home')) {
+                    // Ada aplikasi aktif - tampilkan judul aplikasi
+                    sidebarTitle.classList.add('active');
+                }
+            }
+            
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
             resetInactivityTimer();
         }
 
@@ -951,6 +1013,8 @@
             const menuLinks = document.querySelectorAll('.menu-link');
             const sidebarTitle = document.getElementById('sidebarTitle');
             const sidebarTitleText = document.getElementById('sidebarTitleText');
+            const verticalTitle = document.getElementById('verticalTitle');
+            const verticalAppTitle = document.getElementById('verticalAppTitle');
             const topHeader = document.getElementById('topHeader');
             const mainTitle = document.getElementById('mainTitle');
             
@@ -987,10 +1051,48 @@
                     loading.style.display = 'none';
                     appFrame.style.display = 'block';
                     
-                    // Move title to sidebar
+                    // Move title to sidebar berdasarkan state sidebar
                     const menuText = event.target.querySelector('.menu-text').textContent;
-                    sidebarTitleText.textContent = menuText;
-                    sidebarTitle.classList.add('active');
+                    const sidebar = document.getElementById('sidebar');
+                    const isCollapsed = sidebar.classList.contains('collapsed');
+                    
+                    if (isCollapsed) {
+                        // Sidebar tertutup - tampilkan di vertical app title
+                        verticalTitle.classList.remove('active');
+                        verticalAppTitle.innerHTML = '';
+                        
+                        // Pisahkan teks menjadi huruf-huruf individual
+                        const words = menuText.split(' ');
+                        words.forEach((word, wordIndex) => {
+                            for (let i = 0; i < word.length; i++) {
+                                const span = document.createElement('span');
+                                span.textContent = word[i];
+                                if (i === 0 && wordIndex > 0) {
+                                    span.style.marginTop = '3px';
+                                }
+                                verticalAppTitle.appendChild(span);
+                            }
+                            // Tambahkan spasi antara kata (kecuali kata terakhir)
+                            if (wordIndex < words.length - 1) {
+                                const spaceSpan = document.createElement('span');
+                                spaceSpan.style.marginTop = '3px';
+                                spaceSpan.innerHTML = '&nbsp;';
+                                verticalAppTitle.appendChild(spaceSpan);
+                            }
+                        });
+                        
+                        verticalAppTitle.classList.add('active');
+                        sidebarTitle.classList.remove('active');
+                    } else {
+                        // Sidebar terbuka - tampilkan di sidebar title
+                        sidebarTitleText.textContent = menuText;
+                        sidebarTitle.classList.add('active');
+                        verticalTitle.classList.remove('active');
+                        verticalAppTitle.classList.remove('active');
+                    }
+                    
+                    // Sembunyikan judul di header utama
+                    mainTitle.style.opacity = '0.3';
                     
                     resetInactivityTimer();
                 };
@@ -1019,7 +1121,8 @@
             const loading = document.getElementById('loading');
             const menuLinks = document.querySelectorAll('.menu-link');
             const sidebarTitle = document.getElementById('sidebarTitle');
-            const topHeader = document.getElementById('topHeader');
+            const verticalTitle = document.getElementById('verticalTitle');
+            const verticalAppTitle = document.getElementById('verticalAppTitle');
             const mainTitle = document.getElementById('mainTitle');
             
             // Update active menu - set Home as active
@@ -1031,8 +1134,20 @@
             appFrame.style.display = 'none';
             loading.style.display = 'none';
             
-            // Reset title to main header
+            // Reset title states
             sidebarTitle.classList.remove('active');
+            verticalAppTitle.classList.remove('active');
+            
+            // Tampilkan kembali judul default berdasarkan state sidebar
+            const sidebar = document.getElementById('sidebar');
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            
+            if (isCollapsed) {
+                verticalTitle.classList.add('active');
+            }
+            
+            // Kembalikan opacity judul utama
+            mainTitle.style.opacity = '1';
             
             // Close mobile menu if open
             if (window.innerWidth <= 768) {
@@ -1065,6 +1180,15 @@
             sidebar.classList.toggle('mobile-open');
             sidebar.style.left = sidebar.classList.contains('mobile-open') ? '0' : '-250px';
             resetInactivityTimer();
+        }
+
+        // Placeholder functions
+        function checkAuth() {
+            return true;
+        }
+
+        function logout() {
+            alert('Logout functionality would go here');
         }
     </script>
 </body>
