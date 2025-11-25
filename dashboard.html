@@ -15,6 +15,18 @@
             --blood-moon-light: #FF6B6B;
         }
 
+        /* Reset margin dan padding untuk seluruh halaman */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
         /* Screen Saver Styles */
         .screensaver {
             position: fixed;
@@ -29,7 +41,6 @@
             justify-content: center;
             align-items: center;
             color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .screensaver.active {
@@ -236,22 +247,27 @@
             51%, 100% { opacity: 0.3; }
         }
 
-        /* Sidebar Styles */
+        /* Sidebar Styles - FULL SCREEN */
         .app-container {
             display: flex;
             height: 100vh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
         }
 
         .sidebar {
             width: 250px;
+            height: 100vh;
             background: linear-gradient(135deg, var(--blood-moon-dark) 0%, var(--blood-moon-primary) 100%);
             color: white;
             transition: all 0.3s ease;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.2);
             position: relative;
             z-index: 1000;
             display: flex;
             flex-direction: column;
+            margin: 0;
+            padding: 0;
         }
 
         .sidebar.collapsed {
@@ -458,49 +474,20 @@
             left: 110%;
         }
 
-        /* Main Content Styles */
+        /* Main Content Styles - HEADER DIHAPUS */
         .main-content {
             flex: 1;
             display: flex;
             flex-direction: column;
             background: #f8f9fa;
-        }
-
-        .top-header {
-            background: linear-gradient(135deg, var(--blood-moon-primary) 0%, var(--blood-moon-accent) 100%);
-            padding: 8px 20px;
-            box-shadow: 0 1px 5px rgba(139, 0, 0, 0.3);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 100;
-            min-height: 40px;
-        }
-
-        .top-header h1 {
             margin: 0;
-            color: white;
-            font-size: 1.2em;
-            font-weight: 700;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-            transition: opacity 0.3s ease;
+            padding: 0;
+            width: calc(100vw - 250px);
+            transition: width 0.3s ease;
         }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: white;
-            font-weight: 500;
-        }
-
-        .user-badge {
-            background: rgba(255,255,255,0.2);
-            padding: 4px 10px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.3);
-            backdrop-filter: blur(10px);
-            font-size: 0.85em;
+        .sidebar.collapsed ~ .main-content {
+            width: calc(100vw - 50px);
         }
 
         .app-frame-container {
@@ -508,6 +495,8 @@
             padding: 0;
             background: white;
             position: relative;
+            width: 100%;
+            height: 100%;
         }
 
         .app-frame {
@@ -526,6 +515,7 @@
             text-align: center;
             color: #7f8c8d;
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
         }
 
         .welcome-icon {
@@ -609,6 +599,53 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* User Info di Sidebar */
+        .user-info-sidebar {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--blood-moon-light), var(--blood-moon-accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-bottom: 2px;
+        }
+
+        .user-role {
+            font-size: 0.75em;
+            opacity: 0.8;
+        }
+
+        .sidebar.collapsed .user-details {
+            display: none;
+        }
+
+        .sidebar.collapsed .user-avatar {
+            width: 28px;
+            height: 28px;
+            font-size: 0.8em;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
@@ -636,17 +673,12 @@
                 margin-right: 10px;
             }
 
-            .top-header {
-                padding: 6px 15px;
+            .main-content {
+                width: 100vw;
             }
 
-            .top-header h1 {
-                font-size: 1.1em;
-            }
-
-            .user-badge {
-                font-size: 0.8em;
-                padding: 3px 8px;
+            .sidebar.collapsed ~ .main-content {
+                width: 100vw;
             }
 
             .screensaver-logo h1 {
@@ -809,6 +841,15 @@
                 <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
             </div>
             
+            <!-- User Info di Sidebar -->
+            <div class="user-info-sidebar">
+                <div class="user-avatar" id="userAvatar">KU</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Kim Jong Un</div>
+                    <div class="user-role">Administrator</div>
+                </div>
+            </div>
+            
             <!-- New Title Section in Sidebar -->
             <div class="sidebar-title" id="sidebarTitle">
                 <h3 id="sidebarTitleText">Mix Master CDC EAST</h3>
@@ -898,18 +939,8 @@
             </div>
         </div>
 
-        <!-- Main Content -->
+        <!-- Main Content - TANPA HEADER -->
         <div class="main-content">
-            <div class="top-header" id="topHeader">
-                <div style="display: flex; align-items: center;">
-                    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
-                    <h1 id="mainTitle">Mix Master CDC EAST</h1>
-                </div>
-                <div class="user-info">
-                    <div class="user-badge" id="currentUser">Kim Jong Un</div>
-                </div>
-            </div>
-
             <div class="app-frame-container">
                 <div class="welcome-screen" id="welcomeScreen">
                     <div class="welcome-icon">🏠</div>
@@ -977,9 +1008,10 @@
                 return;
             }
             
-            // Display user info
+            // Display user info di sidebar
             const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-            document.getElementById('currentUser').textContent = user.name || 'User';
+            document.getElementById('userName').textContent = user.name || 'User';
+            document.getElementById('userAvatar').textContent = getInitials(user.name || 'User');
             
             // Initialize sidebar state
             const sidebarState = localStorage.getItem('sidebarCollapsed');
@@ -997,13 +1029,17 @@
             resetInactivityTimer();
         });
 
+        // Fungsi untuk mendapatkan inisial dari nama
+        function getInitials(name) {
+            return name.split(' ').map(word => word[0]).join('').toUpperCase();
+        }
+
         // Toggle sidebar collapse/expand
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const sidebarTitle = document.getElementById('sidebarTitle');
             const verticalTitle = document.getElementById('verticalTitle');
             const verticalAppTitle = document.getElementById('verticalAppTitle');
-            const mainTitle = document.getElementById('mainTitle');
             
             sidebar.classList.toggle('collapsed');
             const isCollapsed = sidebar.classList.contains('collapsed');
@@ -1051,8 +1087,6 @@
             const sidebarTitleText = document.getElementById('sidebarTitleText');
             const verticalTitle = document.getElementById('verticalTitle');
             const verticalAppTitle = document.getElementById('verticalAppTitle');
-            const topHeader = document.getElementById('topHeader');
-            const mainTitle = document.getElementById('mainTitle');
             
             // Update active menu
             menuLinks.forEach(link => link.classList.remove('active'));
@@ -1126,9 +1160,6 @@
                         verticalAppTitle.classList.remove('active');
                     }
                     
-                    // Sembunyikan judul di header utama
-                    mainTitle.style.opacity = '0.3';
-                    
                     resetInactivityTimer();
                 };
                 
@@ -1158,7 +1189,6 @@
             const sidebarTitle = document.getElementById('sidebarTitle');
             const verticalTitle = document.getElementById('verticalTitle');
             const verticalAppTitle = document.getElementById('verticalAppTitle');
-            const mainTitle = document.getElementById('mainTitle');
             
             // Update active menu - set Home as active
             menuLinks.forEach(link => link.classList.remove('active'));
@@ -1180,9 +1210,6 @@
             if (isCollapsed) {
                 verticalTitle.classList.add('active');
             }
-            
-            // Kembalikan opacity judul utama
-            mainTitle.style.opacity = '1';
             
             // Close mobile menu if open
             if (window.innerWidth <= 768) {
