@@ -24,6 +24,7 @@
             padding: 20px;
             display: flex;
             transition: margin-left 0.3s ease;
+            padding-top: 0; /* Menghilangkan padding atas body */
         }
         body.sidebar-open {
             margin-left: 280px;
@@ -231,17 +232,19 @@
         .main-content {
             flex-grow: 1;
             transition: width 0.3s ease;
+            margin-top: 0; /* Menghilangkan margin atas */
         }
         header {
             position: relative;
             text-align: center;
-            padding: 18px;
-            background: linear-gradient(135deg, #0b2447 0%, #6c5ce7 100%);
+            padding: 8px; /* Mengurangi padding untuk tinggi lebih kecil */
+            background: linear-gradient(135deg, #8B0000 0%, #6c5ce7 100%); /* Gradient bloodmoon red to purple */
             color: white;
-            border-radius: 16px;
+            border-radius: 0 0 16px 16px; /* Hanya sudut bawah yang dibulatkan */
             margin-bottom: 18px;
-            box-shadow: 0 8px 25px rgba(11, 36, 71, 0.2);
+            box-shadow: 0 8px 25px rgba(139, 0, 0, 0.2); /* Shadow dengan warna merah */
             overflow: hidden;
+            margin-top: 0; /* Pastikan tidak ada margin atas */
         }
         header::after {
             content: '';
@@ -411,7 +414,7 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        /* KPI Cards */
+        /* KPI Cards - Label diperkecil */
         .kpi-container {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -447,7 +450,7 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
         .kpi-title {
-            font-size: 0.85rem;
+            font-size: 0.75rem; /* Diperkecil dari 0.85rem */
             color: #666;
             margin-bottom: 12px;
             font-weight: 500;
@@ -565,7 +568,7 @@
                 margin-left: 250px;
             }
             .kpi-title {
-                font-size: 0.8rem;
+                font-size: 0.7rem; /* Diperkecil untuk mobile */
             }
             .kpi-value {
                 font-size: 1.5rem;
@@ -606,6 +609,9 @@
                 top: 70px;
                 left: 15px;
                 padding: 10px;
+            }
+            .kpi-title {
+                font-size: 0.65rem; /* Diperkecil untuk mobile kecil */
             }
         }
     </style>
