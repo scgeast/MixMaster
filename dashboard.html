@@ -667,6 +667,51 @@
                 display: none;
             }
         }
+
+        /* New Styles for Title in Sidebar */
+        .sidebar-title {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.2);
+            text-align: center;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-title h3 {
+            margin: 0;
+            font-size: 1em;
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-title.active {
+            display: block;
+        }
+
+        /* Vertical Title Styles for Collapsed Sidebar */
+        .vertical-title {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.2);
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+        }
+
+        .vertical-title span {
+            display: block;
+            line-height: 1.2;
+        }
+
+        .sidebar.collapsed .vertical-title {
+            display: flex;
+        }
     </style>
 </head>
 <body>
@@ -714,6 +759,25 @@
                 <h2>Application Menu</h2>
                 <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
             </div>
+            
+            <!-- New Title Section in Sidebar -->
+            <div class="sidebar-title" id="sidebarTitle">
+                <h3 id="sidebarTitleText">Mix Master CDC EAST</h3>
+            </div>
+            
+            <!-- Vertical Title for Collapsed Sidebar -->
+            <div class="vertical-title" id="verticalTitle">
+                <span>M</span>
+                <span>I</span>
+                <span>X</span>
+                <span style="margin-top: 5px;">M</span>
+                <span>A</span>
+                <span>S</span>
+                <span>T</span>
+                <span>E</span>
+                <span>R</span>
+            </div>
+            
             <ul class="sidebar-menu">
                 <!-- Tombol Home Baru -->
                 <li class="menu-item">
@@ -771,10 +835,10 @@
 
         <!-- Main Content -->
         <div class="main-content">
-            <div class="top-header">
+            <div class="top-header" id="topHeader">
                 <div style="display: flex; align-items: center;">
                     <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
-                    <h1>Mix Master CDC EAST</h1>
+                    <h1 id="mainTitle">Mix Master CDC EAST</h1>
                 </div>
                 <div class="user-info">
                     <div class="user-badge" id="currentUser">Kim Jong Un</div>
@@ -885,6 +949,10 @@
             const appFrame = document.getElementById('appFrame');
             const loading = document.getElementById('loading');
             const menuLinks = document.querySelectorAll('.menu-link');
+            const sidebarTitle = document.getElementById('sidebarTitle');
+            const sidebarTitleText = document.getElementById('sidebarTitleText');
+            const topHeader = document.getElementById('topHeader');
+            const mainTitle = document.getElementById('mainTitle');
             
             // Update active menu
             menuLinks.forEach(link => link.classList.remove('active'));
@@ -918,6 +986,12 @@
                 appFrame.onload = function() {
                     loading.style.display = 'none';
                     appFrame.style.display = 'block';
+                    
+                    // Move title to sidebar
+                    const menuText = event.target.querySelector('.menu-text').textContent;
+                    sidebarTitleText.textContent = menuText;
+                    sidebarTitle.classList.add('active');
+                    
                     resetInactivityTimer();
                 };
                 
@@ -944,6 +1018,9 @@
             const appFrame = document.getElementById('appFrame');
             const loading = document.getElementById('loading');
             const menuLinks = document.querySelectorAll('.menu-link');
+            const sidebarTitle = document.getElementById('sidebarTitle');
+            const topHeader = document.getElementById('topHeader');
+            const mainTitle = document.getElementById('mainTitle');
             
             // Update active menu - set Home as active
             menuLinks.forEach(link => link.classList.remove('active'));
@@ -953,6 +1030,9 @@
             welcomeScreen.style.display = 'flex';
             appFrame.style.display = 'none';
             loading.style.display = 'none';
+            
+            // Reset title to main header
+            sidebarTitle.classList.remove('active');
             
             // Close mobile menu if open
             if (window.innerWidth <= 768) {
