@@ -279,7 +279,7 @@
         }
 
         .toggle-btn {
-            background: none;
+            background: transparent;
             border: none;
             color: white;
             font-size: 1em;
@@ -736,6 +736,31 @@
         .vertical-app-title.active {
             display: flex;
         }
+
+        /* CDC EAST Vertical Text */
+        .cdc-east-text {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 0;
+            margin-top: auto;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.1);
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.7em;
+            letter-spacing: 0.5px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .cdc-east-text span {
+            display: block;
+            line-height: 1.1;
+        }
+
+        .sidebar.collapsed .cdc-east-text {
+            display: flex;
+        }
     </style>
 </head>
 <body>
@@ -852,6 +877,17 @@
                     </a>
                 </li>
             </ul>
+            
+            <!-- CDC EAST Text di bagian bawah sidebar saat tertutup -->
+            <div class="cdc-east-text">
+                <span>C</span>
+                <span>D</span>
+                <span>C</span>
+                <span style="margin-top: 5px;">E</span>
+                <span>A</span>
+                <span>S</span>
+                <span>T</span>
+            </div>
             
             <!-- Logout Button di Sidebar Footer -->
             <div class="sidebar-footer">
@@ -1084,9 +1120,8 @@
                         verticalAppTitle.classList.add('active');
                         sidebarTitle.classList.remove('active');
                     } else {
-                        // Sidebar terbuka - tampilkan di sidebar title
-                        sidebarTitleText.textContent = menuText;
-                        sidebarTitle.classList.add('active');
+                        // Sidebar terbuka - HILANGKAN judul di sidebar
+                        sidebarTitle.classList.remove('active');
                         verticalTitle.classList.remove('active');
                         verticalAppTitle.classList.remove('active');
                     }
