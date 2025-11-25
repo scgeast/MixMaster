@@ -617,34 +617,27 @@
             transition: all 0.3s ease;
         }
 
-        /* Footer untuk Welcome Screen - POJOK KANAN BAWAH */
+        /* Footer untuk Welcome Screen - POJOK KANAN BAWAH TANPA BACKGROUND */
         .welcome-footer {
             position: absolute;
             bottom: 20px;
             right: 20px;
             text-align: right;
-            padding: 10px 15px;
-            color: var(--blood-moon-primary);
-            font-size: 0.85em;
-            font-weight: 600;
-            background: none;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border: 1px solid rgba(139, 0, 0, 0.1);
+            color: #666;
+            font-size: 0.8em;
+            font-weight: 500;
+            opacity: 0.7;
             transition: all 0.3s ease;
+            background: transparent; /* Tidak ada background */
+            padding: 0; /* Tidak ada padding */
+            border: none; /* Tidak ada border */
+            box-shadow: none; /* Tidak ada shadow */
         }
 
         .welcome-footer:hover {
-            transform: translateX(-5px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            background: none;
-        }
-
-        .welcome-footer .created-by {
-            font-size: 0.75em;
-            color: #666;
-            margin-top: 2px;
-            font-weight: 500;
+            opacity: 1;
+            color: var(--blood-moon-primary);
+            transform: translateX(-3px);
         }
 
         /* Loading State */
@@ -671,7 +664,7 @@
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+           100% { transform: rotate(360deg); }
         }
 
         /* User Info di Sidebar - BACKGROUND DIHILANGKAN */
@@ -770,10 +763,9 @@
             }
 
             .welcome-footer {
-                right: 10px;
-                bottom: 10px;
+                right: 15px;
+                bottom: 15px;
                 font-size: 0.75em;
-                padding: 8px 12px;
             }
         }
 
@@ -997,10 +989,9 @@
                         </div>
                     </div>
 
-                    <!-- Footer di Welcome Screen - POJOK KANAN BAWAH -->
+                    <!-- Footer di Welcome Screen - POJOK KANAN BAWAH TANPA BACKGROUND -->
                     <div class="welcome-footer">
-                        <div>Mix Master CDC EAST</div>
-                        <div class="created-by">Created By Kim Jong Un</div>
+                        Created By Kim Jong Un
                     </div>
                 </div>
                 <iframe class="app-frame" id="appFrame" style="display: none;"></iframe>
