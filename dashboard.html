@@ -516,6 +516,29 @@
             color: #7f8c8d;
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             padding: 20px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* Hover Effects untuk Welcome Screen */
+        .welcome-screen:hover {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+            transform: scale(1.01);
+        }
+
+        .welcome-screen:hover .welcome-icon {
+            transform: scale(1.1) rotate(5deg);
+            color: var(--blood-moon-accent);
+        }
+
+        .welcome-screen:hover h2 {
+            color: var(--blood-moon-accent);
+            text-shadow: 0 2px 10px rgba(220, 20, 60, 0.2);
+        }
+
+        .welcome-screen:hover .feature-card {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
 
         .welcome-icon {
@@ -523,6 +546,7 @@
             margin-bottom: 15px;
             opacity: 0.8;
             color: var(--blood-moon-primary);
+            transition: all 0.4s ease;
         }
 
         .welcome-screen h2 {
@@ -530,6 +554,7 @@
             margin-bottom: 10px;
             font-size: 1.6em;
             font-weight: 700;
+            transition: all 0.3s ease;
         }
 
         .welcome-screen p {
@@ -537,6 +562,7 @@
             line-height: 1.5;
             font-size: 0.95em;
             color: #666;
+            transition: all 0.3s ease;
         }
 
         .welcome-features {
@@ -553,23 +579,72 @@
             border-radius: 6px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             border-left: 3px solid var(--blood-moon-accent);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .feature-card:hover {
+            border-left-color: var(--blood-moon-primary);
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
         }
 
         .feature-icon {
             font-size: 1.6em;
             margin-bottom: 6px;
             color: var(--blood-moon-primary);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.2);
+            color: var(--blood-moon-accent);
         }
 
         .feature-card h4 {
             margin: 0 0 6px 0;
             font-size: 0.95em;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover h4 {
+            color: var(--blood-moon-primary);
         }
 
         .feature-card p {
             font-size: 0.85em;
             margin: 0;
             line-height: 1.4;
+            transition: all 0.3s ease;
+        }
+
+        /* Footer untuk Welcome Screen - POJOK KANAN BAWAH */
+        .welcome-footer {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            text-align: right;
+            padding: 10px 15px;
+            color: var(--blood-moon-primary);
+            font-size: 0.85em;
+            font-weight: 600;
+            background: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 1px solid rgba(139, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .welcome-footer:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            background: none;
+        }
+
+        .welcome-footer .created-by {
+            font-size: 0.75em;
+            color: #666;
+            margin-top: 2px;
+            font-weight: 500;
         }
 
         /* Loading State */
@@ -599,26 +674,27 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* User Info di Sidebar */
+        /* User Info di Sidebar - BACKGROUND DIHILANGKAN */
         .user-info-sidebar {
             padding: 12px 15px;
             border-bottom: 1px solid rgba(255,255,255,0.2);
-            background: rgba(0,0,0,0.2);
             display: flex;
             align-items: center;
             gap: 10px;
+            background: transparent; /* Background dihilangkan */
         }
 
         .user-avatar {
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--blood-moon-light), var(--blood-moon-accent));
+            background: transparent; /* Background dihilangkan */
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
             font-size: 0.9em;
+            color: white; /* Warna teks tetap putih */
         }
 
         .user-details {
@@ -692,6 +768,13 @@
             .mixer-animation {
                 transform: scale(0.7);
             }
+
+            .welcome-footer {
+                right: 10px;
+                bottom: 10px;
+                font-size: 0.75em;
+                padding: 8px 12px;
+            }
         }
 
         /* Desktop only */
@@ -701,96 +784,53 @@
             }
         }
 
-        /* New Styles for Title in Sidebar */
-        .sidebar-title {
-            padding: 12px 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            background: rgba(0,0,0,0.2);
-            text-align: center;
-            display: none;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar-title h3 {
-            margin: 0;
-            font-size: 1em;
-            font-weight: 600;
-            color: white;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        }
-
-        .sidebar-title.active {
-            display: block;
-        }
-
-        /* Vertical Title Styles for Collapsed Sidebar */
-        .vertical-title {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            background: rgba(0,0,0,0.2);
-            text-align: center;
-            font-weight: 700;
-            font-size: 0.9em;
-            letter-spacing: 1px;
-        }
-
-        .vertical-title span {
-            display: block;
-            line-height: 1.2;
-        }
-
-        .vertical-title.active {
-            display: flex;
-        }
-
-        /* Style untuk judul aplikasi di vertical title */
-        .vertical-app-title {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            background: rgba(0,0,0,0.2);
-            text-align: center;
-            font-weight: 700;
-            font-size: 0.7em;
-            letter-spacing: 0.5px;
-        }
-
-        .vertical-app-title span {
-            display: block;
-            line-height: 1.1;
-        }
-
-        .vertical-app-title.active {
-            display: flex;
-        }
-
-        /* CDC EAST Vertical Text */
+        /* CDC EAST Vertical Text - DIPINDAHKAN KE BAWAH MENU */
         .cdc-east-text {
             display: none;
             flex-direction: column;
             align-items: center;
-            padding: 10px 0;
+            padding: 15px 0;
             margin-top: auto;
             border-top: 1px solid rgba(255,255,255,0.2);
-            background: rgba(0,0,0,0.1);
             text-align: center;
             font-weight: 700;
-            font-size: 0.7em;
+            font-size: 0.8em; /* SAMA DENGAN UKURAN MIX MASTER */
             letter-spacing: 0.5px;
-            color: rgba(255,255,255,0.8);
+            color: rgba(255,255,255,0.9);
+            background: transparent; /* Background dihilangkan */
         }
 
         .cdc-east-text span {
             display: block;
-            line-height: 1.1;
+            line-height: 1.2;
         }
 
         .sidebar.collapsed .cdc-east-text {
+            display: flex;
+        }
+
+        /* MIX MASTER Text untuk sidebar terbuka */
+        .mix-master-text {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 0;
+            margin-top: auto;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.8em;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.9);
+            background: transparent;
+        }
+
+        .mix-master-text span {
+            display: block;
+            line-height: 1.2;
+        }
+
+        .sidebar:not(.collapsed) .mix-master-text {
             display: flex;
         }
     </style>
@@ -841,36 +881,13 @@
                 <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
             </div>
             
-            <!-- User Info di Sidebar -->
+            <!-- User Info di Sidebar - TANPA BACKGROUND -->
             <div class="user-info-sidebar">
                 <div class="user-avatar" id="userAvatar">KU</div>
                 <div class="user-details">
                     <div class="user-name" id="userName">Kim Jong Un</div>
                     <div class="user-role">Administrator</div>
                 </div>
-            </div>
-            
-            <!-- New Title Section in Sidebar -->
-            <div class="sidebar-title" id="sidebarTitle">
-                <h3 id="sidebarTitleText">Mix Master CDC EAST</h3>
-            </div>
-            
-            <!-- Vertical Title for Collapsed Sidebar - Default "MIX MASTER" -->
-            <div class="vertical-title" id="verticalTitle">
-                <span>M</span>
-                <span>I</span>
-                <span>X</span>
-                <span style="margin-top: 5px;">M</span>
-                <span>A</span>
-                <span>S</span>
-                <span>T</span>
-                <span>E</span>
-                <span>R</span>
-            </div>
-            
-            <!-- Vertical Title for App Names -->
-            <div class="vertical-app-title" id="verticalAppTitle">
-                <!-- Akan diisi secara dinamis -->
             </div>
             
             <ul class="sidebar-menu">
@@ -919,12 +936,27 @@
                 </li>
             </ul>
             
+            <!-- MIX MASTER Text untuk sidebar terbuka -->
+            <div class="mix-master-text">
+                <span>MIX MASTER</span>
+                <span style="margin-top: 3px;">CDC EAST</span>
+            </div>
+            
             <!-- CDC EAST Text di bagian bawah sidebar saat tertutup -->
             <div class="cdc-east-text">
-                <span>C</span>
+                <span>M</span>
+                <span>I</span>
+                <span>X</span>
+                <span style="margin-top: 3px;">M</span>
+                <span>A</span>
+                <span>S</span>
+                <span>T</span>
+                <span>E</span>
+                <span>R</span>
+                <span style="margin-top: 5px;">C</span>
                 <span>D</span>
                 <span>C</span>
-                <span style="margin-top: 5px;">E</span>
+                <span style="margin-top: 3px;">E</span>
                 <span>A</span>
                 <span>S</span>
                 <span>T</span>
@@ -963,6 +995,12 @@
                             <h4>Fleet Management</h4>
                             <p>Optimize truck mixer utilization</p>
                         </div>
+                    </div>
+
+                    <!-- Footer di Welcome Screen - POJOK KANAN BAWAH -->
+                    <div class="welcome-footer">
+                        <div>Mix Master CDC EAST</div>
+                        <div class="created-by">Created By Kim Jong Un</div>
                     </div>
                 </div>
                 <iframe class="app-frame" id="appFrame" style="display: none;"></iframe>
@@ -1017,7 +1055,6 @@
             const sidebarState = localStorage.getItem('sidebarCollapsed');
             if (sidebarState === 'true') {
                 document.getElementById('sidebar').classList.add('collapsed');
-                document.getElementById('verticalTitle').classList.add('active');
             }
             
             // Check mobile view
@@ -1037,43 +1074,8 @@
         // Toggle sidebar collapse/expand
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
-            const sidebarTitle = document.getElementById('sidebarTitle');
-            const verticalTitle = document.getElementById('verticalTitle');
-            const verticalAppTitle = document.getElementById('verticalAppTitle');
-            
             sidebar.classList.toggle('collapsed');
-            const isCollapsed = sidebar.classList.contains('collapsed');
-            
-            // Update title display based on sidebar state
-            if (isCollapsed) {
-                // Sidebar ditutup
-                sidebarTitle.classList.remove('active');
-                
-                // Cek apakah ada aplikasi yang aktif
-                const activeMenu = document.querySelector('.menu-link.active');
-                if (activeMenu && !activeMenu.querySelector('.menu-text').textContent.includes('Home')) {
-                    // Ada aplikasi aktif - tampilkan judul aplikasi secara vertikal
-                    verticalTitle.classList.remove('active');
-                    verticalAppTitle.classList.add('active');
-                } else {
-                    // Tidak ada aplikasi aktif atau di Home - tampilkan "MIX MASTER"
-                    verticalTitle.classList.add('active');
-                    verticalAppTitle.classList.remove('active');
-                }
-            } else {
-                // Sidebar dibuka
-                verticalTitle.classList.remove('active');
-                verticalAppTitle.classList.remove('active');
-                
-                // Cek apakah ada aplikasi yang aktif
-                const activeMenu = document.querySelector('.menu-link.active');
-                if (activeMenu && !activeMenu.querySelector('.menu-text').textContent.includes('Home')) {
-                    // Ada aplikasi aktif - tampilkan judul aplikasi
-                    sidebarTitle.classList.add('active');
-                }
-            }
-            
-            localStorage.setItem('sidebarCollapsed', isCollapsed);
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
             resetInactivityTimer();
         }
 
@@ -1083,10 +1085,6 @@
             const appFrame = document.getElementById('appFrame');
             const loading = document.getElementById('loading');
             const menuLinks = document.querySelectorAll('.menu-link');
-            const sidebarTitle = document.getElementById('sidebarTitle');
-            const sidebarTitleText = document.getElementById('sidebarTitleText');
-            const verticalTitle = document.getElementById('verticalTitle');
-            const verticalAppTitle = document.getElementById('verticalAppTitle');
             
             // Update active menu
             menuLinks.forEach(link => link.classList.remove('active'));
@@ -1120,46 +1118,6 @@
                 appFrame.onload = function() {
                     loading.style.display = 'none';
                     appFrame.style.display = 'block';
-                    
-                    // Move title to sidebar berdasarkan state sidebar
-                    const menuText = event.target.querySelector('.menu-text').textContent;
-                    const sidebar = document.getElementById('sidebar');
-                    const isCollapsed = sidebar.classList.contains('collapsed');
-                    
-                    if (isCollapsed) {
-                        // Sidebar tertutup - tampilkan di vertical app title
-                        verticalTitle.classList.remove('active');
-                        verticalAppTitle.innerHTML = '';
-                        
-                        // Pisahkan teks menjadi huruf-huruf individual
-                        const words = menuText.split(' ');
-                        words.forEach((word, wordIndex) => {
-                            for (let i = 0; i < word.length; i++) {
-                                const span = document.createElement('span');
-                                span.textContent = word[i];
-                                if (i === 0 && wordIndex > 0) {
-                                    span.style.marginTop = '3px';
-                                }
-                                verticalAppTitle.appendChild(span);
-                            }
-                            // Tambahkan spasi antara kata (kecuali kata terakhir)
-                            if (wordIndex < words.length - 1) {
-                                const spaceSpan = document.createElement('span');
-                                spaceSpan.style.marginTop = '3px';
-                                spaceSpan.innerHTML = '&nbsp;';
-                                verticalAppTitle.appendChild(spaceSpan);
-                            }
-                        });
-                        
-                        verticalAppTitle.classList.add('active');
-                        sidebarTitle.classList.remove('active');
-                    } else {
-                        // Sidebar terbuka - HILANGKAN judul di sidebar
-                        sidebarTitle.classList.remove('active');
-                        verticalTitle.classList.remove('active');
-                        verticalAppTitle.classList.remove('active');
-                    }
-                    
                     resetInactivityTimer();
                 };
                 
@@ -1186,9 +1144,6 @@
             const appFrame = document.getElementById('appFrame');
             const loading = document.getElementById('loading');
             const menuLinks = document.querySelectorAll('.menu-link');
-            const sidebarTitle = document.getElementById('sidebarTitle');
-            const verticalTitle = document.getElementById('verticalTitle');
-            const verticalAppTitle = document.getElementById('verticalAppTitle');
             
             // Update active menu - set Home as active
             menuLinks.forEach(link => link.classList.remove('active'));
@@ -1198,18 +1153,6 @@
             welcomeScreen.style.display = 'flex';
             appFrame.style.display = 'none';
             loading.style.display = 'none';
-            
-            // Reset title states
-            sidebarTitle.classList.remove('active');
-            verticalAppTitle.classList.remove('active');
-            
-            // Tampilkan kembali judul default berdasarkan state sidebar
-            const sidebar = document.getElementById('sidebar');
-            const isCollapsed = sidebar.classList.contains('collapsed');
-            
-            if (isCollapsed) {
-                verticalTitle.classList.add('active');
-            }
             
             // Close mobile menu if open
             if (window.innerWidth <= 768) {
