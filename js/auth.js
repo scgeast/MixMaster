@@ -6,7 +6,7 @@ const users = [
     { username: 'cdc', password: 'cdc2024', name: 'CDC Operator' }
 ];
 
-// Check if user is logged in
+// Check if user is logged in - PERBAIKAN: Tambahkan logic redirect
 function checkAuth() {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     const currentUser = localStorage.getItem('currentUser');
@@ -26,7 +26,7 @@ function checkAuth() {
     return true;
 }
 
-// Login function
+// Login function - TIDAK ADA PERUBAHAN
 function handleLogin(event) {
     if (event) event.preventDefault();
     
@@ -84,7 +84,7 @@ function handleLogin(event) {
     }, 1000);
 }
 
-// Initialize auth system
+// Initialize auth system - PERBAIKAN: Auto-redirect jika sudah login
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Auth.js initialized');
     
@@ -105,7 +105,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (isLoggedIn && currentUser) {
             console.log('User already logged in, redirecting to dashboard');
-            window.location.href = 'dashboard.html';
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 500);
         }
     }
     
@@ -117,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Logout function
+// Logout function - TIDAK ADA PERUBAHAN
 function logout() {
     console.log('Logging out user');
     const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
