@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1137,6 +1136,9 @@
             // Set filter values
             document.getElementById('startDate').value = startDate;
             document.getElementById('endDate').value = endDate;
+            
+            // Update periode info di header
+            updatePeriodInfo(startDate, endDate);
         }
 
         function convertExcelData(excelData) {
@@ -1234,93 +1236,74 @@
             }
         });
 
-            function applyFilters() {
-                if (!uploadedData) return;
-                const startDate = document.getElementById('startDate').value;
-                const endDate = document.getElementById('endDate').value;
-                filteredData = uploadedData.filter(row => {
-                    const dateMatch = (!startDate || row['Date'] >= startDate) && 
-                                     (!endDate || row['Date'] <= endDate);
-                    return dateMatch;
-                });
-                
-                // UPDATE: Update periode info di header berdasarkan filter yang aktif
-                updatePeriodInfo(startDate, endDate);
-                
-                processExcelData();
-            }
+        function applyFilters() {
+            if (!uploadedData) return;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            filteredData = uploadedData.filter(row => {
+                const dateMatch = (!startDate || row['Date'] >= startDate) && 
+                                 (!endDate || row['Date'] <= endDate);
+                return dateMatch;
+            });
             
-            function resetFilters() {
-                // Reset to the original date range from the data
-                setDateFiltersFromData();
-                filteredData = [...uploadedData];
-                
-                // UPDATE: Update periode info di header dengan range data asli
-                const dates = uploadedData.map(row => row['Date']).filter(Boolean);
-                const startDate = dates.sort()[0];
-                const endDate = dates.sort().pop();
-                updatePeriodInfo(startDate, endDate);
-                
-                processExcelData();
-            }
+            // Update periode info di header dan data info di sidebar
+            updatePeriodInfo(startDate, endDate);
+            updateDataInfo();
             
-            // UPDATE: Tambahkan fungsi baru untuk update periode info di header
-            function updatePeriodInfo(startDate, endDate) {
-                const periodeInfo = document.getElementById('periodeInfo');
-                if (startDate && endDate) {
-                    periodeInfo.textContent = `${startDate} to ${endDate}`;
-                } else if (startDate) {
-                    periodeInfo.textContent = `${startDate} to Latest`;
-                } else if (endDate) {
-                    periodeInfo.textContent = `Earliest to ${endDate}`;
+            processExcelData();
+        }
+
+        function resetFilters() {
+            // Reset to the original date range from the data
+            setDateFiltersFromData();
+            filteredData = [...uploadedData];
+            
+            // Update periode info di header dan data info di sidebar
+            const dates = uploadedData.map(row => row['Date']).filter(Boolean);
+            const startDate = dates.sort()[0];
+            const endDate = dates.sort().pop();
+            updatePeriodInfo(startDate, endDate);
+            updateDataInfo();
+            
+            processExcelData();
+        }
+
+        // Fungsi untuk update periode info di header
+        function updatePeriodInfo(startDate, endDate) {
+            const periodeInfo = document.getElementById('periodeInfo');
+            if (startDate && endDate) {
+                periodeInfo.textContent = `${startDate} to ${endDate}`;
+            } else if (startDate) {
+                periodeInfo.textContent = `${startDate} to Latest`;
+            } else if (endDate) {
+                periodeInfo.textContent = `Earliest to ${endDate}`;
+            } else {
+                // Jika tidak ada filter, tampilkan range data asli
+                if (uploadedData && uploadedData.length > 0) {
+                    const dates = uploadedData.map(row => row['Date']).filter(Boolean);
+                    const originalStartDate = dates.sort()[0];
+                    const originalEndDate = dates.sort().pop();
+                    periodeInfo.textContent = `${originalStartDate} to ${originalEndDate}`;
                 } else {
-                    // Jika tidak ada filter, tampilkan range data asli
-                    if (uploadedData && uploadedData.length > 0) {
-                        const dates = uploadedData.map(row => row['Date']).filter(Boolean);
-                        const originalStartDate = dates.sort()[0];
-                        const originalEndDate = dates.sort().pop();
-                        periodeInfo.textContent = `${originalStartDate} to ${originalEndDate}`;
-                    } else {
-                        periodeInfo.textContent = '-';
-                    }
+                    periodeInfo.textContent = '-';
                 }
             }
+        }
+
+        function updateDataInfo() {
+            if (!filteredData) return;
+            const dates = filteredData.map(row => row['Date']).filter(Boolean);
+            const startDate = dates.length > 0 ? dates.sort()[0] : '-';
+            const endDate = dates.length > 0 ? dates.sort().pop() : '-';
+            const totalRecords = filteredData.length;
             
-            // UPDATE: Modifikasi fungsi setDateFiltersFromData untuk juga update header
-            function setDateFiltersFromData() {
-                if (!uploadedData || uploadedData.length === 0) return;
-                
-                const dates = uploadedData.map(row => row['Date']).filter(Boolean);
-                if (dates.length === 0) return;
-                
-                // Sort dates and get min and max
-                const sortedDates = dates.sort();
-                const startDate = sortedDates[0];
-                const endDate = sortedDates[sortedDates.length - 1];
-                
-                // Set filter values
-                document.getElementById('startDate').value = startDate;
-                document.getElementById('endDate').value = endDate;
-                
-                // UPDATE: Juga update periode info di header
-                updatePeriodInfo(startDate, endDate);
-            }
-            
-            // UPDATE: Modifikasi fungsi updateDataInfo untuk tidak mengganggu periode header
-            function updateDataInfo() {
-                if (!uploadedData) return;
-                const dates = uploadedData.map(row => row['Date']).filter(Boolean);
-                const startDate = dates.sort()[0];
-                const endDate = dates.sort().pop();
-                const totalRecords = uploadedData.length;
-                document.getElementById('dataInfo').innerHTML = `
-                    <p><strong>Full Data Period:</strong> ${startDate} to ${endDate}</p>
-                    <p><strong>Total Records:</strong> ${totalRecords.toLocaleString()}</p>
-                    <p><strong>Sheet:</strong> ${currentSheet}</p>
-                `;
-                // HAPUS: Jangan update periode info di header dari sini
-                // document.getElementById('periodeInfo').textContent = `${startDate} to ${endDate}`;
-            }
+            document.getElementById('dataInfo').innerHTML = `
+                <p><strong>Period:</strong> ${startDate} to ${endDate}</p>
+                <p><strong>Total Records:</strong> ${totalRecords.toLocaleString()}</p>
+                <p><strong>Sheet:</strong> ${currentSheet}</p>
+            `;
+        }
+
         function processExcelData() {
             if (!filteredData || filteredData.length === 0) {
                 alert('No data available to process from the Excel file!');
