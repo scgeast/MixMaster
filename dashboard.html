@@ -1173,7 +1173,7 @@
     </div>
 
     <script>
-        // Authentication check function
+        // Authentication check function - PERBAIKAN: Tambahkan return false
         function checkAuth() {
             const isLoggedIn = localStorage.getItem('isLoggedIn');
             const currentUser = localStorage.getItem('currentUser');
@@ -1432,17 +1432,20 @@
             }
         });
 
-        // Initialize the dashboard when page loads
+        // Initialize the dashboard when page loads - PERBAIKAN: Pindahkan logic
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Dashboard initializing...');
             
-            // Check authentication first
-            if (checkAuth()) {
-                // If authenticated, initialize dashboard
-                setTimeout(() => {
-                    initializeDashboard();
-                }, 1000);
+            // Check authentication first - TAMBAHKAN RETURN
+            if (!checkAuth()) {
+                // Jika tidak terautentikasi, hentikan eksekusi
+                return;
             }
+            
+            // If authenticated, initialize dashboard
+            setTimeout(() => {
+                initializeDashboard();
+            }, 1000);
         });
     </script>
 </body>
