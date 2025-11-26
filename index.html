@@ -367,17 +367,30 @@
             box-shadow: 0 8px 25px rgba(139, 0, 0, 0.4);
         }
 
+        /* Footer di dalam kotak login - EFEK DIPERBAIKI */
         .login-footer {
             text-align: center;
             margin-top: 30px;
             color: #666;
             font-size: 0.9em;
+            transition: all 0.3s ease;
+            cursor: pointer; /* Menambahkan cursor pointer */
+        }
+
+        .login-footer:hover {
+            color: var(--blood-moon-primary); /* Warna merah gelap Blood Moon */
+            transform: translateX(-3px); /* Efek pergeseran seperti di dashboard */
         }
 
         .version {
             font-size: 0.8em;
             color: #999;
             margin-top: 5px;
+            transition: color 0.3s ease;
+        }
+
+        .login-footer:hover .version {
+            color: var(--blood-moon-primary); /* Warna merah gelap Blood Moon */
         }
 
         /* Responsive */
