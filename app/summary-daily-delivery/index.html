@@ -1,1 +1,2028 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summary Delivery</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #FFFFFF;
+            color: #111827;
+            line-height: 1.6;
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background-color: #F8FAFC;
+            border-right: 1px solid #E5E7EB;
+            padding: 20px;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 98;
+        }
+        .sidebar.collapsed {
+            width: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .sidebar-content {
+            display: block;
+        }
+        .sidebar.collapsed .sidebar-content {
+            display: none;
+        }
+        .sidebar.collapsed .sidebar-section h3,
+        .sidebar.collapsed .upload-area,
+        .sidebar.collapsed .filter-row,
+        .sidebar.collapsed .target-inputs,
+        .sidebar.collapsed .btn {
+            display: none;
+        }
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+        .sidebar-section h3 {
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .upload-area {
+            border: 2px dashed #E5E7EB;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+        }
+        .upload-area:hover {
+            border-color: #2563EB;
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+        .upload-area.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        .upload-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            color: #6B7280;
+        }
+        .file-input {
+            display: none;
+        }
+        .btn {
+            background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            width: 100%;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn:hover {
+            background: linear-gradient(135deg, #feb47b 0%, #ff7e5f 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #E5E7EB;
+            color: #111827;
+        }
+        .btn-outline:hover {
+            background: #F8FAFC;
+            border-color: #2563EB;
+        }
+        .radio-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .radio-option {
+            flex: 1;
+            text-align: center;
+            padding: 8px 6px;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+        .radio-option.active {
+            background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+            color: white;
+            border-color: transparent;
+        }
+        .filter-section {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #E5E7EB;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .filter-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+        .filter-select, .filter-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            background-color: #FFFFFF;
+            color: #111827;
+            font-size: 0.9rem;
+        }
+        .target-inputs {
+            max-height: none;
+            overflow-y: visible;
+            margin-top: 12px;
+        }
+        .target-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        .target-name {
+            font-size: 0.85rem;
+            color: #111827;
+            flex: 1;
+        }
+        .target-input {
+            width: 80px;
+            padding: 6px 8px;
+            border: 1px solid #E5E7EB;
+            border-radius: 4px;
+            background-color: #FFFFFF;
+            color: #111827;
+            font-size: 0.85rem;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            margin-left: 250px;
+            transition: margin-left 0.3s ease;
+            margin-top: 60px;
+        }
+        .app-container.sidebar-collapsed .main-content {
+            margin-left: 0;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #8B0000 0%, #A52A2A 100%);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 99;
+            height: 60px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-left: 250px;
+            transition: margin-left 0.3s ease;
+        }
+        .app-container.sidebar-collapsed .header {
+            margin-left: 0;
+        }
+        .page-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 0;
+            text-align: left;
+            flex-grow: 1;
+        }
+        .current-time {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 0;
+            text-align: right;
+        }
+
+        /* Sidebar Toggle Button */
+        .sidebar-toggle-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+            margin-right: 10px;
+            z-index: 101;
+            position: relative;
+        }
+        .sidebar-toggle-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* KPI Cards dengan gradient ungu */
+        .kpi-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .kpi-card {
+            background: linear-gradient(135deg, #7C3AED 0%, #4C1D95 100%);
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 75px;
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+            z-index: 1;
+        }
+        .kpi-label {
+            font-size: 0.55rem;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+            margin-bottom: 1px;
+            line-height: 1;
+            font-weight: 600;
+            position: relative;
+            z-index: 2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .kpi-value {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: white;
+            line-height: 1;
+            position: relative;
+            z-index: 2;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* Dashboard Toggle */
+        .dashboard-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            background-color: white;
+            padding: 6px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .toggle-option {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-align: center;
+            font-size: 0.9rem;
+            background: white;
+            color: #6B7280;
+            border: none;
+            position: relative;
+        }
+        .toggle-option.active {
+            color: #2563EB;
+            background: white;
+        }
+        .toggle-option.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #2563EB;
+        }
+
+        .chart-container {
+            background-color: #F8FAFC;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #E5E7EB;
+            width: 100%;
+        }
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #8B0000;
+            text-align: left;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 8px;
+        }
+        .chart {
+            width: 100%;
+            height: 320px;
+        }
+        .dashboard-content {
+            display: none;
+        }
+        .dashboard-content.active {
+            display: block;
+        }
+        .notification {
+            position: fixed;
+            top: 70px;
+            right: 15px;
+            left: 15px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-100px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            text-align: center;
+            font-weight: 500;
+            opacity: 0;
+        }
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .notification.error {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        }
+        .notification.warning {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
+
+        /* Desktop Styles */
+        @media (min-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+            .app-container {
+                flex-direction: row;
+            }
+            .mobile-header {
+                display: none;
+            }
+            .sidebar {
+                width: 250px;
+            }
+            .sidebar.collapsed {
+                width: 0;
+                padding: 0;
+            }
+            .header {
+                margin-left: 250px;
+            }
+            .app-container.sidebar-collapsed .header {
+                margin-left: 0;
+            }
+            .main-content {
+                margin-left: 250px;
+            }
+            .app-container.sidebar-collapsed .main-content {
+                margin-left: 0;
+            }
+            .page-title {
+                font-size: 1.5rem;
+            }
+            .kpi-cards {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 12px;
+            }
+            .kpi-card {
+                padding: 12px;
+                min-height: 80px;
+            }
+            .kpi-label {
+                font-size: 0.6rem;
+            }
+            .kpi-value {
+                font-size: 1.3rem;
+            }
+            .filter-row {
+                flex-direction: row;
+            }
+            .btn {
+                width: auto;
+            }
+            .notification {
+                right: 20px;
+                left: auto;
+                width: auto;
+                max-width: 400px;
+            }
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 767px) {
+            .kpi-cards {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .kpi-card {
+                min-height: 70px;
+                padding: 8px;
+            }
+            .kpi-value {
+                font-size: 1rem;
+            }
+            .chart {
+                height: 280px;
+            }
+            .header {
+                padding: 8px 15px;
+                height: 55px;
+            }
+            .page-title {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        button, .toggle-option, .radio-option, .upload-area {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        input, select {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container" id="appContainer">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-content">
+                <div class="sidebar-section">
+                    <h3>📂 Upload File Data</h3>
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📁</div>
+                        <p>Upload File Actual (Excel)</p>
+                        <p class="file-size">Ukuran: 0.2MB - 50MB</p>
+                        <input type="file" id="fileInput" class="file-input" accept=".xlsx, .xls">
+                    </div>
+                </div>
+                <div class="sidebar-section">
+                    <h3>🔍 Filter Data</h3>
+                    <div class="filter-section">
+                        <div class="filter-row">
+                            <input type="date" id="startDate" class="filter-input">
+                            <input type="date" id="endDate" class="filter-input">
+                        </div>
+                        <div class="filter-row">
+                            <select id="areaFilter" class="filter-select">
+                                <option value="all">All Areas</option>
+                            </select>
+                        </div>
+                        <div class="filter-row">
+                            <select id="plantFilter" class="filter-select">
+                                <option value="all">All Plants</option>
+                            </select>
+                        </div>
+                        <!-- Target Volume Section -->
+                        <div class="sidebar-section" style="margin-bottom: 0; padding-top: 12px; border-top: 1px solid #E5E7EB;">
+                            <h3>🎯 Target Volume per Plant (M³)</h3>
+                            <div class="target-inputs" id="targetInputs">
+                                <p>Upload data terlebih dahulu untuk mengatur target</p>
+                            </div>
+                            <button class="btn btn-outline" id="resetTargets" style="margin-top: 10px;">
+                                <span>🔄</span> Reset Semua Target
+                            </button>
+                        </div>
+                        <div class="filter-row" style="margin-top: 15px; flex-direction: row;">
+                            <button class="btn" id="applyFilters" style="flex: 1;">
+                                <span>🔍</span> Terapkan Filter
+                            </button>
+                            <button class="btn btn-outline" id="resetFilters" style="flex: 1; margin-left: 8px;">
+                                <span>🔄</span> Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <button class="sidebar-toggle-btn" id="sidebarToggle">
+                <span>☰</span>
+            </button>
+            <h1 class="page-title">Perform Delivery</h1>
+            <div class="current-time" id="currentTime"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- KPI Cards -->
+            <div class="kpi-cards" id="kpiCards">
+                <div class="kpi-card">
+                    <div class="kpi-label">🌍 Total Area</div>
+                    <div class="kpi-value" id="totalArea">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">🏭 Total Plant</div>
+                    <div class="kpi-value" id="totalPlant">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">📦 Total Volume</div>
+                    <div class="kpi-value" id="totalVolume">0 M³</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">📅 Avg Vol/Day</div>
+                    <div class="kpi-value" id="avgVolumeDay">0 M³</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">🚛 Total Truck</div>
+                    <div class="kpi-value" id="totalTruck">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">🧾 Total Trip</div>
+                    <div class="kpi-value" id="totalTrip">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">⚖️ Avg Load/Trip</div>
+                    <div class="kpi-value" id="avgLoadTrip">0 M³</div>
+                </div>
+            </div>
+
+            <!-- Dashboard Toggle -->
+            <div class="dashboard-toggle">
+                <div class="toggle-option active" data-dashboard="logistic">Logistic</div>
+                <div class="toggle-option" data-dashboard="sales">Sales & Customer</div>
+            </div>
+
+            <!-- Logistic Dashboard -->
+            <div class="dashboard-content active" id="logisticDashboard">
+                <!-- Chart berdasarkan Area (hanya ditampilkan jika ada lebih dari 1 area) -->
+                <div class="chart-container" id="volumePerAreaContainer">
+                    <h3 class="chart-title">Total Volume per Area (M³)</h3>
+                    <div id="volumePerAreaChart" class="chart"></div>
+                </div>
+                <div class="chart-container">
+                    <h3 class="chart-title">Actual Volume / Day (M³)</h3>
+                    <div id="volumePerDayChart" class="chart"></div>
+                </div>
+                <div class="chart-container">
+                    <h3 class="chart-title">Actual Volume per Plant (vs Target) (M³)</h3>
+                    <div id="volumePerPlantChart" class="chart"></div>
+                </div>
+                <!-- Chart Trendline Volume per Day - dipindahkan ke bawah -->
+                <div class="chart-container">
+                    <h3 class="chart-title">Trendline Actual Volume per Day (M³)</h3>
+                    <div id="trendlineVolumeChart" class="chart"></div>
+                </div>
+                <!-- Chart berdasarkan Area (hanya ditampilkan jika ada lebih dari 1 area) -->
+                <div class="chart-container" id="avgVolumeAreaContainer">
+                    <h3 class="chart-title">Avg Actual Volume / Day per Area (M³)</h3>
+                    <div id="avgVolumeAreaChart" class="chart"></div>
+                </div>
+                <!-- Chart berdasarkan Plant (selalu ditampilkan) -->
+                <div class="chart-container" id="avgVolumePlantContainer">
+                    <h3 class="chart-title">Avg Actual Volume / Day per Plant (M³)</h3>
+                    <div id="avgVolumePlantChart" class="chart"></div>
+                </div>
+                <div class="chart-container">
+                    <h3 class="chart-title">🚛 Truck Utilization (Total Volume per Truck)</h3>
+                    <div id="truckUtilizationChart" class="chart"></div>
+                </div>
+                <!-- Distance Analysis berdasarkan Area (hanya ditampilkan jika ada lebih dari 1 area) -->
+                <div class="chart-container" id="distanceAnalysisAreaContainer">
+                    <h3 class="chart-title">📏 Distance Analysis per Area</h3>
+                    <div id="distanceAnalysisAreaChart" class="chart"></div>
+                </div>
+                <!-- Distance Analysis berdasarkan Plant (selalu ditampilkan) -->
+                <div class="chart-container" id="distanceAnalysisPlantContainer">
+                    <h3 class="chart-title">📏 Distance Analysis per Plant</h3>
+                    <div id="distanceAnalysisPlantChart" class="chart"></div>
+                </div>
+            </div>
+
+            <!-- Sales Dashboard -->
+            <div class="dashboard-content" id="salesDashboard">
+                <div class="chart-container">
+                    <h3 class="chart-title">🧑‍💼 Total Volume per Sales Man (M³)</h3>
+                    <div id="salesanceChart" class="chart"></div>
+                </div>
+                <div class="chart-container">
+                    <h3 class="chart-title">👥 End Customer ance (Total Volume per Customer)</h3>
+                    <div id="customeranceChart" class="chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="notification" id="notification"></div>
+    <script>
+        // Data dan State Management
+        let appData = {
+            rawData: [],
+            filteredData: [],
+            plantTargets: {},
+            currentDashboard: 'logistic',
+            sidebarCollapsed: false
+        };
+
+        // DOM Elements
+        const dom = {
+            appContainer: document.getElementById('appContainer'),
+            sidebar: document.getElementById('sidebar'),
+            mainContent: document.getElementById('mainContent'),
+            sidebarToggle: document.getElementById('sidebarToggle'),
+            uploadArea: document.getElementById('uploadArea'),
+            fileInput: document.getElementById('fileInput'),
+            targetInputs: document.getElementById('targetInputs'),
+            resetTargets: document.getElementById('resetTargets'),
+            startDate: document.getElementById('startDate'),
+            endDate: document.getElementById('endDate'),
+            areaFilter: document.getElementById('areaFilter'),
+            plantFilter: document.getElementById('plantFilter'),
+            applyFilters: document.getElementById('applyFilters'),
+            resetFilters: document.getElementById('resetFilters'),
+            currentTime: document.getElementById('currentTime'),
+            kpiCards: document.getElementById('kpiCards'),
+            logisticDashboard: document.getElementById('logisticDashboard'),
+            salesDashboard: document.getElementById('salesDashboard'),
+            volumePerAreaContainer: document.getElementById('volumePerAreaContainer'),
+            avgVolumeAreaContainer: document.getElementById('avgVolumeAreaContainer'),
+            avgVolumePlantContainer: document.getElementById('avgVolumePlantContainer'),
+            distanceAnalysisAreaContainer: document.getElementById('distanceAnalysisAreaContainer'),
+            distanceAnalysisPlantContainer: document.getElementById('distanceAnalysisPlantContainer'),
+            notification: document.getElementById('notification')
+        };
+
+        // Inisialisasi Aplikasi
+        function initApp() {
+            setupEventListeners();
+            updateCurrentTime();
+            setDefaultDates();
+            setInterval(updateCurrentTime, 1000);
+            checkMobileDevice();
+        }
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            // Sidebar Toggle
+            dom.sidebarToggle.addEventListener('click', toggleSidebar);
+
+            // File Upload
+            dom.uploadArea.addEventListener('click', () => dom.fileInput.click());
+            dom.fileInput.addEventListener('change', handleFileUpload);
+
+            // Drag and Drop
+            dom.uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dom.uploadArea.style.borderColor = '#2563EB';
+                dom.uploadArea.style.backgroundColor = 'rgba(37, 99, 235, 0.05)';
+            });
+            dom.uploadArea.addEventListener('dragleave', () => {
+                dom.uploadArea.style.borderColor = '#E5E7EB';
+                dom.uploadArea.style.backgroundColor = '';
+            });
+            dom.uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dom.uploadArea.style.borderColor = '#E5E7EB';
+                dom.uploadArea.style.backgroundColor = '';
+                if (e.dataTransfer.files.length) {
+                    dom.fileInput.files = e.dataTransfer.files;
+                    handleFileUpload();
+                }
+            });
+
+            // Filters
+            dom.applyFilters.addEventListener('click', applyFilters);
+            dom.resetFilters.addEventListener('click', resetFilters);
+
+            // Area Filter change event
+            dom.areaFilter.addEventListener('change', updatePlantFilter);
+
+            // Dashboard Toggle
+            document.querySelectorAll('.toggle-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.toggle-option').forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    document.querySelectorAll('.dashboard-content').forEach(content => content.classList.remove('active'));
+                    const dashboard = this.getAttribute('data-dashboard');
+                    appData.currentDashboard = dashboard;
+                    if (dashboard === 'logistic') {
+                        dom.logisticDashboard.classList.add('active');
+                        renderLogisticCharts();
+                    } else {
+                        dom.salesDashboard.classList.add('active');
+                        renderSalesCharts();
+                    }
+                });
+            });
+
+            // Reset Targets
+            dom.resetTargets.addEventListener('click', resetAllTargets);
+        }
+
+        // Toggle Sidebar
+        function toggleSidebar() {
+            appData.sidebarCollapsed = !appData.sidebarCollapsed;
+            if (appData.sidebarCollapsed) {
+                dom.sidebar.classList.add('collapsed');
+                dom.appContainer.classList.add('sidebar-collapsed');
+            } else {
+                dom.sidebar.classList.remove('collapsed');
+                dom.appContainer.classList.remove('sidebar-collapsed');
+            }
+        }
+
+        // Check if device is mobile
+        function checkMobileDevice() {
+            if (window.innerWidth < 768) {
+                appData.sidebarCollapsed = true;
+                dom.sidebar.classList.add('collapsed');
+                dom.appContainer.classList.add('sidebar-collapsed');
+            }
+        }
+
+        // Update Waktu
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeString = `⏱️ ${now.toLocaleDateString('id-ID')} ${now.toLocaleTimeString('id-ID')}`;
+            if (dom.currentTime) dom.currentTime.textContent = timeString;
+        }
+
+        // Set Default Dates
+        function setDefaultDates() {
+            const today = new Date();
+            const oneMonthAgo = new Date();
+            oneMonthAgo.setMonth(today.getMonth() - 1);
+            dom.startDate.valueAsDate = oneMonthAgo;
+            dom.endDate.valueAsDate = today;
+        }
+
+        // Set Loading State
+        function setLoading(isLoading) {
+            if (isLoading) {
+                dom.uploadArea.classList.add('loading');
+                dom.uploadArea.innerHTML = '<div class="spinner"></div>Memproses file...';
+            } else {
+                dom.uploadArea.classList.remove('loading');
+                dom.uploadArea.innerHTML = `
+                    <div class="upload-icon">📁</div>
+                    <p>Upload File Actual (Excel)</p>
+                    <p class="file-size">Ukuran: 0.2MB - 50MB</p>
+                    <input type="file" id="fileInput" class="file-input" accept=".xlsx, .xls">
+                `;
+                // Re-attach event listener
+                dom.fileInput = document.getElementById('fileInput');
+                dom.fileInput.addEventListener('change', handleFileUpload);
+            }
+        }
+
+        // Handle File Upload
+        function handleFileUpload() {
+            const file = dom.fileInput.files[0];
+            if (!file) return;
+
+            const fileSizeMB = file.size / (1024 * 1024);
+            if (fileSizeMB < 0.2 || fileSizeMB > 50) {
+                showNotification('⚠️ File harus berukuran antara 0.2MB - 50MB', 'error');
+                return;
+            }
+
+            if (!file.name.match(/\.(xlsx|xls)$/i)) {
+                showNotification('⚠️ Hanya file Excel (.xlsx, .xls) yang didukung', 'error');
+                return;
+            }
+
+            setLoading(true);
+            readExcelFile(file);
+        }
+
+        // Read Excel File
+        function readExcelFile(file) {
+            showNotification('📊 Memproses file...', 'info');
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+                    processUploadedData(jsonData);
+                    showNotification('✅ Data berhasil dimuat!', 'success');
+                } catch (error) {
+                    console.error('Error reading Excel file:', error);
+                    showNotification('❌ Gagal membaca file Excel', 'error');
+                } finally {
+                    setLoading(false);
+                }
+            };
+            reader.onerror = function() {
+                showNotification('❌ Gagal membaca file', 'error');
+                setLoading(false);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Enhanced column identification function - FIXED FOR TRUCK NO AND END CUSTOMER NAME
+        function identifyColumns(headers) {
+            const columnPatterns = {
+                'date': ['delivery date', 'date', 'tanggal', 'dp date', 'waktu', 'time'],
+                'area': ['area', 'wilayah', 'daerah'],
+                'plant': ['plant name', 'nama plant', 'plant', 'pabrik', 'lokasi'],
+                'qty': ['qty', 'quantity', 'volume', 'jumlah', 'kuantitas', 'qty.', 'vol'],
+                'distance': ['distance', 'jarak', 'km', 'kilometer', 'dist'],
+                'salesman': ['salesman', 'sales man', 'sales', 'salesperson', 'penjual', 'marketing'],
+                'customer': ['end customer name', 'customer', 'end customer', 'pelanggan', 'client', 'konsumen'],
+                'dp_no': ['dp no', 'dp_no', 'trip', 'no trip', 'delivery point', 'ritase', 'trip no'],
+                'truck': ['truck no', 'truck', 'no truck', 'nopol', 'plat', 'vehicle', 'kendaraan']
+            };
+
+            const identifiedColumns = {};
+            
+            headers.forEach((header, index) => {
+                const headerStr = String(header).toLowerCase().trim();
+                
+                for (const [columnType, patterns] of Object.entries(columnPatterns)) {
+                    for (const pattern of patterns) {
+                        const cleanPattern = pattern.toLowerCase().trim();
+                        // Exact match atau contains match
+                        if (headerStr === cleanPattern || headerStr.includes(cleanPattern) || cleanPattern.includes(headerStr)) {
+                            // Prioritaskan kolom yang lebih spesifik
+                            if (columnType === 'truck') {
+                                // Prioritaskan 'truck no' daripada 'truck'
+                                if (headerStr.includes('truck no') || headerStr.includes('no truck')) {
+                                    identifiedColumns[columnType] = index;
+                                    break;
+                                } else if (!identifiedColumns[columnType]) {
+                                    identifiedColumns[columnType] = index;
+                                }
+                            } else if (columnType === 'customer') {
+                                // Prioritaskan 'end customer name' 
+                                if (headerStr.includes('end customer name')) {
+                                    identifiedColumns[columnType] = index;
+                                    break;
+                                } else if (!identifiedColumns[columnType]) {
+                                    identifiedColumns[columnType] = index;
+                                }
+                            } else if (columnType === 'plant') {
+                                // Prioritaskan 'plant name' 
+                                if (headerStr.includes('plant name') || headerStr.includes('nama plant')) {
+                                    identifiedColumns[columnType] = index;
+                                    break;
+                                } else if (!identifiedColumns[columnType]) {
+                                    identifiedColumns[columnType] = index;
+                                }
+                            } else if (!identifiedColumns[columnType]) {
+                                identifiedColumns[columnType] = index;
+                            }
+                        }
+                    }
+                }
+            });
+
+            return identifiedColumns;
+        }
+
+        // Enhanced date parsing function - FIXED FOR DELIVERY DATE
+        function parseDate(dateValue) {
+            if (!dateValue) return null;
+            
+            // Handle berbagai format tanggal
+            if (dateValue instanceof Date) {
+                return dateValue;
+            }
+            
+            const dateStr = String(dateValue).trim();
+            
+            // 1. Handle Excel serial number (dates since 1900)
+            if (!isNaN(dateStr) && dateStr > 25569) {
+                return new Date((dateStr - 25569) * 86400 * 1000);
+            }
+            
+            // 2. Handle berbagai format tanggal
+            const dateFormats = [
+                dateStr, // Format asli
+                dateStr.replace(' ', 'T'), // ISO dengan spasi
+                dateStr.split(' ')[0], // Hanya tanggal
+                dateStr.replace(/\//g, '-'), // Ganti slash dengan dash
+                dateStr.replace(/\./g, '-') // Ganti dot dengan dash
+            ];
+            
+            for (const format of dateFormats) {
+                const parsed = new Date(format);
+                if (!isNaN(parsed.getTime())) {
+                    return parsed;
+                }
+            }
+            
+            console.warn('Format tanggal tidak dikenali:', dateValue);
+            return null;
+        }
+
+        // Function untuk menampilkan summary kolom
+        function showColumnSummary(columnMapping, rawHeaders) {
+            const summary = Object.entries(columnMapping).map(([columnType, index]) => {
+                return `${columnType}: "${rawHeaders[index]}" (index: ${index})`;
+            }).join('\n• ');
+            
+            console.log('📋 Summary Kolom yang Diidentifikasi:\n• ' + summary);
+            
+            const foundColumns = Object.keys(columnMapping).length;
+            const totalPossible = Object.keys(columnMapping).length;
+            showNotification(`✅ ${foundColumns}/${totalPossible} kolom berhasil diidentifikasi`, 'success');
+        }
+
+        // Enhanced processUploadedData function - FIXED FOR TRUCK NO AND END CUSTOMER NAME
+        function processUploadedData(data) {
+            if (data.length < 2) {
+                showNotification('❌ File tidak memiliki data yang cukup', 'error');
+                return;
+            }
+
+            const rawHeaders = data[0];
+            const columnMapping = identifyColumns(rawHeaders);
+            
+            console.log('🔍 Hasil Identifikasi Kolom:', columnMapping);
+
+            // Validasi kolom wajib
+            const requiredColumns = ['date', 'qty'];
+            const missingColumns = requiredColumns.filter(col => !columnMapping[col]);
+            
+            if (missingColumns.length > 0) {
+                showNotification(`❌ Kolom wajib tidak ditemukan: ${missingColumns.join(', ')}`, 'error');
+                console.error('Kolom yang tidak ditemukan:', missingColumns);
+                console.log('Header yang tersedia:', rawHeaders);
+                return;
+            }
+
+            // Process data dengan mapping yang sudah diidentifikasi
+            appData.rawData = data.slice(1).map((row, index) => {
+                const obj = {};
+                
+                // Map semua kolom yang teridentifikasi
+                Object.entries(columnMapping).forEach(([columnType, columnIndex]) => {
+                    let value = row[columnIndex];
+                    
+                    switch (columnType) {
+                        case 'date':
+                            if (value) {
+                                const parsedDate = parseDate(value);
+                                if (parsedDate) {
+                                    obj[columnType] = parsedDate.toISOString().split('T')[0];
+                                    obj['dateObject'] = parsedDate; // Simpan juga sebagai Date object untuk filter
+                                } else {
+                                    obj[columnType] = '';
+                                    console.warn(`Gagal parsing tanggal pada baris ${index + 2}:`, value);
+                                }
+                            } else {
+                                obj[columnType] = '';
+                            }
+                            break;
+                            
+                        case 'qty':
+                        case 'distance':
+                            obj[columnType] = parseFloat(value) || 0;
+                            break;
+                            
+                        case 'area':
+                            obj[columnType] = value ? String(value).trim() : '';
+                            break;
+                            
+                        case 'plant':
+                            obj[columnType] = value ? String(value).trim() : '';
+                            break;
+                            
+                        case 'truck':
+                            obj[columnType] = value ? String(value).trim() : '';
+                            break;
+                            
+                        case 'customer':
+                            obj[columnType] = value ? String(value).trim() : '';
+                            break;
+                            
+                        default:
+                            obj[columnType] = value ? String(value).trim() : '';
+                            break;
+                    }
+                });
+                
+                // Generate DP No jika tidak ada
+                if (!obj.dp_no && columnMapping.dp_no === undefined) {
+                    obj.dp_no = `TRIP_${index + 1}`;
+                }
+                
+                return obj;
+            }).filter(item => item.date && item.qty > 0);
+
+            console.log(`📊 Data berhasil diproses: ${appData.rawData.length} records valid`);
+            console.log('📋 Sample data pertama:', appData.rawData[0]);
+
+            showColumnSummary(columnMapping, rawHeaders);
+            
+            initializeFilters();
+            initializeTargets();
+            applyFilters();
+        }
+
+        // Initialize Filters - FIXED FOR AREA HANDLING
+        function initializeFilters() {
+            // Filter Area - hanya ambil yang memiliki nilai Area
+            const areas = [...new Set(appData.rawData.map(item => item.area).filter(area => area && area.trim() !== ''))];
+            dom.areaFilter.innerHTML = '<option value="all">All Areas</option>';
+            areas.forEach(area => {
+                const option = document.createElement('option');
+                option.value = area;
+                option.textContent = area;
+                dom.areaFilter.appendChild(option);
+            });
+
+            updatePlantFilter();
+        }
+
+        // Update Plant Filter berdasarkan Area yang dipilih
+        function updatePlantFilter() {
+            const selectedArea = dom.areaFilter.value;
+            let plants = [];
+            
+            if (selectedArea === 'all') {
+                plants = [...new Set(appData.rawData.map(item => item.plant).filter(plant => plant && plant.trim() !== ''))];
+            } else {
+                plants = [...new Set(appData.rawData
+                    .filter(item => item.area === selectedArea)
+                    .map(item => item.plant)
+                    .filter(plant => plant && plant.trim() !== ''))];
+            }
+            
+            dom.plantFilter.innerHTML = '<option value="all">All Plants</option>';
+            plants.forEach(plant => {
+                const option = document.createElement('option');
+                option.value = plant;
+                option.textContent = plant;
+                dom.plantFilter.appendChild(option);
+            });
+        }
+
+        // Initialize Targets - FIXED FOR PLANT NAME
+        function initializeTargets() {
+            const plants = [...new Set(appData.rawData.map(item => item.plant).filter(plant => plant && plant.trim() !== ''))];
+            dom.targetInputs.innerHTML = '';
+            
+            if (plants.length === 0) {
+                dom.targetInputs.innerHTML = '<p>Tidak ada data Plant yang valid</p>';
+                return;
+            }
+            
+            plants.forEach(plant => {
+                const targetItem = document.createElement('div');
+                targetItem.className = 'target-item';
+                targetItem.innerHTML = `
+                    <span class="target-name">${plant}</span>
+                    <input type="number" class="target-input" min="0" value="${appData.plantTargets[plant] || 0}"
+                           data-plant="${plant}">
+                `;
+                dom.targetInputs.appendChild(targetItem);
+            });
+
+            document.querySelectorAll('.target-input').forEach(input => {
+                input.addEventListener('change', function() {
+                    const plant = this.getAttribute('data-plant');
+                    appData.plantTargets[plant] = parseInt(this.value) || 0;
+                    if (appData.currentDashboard === 'logistic') {
+                        renderVolumePerPlantChart();
+                    }
+                });
+            });
+        }
+
+        // Apply Filters - FIXED DATE FILTERING
+        function applyFilters() {
+            const startDate = new Date(dom.startDate.value);
+            const endDate = new Date(dom.endDate.value);
+            const selectedArea = dom.areaFilter.value;
+            const selectedPlant = dom.plantFilter.value;
+
+            // Reset end date to end of day untuk mencakup seluruh hari yang dipilih
+            endDate.setHours(23, 59, 59, 999);
+
+            appData.filteredData = appData.rawData.filter(item => {
+                // Filter tanggal menggunakan dateObject yang sudah disimpan
+                const itemDate = item.dateObject ? new Date(item.dateObject) : new Date(item.date);
+                if (itemDate < startDate || itemDate > endDate) return false;
+                
+                // Filter area - hanya filter jika ada nilai area
+                if (selectedArea !== 'all') {
+                    if (!item.area || item.area.trim() === '') return false;
+                    if (item.area !== selectedArea) return false;
+                }
+                
+                // Filter plant
+                if (selectedPlant !== 'all' && item.plant !== selectedPlant) return false;
+                
+                return true;
+            });
+
+            console.log(`📊 Data setelah filter: ${appData.filteredData.length} records`);
+            
+            updateKPICards();
+            if (appData.currentDashboard === 'logistic') {
+                renderLogisticCharts();
+            } else {
+                renderSalesCharts();
+            }
+        }
+
+        // Reset Filters
+        function resetFilters() {
+            setDefaultDates();
+            dom.areaFilter.value = 'all';
+            updatePlantFilter();
+            applyFilters();
+        }
+
+        // Reset All Targets
+        function resetAllTargets() {
+            Object.keys(appData.plantTargets).forEach(plant => {
+                appData.plantTargets[plant] = 0;
+            });
+            document.querySelectorAll('.target-input').forEach(input => {
+                input.value = 0;
+            });
+            if (appData.currentDashboard === 'logistic') {
+                renderVolumePerPlantChart();
+            }
+        }
+
+        // Update KPI Cards - FIXED FOR AREA COUNTING
+        function updateKPICards() {
+            const data = appData.filteredData;
+            
+            // Hitung Area yang memiliki nilai (bukan string kosong)
+            const totalArea = new Set(data.map(item => item.area).filter(area => area && area.trim() !== '')).size;
+            
+            // Hitung Plant yang memiliki nilai (bukan string kosong)
+            const totalPlant = new Set(data.map(item => item.plant).filter(plant => plant && plant.trim() !== '')).size;
+            
+            const totalVolume = data.reduce((sum, item) => sum + (parseFloat(item.qty) || 0), 0);
+            const startDate = new Date(dom.startDate.value);
+            const endDate = new Date(dom.endDate.value);
+            const daySpan = Math.max((endDate - startDate) / (1000 * 60 * 60 * 24) + 1, 1);
+            const avgVolumeDay = totalVolume / daySpan;
+            const totalTruck = new Set(data.map(item => item.truck).filter(truck => truck && truck.trim() !== '')).size;
+            const totalTrip = new Set(data.map(item => item.dp_no).filter(dp_no => dp_no && dp_no.trim() !== '')).size;
+            const avgLoadTrip = totalTrip > 0 ? totalVolume / totalTrip : 0;
+
+            document.getElementById('totalArea').textContent = formatNumber(totalArea);
+            document.getElementById('totalPlant').textContent = formatNumber(totalPlant);
+            document.getElementById('totalVolume').textContent = formatNumber(totalVolume) + ' M³';
+            document.getElementById('avgVolumeDay').textContent = formatNumber(avgVolumeDay, true) + ' M³';
+            document.getElementById('totalTruck').textContent = formatNumber(totalTruck);
+            document.getElementById('totalTrip').textContent = formatNumber(totalTrip);
+            document.getElementById('avgLoadTrip').textContent = formatNumber(avgLoadTrip, true) + ' M³';
+        }
+
+        // Render Logistic Charts - FIXED FOR AREA HANDLING
+        function renderLogisticCharts() {
+            const data = appData.filteredData;
+            const selectedArea = dom.areaFilter.value;
+            
+            // Hanya tampilkan chart area jika ada lebih dari 1 area yang memiliki nilai
+            const uniqueAreas = [...new Set(data.map(item => item.area).filter(area => area && area.trim() !== ''))];
+            const showAreaCharts = selectedArea === 'all' && uniqueAreas.length > 1;
+
+            if (showAreaCharts) {
+                dom.volumePerAreaContainer.style.display = 'block';
+                renderVolumePerAreaChart();
+                dom.avgVolumeAreaContainer.style.display = 'block';
+                renderAvgVolumeAreaChart();
+                dom.distanceAnalysisAreaContainer.style.display = 'block';
+                renderDistanceAnalysisAreaChart();
+            } else {
+                dom.volumePerAreaContainer.style.display = 'none';
+                dom.avgVolumeAreaContainer.style.display = 'none';
+                dom.distanceAnalysisAreaContainer.style.display = 'none';
+            }
+
+            dom.avgVolumePlantContainer.style.display = 'block';
+            dom.distanceAnalysisPlantContainer.style.display = 'block';
+            renderVolumePerDayChart();
+            renderVolumePerPlantChart();
+            renderTrendlineVolumeChart();
+            renderAvgVolumePlantChart();
+            renderTruckUtilizationChart();
+            renderDistanceAnalysisPlantChart();
+        }
+
+        // Render Sales Charts
+        function renderSalesCharts() {
+            renderSalesPerformanceChart();
+            renderCustomerChart();
+        }
+
+        // Chart Rendering Functions - FIXED FOR AREA FILTERING
+        function renderVolumePerAreaChart() {
+            const data = appData.filteredData;
+            const areaVolumes = {};
+            data.forEach(item => {
+                // Hanya hitung jika area memiliki nilai
+                if (item.area && item.area.trim() !== '') {
+                    areaVolumes[item.area] = (areaVolumes[item.area] || 0) + (parseFloat(item.qty) || 0);
+                }
+            });
+
+            const sortedAreas = Object.entries(areaVolumes)
+                .sort((a, b) => b[1] - a[1]);
+
+            const areas = sortedAreas.map(item => item[0]);
+            const volumes = sortedAreas.map(item => item[1]);
+
+            const colors = generateGradientColors(volumes.length, '#EF4444', '#2563EB');
+
+            const trace = {
+                x: areas,
+                y: volumes,
+                type: 'bar',
+                marker: {
+                    color: colors,
+                    line: {
+                        color: 'rgba(0,0,0,0.2)',
+                        width: 1
+                    }
+                },
+                text: volumes.map(v => formatNumber(v) + ' M³'),
+                textposition: 'auto'
+            };
+
+            const layout = {
+                xaxis: { title: { text: 'Area' } },
+                yaxis: { title: { text: 'Volume (M³)' } },
+                paper_bgcolor: 'transparent',
+                plot_bgcolor: 'transparent',
+                font: { color: '#111827' },
+                margin: { t: 30, l: 60, r: 30, b: 80 },
+                showlegend: false,
+                autosize: true,
+                responsive: true
+            };
+
+            Plotly.newPlot('volumePerAreaChart', [trace], layout, { responsive: true });
+        }
+
+        function renderVolumePerDayChart() {
+            const data = appData.filteredData;
+            const dailyVolumes = {};
+            data.forEach(item => {
+                const date = item.date;
+                if (date) {
+                    dailyVolumes[date] = (dailyVolumes[date] || 0) + (parseFloat(item.qty) || 0);
+                }
+            });
+
+            const dates = Object.keys(dailyVolumes).sort();
+            const volumes = dates.map(date => dailyVolumes[date]);
+
+            const colors = generateGradientColors(volumes.length, '#7C3AED', '#06B6D4');
+
+            const trace = {
+                x: dates,
+                y: volumes,
+                type: 'bar',
+                marker: {
+                    color: colors,
+                    line: {
+                        color: 'rgba(0,0,0,0.2)',
+                        width: 1
+                    }
+                },
+                text: volumes.map(v => formatNumber(v) + ' M³'),
+                textposition: 'auto'
+            };
+
+            const layout = {
+                xaxis: { title: { text: 'Date' } },
+                yaxis: { title: { text: 'Volume (M³)' } },
+                paper_bgcolor: 'transparent',
+                plot_bgcolor: 'transparent',
+                font: { color: '#111827' },
+                margin: { t: 30, l: 60, r: 30, b: 80 },
+                showlegend: false,
+                autosize: true,
+                responsive: true
+            };
+
+            Plotly.newPlot('volumePerDayChart', [trace], layout, { responsive: true });
+        }
+
+        function renderVolumePerPlantChart() {
+            const data = appData.filteredData;
+            const plantVolumes = {};
+            data.forEach(item => {
+                if (item.plant && item.plant.trim() !== '') {
+                    plantVolumes[item.plant] = (plantVolumes[item.plant] || 0) + (parseFloat(item.qty) || 0);
+                }
+            });
+
+            const sortedPlants = Object.entries(plantVolumes)
+                .sort((a, b) => b[1] - a[1]);
+
+            const plants = sortedPlants.map(item => item[0]);
+            const actualVolumes = sortedPlants.map(item => item[1]);
+            const targetVolumes = plants.map(plant => appData.plantTargets[plant] || 0);
+
+            const colors = generateGradientColors(actualVolumes.length, '#2563EB', '#06B6D4');
+
+            const trace1 = {
+                x: plants,
+                y: actualVolumes,
+                type: 'bar',
+                name: 'Actual',
+                marker: {
+                    color: colors,
+                    line: {
+                        color: 'rgba(0,0,0,0.2)',
+                        width: 1
+                    }
+                },
+                text: actualVolumes.map(v => formatNumber(v) + ' M³'),
+                textposition: 'auto'
+            };
+
+            const trace2 = {
+                x: plants,
+                y: targetVolumes,
+                type: 'scatter',
+                mode: 'lines+markers+text',
+                name: 'Target',
+                line: {
+                    color: '#DC143C',
+                    width: 3,
+                    dash: 'dash'
+                },
+                marker: {
+                    color: '#DC143C',
+                    size: 8
+                },
+                text: targetVolumes.map(v => v > 0 ? formatNumber(v) + ' M³' : ''),
+                textposition: 'top center',
+                textfont: {
+                    color: '#DC143C',
+                    size: 10,
+                    weight: 'bold'
+                }
+            };
+
+            const layout = {
+                xaxis: { title: { text: 'Plant' } },
+                yaxis: {
+                    title: { text: 'Actual Volume (M³)' },
+                    side: 'left',
+                    showgrid: true
+                },
+                yaxis2: {
+                    title: { text: 'Target Volume (M³)' },
+                    side: 'right',
+                    overlaying: 'y',
+                    showgrid: false,
+                    zeroline: false
+                },
+                paper_bgcolor: 'transparent',
+                plot_bgcolor: 'transparent',
+                font: { color: '#111827' },
+                showlegend: true,
+                margin: { t: 50, l: 60, r: 60, b: 80 },
+                legend: {
+                    x: 0.5,
+                    y: 1.15,
+                    xanchor: 'center',
+                    orientation: 'h'
+                },
+                autosize: true,
+                responsive: true
+            };
+
+            Plotly.newPlot('volumePerPlantChart', [trace1, trace2], layout, { responsive: true });
+        }
+
+        function renderTrendlineVolumeChart() {
+            const data = appData.filteredData;
+            const dailyVolumes = {};
+            data.forEach(item => {
+                const date = item.date;
+                if (date) {
+                    dailyVolumes[date] = (dailyVolumes[date] || 0) + (parseFloat(item.qty) || 0);
+                }
+            });
+
+            const dates = Object.keys(dailyVolumes).sort();
+            const volumes = dates.map(date => dailyVolumes[date]);
+
+            const n = dates.length;
+            let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+            
+            dates.forEach((date, index) => {
+                const x = index;
+                const y = volumes[index];
+                sumX += x;
+                sumY += y;
+                sumXY += x * y;
+                sumX2 += x * x;
+            });
+
+            const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+            const intercept = (sumY - slope * sumX) / n;
+
+            const trendline = dates.map((_, index) => slope * index + intercept);
+
+            const maxVolume = Math.max(...volumes);
+            const textHeightRatio = maxVolume * 0.25;
+
+            const trace1 = {
+                x: dates,
+                y: volumes,
+                type: 'scatter',
+                mode: 'lines+markers+text',
+                name: 'Actual Volume',
+                line: {
+                    color: '#2563EB',
+                    width: 2
+                },
+                marker: {
+                    color: '#2563EB',
+                    size: 6
+                },
+                text: volumes.map(v => formatNumber(v) + ' M³'),
+                textposition: 'top center',
+                textfont: {
+                    color: '#2563EB',
+                    size: 10,
+                    weight: 'bold'
+                },
+                hoverinfo: 'x+y+text'
+            };
+
+            const trace2 = {
+                x: dates,
+                y: trendline,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Trendline',
+                line: {
+                    color: '#EF4444',
+                    width: 3,
+                    dash: 'dash'
+                }
+            };
+
+            const layout = {
+                xaxis: { 
+                    title: { text: 'Date' },
+                    tickangle: -45
+                },
+                yaxis: { 
+                    title: { text: 'Volume (M³)' },
+                    range: [0, maxVolume + textHeightRatio]
+                },
+                paper_bgcolor: 'transparent',
+                plot_bgcolor: 'transparent',
+                font: { color: '#111827' },
+                margin: { t: 80, l: 60, r: 30, b: 100 },
+                showlegend: true,
+                legend: {
+                    x: 0.5,
+                    y: 1.15,
+                    xanchor: 'center',
+                    orientation: 'h'
+                },
+                autosize: true,
+                responsive: true
+            };
+
+            Plotly.newPlot('trendlineVolumeChart', [trace1, trace2], layout, { responsive: true });
+        }
+
+        function renderAvgVolumeAreaChart() {
+            const data = appData.filteredData;
+            const areaVolumes = {};
+            data.forEach(item => {
+                if (item.area && item.area.trim() !== '') {
+                    areaVolumes[item.area] = (areaVolumes[item.area] || 0) + (parseFloat(item.qty) || 0);
+                }
+            });
+
+            const startDate = new Date(dom.startDate.value);
+            const endDate = new Date(dom.endDate.value);
+            const daySpan = Math.max((endDate - startDate) / (1000 * 60 * 60 * 24) + 1, 1);
+
+            const sortedAreas = Object.entries(areaVolumes)
+                .sort((a, b) => (b[1] / daySpan) - (a[1] / daySpan));
+
+            const areas = sortedAreas.map(item => item[0]);
+            const avgVolumes = sortedAreas.map(item => item[1] / daySpan);
+
+            const colors = generateGradientColors(avgVolumes.length, '#06B6D4', '#10B981');
+
+            const trace = {
+                x: areas,
+                y: avgVolumes,
+                type: 'bar',
+                marker: {
+                    color: colors,
+                    line: {
+                        color: 'rgba(0,0,0,0.2)',
+                        width: 1
+                    }
+                },
+                text: avgVolumes.map(v => formatNumber(v, true) + ' M³'),
+                textposition: 'auto',
+                textfont: {
+                    color: '#111827'
+                }
+            };
+
+            const layout = {
+                xaxis: { title: { text: 'Area' } },
+                yaxis: { title: { text: 'Average Volume (M³)' } },
+                paper_bgcolor: 'transparent',
+                plot_bgcolor: 'transparent',
+                font: { color: '#111827' },
+                margin: { t: 30, l: 60, r: 30, b: 80 },
+                showlegend: false,
+                autosize: true,
+                responsive: true
+            };
+
+            Plotly.newPlot('avgVolumeAreaChart', [trace], layout, { responsive: true });
+        }
+
+        function renderAvgVolumePlantChart() {
+            const data = appData.filteredData;
+            const plantVolumes = {};
+            data.forEach(item => {
+                if (item.plant && item.plant.trim() !== '') {
+                    plantVolumes[item.plant] = (plantVolumes[item.plant] || 0) + (parseFloat(item.qty) || 0);
+                }
+            });
+
+            const startDate = new Date(dom.startDate.value);
+            const endDate = new Date(dom.endDate.value);
+            const daySpan = Math.max((endDate - startDate) / (1000 * 60 * 60 * 24) + 1, 1);
+
+            const sortedPlants = Object.entries(plantVolumes)
+                .sort((a, b) => (b[1] / daySpan) - (a[1] / daySpan));
+
+            const plants = sortedPlants.map(item => item[0]);
+            const avgVolumes = sortedPlants.map(item => item[1] / daySpan);
+
+            const colors = generateGradientColors(avgVolumes.length, '#10B981', '#059669');
+
+            const trace = {
+                x: plants,
+                y: avgVolumes,
+                type: 'bar',
+                marker: {
+                    color: colors,
+                    line: {
+                        color: 'rgba(0,0,0,0.2)',
+                        width: 1
+                    }
+                },
+                text: avgVolumes.map(v => formatNumber(v, true) + ' M³'),
+                textposition: 'auto',
+                textfont: {
+                    color: 'white'
+                }
+            };
+
+            const layout = {
+                xaxis: { title: { text: 'Plant' } },
+                yaxis: { title: { text: 'Average Volume (M³)' } },
+                paper_bgcolor: 'transparent',
+                plot_bgcolor: 'transparent',
+                font: { color: '#111827' },
+                margin: { t: 30, l: 60, r: 30, b: 80 },
+                showlegend: false,
+                autosize: true,
+                responsive: true
+            };
+
+            Plotly.newPlot('avgVolumePlantChart', [trace], layout, { responsive: true });
+        }
+
+        // FIXED: Truck Utilization Chart - menggunakan Truck No
+        function renderTruckUtilizationChart() {
+            const data = appData.filteredData;
+            const truckVolumes = {};
+            
+            // Hitung total volume per truck menggunakan Truck No
+            data.forEach(item => {
+                if (item.truck && item.truck.trim() !== '') {
+                    truckVolumes[item.truck] = (truckVolumes[item.truck] || 0) + (parseFloat(item.qty) || 0);
+                }
+            });
+
+            const sortedTrucks = Object.entries(truckVolumes)
+                .sort((a, b) => b[1] - a[1]);
+
+            const trucks = sortedTrucks.map(item => item[0]);
+            const volumes = sortedTrucks.map(item => item[1]);
+
+            const colors = generateGradientColors(volumes.length, '#F59E0B', '#D97706');
+
+            const trace = {
+                x: trucks,
+                y: volumes,
+                type: 'bar',
+                marker: {
+                    color: colors,
+                    line: {
+                        color: 'rgba(0,0,0,0.2)',
+                        width: 1
+                    }
+                },
+                text: volumes.map(v => formatNumber(v) + ' M³'),
+                textposition: 'auto',
+                textfont: {
+                    color: 'white'
+                },
+                hovertemplate: '<b>%{x}</b><br>Total Volume: %{y:.1f} M³<extra></extra>'
+            };
+
+            const layout = {
+                xaxis: { 
+                    title: { text: 'Truck No' },
+                    tickangle: -45,
+                    tickfont: {
+                        size: 10  // Font lebih kecil untuk Truck No
+                    }
+                },
+                yaxis: { 
+                    title: { text: 'Total Volume (M³)' }
+                },
+                paper_bgcolor: 'transparent',
+                plot_bgcolor: 'transparent',
+                font: { color: '#111827' },
+                margin: { t: 30, l: 60, r: 30, b: 100 },
+                showlegend: false,
+                autosize: true,
+                responsive: true
+            };
+
+            Plotly.newPlot('truckUtilizationChart', [trace], layout, { responsive: true });
+        }
+
+        function renderDistanceAnalysisAreaChart() {
+            const data = appData.filteredData;
+            const areaDistances = {};
+            const areaCounts = {};
+            data.forEach(item => {
+                if (item.area && item.area.trim() !== '' && item.distance) {
+                    const distance = parseFloat(item.distance);
+                    if (!isNaN(distance)) {
+                        areaDistances[item.area] = (areaDistances[item.area] || 0) + distance;
+                        areaCounts[item.area] = (areaCounts[item.area] || 0) + 1;
+                    }
+                }
+            });
+
+            const areas = Object.keys(areaDistances);
+            const avgDistances = areas.map(area => areaDistances[area] / areaCounts[area]);
+
+            const areaDistancePairs = areas.map((area, index) => [area, avgDistances[index]]);
+            areaDistancePairs.sort((a, b) => b[1] - a[1]);
+
+            const sortedAreas = areaDistancePairs.map(pair => pair[0]);
+            const sortedAvgDistances = areaDistancePairs.map(pair => pair[1]);
+
+            const colors = generateGradientColors(sortedAvgDistances.length, '#EF4444', '#DC2626');
+
+            const trace = {
+                x: sortedAreas,
+                y: sortedAvgDistances,
+                type: 'bar',
+                marker: {
+                    color: colors,
+                    line: {
+                        color: 'rgba(0,0,0,0.2)',
+                        width: 1
+                    }
+                },
+                text: sortedAvgDistances.map(v => formatNumber(v, true) + ' km'),
+                textposition: 'auto'
+            };
+
+            const layout = {
+                xaxis: { title: { text: 'Area' } },
+                yaxis: { title: { text: 'Average Distance (km)' } },
+                paper_bgcolor: 'transparent',
+                plot_bgcolor: 'transparent',
+                font: { color: '#111827' },
+                margin: { t: 30, l: 60, r: 30, b: 80 },
+                showlegend: false,
+                autosize: true,
+                responsive: true
+            };
+
+            Plotly.newPlot('distanceAnalysisAreaChart', [trace], layout, { responsive: true });
+        }
+
+        function renderDistanceAnalysisPlantChart() {
+            const data = appData.filteredData;
+            const plantDistances = {};
+            const plantCounts = {};
+            data.forEach(item => {
+                if (item.plant && item.plant.trim() !== '' && item.distance) {
+                    const distance = parseFloat(item.distance);
+                    if (!isNaN(distance)) {
+                        plantDistances[item.plant] = (plantDistances[item.plant] || 0) + distance;
+                        plantCounts[item.plant] = (plantCounts[item.plant] || 0) + 1;
+                    }
+                }
+            });
+
+            const plants = Object.keys(plantDistances);
+            const avgDistances = plants.map(plant => plantDistances[plant] / plantCounts[plant]);
+
+            const plantDistancePairs = plants.map((plant, index) => [plant, avgDistances[index]]);
+            plantDistancePairs.sort((a, b) => b[1] - a[1]);
+
+            const sortedPlants = plantDistancePairs.map(pair => pair[0]);
+            const sortedAvgDistances = plantDistancePairs.map(pair => pair[1]);
+
+            const colors = generateGradientColors(sortedAvgDistances.length, '#8B5CF6', '#7C3AED');
+
+            const trace = {
+                x: sortedPlants,
+                y: sortedAvgDistances,
+                type: 'bar',
+                marker: {
+                    color: colors,
+                    line: {
+                        color: 'rgba(0,0,0,0.2)',
+                        width: 1
+                    }
+                },
+                text: sortedAvgDistances.map(v => formatNumber(v, true) + ' km'),
+                textposition: 'auto'
+            };
+
+            const layout = {
+                xaxis: { title: { text: 'Plant' } },
+                yaxis: { title: { text: 'Average Distance (km)' } },
+                paper_bgcolor: 'transparent',
+                plot_bgcolor: 'transparent',
+                font: { color: '#111827' },
+                margin: { t: 30, l: 60, r: 30, b: 80 },
+                showlegend: false,
+                autosize: true,
+                responsive: true
+            };
+
+            Plotly.newPlot('distanceAnalysisPlantChart', [trace], layout, { responsive: true });
+        }
+
+        // FIXED: Sales Performance Chart - font lebih kecil untuk nama sales
+        function renderSalesPerformanceChart() {
+            const data = appData.filteredData;
+            const salesVolumes = {};
+            data.forEach(item => {
+                if (item.salesman && item.salesman.trim() !== '') {
+                    salesVolumes[item.salesman] = (salesVolumes[item.salesman] || 0) + (parseFloat(item.qty) || 0);
+                }
+            });
+
+            const sortedSales = Object.entries(salesVolumes)
+                .sort((a, b) => b[1] - a[1]);
+
+            const sales = sortedSales.map(item => item[0]);
+            const volumes = sortedSales.map(item => item[1]);
+
+            const colors = generateGradientColors(volumes.length, '#2563EB', '#1D4ED8');
+
+            const trace = {
+                x: sales,
+                y: volumes,
+                type: 'bar',
+                marker: {
+                    color: colors,
+                    line: {
+                        color: 'rgba(0,0,0,0.2)',
+                        width: 1
+                    }
+                },
+                text: volumes.map(v => formatNumber(v) + ' M³'),
+                textposition: 'auto'
+            };
+
+            const layout = {
+                xaxis: { 
+                    title: { text: 'Sales Man' },
+                    tickangle: -45,
+                    tickfont: {
+                        size: 10  // Font lebih kecil untuk nama sales
+                    }
+                },
+                yaxis: { title: { text: 'Volume (M³)' } },
+                paper_bgcolor: 'transparent',
+                plot_bgcolor: 'transparent',
+                font: { color: '#111827' },
+                margin: { t: 30, l: 60, r: 30, b: 100 },
+                showlegend: false,
+                autosize: true,
+                responsive: true
+            };
+
+            Plotly.newPlot('salesPerformanceChart', [trace], layout, { responsive: true });
+        }
+
+        // FIXED: End Customer Performance - menggunakan End Customer Name dengan font lebih kecil
+        function renderCustomerChart() {
+            const data = appData.filteredData;
+            const customerVolumes = {};
+            
+            // Hitung total volume per customer menggunakan End Customer Name
+            data.forEach(item => {
+                if (item.customer && item.customer.trim() !== '') {
+                    customerVolumes[item.customer] = (customerVolumes[item.customer] || 0) + (parseFloat(item.qty) || 0);
+                }
+            });
+
+            const sortedCustomers = Object.entries(customerVolumes)
+                .sort((a, b) => b[1] - a[1]);
+
+            const customers = sortedCustomers.map(item => item[0]);
+            const volumes = sortedCustomers.map(item => item[1]);
+
+            const colors = generateGradientColors(volumes.length, '#7C3AED', '#6D28D9');
+
+            const trace = {
+                x: customers,
+                y: volumes,
+                type: 'bar',
+                marker: {
+                    color: colors,
+                    line: {
+                        color: 'rgba(0,0,0,0.2)',
+                        width: 1
+                    }
+                },
+                text: volumes.map(v => formatNumber(v) + ' M³'),
+                textposition: 'auto',
+                hovertemplate: '<b>%{x}</b><br>Total Volume: %{y:.1f} M³<extra></extra>'
+            };
+
+            const layout = {
+                xaxis: { 
+                    title: { text: 'End Customer Name' },
+                    tickangle: -45,
+                    tickfont: {
+                        size: 10  // Font lebih kecil untuk nama customer
+                    }
+                },
+                yaxis: { title: { text: 'Total Volume (M³)' } },
+                paper_bgcolor: 'transparent',
+                plot_bgcolor: 'transparent',
+                font: { color: '#111827' },
+                margin: { t: 30, l: 60, r: 30, b: 120 },
+                showlegend: false,
+                autosize: true,
+                responsive: true
+            };
+
+            Plotly.newPlot('customerPerformanceChart', [trace], layout, { responsive: true });
+        }
+
+        // Utility Functions
+        function formatNumber(num, isDecimal = false) {
+            if (isDecimal) {
+                return num.toLocaleString('id-ID', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+            return num.toLocaleString('id-ID');
+        }
+
+        function generateGradientColors(count, startColor, endColor) {
+            const colors = [];
+            const start = hexToRgb(startColor);
+            const end = hexToRgb(endColor);
+            
+            for (let i = 0; i < count; i++) {
+                const ratio = i / (count - 1);
+                const r = Math.round(start.r + (end.r - start.r) * ratio);
+                const g = Math.round(start.g + (end.g - start.g) * ratio);
+                const b = Math.round(start.b + (end.b - start.b) * ratio);
+                
+                colors.push(`rgb(${r}, ${g}, ${b})`);
+            }
+            
+            return colors;
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : {r: 0, g: 0, b: 0};
+        }
+
+        function showNotification(message, type = 'info') {
+            dom.notification.textContent = message;
+            dom.notification.className = 'notification';
+            dom.notification.classList.add(type, 'show');
+            
+            setTimeout(() => {
+                dom.notification.classList.remove('show');
+                setTimeout(() => {
+                    dom.notification.textContent = '';
+                    dom.notification.className = 'notification';
+                }, 300);
+            }, 3000);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            checkMobileDevice();
+            if (appData.currentDashboard === 'logistic') {
+                renderLogisticCharts();
+            } else {
+                renderSalesCharts();
+            }
+        });
+
+        // Initialize the application
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
