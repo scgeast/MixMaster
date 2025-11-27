@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Summary Delivery</title>
+    <title>Perform Delivery</title>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -253,6 +253,14 @@
             margin-bottom: 0;
             text-align: left;
             flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+        .page-subtitle {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.9);
+            margin-left: 10px;
+            font-weight: normal;
         }
         .current-time {
             font-size: 0.8rem;
@@ -391,6 +399,12 @@
         }
         .chart {
             width: 100%;
+        }
+        /* Chart khusus untuk trendline yang lebih tinggi */
+        .trendline-chart {
+            height: 400px; /* Lebih tinggi dari chart biasa */
+        }
+        .normal-chart {
             height: 320px;
         }
         .dashboard-content {
@@ -486,6 +500,9 @@
                 width: auto;
                 max-width: 400px;
             }
+            .trendline-chart {
+                height: 450px; /* Lebih tinggi di desktop */
+            }
         }
 
         /* Mobile Styles */
@@ -501,8 +518,11 @@
             .kpi-value {
                 font-size: 1rem;
             }
-            .chart {
+            .normal-chart {
                 height: 280px;
+            }
+            .trendline-chart {
+                height: 350px; /* Tetap lebih tinggi di mobile */
             }
             .header {
                 padding: 8px 15px;
@@ -582,7 +602,7 @@
             <button class="sidebar-toggle-btn" id="sidebarToggle">
                 <span>☰</span>
             </button>
-            <h1 class="page-title">Summary Daily Delivery</h1>
+            <h1 class="page-title">Perform Delivery <span class="page-subtitle" id="pageSubtitle"></span></h1>
             <div class="current-time" id="currentTime"></div>
         </div>
 
@@ -631,44 +651,46 @@
                 <!-- Chart berdasarkan Area (hanya ditampilkan jika ada lebih dari 1 area) -->
                 <div class="chart-container" id="volumePerAreaContainer">
                     <h3 class="chart-title">Total Volume per Area (M³)</h3>
-                    <div id="volumePerAreaChart" class="chart"></div>
+                    <div id="volumePerAreaChart" class="chart normal-chart"></div>
                 </div>
-                <div class="chart-container">
-                    <h3 class="chart-title">Actual Volume / Day (M³)</h3>
-                    <div id="volumePerDayChart" class="chart"></div>
+                <!-- Chart Total Volume per Plant vs Target - hanya ditampilkan jika All Plants -->
+                <div class="chart-container" id="volumePerPlantContainer">
+                    <h3 class="chart-title">Total Volume per Plant (vs Target) (M³)</h3>
+                    <div id="volumePerPlantChart" class="chart normal-chart"></div>
                 </div>
+                <!-- Chart Total Volume / Day - dipindahkan setelah chart Plant vs Target -->
                 <div class="chart-container">
-                    <h3 class="chart-title">Actual Volume per Plant (vs Target) (M³)</h3>
-                    <div id="volumePerPlantChart" class="chart"></div>
+                    <h3 class="chart-title">Total Volume / Day (M³)</h3>
+                    <div id="volumePerDayChart" class="chart normal-chart"></div>
                 </div>
-                <!-- Chart Trendline Volume per Day - dipindahkan ke bawah -->
+                <!-- Chart Trendline Volume per Day - dibuat lebih tinggi -->
                 <div class="chart-container">
-                    <h3 class="chart-title">Trendline Actual Volume per Day (M³)</h3>
-                    <div id="trendlineVolumeChart" class="chart"></div>
+                    <h3 class="chart-title">Trendline Volume per Day (M³)</h3>
+                    <div id="trendlineVolumeChart" class="chart trendline-chart"></div>
                 </div>
                 <!-- Chart berdasarkan Area (hanya ditampilkan jika ada lebih dari 1 area) -->
                 <div class="chart-container" id="avgVolumeAreaContainer">
-                    <h3 class="chart-title">Avg Actual Volume / Day per Area (M³)</h3>
-                    <div id="avgVolumeAreaChart" class="chart"></div>
+                    <h3 class="chart-title">Avg Volume / Day per Area (M³)</h3>
+                    <div id="avgVolumeAreaChart" class="chart normal-chart"></div>
                 </div>
                 <!-- Chart berdasarkan Plant (selalu ditampilkan) -->
                 <div class="chart-container" id="avgVolumePlantContainer">
-                    <h3 class="chart-title">Avg Actual Volume / Day per Plant (M³)</h3>
-                    <div id="avgVolumePlantChart" class="chart"></div>
+                    <h3 class="chart-title">Avg Volume / Day per Plant (M³)</h3>
+                    <div id="avgVolumePlantChart" class="chart normal-chart"></div>
                 </div>
                 <div class="chart-container">
                     <h3 class="chart-title">🚛 Truck Utilization (Total Volume per Truck)</h3>
-                    <div id="truckUtilizationChart" class="chart"></div>
+                    <div id="truckUtilizationChart" class="chart normal-chart"></div>
                 </div>
                 <!-- Distance Analysis berdasarkan Area (hanya ditampilkan jika ada lebih dari 1 area) -->
                 <div class="chart-container" id="distanceAnalysisAreaContainer">
                     <h3 class="chart-title">📏 Distance Analysis per Area</h3>
-                    <div id="distanceAnalysisAreaChart" class="chart"></div>
+                    <div id="distanceAnalysisAreaChart" class="chart normal-chart"></div>
                 </div>
                 <!-- Distance Analysis berdasarkan Plant (selalu ditampilkan) -->
                 <div class="chart-container" id="distanceAnalysisPlantContainer">
                     <h3 class="chart-title">📏 Distance Analysis per Plant</h3>
-                    <div id="distanceAnalysisPlantChart" class="chart"></div>
+                    <div id="distanceAnalysisPlantChart" class="chart normal-chart"></div>
                 </div>
             </div>
 
@@ -676,11 +698,11 @@
             <div class="dashboard-content" id="salesDashboard">
                 <div class="chart-container">
                     <h3 class="chart-title">🧑‍💼 Total Volume per Sales Man (M³)</h3>
-                    <div id="salesanceChart" class="chart"></div>
+                    <div id="salesPerformanceChart" class="chart normal-chart"></div>
                 </div>
                 <div class="chart-container">
-                    <h3 class="chart-title">👥 End Customer ance (Total Volume per Customer)</h3>
-                    <div id="customeranceChart" class="chart"></div>
+                    <h3 class="chart-title">👥 End Customer Performance (Total Volume per Customer)</h3>
+                    <div id="customerPerformanceChart" class="chart normal-chart"></div>
                 </div>
             </div>
         </div>
@@ -717,11 +739,13 @@
             logisticDashboard: document.getElementById('logisticDashboard'),
             salesDashboard: document.getElementById('salesDashboard'),
             volumePerAreaContainer: document.getElementById('volumePerAreaContainer'),
+            volumePerPlantContainer: document.getElementById('volumePerPlantContainer'),
             avgVolumeAreaContainer: document.getElementById('avgVolumeAreaContainer'),
             avgVolumePlantContainer: document.getElementById('avgVolumePlantContainer'),
             distanceAnalysisAreaContainer: document.getElementById('distanceAnalysisAreaContainer'),
             distanceAnalysisPlantContainer: document.getElementById('distanceAnalysisPlantContainer'),
-            notification: document.getElementById('notification')
+            notification: document.getElementById('notification'),
+            pageSubtitle: document.getElementById('pageSubtitle')
         };
 
         // Inisialisasi Aplikasi
@@ -814,9 +838,13 @@
 
         // Update Waktu
         function updateCurrentTime() {
-            const now = new Date();
-            const timeString = `⏱️ ${now.toLocaleDateString('id-ID')} ${now.toLocaleTimeString('id-ID')}`;
-            if (dom.currentTime) dom.currentTime.textContent = timeString;
+            const startDate = new Date(dom.startDate.value);
+            const endDate = new Date(dom.endDate.value);
+            
+            // Format tanggal untuk periode
+            const periodString = `⏱️ ${startDate.toLocaleDateString('id-ID')} - ${endDate.toLocaleDateString('id-ID')}`;
+            
+            if (dom.currentTime) dom.currentTime.textContent = periodString;
         }
 
         // Set Default Dates
@@ -1194,11 +1222,31 @@
             console.log(`📊 Data setelah filter: ${appData.filteredData.length} records`);
             
             updateKPICards();
+            updateHeaderSubtitle();
+            updateCurrentTime();
+            
             if (appData.currentDashboard === 'logistic') {
                 renderLogisticCharts();
             } else {
                 renderSalesCharts();
             }
+        }
+
+        // Update Header Subtitle berdasarkan filter
+        function updateHeaderSubtitle() {
+            const selectedArea = dom.areaFilter.value;
+            const selectedPlant = dom.plantFilter.value;
+            let subtitle = '';
+            
+            if (selectedArea === 'all' && selectedPlant === 'all') {
+                subtitle = 'All Areas';
+            } else if (selectedArea !== 'all' && selectedPlant === 'all') {
+                subtitle = selectedArea;
+            } else if (selectedPlant !== 'all') {
+                subtitle = selectedPlant;
+            }
+            
+            dom.pageSubtitle.textContent = subtitle;
         }
 
         // Reset Filters
@@ -1250,14 +1298,18 @@
             document.getElementById('avgLoadTrip').textContent = formatNumber(avgLoadTrip, true) + ' M³';
         }
 
-        // Render Logistic Charts - FIXED FOR AREA HANDLING
+        // Render Logistic Charts - FIXED: Menyembunyikan chart plant vs target jika plant tertentu dipilih
         function renderLogisticCharts() {
             const data = appData.filteredData;
             const selectedArea = dom.areaFilter.value;
+            const selectedPlant = dom.plantFilter.value;
             
             // Hanya tampilkan chart area jika ada lebih dari 1 area yang memiliki nilai
             const uniqueAreas = [...new Set(data.map(item => item.area).filter(area => area && area.trim() !== ''))];
             const showAreaCharts = selectedArea === 'all' && uniqueAreas.length > 1;
+
+            // Tampilkan chart plant vs target hanya jika All Plants dipilih
+            const showPlantTargetChart = selectedPlant === 'all';
 
             if (showAreaCharts) {
                 dom.volumePerAreaContainer.style.display = 'block';
@@ -1272,10 +1324,17 @@
                 dom.distanceAnalysisAreaContainer.style.display = 'none';
             }
 
+            // Tampilkan atau sembunyikan chart plant vs target
+            if (showPlantTargetChart) {
+                dom.volumePerPlantContainer.style.display = 'block';
+                renderVolumePerPlantChart();
+            } else {
+                dom.volumePerPlantContainer.style.display = 'none';
+            }
+
             dom.avgVolumePlantContainer.style.display = 'block';
             dom.distanceAnalysisPlantContainer.style.display = 'block';
             renderVolumePerDayChart();
-            renderVolumePerPlantChart();
             renderTrendlineVolumeChart();
             renderAvgVolumePlantChart();
             renderTruckUtilizationChart();
@@ -1472,6 +1531,7 @@
             Plotly.newPlot('volumePerPlantChart', [trace1, trace2], layout, { responsive: true });
         }
 
+        // FIXED: Trendline chart dengan tinggi yang lebih besar dan warna merah untuk nilai terendah
         function renderTrendlineVolumeChart() {
             const data = appData.filteredData;
             const dailyVolumes = {};
@@ -1503,7 +1563,11 @@
             const trendline = dates.map((_, index) => slope * index + intercept);
 
             const maxVolume = Math.max(...volumes);
+            const minVolume = Math.min(...volumes);
             const textHeightRatio = maxVolume * 0.25;
+
+            // Buat array warna untuk setiap titik data
+            const colors = volumes.map(volume => volume === minVolume ? '#EF4444' : '#2563EB');
 
             const trace1 = {
                 x: dates,
@@ -1516,7 +1580,7 @@
                     width: 2
                 },
                 marker: {
-                    color: '#2563EB',
+                    color: colors,
                     size: 6
                 },
                 text: volumes.map(v => formatNumber(v) + ' M³'),
@@ -1526,7 +1590,7 @@
                     size: 10,
                     weight: 'bold'
                 },
-                hoverinfo: 'x+y+text'
+                hovertemplate: '<b>%{x}</b><br>Volume: %{y:.1f} M³<extra></extra>'
             };
 
             const trace2 = {
@@ -1536,10 +1600,33 @@
                 mode: 'lines',
                 name: 'Trendline',
                 line: {
-                    color: '#EF4444',
+                    color: '#10B981',
                     width: 3,
                     dash: 'dash'
                 }
+            };
+
+            // Tambahkan trace untuk menandai nilai terendah
+            const minIndex = volumes.indexOf(minVolume);
+            const trace3 = {
+                x: [dates[minIndex]],
+                y: [volumes[minIndex]],
+                type: 'scatter',
+                mode: 'markers+text',
+                name: 'Terendah',
+                marker: {
+                    color: '#EF4444',
+                    size: 10,
+                    symbol: 'circle'
+                },
+                text: ['TERENDAH: ' + formatNumber(minVolume) + ' M³'],
+                textposition: 'bottom center',
+                textfont: {
+                    color: '#EF4444',
+                    size: 12,
+                    weight: 'bold'
+                },
+                showlegend: false
             };
 
             const layout = {
@@ -1563,10 +1650,11 @@
                     orientation: 'h'
                 },
                 autosize: true,
-                responsive: true
+                responsive: true,
+                height: null // Biarkan CSS yang mengatur tinggi
             };
 
-            Plotly.newPlot('trendlineVolumeChart', [trace1, trace2], layout, { responsive: true });
+            Plotly.newPlot('trendlineVolumeChart', [trace1, trace2, trace3], layout, { responsive: true });
         }
 
         function renderAvgVolumeAreaChart() {
