@@ -707,7 +707,7 @@
         <div class="main-content" id="mainContent">
             <!-- Header -->
             <div class="header">
-                <h1>🚛 Truck Mixer Utilization East All Area</h1>
+                <h1>🚛 Truck Mixer Utilization</h1>
                 <div class="header-info">
                     <p>Period: <span id="periodeInfo">-</span></p>
                 </div>
@@ -1145,20 +1145,20 @@
             if (excelData.length < 2) return [];
             const headers = excelData[0].map(header => header ? header.toString().trim() : '');
             const data = [];
+            
             // Cari indeks kolom yang diperlukan
             const dpNoIndex = headers.findIndex(h => h.includes('DP') && h.includes('No'));
             const dateIndex = headers.findIndex(h => h.includes('Date') || h.includes('Tanggal'));
-            const truckTypeIndex = headers.findIndex(h => h.includes('Truck') && h.includes('Type'));
             const truckNoIndex = headers.findIndex(h => h.includes('Truck') && h.includes('No'));
             const allocationIndex = headers.findIndex(h => h.includes('Allocation') || h.includes('Alokasi'));
             const qtyIndex = headers.findIndex(h => h.includes('QTY') || h.includes('Quantity') || h.includes('Qty'));
             const siteNoIndex = headers.findIndex(h => h.includes('Site') && h.includes('No'));
             const siteNameIndex = headers.findIndex(h => h.includes('Site') && h.includes('Name'));
             const distanceIndex = headers.findIndex(h => h.includes('Distance') || h.includes('Jarak'));
+            
             const finalIndices = {
                 dpNo: dpNoIndex !== -1 ? dpNoIndex : 0,
                 date: dateIndex !== -1 ? dateIndex : 1,
-                truckType: truckTypeIndex !== -1 ? truckTypeIndex : 6,
                 truckNo: truckNoIndex !== -1 ? truckNoIndex : 18, // Kolom S (Truck No)
                 allocation: allocationIndex !== -1 ? allocationIndex : 17,
                 qty: qtyIndex !== -1 ? qtyIndex : 15,
@@ -1166,28 +1166,47 @@
                 siteName: siteNameIndex !== -1 ? siteNameIndex : 20,
                 distance: distanceIndex !== -1 ? distanceIndex : 21 // Kolom V (Distance)
             };
+            
             console.log('Column indices:', finalIndices);
+            
             for (let i = 1; i < excelData.length; i++) {
                 const row = excelData[i];
                 if (row.length === 0) continue;
+                
                 const dpNo = row[finalIndices.dpNo];
                 const date = row[finalIndices.date];
-                const truckType = row[finalIndices.truckType];
                 const truckNo = row[finalIndices.truckNo];
                 const allocation = row[finalIndices.allocation];
                 const qty = row[finalIndices.qty];
                 const siteNo = row[finalIndices.siteNo];
                 const siteName = row[finalIndices.siteName];
                 const distance = row[finalIndices.distance];
-                if (truckType && allocation && qty !== undefined && qty !== null && qty !== '') {
+                
+                if (truckNo && allocation && qty !== undefined && qty !== null && qty !== '') {
+                    // Determine Truck Type based on Truck No
+                    let truckType = 'TM Big';
+                    if (truckNo && truckNo.toString().toUpperCase().startsWith('MPB')) {
+                        truckType = 'TM Mini';
+                    }
+                    
+                    // Determine Allocation Truck based on Site Name
+                    let allocationTruck = 'Project TM Big';
+                    if (siteName) {
+                        const siteNameStr = siteName.toString().toUpperCase();
+                        if (siteNameStr.includes('JAYAMIXNI') || siteNameStr.includes('MINIMIX') || 
+                            siteNameStr.includes('JAYAMIX NI') || siteNameStr.includes('MINI MIX')) {
+                            allocationTruck = 'Project TM Mini';
+                        }
+                    }
+                    
                     data.push({
                         'Date': formatExcelDate(date),
                         'Truck No': truckNo ? truckNo.toString().trim() : 'Unknown',
-                        'Allocation Truck': allocation.toString().trim(),
+                        'Allocation Truck': allocationTruck,
                         'Site No': siteNo ? siteNo.toString().trim() : '-',
                         'Site Name': siteName ? siteName.toString().trim() : '-',
                         'Qty': parseFloat(qty) || 0,
-                        'Truck Type': truckType.toString().trim(),
+                        'Truck Type': truckType,
                         'Distance': parseFloat(distance) || 0
                     });
                 }
