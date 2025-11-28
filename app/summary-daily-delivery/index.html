@@ -257,10 +257,12 @@
             align-items: center;
         }
         .page-subtitle {
-            font-size: 0.9rem;
-            color: rgba(255,255,255,0.9);
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: white;
             margin-left: 10px;
             font-weight: normal;
+            opacity: 0.9;
         }
         .current-time {
             font-size: 0.8rem;
@@ -474,6 +476,9 @@
             .page-title {
                 font-size: 1.5rem;
             }
+            .page-subtitle {
+                font-size: 1.5rem;
+            }
             .kpi-cards {
                 grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
                 gap: 12px;
@@ -529,6 +534,9 @@
                 height: 55px;
             }
             .page-title {
+                font-size: 1.1rem;
+            }
+            .page-subtitle {
                 font-size: 1.1rem;
             }
         }
@@ -655,27 +663,27 @@
                 </div>
                 <!-- Chart Total Volume per Plant vs Target - hanya ditampilkan jika All Plants -->
                 <div class="chart-container" id="volumePerPlantContainer">
-                    <h3 class="chart-title">Total Volume per Plant (vs Target) (M³)</h3>
+                    <h3 class="chart-title">Actual Volume per Plant (vs Target) (M³)</h3>
                     <div id="volumePerPlantChart" class="chart normal-chart"></div>
                 </div>
                 <!-- Chart Total Volume / Day - dipindahkan setelah chart Plant vs Target -->
                 <div class="chart-container">
-                    <h3 class="chart-title">Total Volume / Day (M³)</h3>
+                    <h3 class="chart-title">Actual Volume / Day (M³)</h3>
                     <div id="volumePerDayChart" class="chart normal-chart"></div>
                 </div>
                 <!-- Chart Trendline Volume per Day - dibuat lebih tinggi -->
                 <div class="chart-container">
-                    <h3 class="chart-title">Trendline Volume per Day (M³)</h3>
+                    <h3 class="chart-title">Trendline Act Volume per Day (M³)</h3>
                     <div id="trendlineVolumeChart" class="chart trendline-chart"></div>
                 </div>
                 <!-- Chart berdasarkan Area (hanya ditampilkan jika ada lebih dari 1 area) -->
                 <div class="chart-container" id="avgVolumeAreaContainer">
-                    <h3 class="chart-title">Avg Volume / Day per Area (M³)</h3>
+                    <h3 class="chart-title">Avg Act Volume / Day per Area (M³)</h3>
                     <div id="avgVolumeAreaChart" class="chart normal-chart"></div>
                 </div>
                 <!-- Chart berdasarkan Plant (selalu ditampilkan) -->
                 <div class="chart-container" id="avgVolumePlantContainer">
-                    <h3 class="chart-title">Avg Volume / Day per Plant (M³)</h3>
+                    <h3 class="chart-title">Avg Act Volume / Day per Plant (M³)</h3>
                     <div id="avgVolumePlantChart" class="chart normal-chart"></div>
                 </div>
                 <div class="chart-container">
@@ -847,8 +855,26 @@
             if (dom.currentTime) dom.currentTime.textContent = periodString;
         }
 
-        // Set Default Dates
+        // Set Default Dates - PERBAIKAN: Set default dates berdasarkan data
         function setDefaultDates() {
+            // Jika sudah ada data, set tanggal berdasarkan data
+            if (appData.rawData.length > 0) {
+                const dates = appData.rawData
+                    .map(item => item.dateObject ? new Date(item.dateObject) : new Date(item.date))
+                    .filter(date => !isNaN(date.getTime()))
+                    .sort((a, b) => a - b);
+                
+                if (dates.length > 0) {
+                    const minDate = dates[0];
+                    const maxDate = dates[dates.length - 1];
+                    
+                    dom.startDate.valueAsDate = minDate;
+                    dom.endDate.valueAsDate = maxDate;
+                    return;
+                }
+            }
+            
+            // Fallback: set default ke 1 bulan terakhir
             const today = new Date();
             const oneMonthAgo = new Date();
             oneMonthAgo.setMonth(today.getMonth() - 1);
@@ -1117,6 +1143,9 @@
 
             showColumnSummary(columnMapping, rawHeaders);
             
+            // PERBAIKAN: Set default dates berdasarkan data yang diupload
+            setDefaultDates();
+            
             initializeFilters();
             initializeTargets();
             applyFilters();
@@ -1232,7 +1261,7 @@
             }
         }
 
-        // Update Header Subtitle berdasarkan filter
+        // Update Header Subtitle berdasarkan filter - PERBAIKAN: Font sama dengan judul
         function updateHeaderSubtitle() {
             const selectedArea = dom.areaFilter.value;
             const selectedPlant = dom.plantFilter.value;
@@ -1441,6 +1470,7 @@
             Plotly.newPlot('volumePerDayChart', [trace], layout, { responsive: true });
         }
 
+        // PERBAIKAN: Chart Total Volume per Plant (vs Target) - Bar untuk Actual dan Target, Line untuk % Pencapaian
         function renderVolumePerPlantChart() {
             const data = appData.filteredData;
             const plantVolumes = {};
@@ -1456,68 +1486,100 @@
             const plants = sortedPlants.map(item => item[0]);
             const actualVolumes = sortedPlants.map(item => item[1]);
             const targetVolumes = plants.map(plant => appData.plantTargets[plant] || 0);
+            
+            // Hitung persentase pencapaian
+            const achievementPercentages = plants.map((plant, index) => {
+                const target = targetVolumes[index];
+                const actual = actualVolumes[index];
+                return target > 0 ? (actual / target) * 100 : 0;
+            });
 
-            const colors = generateGradientColors(actualVolumes.length, '#2563EB', '#06B6D4');
-
-            const trace1 = {
+            // Trace untuk Actual Volume
+            const traceActual = {
                 x: plants,
                 y: actualVolumes,
                 type: 'bar',
                 name: 'Actual',
                 marker: {
-                    color: colors,
+                    color: '#2563EB',
                     line: {
                         color: 'rgba(0,0,0,0.2)',
                         width: 1
                     }
                 },
                 text: actualVolumes.map(v => formatNumber(v) + ' M³'),
-                textposition: 'auto'
+                textposition: 'auto',
+                yaxis: 'y1'
             };
 
-            const trace2 = {
+            // Trace untuk Target Volume
+            const traceTarget = {
                 x: plants,
                 y: targetVolumes,
+                type: 'bar',
+                name: 'Target',
+                marker: {
+                    color: '#DC2626',
+                    opacity: 0.7,
+                    line: {
+                        color: 'rgba(0,0,0,0.2)',
+                        width: 1
+                    }
+                },
+                text: targetVolumes.map(v => v > 0 ? formatNumber(v) + ' M³' : ''),
+                textposition: 'auto',
+                yaxis: 'y1'
+            };
+
+            // Trace untuk Persentase Pencapaian
+            const traceAchievement = {
+                x: plants,
+                y: achievementPercentages,
                 type: 'scatter',
                 mode: 'lines+markers+text',
-                name: 'Target',
+                name: '% Pencapaian',
                 line: {
-                    color: '#DC143C',
+                    color: '#10B981',
                     width: 3,
                     dash: 'dash'
                 },
                 marker: {
-                    color: '#DC143C',
+                    color: '#10B981',
                     size: 8
                 },
-                text: targetVolumes.map(v => v > 0 ? formatNumber(v) + ' M³' : ''),
+                text: achievementPercentages.map(p => p > 0 ? p.toFixed(1) + '%' : ''),
                 textposition: 'top center',
                 textfont: {
-                    color: '#DC143C',
+                    color: '#10B981',
                     size: 10,
                     weight: 'bold'
-                }
+                },
+                yaxis: 'y2'
             };
 
             const layout = {
-                xaxis: { title: { text: 'Plant' } },
-                yaxis: {
-                    title: { text: 'Actual Volume (M³)' },
+                xaxis: { 
+                    title: { text: 'Plant' },
+                    tickangle: -45
+                },
+                yaxis: { 
+                    title: { text: 'Volume (M³)' },
                     side: 'left',
                     showgrid: true
                 },
                 yaxis2: {
-                    title: { text: 'Target Volume (M³)' },
+                    title: { text: '% Pencapaian' },
                     side: 'right',
                     overlaying: 'y',
                     showgrid: false,
-                    zeroline: false
+                    zeroline: false,
+                    range: [0, Math.max(...achievementPercentages) * 1.2] // Tambah margin 20% di atas nilai maks
                 },
                 paper_bgcolor: 'transparent',
                 plot_bgcolor: 'transparent',
                 font: { color: '#111827' },
                 showlegend: true,
-                margin: { t: 50, l: 60, r: 60, b: 80 },
+                margin: { t: 50, l: 60, r: 60, b: 100 },
                 legend: {
                     x: 0.5,
                     y: 1.15,
@@ -1525,10 +1587,11 @@
                     orientation: 'h'
                 },
                 autosize: true,
-                responsive: true
+                responsive: true,
+                barmode: 'group' // Grouped bars untuk Actual dan Target
             };
 
-            Plotly.newPlot('volumePerPlantChart', [trace1, trace2], layout, { responsive: true });
+            Plotly.newPlot('volumePerPlantChart', [traceActual, traceTarget, traceAchievement], layout, { responsive: true });
         }
 
         // FIXED: Trendline chart dengan tinggi yang lebih besar dan warna merah untuk nilai terendah
