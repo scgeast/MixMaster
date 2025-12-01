@@ -1685,8 +1685,10 @@
                 const sortedTruckNos = sortedData.map(item => item.truckNo);
                 const volumesPerTruck = sortedData.map(item => item.volume);
                 const volumeColors = sortedTruckNos.map(truckNo => {
-                    if (truckNo === 'A448') return '#FFD700';
-                    if (truckNo === 'A969') return '#FF6347';
+                    if (truckNo === 'A448') return '#FFD700'; // Emas
+                    if (truckNo === 'A969') return '#FF6347'; // Tomat
+                    if (truckNo === 'A992') return '#32CD32'; // Lime Green
+                    if (truckNo === 'A610') return '#FF69B4'; // Hot Pink    
                     return color2;
                 });
                 const volumeTrace = {
@@ -1818,6 +1820,8 @@
                 const tripColors = sortedTruckNos.map(truckNo => {
                     if (truckNo === 'A448') return '#FFD700';
                     if (truckNo === 'A969') return '#FF6347';
+                    if (truckNo === 'A992') return '#32CD32';
+                    if (truckNo === 'A610') return '#FF69B4';
                     return color;
                 });
                 const totalTripTrace = {
@@ -1880,6 +1884,8 @@
                 const avgLoadColors = sortedTruckNos.map(truckNo => {
                     if (truckNo === 'A448') return '#FFD700';
                     if (truckNo === 'A969') return '#FF6347';
+                    if (truckNo === 'A992') return '#32CD32';
+                    if (truckNo === 'A610') return '#FF69B4';
                     return color2;
                 });
                 const avgLoadTrace = {
@@ -1917,6 +1923,8 @@
                 const avgTripDayColors = sortedTruckNos.map(truckNo => {
                     if (truckNo === 'A448') return '#FFD700';
                     if (truckNo === 'A969') return '#FF6347';
+                    if (truckNo === 'A992') return '#32CD32';
+                    if (truckNo === 'A610') return '#FF69B4';
                     return color3;
                 });
                 const avgTripDayTrace = {
@@ -1950,6 +1958,8 @@
                 const totalDistanceColors = sortedTruckNosDistance.map(truckNo => {
                     if (truckNo === 'A448') return '#FFD700';
                     if (truckNo === 'A969') return '#FF6347';
+                    if (truckNo === 'A992') return '#32CD32';
+                    if (truckNo === 'A610') return '#FF69B4';
                     return '#3498db';
                 });
                 const totalDistanceTrace = {
@@ -1993,6 +2003,8 @@
                 const avgDistanceColors = sortedTruckNosAvgDistance.map(truckNo => {
                     if (truckNo === 'A448') return '#FFD700';
                     if (truckNo === 'A969') return '#FF6347';
+                    if (truckNo === 'A992') return '#32CD32';
+                    if (truckNo === 'A610') return '#FF69B4';
                     return '#e74c3c';
                 });
                 const avgDistanceTrace = {
