@@ -136,7 +136,7 @@
             margin-left: 0;
         }
         header {
-            padding: 20px 25px 10px 40px; /* DIKURANGI: dari 45px 30px 20px 45px */
+            padding: 20px 25px 10px 40px;
             background: var(--header-gradient);
             color: white;
             display: flex;
@@ -144,30 +144,29 @@
             align-items: center;
             box-shadow: none;
             position: relative;
-            /* TAMBAHKAN height jika perlu */
-            height: 50px; /* Opsional: atur tinggi tetap */
+            height: 50px;
         }
         
         .header-title {
-            font-size: 24px; /* DIKURANGI: dari 35px */
+            font-size: 24px;
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 15px; /* DIKURANGI: dari 20px */
+            gap: 15px;
             margin-left: 5px;
             margin-right: 20px;
         }
         
         .header-title i {
-            font-size: 20px; /* DIKURANGI: dari 28px */
+            font-size: 20px;
         }
         
         .current-date {
-            font-size: 13px; /* DIKURANGI: dari 16px */
+            font-size: 13px;
             font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 6px; /* DIKURANGI: dari 8px */
+            gap: 6px;
         }
         
         .container {
@@ -549,7 +548,7 @@
             left: 2px;
             top: 10px;
             z-index: 1001;
-            background: transparent; /* UBAH: dari var(--header-gradient) ke transparent */
+            background: transparent;
             color: white;
             border: none;
             border-radius: none;
@@ -760,31 +759,26 @@
         }
         /* MODIFIKASI UNTUK WRAP TEXT DAN AUTO WIDTH PROJECT REMAIN TABLE */
         #project-remain-table {
-            table-layout: auto; /* Ubah ke auto agar lebar kolom menyesuaikan isi */
+            table-layout: auto;
         }
         #project-remain-table th,
         #project-remain-table td {
-            /* Hilangkan lebar tetap, biarkan browser menghitung otomatis */
-            /* Hanya gunakan wrap text */
-            white-space: normal; /* Izinkan wrap */
-            word-wrap: break-word; /* Potong kata jika terlalu panjang */
-            vertical-align: top; /* Sejajarkan teks ke atas agar baris bisa merenggang */
+            white-space: normal;
+            word-wrap: break-word;
+            vertical-align: top;
         }
-        /* Jika ingin memberi prioritas lebar tertentu pada beberapa kolom, Anda bisa tambahkan aturan ini */
-        /* Misalnya, untuk membuat Site Name lebih lebar, dan kolom Qty lebih sempit */
-        #project-remain-table th:nth-child(3), /* Site Name */
+        #project-remain-table th:nth-child(3),
         #project-remain-table td:nth-child(3) {
-            min-width: 150px; /* Minimum lebar untuk Site Name */
-            /* max-width: 300px; */ /* Opsional: batas maksimum lebar */
+            min-width: 150px;
         }
-        #project-remain-table th:nth-child(5), /* Qty Order */
+        #project-remain-table th:nth-child(5),
         #project-remain-table td:nth-child(5),
-        #project-remain-table th:nth-child(6), /* Qty Delivered */
+        #project-remain-table th:nth-child(6),
         #project-remain-table td:nth-child(6),
-        #project-remain-table th:nth-child(7), /* Qty Remain */
+        #project-remain-table th:nth-child(7),
         #project-remain-table td:nth-child(7) {
-            min-width: 60px; /* Minimum lebar untuk kolom Qty, lebih sempit */
-            text-align: right; /* Rata kanan untuk angka */
+            min-width: 60px;
+            text-align: right;
         }
     </style>
 </head>
@@ -1184,8 +1178,8 @@
         let targetVolumes = {};
         let currentEditingRow = null;
         let currentEditingField = null;
-        let projectRemainData = []; // Variabel global untuk menyimpan data project remain
-        let sortDirection = {}; // Untuk menyimpan arah sorting per kolom
+        let projectRemainData = [];
+        let sortDirection = {};
 
         // Fungsi untuk memproses file Excel
         function processExcelFile(file) {
@@ -1196,12 +1190,9 @@
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
-                    // Ambil sheet pertama
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
-                    // Konversi ke JSON
                     const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                    // Proses data
                     processData(jsonData);
                     loadingIndicator.style.display = 'none';
                 } catch (error) {
@@ -1219,105 +1210,100 @@
 
         // Fungsi untuk memproses data dari Excel
         function processData(data) {
-            // Skip header row
+            if (!data || data.length === 0) {
+                alert('Data Excel kosong atau tidak valid');
+                return;
+            }
+
             const rows = data.slice(1);
-            orderData = rows.map(row => {
-                // Format tanggal dari Delivery Date (kolom F/6)
-                const deliveryDate = row[6];
-                const createDate = row[20]; // Create Date (kolom 20)
-                let formattedDeliveryDate = '';
-                let formattedCreateDate = '';
+            orderData = rows.map((row, index) => {
+                try {
+                    const deliveryDate = row[6];
+                    const createDate = row[20];
+                    let formattedDeliveryDate = '';
+                    let formattedCreateDate = '';
 
-                // Format tanggal dari Delivery Date (kolom F/6)
-                if (deliveryDate) {
-                    formattedDeliveryDate = formatDateFromExcel(deliveryDate);
-                }
-
-                // Format Create Date (kolom 20)
-                if (createDate) {
-                    formattedCreateDate = formatDateFromExcel(createDate);
-                }
-
-                // Hitung status (Normal/Suddenly) dengan logika yang lebih baik
-                let orderStatusType = "Normal"; // Default ke Normal
-                if (formattedDeliveryDate && formattedCreateDate) {
-                    const delivery = parseDate(formattedDeliveryDate);
-                    const create = parseDate(formattedCreateDate);
-                    if (delivery && create) {
-                        // Hitung selisih hari antara Create Date dan Delivery Date
-                        const diffTime = delivery.getTime() - create.getTime();
-                        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                        // Logika yang lebih jelas
-                        // Jika Create Date = Delivery Date = Suddenly
-                        if (diffDays === 0) {
-                            orderStatusType = "Suddenly";
-                        }
-                        // Jika Create Date < Delivery Date = Normal (default)
-                        // Jika Create Date > Delivery Date = Normal (tetap dianggap normal)
+                    if (deliveryDate) {
+                        formattedDeliveryDate = formatDateFromExcel(deliveryDate);
                     }
+
+                    if (createDate) {
+                        formattedCreateDate = formatDateFromExcel(createDate);
+                    }
+
+                    let orderStatusType = "Normal";
+                    if (formattedDeliveryDate && formattedCreateDate) {
+                        const delivery = parseDate(formattedDeliveryDate);
+                        const create = parseDate(formattedCreateDate);
+                        if (delivery && create && !isNaN(delivery.getTime()) && !isNaN(create.getTime())) {
+                            const diffTime = delivery.getTime() - create.getTime();
+                            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                            if (diffDays === 0) {
+                                orderStatusType = "Suddenly";
+                            }
+                        }
+                    }
+
+                    return {
+                        tanggal: formattedDeliveryDate,
+                        createDate: formattedCreateDate,
+                        plant: row[8] || '',
+                        status: row[12] || '',
+                        siteNo: row[4] || '',
+                        siteName: row[5] || '',
+                        qtyOrder: parseFloat(row[9]) || 0,
+                        qtyDelivery: parseFloat(row[11]) || 0,
+                        qtyRemain: ((row[12] || '') === '90 : Cancel') ? 0 : (parseFloat(row[9]) || 0) - (parseFloat(row[11]) || 0),
+                        qtyCancel: (row[12] === '90 : Cancel') ? (parseFloat(row[9]) || 0) : 0,
+                        remarks: row[21] || '',
+                        orderStatusType: orderStatusType
+                    };
+                } catch (error) {
+                    console.error('Error processing row:', error, row);
+                    return null;
                 }
+            }).filter(item => item && item.tanggal);
 
-                // Mapping kolom sesuai dengan struktur file
-                return {
-                    tanggal: formattedDeliveryDate, // Delivery Date yang sudah diformat
-                    createDate: formattedCreateDate, // Create Date
-                    plant: row[8] || '', // Plant Name
-                    status: row[12] || '', // Order Status
-                    siteNo: row[4] || '', // Site No
-                    siteName: row[5] || '', // Site Name
-                    qtyOrder: parseFloat(row[9]) || 0, // Order Qty
-                    qtyDelivery: parseFloat(row[11]) || 0, // Delivered Qty
-                    // PERBAIKAN: qtyRemain menjadi 0 jika status adalah Cancel
-                    qtyRemain: ((row[12] || '') === '90 : Cancel') ? 0 : (parseFloat(row[9]) || 0) - (parseFloat(row[11]) || 0),
-                    qtyCancel: (row[12] === '90 : Cancel') ? (parseFloat(row[9]) || 0) : 0, // Cancel Qty
-                    remarks: row[21] || '', // Remark
-                    orderStatusType: orderStatusType // Normal/Suddenly
-                };
-            }).filter(item => item.tanggal); // Hanya data dengan tanggal
-
-            // Initialize truck counts dan target volumes
             initializeTruckCounts();
             initializeTargetVolumes();
-
-            // Update UI dengan data baru
             populateStatusTable(orderData);
             populateOrderTable(orderData);
             updatePlantFilters(orderData);
-            updateDateFilters(orderData); // PERBAIKAN: Update filter tanggal berdasarkan data
+            updateDateFilters(orderData);
             updateDashboardStats(orderData);
             createCharts(orderData);
         }
 
         // PERBAIKAN: Fungsi untuk update filter tanggal berdasarkan data yang diupload
         function updateDateFilters(data) {
-            // Ambil semua tanggal unik dari data
             const uniqueDates = [...new Set(data.map(item => item.tanggal))].filter(Boolean);
             if (uniqueDates.length === 0) {
                 return;
             }
 
-            // Konversi tanggal ke format Date untuk sorting
-            const dateObjects = uniqueDates.map(dateStr => parseDate(dateStr)).filter(date => date);
+            const dateObjects = uniqueDates.map(dateStr => parseDate(dateStr)).filter(date => date && !isNaN(date.getTime()));
 
-            // Sort tanggal dari yang terlama ke terbaru
+            if (dateObjects.length === 0) {
+                return;
+            }
+
             dateObjects.sort((a, b) => a - b);
 
-            // Konversi kembali ke format string untuk input date
-            const minDate = dateObjects[0];
-            const maxDate = dateObjects[dateObjects.length - 1];
-
-            // Format ke YYYY-MM-DD untuk input date
             const formatForInput = (date) => {
+                if (!date || isNaN(date.getTime())) {
+                    return '';
+                }
                 const year = date.getFullYear();
                 const month = String(date.getMonth() + 1).padStart(2, '0');
                 const day = String(date.getDate()).padStart(2, '0');
                 return `${year}-${month}-${day}`;
             };
 
+            const minDate = dateObjects[0];
+            const maxDate = dateObjects[dateObjects.length - 1];
             const minDateStr = formatForInput(minDate);
             const maxDateStr = formatForInput(maxDate);
 
-            // Update semua filter date
             const dateInputs = [
                 'dashboard-start-date', 'dashboard-end-date',
                 'status-start-date', 'status-end-date',
@@ -1326,12 +1312,11 @@
 
             dateInputs.forEach(inputId => {
                 const input = document.getElementById(inputId);
-                input.min = minDateStr;
-                input.max = maxDateStr;
-                // Set default value untuk start date = min date, end date = max date
-                if (inputId.includes('start-date')) {
+                if (minDateStr) input.min = minDateStr;
+                if (maxDateStr) input.max = maxDateStr;
+                if (inputId.includes('start-date') && minDateStr) {
                     input.value = minDateStr;
-                } else if (inputId.includes('end-date')) {
+                } else if (inputId.includes('end-date') && maxDateStr) {
                     input.value = maxDateStr;
                 }
             });
@@ -1339,12 +1324,83 @@
             console.log('Date filters updated:', { minDateStr, maxDateStr });
         }
 
+        // PERBAIKAN: Fungsi untuk parsing tanggal dari berbagai format
+        function parseDate(dateStr) {
+            if (!dateStr) return null;
+            
+            try {
+                // Format: "06 Nov 2025"
+                const parts = dateStr.split(' ');
+                if (parts.length === 3) {
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                    const day = parseInt(parts[0]);
+                    const month = months.indexOf(parts[1]);
+                    const year = parseInt(parts[2]);
+                    
+                    if (month !== -1 && !isNaN(day) && !isNaN(year)) {
+                        return new Date(year, month, day);
+                    }
+                }
+                
+                // Coba parsing sebagai Date object langsung
+                const date = new Date(dateStr);
+                if (!isNaN(date.getTime())) {
+                    return date;
+                }
+                
+                // Coba parsing format Excel serial date
+                if (typeof dateStr === 'number') {
+                    const excelDate = new Date((dateStr - (25567 + 1)) * 86400 * 1000);
+                    if (!isNaN(excelDate.getTime())) {
+                        return excelDate;
+                    }
+                }
+            } catch (e) {
+                console.warn('Error parsing date:', dateStr, e);
+            }
+            
+            return null;
+        }
+
+        // PERBAIKAN: Fungsi untuk memformat tanggal dari Excel
+        function formatDateFromExcel(dateValue) {
+            if (!dateValue) return '';
+            
+            try {
+                if (typeof dateValue === 'string') {
+                    const parsedDate = parseDate(dateValue);
+                    return parsedDate ? formatDate(parsedDate) : '';
+                } else if (dateValue instanceof Date) {
+                    return formatDate(dateValue);
+                } else if (typeof dateValue === 'number') {
+                    const date = new Date((dateValue - (25567 + 1)) * 86400 * 1000);
+                    if (!isNaN(date.getTime())) {
+                        return formatDate(date);
+                    }
+                }
+            } catch (e) {
+                console.warn('Error formatting Excel date:', dateValue, e);
+            }
+            
+            return '';
+        }
+
+        // Fungsi untuk memformat tanggal
+        function formatDate(date) {
+            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = months[date.getMonth()];
+            const year = date.getFullYear();
+            return `${day} ${month} ${year}`;
+        }
+
         // Fungsi untuk inisialisasi truck counts
         function initializeTruckCounts() {
             const plants = [...new Set(orderData.map(item => item.plant))].filter(Boolean);
             truckCounts = {};
             plants.forEach(plant => {
-                truckCounts[plant] = 0; // Default value
+                truckCounts[plant] = 0;
             });
             updateTruckInputs();
         }
@@ -1354,7 +1410,7 @@
             const plants = [...new Set(orderData.map(item => item.plant))].filter(Boolean);
             targetVolumes = {};
             plants.forEach(plant => {
-                targetVolumes[plant] = 0; // Default value
+                targetVolumes[plant] = 0;
             });
             updateTargetVolumeInputs();
         }
@@ -1426,52 +1482,6 @@
             updateDashboardStats(orderData);
         }
 
-        // Fungsi untuk memformat tanggal dari Excel
-        function formatDateFromExcel(dateValue) {
-            if (!dateValue) return '';
-            if (typeof dateValue === 'string') {
-                // Jika sudah dalam format string, return as is
-                return dateValue;
-            } else if (dateValue instanceof Date) {
-                // Format tanggal ke "06 Nov 2025"
-                return formatDate(dateValue);
-            } else {
-                // Coba parsing tanggal dari number (Excel serial date)
-                try {
-                    const date = new Date((dateValue - (25567 + 1)) * 86400 * 1000);
-                    if (!isNaN(date.getTime())) {
-                        return formatDate(date);
-                    }
-                } catch (e) {
-                    console.warn('Invalid date format:', dateValue);
-                }
-            }
-            return '';
-        }
-
-        // Fungsi untuk memformat tanggal
-        function formatDate(date) {
-            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = months[date.getMonth()];
-            const year = date.getFullYear();
-            return `${day} ${month} ${year}`;
-        }
-
-        // Fungsi untuk parsing tanggal dari format "06 Nov 2025"
-        function parseDate(dateStr) {
-            if (!dateStr) return null;
-            const parts = dateStr.split(' ');
-            if (parts.length !== 3) return null;
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-            const day = parseInt(parts[0]);
-            const month = months.indexOf(parts[1]);
-            const year = parseInt(parts[2]);
-            if (month === -1 || isNaN(day) || isNaN(year)) return null;
-            return new Date(year, month, day);
-        }
-
         // Fungsi untuk mengisi tabel status order
         function populateStatusTable(data) {
             const tableBody = document.querySelector('#status-table tbody');
@@ -1484,7 +1494,6 @@
 
             data.forEach((item, index) => {
                 const row = document.createElement('tr');
-                // Status badge
                 let statusBadge = '';
                 if (item.orderStatusType === "Normal") {
                     statusBadge = '<span class="status-badge status-normal">Normal</span>';
@@ -1492,7 +1501,6 @@
                     statusBadge = '<span class="status-badge status-suddenly">Suddenly</span>';
                 }
 
-                // Order Status badge
                 let orderStatusBadge = '';
                 if (item.status.includes('Pending')) {
                     orderStatusBadge = '<span class="status-badge status-pending">Pending</span>';
@@ -1528,7 +1536,6 @@
                 tableBody.appendChild(row);
             });
 
-            // Add event listeners to editable quantities
             document.querySelectorAll('.editable-qty').forEach(qty => {
                 qty.addEventListener('click', function() {
                     const index = this.getAttribute('data-index');
@@ -1537,7 +1544,6 @@
                 });
             });
 
-            // Add event listeners to edit buttons
             document.querySelectorAll('.edit-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const index = this.getAttribute('data-index');
@@ -1545,7 +1551,6 @@
                 });
             });
 
-            // Update chart status order
             updateStatusOrderChart(data);
         }
 
@@ -1554,13 +1559,11 @@
             currentEditingRow = index;
             currentEditingField = field;
 
-            // Set values in modal
             document.getElementById('edit-qty-order').value = item.qtyOrder;
             document.getElementById('edit-qty-delivery').value = item.qtyDelivery;
             document.getElementById('edit-qty-cancel').value = item.qtyCancel;
             document.getElementById('edit-remarks').value = item.remarks;
 
-            // Show modal
             document.getElementById('editModal').style.display = 'flex';
         }
 
@@ -1576,7 +1579,6 @@
 
             data.forEach((item, index) => {
                 const row = document.createElement('tr');
-                // Status badge
                 let statusBadge = '';
                 if (item.status.includes('Pending')) {
                     statusBadge = '<span class="status-badge status-pending">Pending</span>';
@@ -1613,7 +1615,6 @@
                 tableBody.appendChild(row);
             });
 
-            // Add event listeners to editable quantities
             document.querySelectorAll('.editable-qty').forEach(qty => {
                 qty.addEventListener('click', function() {
                     const index = this.getAttribute('data-index');
@@ -1622,7 +1623,6 @@
                 });
             });
 
-            // Add event listeners to edit buttons
             document.querySelectorAll('.edit-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const index = this.getAttribute('data-index');
@@ -1641,12 +1641,10 @@
             ];
 
             plantSelects.forEach(select => {
-                // Clear existing options except the first one
                 while (select.options.length > 1) {
                     select.remove(1);
                 }
 
-                // Add plant options
                 plants.forEach(plant => {
                     const option = document.createElement('option');
                     option.value = plant;
@@ -1658,24 +1656,15 @@
 
         // PERBAIKAN: Fungsi untuk update dashboard statistics
         function updateDashboardStats(data) {
-            // Filter data berdasarkan dashboard filter
             const filteredData = filterDataForDashboard(data);
-
-            // PERBAIKAN: Hitung Plant Remain berdasarkan project remain yang ditampilkan
-            // Pertama, update project remain details untuk mendapatkan data yang benar
             updateProjectRemainDetails(filteredData);
 
-            // PERBAIKAN: Hitung Plant Remain berdasarkan data project remain yang sudah difilter
             const plantRemainCount = new Set(projectRemainData.map(item => item.plant)).size;
-
-            // Hitung statistik lainnya...
             const totalOrderQty = filteredData.reduce((sum, item) => sum + item.qtyOrder, 0);
             const totalDelivery = filteredData.reduce((sum, item) => sum + item.qtyDelivery, 0);
-            // qtyRemain sekarang sudah benar berdasarkan logika di processData
             const totalRemain = filteredData.reduce((sum, item) => sum + item.qtyRemain, 0);
             const totalCancel = filteredData.reduce((sum, item) => sum + item.qtyCancel, 0);
 
-            // Hitung total project (unique siteNo per tanggal)
             const projectSet = new Set();
             const projectDeliveredSet = new Set();
             const projectRemainSet = new Set();
@@ -1687,7 +1676,6 @@
                 if (item.qtyDelivery > 0) {
                     projectDeliveredSet.add(key);
                 }
-                // Gunakan item.qtyRemain yang sudah difilter
                 if (item.qtyRemain > 0) {
                     projectRemainSet.add(key);
                 }
@@ -1701,7 +1689,6 @@
             const totalProjectRemain = projectRemainSet.size;
             const totalProjectCancel = projectCancelSet.size;
 
-            // Total truck mixer - terkoneksi dengan filter plant
             const selectedPlant = document.getElementById('dashboard-plant-filter').value;
             let totalTruckCount = 0;
             let totalTargetVolume = 0;
@@ -1714,8 +1701,7 @@
                 totalTargetVolume = Object.values(targetVolumes).reduce((sum, volume) => sum + volume, 0);
             }
 
-            // Update UI
-            document.getElementById('plant-remain-count').textContent = plantRemainCount; // Update Plant Remain KPI
+            document.getElementById('plant-remain-count').textContent = plantRemainCount;
             document.getElementById('total-order-qty').textContent = totalOrderQty.toFixed(1);
             document.getElementById('total-delivery').textContent = totalDelivery.toFixed(1);
             document.getElementById('total-remain').textContent = totalRemain.toFixed(1);
@@ -1733,10 +1719,7 @@
             const tableBody = document.querySelector('#project-remain-table tbody');
             tableBody.innerHTML = '';
 
-            // Filter data untuk project dengan qty remain > 0
             const remainProjects = data.filter(item => item.qtyRemain > 0);
-
-            // PERBAIKAN: Simpan data project remain ke variabel global
             projectRemainData = remainProjects;
 
             if (remainProjects.length === 0) {
@@ -1749,7 +1732,7 @@
                 row.innerHTML = `
                     <td>${item.tanggal}</td>
                     <td>${item.siteNo}</td>
-                    <td title="${item.siteName}">${item.siteName}</td> <!-- Removed substring logic for full display -->
+                    <td title="${item.siteName}">${item.siteName}</td>
                     <td>${item.plant}</td>
                     <td>${item.qtyOrder}</td>
                     <td>${item.qtyDelivery}</td>
@@ -1758,7 +1741,6 @@
                 tableBody.appendChild(row);
             });
 
-            // Add sorting functionality to table headers
             addSortingToProjectRemainTable();
         }
 
@@ -1775,17 +1757,14 @@
 
         // Fungsi untuk sorting tabel project remain
         function sortProjectRemainTable(column) {
-            // Toggle sort direction
             if (!sortDirection[column]) {
                 sortDirection[column] = 'asc';
             } else {
                 sortDirection[column] = sortDirection[column] === 'asc' ? 'desc' : 'asc';
             }
 
-            // Sort data
             projectRemainData.sort((a, b) => {
                 let aValue, bValue;
-                // Handle different column types
                 switch(column) {
                     case 'deliveryDate':
                         aValue = parseDate(a.tanggal);
@@ -1820,17 +1799,14 @@
                         bValue = b[column];
                 }
 
-                // Handle date comparison
                 if (aValue instanceof Date && bValue instanceof Date) {
                     return sortDirection[column] === 'asc' ? aValue - bValue : bValue - aValue;
                 }
 
-                // Handle numeric comparison
                 if (typeof aValue === 'number' && typeof bValue === 'number') {
                     return sortDirection[column] === 'asc' ? aValue - bValue : bValue - aValue;
                 }
 
-                // Handle string comparison
                 if (typeof aValue === 'string' && typeof bValue === 'string') {
                     return sortDirection[column] === 'asc' 
                         ? aValue.localeCompare(bValue) 
@@ -1839,7 +1815,6 @@
                 return 0;
             });
 
-            // Update table with sorted data
             const tableBody = document.querySelector('#project-remain-table tbody');
             tableBody.innerHTML = '';
 
@@ -1848,7 +1823,7 @@
                 row.innerHTML = `
                     <td>${item.tanggal}</td>
                     <td>${item.siteNo}</td>
-                    <td title="${item.siteName}">${item.siteName}</td> <!-- Removed substring logic for full display -->
+                    <td title="${item.siteName}">${item.siteName}</td>
                     <td>${item.plant}</td>
                     <td>${item.qtyOrder}</td>
                     <td>${item.qtyDelivery}</td>
@@ -1857,7 +1832,6 @@
                 tableBody.appendChild(row);
             });
 
-            // Update sort icons
             updateSortIcons(column);
         }
 
@@ -1879,22 +1853,18 @@
 
         // PERBAIKAN: Fungsi untuk membuat chart dengan data label hanya pada Qty Order Per Day
         function createCharts(data) {
-            // Hancurkan chart sebelumnya jika ada
             Object.values(currentCharts).forEach(chart => {
                 if (chart) chart.destroy();
             });
             currentCharts = {};
 
-            // Filter data untuk dashboard
             const filteredData = filterDataForDashboard(data);
 
-            // Data untuk Perform Order Chart
             const totalOrderQty = filteredData.reduce((sum, item) => sum + item.qtyOrder, 0);
             const totalDeliveryQty = filteredData.reduce((sum, item) => sum + item.qtyDelivery, 0);
             const totalRemainQty = filteredData.reduce((sum, item) => sum + (item.qtyRemain > 0 ? item.qtyRemain : 0), 0);
             const totalCancelQty = filteredData.reduce((sum, item) => sum + item.qtyCancel, 0);
 
-            // Data untuk Perform Project Chart
             const projectSet = new Set();
             const projectDeliveredSet = new Set();
             const projectRemainSet = new Set();
@@ -1919,20 +1889,17 @@
             const totalProjectRemain = projectRemainSet.size;
             const totalProjectCancel = projectCancelSet.size;
 
-            // Data untuk Status Distribution Chart
             const normalCount = filteredData.filter(item => item.orderStatusType === "Normal").length;
             const suddenlyCount = filteredData.filter(item => item.orderStatusType === "Suddenly").length;
 
-            // MODIFIKASI: Data untuk Qty Order Per Day Chart - PER PLANT DENGAN BAR CHART
+            // Data untuk Qty Order Per Day Chart
             const orderByDayAndPlant = {};
             const plants = [...new Set(filteredData.map(item => item.plant))].filter(Boolean);
             
-            // Inisialisasi struktur data
             plants.forEach(plant => {
                 orderByDayAndPlant[plant] = {};
             });
 
-            // Isi data per plant per tanggal
             filteredData.forEach(item => {
                 if (!orderByDayAndPlant[item.plant][item.tanggal]) {
                     orderByDayAndPlant[item.plant][item.tanggal] = 0;
@@ -1940,7 +1907,6 @@
                 orderByDayAndPlant[item.plant][item.tanggal] += item.qtyOrder;
             });
 
-            // Dapatkan semua tanggal unik dan urutkan
             const allDates = new Set();
             plants.forEach(plant => {
                 Object.keys(orderByDayAndPlant[plant]).forEach(date => {
@@ -1949,22 +1915,24 @@
             });
 
             const sortedDates = Array.from(allDates).sort((a, b) => {
-                return parseDate(a).getTime() - parseDate(b).getTime();
+                const dateA = parseDate(a);
+                const dateB = parseDate(b);
+                if (!dateA || !dateB) return 0;
+                return dateA.getTime() - dateB.getTime();
             });
 
-            // Siapkan dataset untuk chart - BAR CHART
             const plantDatasets = plants.map((plant, index) => {
                 const colors = [
-                    'rgba(54, 162, 235, 0.8)',   // Biru
-                    'rgba(255, 99, 132, 0.8)',   // Merah
-                    'rgba(75, 192, 192, 0.8)',   // Hijau
-                    'rgba(255, 205, 86, 0.8)',   // Kuning
-                    'rgba(153, 102, 255, 0.8)',  // Ungu
-                    'rgba(255, 159, 64, 0.8)',   // Oranye
-                    'rgba(201, 203, 207, 0.8)',  // Abu-abu
-                    'rgba(0, 128, 128, 0.8)',    // Teal
-                    'rgba(139, 69, 19, 0.8)',    // Coklat
-                    'rgba(255, 0, 255, 0.8)'     // Magenta
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(75, 192, 192, 0.8)',
+                    'rgba(255, 205, 86, 0.8)',
+                    'rgba(153, 102, 255, 0.8)',
+                    'rgba(255, 159, 64, 0.8)',
+                    'rgba(201, 203, 207, 0.8)',
+                    'rgba(0, 128, 128, 0.8)',
+                    'rgba(139, 69, 19, 0.8)',
+                    'rgba(255, 0, 255, 0.8)'
                 ];
 
                 const data = sortedDates.map(date => orderByDayAndPlant[plant][date] || 0);
@@ -1975,25 +1943,21 @@
                     backgroundColor: colors[index % colors.length],
                     borderColor: colors[index % colors.length],
                     borderWidth: 1,
-                    borderRadius: 4, // Membuat ujung bar sedikit melengkung
+                    borderRadius: 4,
                     borderSkipped: false,
                 };
             });
 
-            // Mendapatkan nama plant yang dipilih untuk judul chart
             const selectedPlant = document.getElementById('dashboard-plant-filter').value;
             const plantTitle = selectedPlant ? selectedPlant : "East All Area";
 
-            // Update judul chart
             document.getElementById('performOrderTitle').innerHTML = `<i class="fas fa-chart-bar"></i> Perform Order - ${plantTitle}`;
             document.getElementById('performProjectTitle').innerHTML = `<i class="fas fa-chart-pie"></i> Perform Project - ${plantTitle}`;
             document.getElementById('statusDistributionTitle').innerHTML = `<i class="fas fa-chart-line"></i> Status Distribution - ${plantTitle}`;
             document.getElementById('qtyOrderPerDayTitle').innerHTML = `<i class="fas fa-calendar-alt"></i> Qty Order Per Day - ${plantTitle}`;
 
-            // PERBAIKAN: Update plant labels di bawah chart Qty Order Per Day
             updatePlantLabels(plants, plantDatasets);
 
-            // Total Target Volume untuk chart
             let totalTargetVolume = 0;
             if (selectedPlant) {
                 totalTargetVolume = targetVolumes[selectedPlant] || 0;
@@ -2001,22 +1965,20 @@
                 totalTargetVolume = Object.values(targetVolumes).reduce((sum, volume) => sum + volume, 0);
             }
 
-            // PERBAIKAN: Warna chart yang lebih cerah dan smooth
             const brightColors = {
-                target: 'rgba(255, 99, 132, 0.8)',      // Pink cerah
-                order: 'rgba(54, 162, 235, 0.8)',       // Biru cerah
-                delivered: 'rgba(75, 192, 192, 0.8)',   // Hijau toska
-                remain: 'rgba(255, 205, 86, 0.8)',      // Kuning cerah
-                cancel: 'rgba(255, 87, 51, 0.8)',       // Merah oranye cerah
-                projectTotal: 'rgba(153, 102, 255, 0.8)', // Ungu cerah
-                normal: 'rgba(54, 162, 235, 0.8)',      // PERBAIKAN: Biru cerah seperti KPI Target Volume
-                suddenly: 'rgba(237, 85, 101, 0.8)',    // Merah muda cerah
-                lineChart: 'rgba(41, 128, 185, 0.8)'    // Biru cerah untuk line chart
+                target: 'rgba(255, 99, 132, 0.8)',
+                order: 'rgba(54, 162, 235, 0.8)',
+                delivered: 'rgba(75, 192, 192, 0.8)',
+                remain: 'rgba(255, 205, 86, 0.8)',
+                cancel: 'rgba(255, 87, 51, 0.8)',
+                projectTotal: 'rgba(153, 102, 255, 0.8)',
+                normal: 'rgba(54, 162, 235, 0.8)',
+                suddenly: 'rgba(237, 85, 101, 0.8)',
+                lineChart: 'rgba(41, 128, 185, 0.8)'
             };
 
-            // Chart 1: Perform Order (Bar Chart) - TANPA DATA LABEL
+            // Chart 1: Perform Order (Bar Chart)
             const performOrderCtx = document.getElementById('performOrderChart').getContext('2d');
-            // Update legend untuk Perform Order
             const performOrderLegend = document.getElementById('performOrderLegend');
             performOrderLegend.innerHTML = `
                 <div class="legend-item">
@@ -2078,9 +2040,8 @@
                                 }
                             }
                         },
-                        // PERUBAHAN: Hapus datalabels untuk Perform Order
                         datalabels: {
-                            display: false // TIDAK MENAMPILKAN DATA LABEL
+                            display: false
                         }
                     },
                     scales: {
@@ -2114,12 +2075,10 @@
                         easing: 'easeOutQuart'
                     }
                 }
-                // PERUBAHAN: Hapus plugins [ChartDataLabels] untuk Perform Order
             });
 
-            // Chart 2: Perform Project (Bar Chart) - TANPA DATA LABEL
+            // Chart 2: Perform Project (Bar Chart)
             const performProjectCtx = document.getElementById('performProjectChart').getContext('2d');
-            // Update legend untuk Perform Project
             const performProjectLegend = document.getElementById('performProjectLegend');
             performProjectLegend.innerHTML = `
                 <div class="legend-item">
@@ -2175,9 +2134,8 @@
                                 }
                             }
                         },
-                        // PERUBAHAN: Hapus datalabels untuk Perform Project
                         datalabels: {
-                            display: false // TIDAK MENAMPILKAN DATA LABEL
+                            display: false
                         }
                     },
                     scales: {
@@ -2211,17 +2169,14 @@
                         easing: 'easeOutQuart'
                     }
                 }
-                // PERUBAHAN: Hapus plugins [ChartDataLabels] untuk Perform Project
             });
 
-            // Chart 3: Status Distribution (Doughnut Chart) - TANPA DATA LABEL
+            // Chart 3: Status Distribution (Doughnut Chart)
             const statusDistributionCtx = document.getElementById('statusDistributionChart').getContext('2d');
-            // Hitung persentase
             const totalStatus = normalCount + suddenlyCount;
             const normalPercentage = totalStatus > 0 ? Math.round((normalCount / totalStatus) * 100) : 0;
             const suddenlyPercentage = totalStatus > 0 ? Math.round((suddenlyCount / totalStatus) * 100) : 0;
 
-            // Update legend untuk Status Distribution
             const statusDistributionLegend = document.getElementById('statusDistributionLegend');
             statusDistributionLegend.innerHTML = `
                 <div class="legend-item">
@@ -2255,7 +2210,7 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            display: false // MATIKAN DEFAULT LEGEND
+                            display: false
                         },
                         tooltip: {
                             callbacks: {
@@ -2268,9 +2223,8 @@
                                 }
                             }
                         },
-                        // PERUBAHAN: Hapus datalabels untuk Status Distribution
                         datalabels: {
-                            display: false // TIDAK MENAMPILKAN DATA LABEL
+                            display: false
                         }
                     },
                     cutout: '60%',
@@ -2279,10 +2233,9 @@
                         animateRotate: true
                     }
                 }
-                // PERUBAHAN: Hapus plugins [ChartDataLabels] untuk Status Distribution
             });
 
-            // PERBAIKAN: Chart 4: Qty Order Per Day (Bar Chart) - DENGAN DATA LABEL TANPA LEGEND
+            // Chart 4: Qty Order Per Day (Bar Chart) - DENGAN DATA LABEL
             const qtyOrderPerDayCtx = document.getElementById('qtyOrderPerDayChart').getContext('2d');
             currentCharts.qtyOrderPerDay = new Chart(qtyOrderPerDayCtx, {
                 type: 'bar',
@@ -2295,7 +2248,7 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            display: false, // MATIKAN LEGEND DI CHART
+                            display: false,
                         },
                         tooltip: {
                             callbacks: {
@@ -2304,7 +2257,6 @@
                                 }
                             }
                         },
-                        // PERUBAHAN: Hanya chart ini yang menggunakan data labels
                         datalabels: {
                             display: true,
                             color: '#000',
@@ -2313,7 +2265,6 @@
                                 size: 10
                             },
                             formatter: function(value, context) {
-                                // Hanya tampilkan label jika nilai lebih dari 0
                                 return value > 0 ? value.toFixed(1) : '';
                             },
                             anchor: 'end',
@@ -2321,7 +2272,7 @@
                             offset: 4,
                             display: function(context) {
                                 const value = context.dataset.data[context.dataIndex];
-                                return value > 0; // Hanya tampilkan jika nilai > 0
+                                return value > 0;
                             }
                         }
                     },
@@ -2368,7 +2319,7 @@
                         }
                     }
                 },
-                plugins: [ChartDataLabels] // PERUBAHAN: Hanya chart ini yang menggunakan plugin data labels
+                plugins: [ChartDataLabels]
             });
         }
 
@@ -2381,7 +2332,6 @@
                 const labelItem = document.createElement('div');
                 labelItem.className = 'plant-label-item';
                 
-                // Ambil warna dari dataset
                 const color = plantDatasets[index].backgroundColor;
                 
                 labelItem.innerHTML = `
@@ -2409,8 +2359,8 @@
                     datasets: [{
                         data: [normalCount, suddenlyCount],
                         backgroundColor: [
-                            'rgba(54, 162, 235, 0.8)',  // PERBAIKAN: Biru cerah untuk Normal
-                            'rgba(237, 85, 101, 0.8)'   // Merah muda untuk Suddenly
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(237, 85, 101, 0.8)'
                         ],
                         borderColor: [
                             'rgba(54, 162, 235, 1)',
@@ -2430,17 +2380,15 @@
                             display: true,
                             text: 'Status Order (Normal vs Suddenly)'
                         },
-                        // PERUBAHAN: Hapus data label untuk chart status order
                         datalabels: {
-                            display: false // TIDAK MENAMPILKAN DATA LABEL
+                            display: false
                         }
                     }
                 }
-                // PERUBAHAN: Hapus plugins [ChartDataLabels] untuk chart status order
             });
         }
 
-        // Fungsi untuk filter data dashboard dengan perbaikan parsing tanggal
+        // Fungsi untuk filter data dashboard
         function filterDataForDashboard(data) {
             const startDate = document.getElementById('dashboard-start-date').value;
             const endDate = document.getElementById('dashboard-end-date').value;
@@ -2466,17 +2414,13 @@
         // Fungsi untuk filter data dengan perbaikan parsing tanggal
         function filterData(data, startDate, endDate, plant, status) {
             return data.filter(item => {
-                // Parsing tanggal yang lebih robust
                 const itemDate = parseDate(item.tanggal);
-                // Jika parsing tanggal gagal, skip item ini
                 if (!itemDate) return false;
 
-                // Handle filter tanggal
                 let dateMatch = true;
                 if (startDate || endDate) {
                     const start = startDate ? new Date(startDate) : new Date('1900-01-01');
                     const end = endDate ? new Date(endDate) : new Date('2100-12-31');
-                    // Set waktu ke awal hari untuk start dan akhir hari untuk end
                     start.setHours(0, 0, 0, 0);
                     end.setHours(23, 59, 59, 999);
                     dateMatch = itemDate >= start && itemDate <= end;
@@ -2500,7 +2444,7 @@
             } else if (qtyOrder === (qtyOrder - qtyDelivery)) {
                 return 'I : Pending Confirmation';
             } else {
-                return 'I : Pending Confirmation'; // Default status
+                return 'I : Pending Confirmation';
             }
         }
 
@@ -2514,26 +2458,19 @@
 
         // Inisialisasi aplikasi
         document.addEventListener('DOMContentLoaded', function() {
-            // Set current date
             const now = new Date();
             const options = { day: 'numeric', month: 'long', year: 'numeric' };
             document.getElementById('currentDate').textContent = now.toLocaleDateString('id-ID', options);
 
-            // Hapus default dates yang sebelumnya hardcoded
-            // Biarkan filter date kosong sampai file diupload
-
-            // File upload handler
             document.getElementById('fileInput').addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (!file) return;
 
-                // Validasi ukuran file (max 200MB)
                 if (file.size > 200 * 1024 * 1024) {
                     alert('File terlalu besar. Maksimal 200MB.');
                     return;
                 }
 
-                // Validasi tipe file
                 if (!file.name.match(/\.(xlsx|xls)$/)) {
                     alert('Hanya file Excel yang diizinkan.');
                     return;
@@ -2543,25 +2480,20 @@
                 processExcelFile(file);
             });
 
-            // Tab switching
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.addEventListener('click', function() {
-                    // Remove active class from all tabs
                     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    // Add active class to clicked tab
                     this.classList.add('active');
                     document.getElementById(this.dataset.tab).classList.add('active');
                 });
             });
 
-            // Apply filter untuk status order
             document.getElementById('status-apply-filter').addEventListener('click', function() {
                 const filteredData = filterDataForStatus(orderData);
                 populateStatusTable(filteredData);
             });
 
-            // Apply filter untuk list order
             document.getElementById('apply-filter').addEventListener('click', function() {
                 const startDate = document.getElementById('start-date').value;
                 const endDate = document.getElementById('end-date').value;
@@ -2571,17 +2503,14 @@
                 populateOrderTable(filteredData);
             });
 
-            // Apply filter untuk dashboard
             document.getElementById('dashboard-apply-filter').addEventListener('click', function() {
                 updateDashboardStats(orderData);
                 createCharts(orderData);
             });
 
-            // Toggle sidebar
             document.getElementById('sidebarToggleBtn').addEventListener('click', toggleSidebar);
             document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
 
-            // Modal handlers
             document.getElementById('closeModal').addEventListener('click', function() {
                 document.getElementById('editModal').style.display = 'none';
             });
@@ -2589,10 +2518,8 @@
                 document.getElementById('editModal').style.display = 'none';
             });
 
-            // Edit form handler
             document.getElementById('editForm').addEventListener('submit', function(e) {
                 e.preventDefault();
-                // Update data
                 if (currentEditingRow !== null) {
                     const newQtyOrder = parseFloat(document.getElementById('edit-qty-order').value);
                     const newQtyDelivery = parseFloat(document.getElementById('edit-qty-delivery').value);
@@ -2603,20 +2530,14 @@
                     orderData[currentEditingRow].qtyDelivery = newQtyDelivery;
                     orderData[currentEditingRow].qtyCancel = newQtyCancel;
                     orderData[currentEditingRow].remarks = newRemarks;
-
-                    // PERBAIKAN: Hitung ulang qtyRemain
                     orderData[currentEditingRow].qtyRemain = newQtyOrder - newQtyDelivery;
-
-                    // PERBAIKAN: Tentukan status berdasarkan kuantitas
                     orderData[currentEditingRow].status = determineStatus(newQtyOrder, newQtyDelivery, newQtyCancel);
 
-                    // Update UI
                     populateStatusTable(orderData);
                     populateOrderTable(orderData);
                     updateDashboardStats(orderData);
                     createCharts(orderData);
 
-                    // Close modal
                     document.getElementById('editModal').style.display = 'none';
                     alert('Data berhasil diperbarui!');
                 }
