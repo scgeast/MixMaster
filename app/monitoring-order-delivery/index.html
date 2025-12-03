@@ -173,6 +173,8 @@
             flex: 1;
             padding: 20px;
             overflow-y: auto;
+            width: 100%;
+            max-width: 100%;
         }
         .tabs {
             display: flex;
@@ -295,42 +297,38 @@
             display: flex;
             flex-direction: column;
             gap: 25px;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
         }
-        /* KPI Cards dalam satu baris dengan scroll horizontal */
+        
+        /* PERBAIKAN: KPI Cards lebih kecil dan padat */
         .stats-container {
-            display: flex;
-            overflow-x: auto;
-            gap: 15px;
-            margin-bottom: 10px;
-            padding: 10px 5px 15px;
-            scrollbar-width: thin;
-        }
-        .stats-container::-webkit-scrollbar {
-            height: 8px;
-        }
-        .stats-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
-        }
-        .stats-container::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 4px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 0;
+            overflow-x: visible;
+            max-width: 100%;
         }
         .stat-card {
             background: var(--kpi-gradient);
             color: white;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            padding: 12px 8px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
             text-align: center;
-            transition: transform 0.3s, box-shadow 0.3s;
-            min-width: 121.9px;
-            flex-shrink: 0;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            flex-shrink: 1;
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
             position: relative;
             overflow: hidden;
+            min-height: 85px;
         }
         .stat-card::before {
             content: '';
@@ -338,145 +336,155 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 4px;
+            height: 3px;
             background: rgba(255,255,255,0.3);
         }
         .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
         }
         .stat-icon {
-            font-size: 24px;
-            margin-bottom: 8px;
+            font-size: 18px;
+            margin-bottom: 6px;
             opacity: 0.9;
         }
         .stat-value {
-            font-size: 22px;
+            font-size: 16px;
             font-weight: 700;
-            margin: 5px 0;
+            margin: 4px 0;
             text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            line-height: 1.2;
         }
         .stat-label {
-            font-size: 11px;
+            font-size: 10px;
             color: rgba(255,255,255,0.9);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             font-weight: 500;
+            line-height: 1.2;
         }
         /* PERBAIKAN: Warna khusus untuk Cancel KPI */
         .stat-card.cancel-kpi {
             background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
         }
-        /* Chart area dengan layout yang lebih estetik */
+        
+        /* PERBAIKAN: Chart area lebih kecil dan compact */
         .chart-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-            margin-bottom: 30px;
+            gap: 15px;
+            margin-bottom: 25px;
         }
         .chart-container {
             background-color: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
             display: flex;
             flex-direction: column;
             transition: transform 0.3s, box-shadow 0.3s;
             border: 1px solid #f0f0f0;
+            min-height: 280px;
+            height: 280px;
         }
         .chart-container:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         .chart-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 12px;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
             border-bottom: 1px solid #f0f0f0;
         }
         .chart-title {
-            font-size: 16px;
+            font-size: 13px;
             font-weight: 600;
             color: var(--primary);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         .chart-title i {
             color: var(--secondary);
-            font-size: 18px;
+            font-size: 14px;
         }
         .chart-legend {
             display: flex;
-            gap: 12px;
-            font-size: 11px;
+            gap: 8px;
+            font-size: 10px;
             flex-wrap: wrap;
             justify-content: center;
-            margin-top: 15px;
-            padding-top: 15px;
+            margin-top: 10px;
+            padding-top: 10px;
             border-top: 1px solid #f0f0f0;
         }
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
             white-space: nowrap;
         }
         .legend-color {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 2px;
         }
         .chart-box {
             flex: 1;
-            min-height: 280px;
+            min-height: 180px;
             position: relative;
+            height: 180px;
         }
-        /* Chart container untuk Qty Order Per Day yang lebih lebar */
+        /* Chart container untuk Qty Order Per Day */
         .wide-chart-container {
             grid-column: 1 / -1;
             background-color: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
             display: flex;
             flex-direction: column;
             transition: transform 0.3s, box-shadow 0.3s;
             border: 1px solid #f0f0f0;
+            min-height: 320px;
+            height: 320px;
         }
         .wide-chart-container:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         .wide-chart-box {
             flex: 1;
-            min-height: 320px;
+            min-height: 240px;
             position: relative;
+            height: 240px;
         }
         /* Container untuk plant labels di bawah chart Qty Order Per Day */
         .plant-labels-container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 15px;
-            margin-top: 15px;
-            padding-top: 15px;
+            gap: 12px;
+            margin-top: 12px;
+            padding-top: 12px;
             border-top: 1px solid #f0f0f0;
+            font-size: 11px;
         }
         .plant-label-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 12px;
+            gap: 6px;
+            font-size: 11px;
             font-weight: 500;
         }
         .plant-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 3px;
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
         }
         .status-badge {
             display: inline-block;
@@ -558,16 +566,156 @@
             box-shadow: none;
             transition: all 0.3s ease;
         }
-        /* Project Remain Details */
+        /* Project Remain Details dengan tinggi 800px */
         .project-details {
             margin-top: 20px;
+            width: 100%;
+            overflow-x: auto;
+            height: 800px; /* Tinggi default 800px */
+            display: flex;
+            flex-direction: column;
         }
         .project-details h3 {
             margin-bottom: 15px;
             color: var(--primary);
             font-size: 18px;
+            flex-shrink: 0;
+        }
+        .project-details-table-container {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+        #project-remain-table {
+            table-layout: auto;
+            margin-top: 0;
+            border-radius: 0;
+        }
+        #project-remain-table th,
+        #project-remain-table td {
+            white-space: normal;
+            word-wrap: break-word;
+            vertical-align: top;
+        }
+        #project-remain-table th:nth-child(3),
+        #project-remain-table td:nth-child(3) {
+            min-width: 150px;
+        }
+        #project-remain-table th:nth-child(5),
+        #project-remain-table td:nth-child(5),
+        #project-remain-table th:nth-child(6),
+        #project-remain-table td:nth-child(6),
+        #project-remain-table th:nth-child(7),
+        #project-remain-table td:nth-child(7) {
+            min-width: 60px;
+            text-align: right;
         }
         /* Responsive Styles */
+        @media (max-width: 1400px) {
+            .chart-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+            }
+            
+            .chart-container {
+                min-height: 260px;
+                height: 260px;
+                padding: 12px;
+            }
+            
+            .chart-box {
+                min-height: 170px;
+                height: 170px;
+            }
+            
+            .wide-chart-container {
+                min-height: 300px;
+                height: 300px;
+                padding: 12px;
+            }
+            
+            .wide-chart-box {
+                min-height: 220px;
+                height: 220px;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
+                gap: 8px;
+            }
+            
+            .stat-card {
+                padding: 10px 6px;
+                min-height: 80px;
+            }
+            
+            .stat-icon {
+                font-size: 16px;
+            }
+            
+            .stat-value {
+                font-size: 15px;
+            }
+            
+            .stat-label {
+                font-size: 9px;
+            }
+        }
+        
+        @media (max-width: 1200px) {
+            .chart-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .chart-container {
+                min-height: 250px;
+                height: 250px;
+            }
+            
+            .chart-box {
+                min-height: 160px;
+                height: 160px;
+            }
+            
+            .wide-chart-container {
+                min-height: 280px;
+                height: 280px;
+            }
+            
+            .wide-chart-box {
+                min-height: 200px;
+                height: 200px;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 8px;
+            }
+            
+            .stat-card {
+                padding: 10px 6px;
+                min-height: 75px;
+            }
+            
+            .stat-icon {
+                font-size: 15px;
+            }
+            
+            .stat-value {
+                font-size: 14px;
+            }
+            
+            .stat-label {
+                font-size: 9px;
+            }
+            
+            .chart-title {
+                font-size: 12px;
+            }
+        }
+        
         @media (max-width: 1024px) {
             .sidebar {
                 position: fixed;
@@ -582,13 +730,58 @@
             .main-content {
                 margin-left: 0;
             }
+        }
+        
+        @media (max-width: 992px) {
             .chart-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: 1fr;
+                gap: 15px;
             }
+            
+            .chart-container {
+                min-height: 240px;
+                height: 240px;
+            }
+            
+            .chart-box {
+                min-height: 150px;
+                height: 150px;
+            }
+            
             .wide-chart-container {
-                grid-column: 1 / -1;
+                min-height: 260px;
+                height: 260px;
+            }
+            
+            .wide-chart-box {
+                min-height: 180px;
+                height: 180px;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+                gap: 8px;
+            }
+            
+            .stat-card {
+                padding: 9px 5px;
+                min-height: 70px;
+            }
+            
+            .stat-icon {
+                font-size: 14px;
+                margin-bottom: 4px;
+            }
+            
+            .stat-value {
+                font-size: 13px;
+            }
+            
+            .stat-label {
+                font-size: 8px;
             }
         }
+        
         @media (max-width: 768px) {
             .filter-row {
                 flex-direction: column;
@@ -622,28 +815,179 @@
                 width: 100%;
             }
             .chart-grid {
-                grid-template-columns: 1fr;
+                gap: 12px;
             }
-            .chart-box {
-                min-height: 250px;
-            }
-            .wide-chart-box {
-                min-height: 280px;
-            }
-            .stat-card {
-                min-width: 130px;
+            
+            .chart-container {
+                min-height: 220px;
+                height: 220px;
                 padding: 12px;
             }
+            
+            .wide-chart-container {
+                min-height: 240px;
+                height: 240px;
+                padding: 12px;
+            }
+            
+            .chart-box {
+                min-height: 140px;
+                height: 140px;
+            }
+            
+            .wide-chart-box {
+                min-height: 160px;
+                height: 160px;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+            
+            .stat-card {
+                padding: 8px 4px;
+                min-height: 65px;
+            }
+            
+            .stat-icon {
+                font-size: 13px;
+                margin-bottom: 3px;
+            }
+            
+            .stat-value {
+                font-size: 12px;
+            }
+            
+            .stat-label {
+                font-size: 8px;
+            }
+            
+            .plant-labels-container {
+                gap: 8px;
+            }
+            
+            .plant-label-item {
+                font-size: 10px;
+            }
+            
+            .project-details {
+                height: 600px; /* Kurangi tinggi di mobile */
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .chart-container {
+                min-height: 200px;
+                height: 200px;
+                padding: 10px;
+            }
+            
+            .wide-chart-container {
+                min-height: 220px;
+                height: 220px;
+                padding: 10px;
+            }
+            
+            .chart-box {
+                min-height: 130px;
+                height: 130px;
+            }
+            
+            .wide-chart-box {
+                min-height: 150px;
+                height: 150px;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
+            }
+            
+            .stat-card {
+                padding: 7px 4px;
+                min-height: 60px;
+            }
+            
+            .stat-icon {
+                font-size: 12px;
+                margin-bottom: 2px;
+            }
+            
+            .stat-value {
+                font-size: 11px;
+            }
+            
+            .stat-label {
+                font-size: 7px;
+            }
+            
+            .plant-labels-container {
+                gap: 6px;
+                font-size: 10px;
+            }
+            
+            .plant-label-item {
+                font-size: 9px;
+            }
+            
+            .project-details {
+                height: 500px; /* Lebih kecil di layar sangat kecil */
+            }
+        }
+        
+        /* Tampilan untuk layar yang sangat lebar */
+        @media (min-width: 1600px) {
+            .chart-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 20px;
+            }
+            
+            .chart-container {
+                min-height: 300px;
+                height: 300px;
+                padding: 18px;
+            }
+            
+            .chart-box {
+                min-height: 200px;
+                height: 200px;
+            }
+            
+            .wide-chart-container {
+                min-height: 340px;
+                height: 340px;
+                padding: 18px;
+            }
+            
+            .wide-chart-box {
+                min-height: 260px;
+                height: 260px;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+                gap: 12px;
+            }
+            
+            .stat-card {
+                padding: 14px 10px;
+                min-height: 90px;
+            }
+            
+            .stat-icon {
+                font-size: 20px;
+            }
+            
             .stat-value {
                 font-size: 18px;
             }
-            .plant-labels-container {
-                gap: 10px;
-            }
-            .plant-label-item {
+            
+            .stat-label {
                 font-size: 11px;
             }
         }
+        
         .filter-section h3 {
             margin-bottom: 15px;
             color: var(--primary);
@@ -756,29 +1100,6 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 13px;
-        }
-        /* MODIFIKASI UNTUK WRAP TEXT DAN AUTO WIDTH PROJECT REMAIN TABLE */
-        #project-remain-table {
-            table-layout: auto;
-        }
-        #project-remain-table th,
-        #project-remain-table td {
-            white-space: normal;
-            word-wrap: break-word;
-            vertical-align: top;
-        }
-        #project-remain-table th:nth-child(3),
-        #project-remain-table td:nth-child(3) {
-            min-width: 150px;
-        }
-        #project-remain-table th:nth-child(5),
-        #project-remain-table td:nth-child(5),
-        #project-remain-table th:nth-child(6),
-        #project-remain-table td:nth-child(6),
-        #project-remain-table th:nth-child(7),
-        #project-remain-table td:nth-child(7) {
-            min-width: 60px;
-            text-align: right;
         }
     </style>
 </head>
@@ -997,7 +1318,7 @@
             <!-- Tab Dashboard -->
             <div class="tab-content" id="dashboard">
                 <div class="dashboard-content">
-                    <!-- KPI Cards dalam satu baris dengan scroll horizontal -->
+                    <!-- KPI Cards yang lebih compact -->
                     <div class="stats-container">
                         <div class="stat-card">
                             <div class="stat-icon"><i class="fas fa-industry"></i></div>
@@ -1024,7 +1345,6 @@
                             <div class="stat-value" id="total-remain">-</div>
                             <div class="stat-label">Remain Qty</div>
                         </div>
-                        <!-- PERBAIKAN: Cancel KPI dengan warna merah -->
                         <div class="stat-card cancel-kpi">
                             <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
                             <div class="stat-value" id="total-cancel">-</div>
@@ -1056,7 +1376,7 @@
                             <div class="stat-label">Total Truck Mixer</div>
                         </div>
                     </div>
-                    <!-- Chart area dengan layout grid yang lebih estetik -->
+                    <!-- Chart area yang lebih compact -->
                     <div class="chart-grid">
                         <div class="chart-container">
                             <div class="chart-header">
@@ -1100,7 +1420,7 @@
                         <div class="wide-chart-container">
                             <div class="chart-header">
                                 <div class="chart-title" id="qtyOrderPerDayTitle">
-                                    <i class="fas fa-calendar-alt"></i> Qty Order Per Day - East All Area
+                                    <i class="fas fa-calendar-alt"></i> Qty Order Per Day
                                 </div>
                             </div>
                             <div class="wide-chart-box">
@@ -1116,24 +1436,26 @@
                         <div class="chart-title">
                             <i class="fas fa-table"></i> Project Remain Details
                         </div>
-                        <table id="project-remain-table">
-                            <thead>
-                                <tr>
-                                    <th class="sortable" data-column="deliveryDate">Delivery Date <i class="fas fa-sort"></i></th>
-                                    <th class="sortable" data-column="siteNo">Site No <i class="fas fa-sort"></i></th>
-                                    <th class="sortable" data-column="siteName">Site Name <i class="fas fa-sort"></i></th>
-                                    <th class="sortable" data-column="plant">Plant <i class="fas fa-sort"></i></th>
-                                    <th class="sortable" data-column="qtyOrder">Qty Order <i class="fas fa-sort"></i></th>
-                                    <th class="sortable" data-column="qtyDelivered">Qty Delivered <i class="fas fa-sort"></i></th>
-                                    <th class="sortable" data-column="qtyRemain">Qty Remain <i class="fas fa-sort"></i></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="7" style="text-align: center;">Upload file Excel untuk melihat data</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="project-details-table-container">
+                            <table id="project-remain-table">
+                                <thead>
+                                    <tr>
+                                        <th class="sortable" data-column="deliveryDate">Delivery Date <i class="fas fa-sort"></i></th>
+                                        <th class="sortable" data-column="siteNo">Site No <i class="fas fa-sort"></i></th>
+                                        <th class="sortable" data-column="siteName">Site Name <i class="fas fa-sort"></i></th>
+                                        <th class="sortable" data-column="plant">Plant <i class="fas fa-sort"></i></th>
+                                        <th class="sortable" data-column="qtyOrder">Qty Order <i class="fas fa-sort"></i></th>
+                                        <th class="sortable" data-column="qtyDelivered">Qty Delivered <i class="fas fa-sort"></i></th>
+                                        <th class="sortable" data-column="qtyRemain">Qty Remain <i class="fas fa-sort"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="7" style="text-align: center;">Upload file Excel untuk melihat data</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1180,6 +1502,7 @@
         let currentEditingField = null;
         let projectRemainData = [];
         let sortDirection = {};
+        let resizeTimeout;
 
         // Fungsi untuk memproses file Excel
         function processExcelFile(file) {
@@ -2051,7 +2374,12 @@
                                 display: true,
                                 text: 'Volume (m³)',
                                 font: {
-                                    size: 12
+                                    size: 11
+                                }
+                            },
+                            ticks: {
+                                font: {
+                                    size: 10
                                 }
                             },
                             grid: {
@@ -2065,7 +2393,7 @@
                             ticks: {
                                 display: true,
                                 font: {
-                                    size: 11
+                                    size: 10
                                 }
                             }
                         }
@@ -2145,7 +2473,12 @@
                                 display: true,
                                 text: 'Jumlah Project',
                                 font: {
-                                    size: 12
+                                    size: 11
+                                }
+                            },
+                            ticks: {
+                                font: {
+                                    size: 10
                                 }
                             },
                             grid: {
@@ -2159,7 +2492,7 @@
                             ticks: {
                                 display: true,
                                 font: {
-                                    size: 11
+                                    size: 10
                                 }
                             }
                         }
@@ -2227,7 +2560,7 @@
                             display: false
                         }
                     },
-                    cutout: '60%',
+                    cutout: '55%',
                     animation: {
                         animateScale: true,
                         animateRotate: true
@@ -2262,14 +2595,14 @@
                             color: '#000',
                             font: {
                                 weight: 'bold',
-                                size: 10
+                                size: 9
                             },
                             formatter: function(value, context) {
                                 return value > 0 ? value.toFixed(1) : '';
                             },
                             anchor: 'end',
                             align: 'top',
-                            offset: 4,
+                            offset: 3,
                             display: function(context) {
                                 const value = context.dataset.data[context.dataIndex];
                                 return value > 0;
@@ -2284,7 +2617,12 @@
                                 display: true,
                                 text: 'Volume (m³)',
                                 font: {
-                                    size: 12
+                                    size: 11
+                                }
+                            },
+                            ticks: {
+                                font: {
+                                    size: 9
                                 }
                             },
                             grid: {
@@ -2300,7 +2638,7 @@
                                 maxRotation: 45,
                                 minRotation: 45,
                                 font: {
-                                    size: 10
+                                    size: 9
                                 }
                             }
                         }
@@ -2315,7 +2653,7 @@
                     },
                     layout: {
                         padding: {
-                            top: 20
+                            top: 15
                         }
                     }
                 },
@@ -2375,7 +2713,7 @@
                     plugins: {
                         legend: {
                             position: 'top',
-                            },
+                        },
                         title: {
                             display: true,
                             text: 'Status Order (Normal vs Suddenly)'
@@ -2454,6 +2792,17 @@
             const mainContent = document.getElementById('mainContent');
             sidebar.classList.toggle('hidden');
             mainContent.classList.toggle('expanded');
+        }
+
+        // Fungsi untuk resize charts ketika window di-resize
+        function handleResize() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                if (orderData.length > 0) {
+                    createCharts(orderData);
+                    updateDashboardStats(orderData);
+                }
+            }, 250);
         }
 
         // Inisialisasi aplikasi
@@ -2542,6 +2891,9 @@
                     alert('Data berhasil diperbarui!');
                 }
             });
+
+            // Event listener untuk resize window
+            window.addEventListener('resize', handleResize);
         });
     </script>
 </body>
