@@ -939,8 +939,8 @@
             if (!file) return;
 
             const fileSizeMB = file.size / (1024 * 1024);
-            if (fileSizeMB < 0.2 || fileSizeMB > 50) {
-                showNotification('⚠️ File harus berukuran antara 0.2MB - 50MB', 'error');
+            if (fileSizeMB < 0.05 || fileSizeMB > 200) {
+                showNotification('⚠️ File harus berukuran antara 0.05MB - 200MB', 'error');
                 return;
             }
 
