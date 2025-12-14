@@ -35,7 +35,6 @@
             display: flex;
             min-height: 100vh;
         }
-        /* Sidebar Styles */
         .sidebar {
             width: 320px;
             background-color: white;
@@ -124,7 +123,6 @@
             width: 0;
             overflow: hidden;
         }
-        /* Main Content Styles */
         .main-content {
             flex: 1;
             display: flex;
@@ -146,7 +144,6 @@
             position: relative;
             height: 50px;
         }
-        
         .header-title {
             font-size: 24px;
             font-weight: 700;
@@ -156,11 +153,9 @@
             margin-left: 5px;
             margin-right: 20px;
         }
-        
         .header-title i {
             font-size: 20px;
         }
-        
         .current-date {
             font-size: 13px;
             font-weight: 500;
@@ -168,7 +163,6 @@
             align-items: center;
             gap: 6px;
         }
-        
         .container {
             flex: 1;
             padding: 20px;
@@ -291,7 +285,6 @@
         .action-btn:hover {
             opacity: 0.8;
         }
-        /* Dashboard Styles */
         .dashboard-content {
             flex: 1;
             display: flex;
@@ -301,8 +294,6 @@
             max-width: 100%;
             overflow-x: hidden;
         }
-        
-        /* PERBAIKAN: KPI Cards lebih kecil dan padat */
         .stats-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -364,12 +355,9 @@
             font-weight: 500;
             line-height: 1.2;
         }
-        /* PERBAIKAN: Warna khusus untuk Cancel KPI */
         .stat-card.cancel-kpi {
             background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
         }
-        
-        /* PERBAIKAN: Chart area lebih kecil dan compact */
         .chart-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -439,7 +427,6 @@
             position: relative;
             height: 180px;
         }
-        /* Chart container untuk Qty Order Per Day */
         .wide-chart-container {
             grid-column: 1 / -1;
             background-color: white;
@@ -450,8 +437,8 @@
             flex-direction: column;
             transition: transform 0.3s, box-shadow 0.3s;
             border: 1px solid #f0f0f0;
-            min-height: 320px;
-            height: 320px;
+            min-height: 380px;
+            height: 380px;
         }
         .wide-chart-container:hover {
             transform: translateY(-2px);
@@ -459,18 +446,17 @@
         }
         .wide-chart-box {
             flex: 1;
-            min-height: 240px;
+            min-height: 280px;
             position: relative;
-            height: 240px;
+            height: 280px;
         }
-        /* Container untuk plant labels di bawah chart Qty Order Per Day */
         .plant-labels-container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 12px;
-            margin-top: 12px;
-            padding-top: 12px;
+            gap: 15px;
+            margin-top: 15px;
+            padding-top: 15px;
             border-top: 1px solid #f0f0f0;
             font-size: 11px;
         }
@@ -478,12 +464,12 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 500;
         }
         .plant-color {
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             border-radius: 2px;
         }
         .status-badge {
@@ -517,7 +503,6 @@
             background-color: #f8d7da;
             color: #721c24;
         }
-        /* Truck Input */
         .truck-input-section {
             margin-top: 20px;
             padding-top: 20px;
@@ -550,7 +535,6 @@
             border-radius: 4px;
             text-align: center;
         }
-        /* Toggle Button */
         .sidebar-toggle-btn {
             position: fixed;
             left: 2px;
@@ -566,12 +550,11 @@
             box-shadow: none;
             transition: all 0.3s ease;
         }
-        /* Project Remain Details dengan tinggi 800px */
         .project-details {
             margin-top: 20px;
             width: 100%;
             overflow-x: auto;
-            height: 800px; /* Tinggi default 800px */
+            height: 800px;
             display: flex;
             flex-direction: column;
         }
@@ -611,111 +594,89 @@
             min-width: 60px;
             text-align: right;
         }
-        /* Responsive Styles */
         @media (max-width: 1400px) {
             .chart-grid {
                 grid-template-columns: repeat(3, 1fr);
                 gap: 12px;
             }
-            
             .chart-container {
                 min-height: 260px;
                 height: 260px;
                 padding: 12px;
             }
-            
             .chart-box {
                 min-height: 170px;
                 height: 170px;
             }
-            
             .wide-chart-container {
-                min-height: 300px;
-                height: 300px;
+                min-height: 350px;
+                height: 350px;
                 padding: 12px;
             }
-            
             .wide-chart-box {
-                min-height: 220px;
-                height: 220px;
+                min-height: 250px;
+                height: 250px;
             }
-            
             .stats-container {
                 grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
                 gap: 8px;
             }
-            
             .stat-card {
                 padding: 10px 6px;
                 min-height: 80px;
             }
-            
             .stat-icon {
                 font-size: 16px;
             }
-            
             .stat-value {
                 font-size: 15px;
             }
-            
             .stat-label {
                 font-size: 9px;
             }
         }
-        
         @media (max-width: 1200px) {
             .chart-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 12px;
             }
-            
             .chart-container {
                 min-height: 250px;
                 height: 250px;
             }
-            
             .chart-box {
                 min-height: 160px;
                 height: 160px;
             }
-            
             .wide-chart-container {
-                min-height: 280px;
-                height: 280px;
+                min-height: 330px;
+                height: 330px;
             }
-            
             .wide-chart-box {
-                min-height: 200px;
-                height: 200px;
+                min-height: 230px;
+                height: 230px;
             }
-            
             .stats-container {
                 grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
                 gap: 8px;
             }
-            
             .stat-card {
                 padding: 10px 6px;
                 min-height: 75px;
             }
-            
             .stat-icon {
                 font-size: 15px;
             }
-            
             .stat-value {
                 font-size: 14px;
             }
-            
             .stat-label {
                 font-size: 9px;
             }
-            
             .chart-title {
                 font-size: 12px;
             }
         }
-        
         @media (max-width: 1024px) {
             .sidebar {
                 position: fixed;
@@ -731,57 +692,46 @@
                 margin-left: 0;
             }
         }
-        
         @media (max-width: 992px) {
             .chart-grid {
                 grid-template-columns: 1fr;
                 gap: 15px;
             }
-            
             .chart-container {
                 min-height: 240px;
                 height: 240px;
             }
-            
             .chart-box {
                 min-height: 150px;
                 height: 150px;
             }
-            
             .wide-chart-container {
-                min-height: 260px;
-                height: 260px;
+                min-height: 310px;
+                height: 310px;
             }
-            
             .wide-chart-box {
-                min-height: 180px;
-                height: 180px;
+                min-height: 210px;
+                height: 210px;
             }
-            
             .stats-container {
                 grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
                 gap: 8px;
             }
-            
             .stat-card {
                 padding: 9px 5px;
                 min-height: 70px;
             }
-            
             .stat-icon {
                 font-size: 14px;
                 margin-bottom: 4px;
             }
-            
             .stat-value {
                 font-size: 13px;
             }
-            
             .stat-label {
                 font-size: 8px;
             }
         }
-        
         @media (max-width: 768px) {
             .filter-row {
                 flex-direction: column;
@@ -817,177 +767,141 @@
             .chart-grid {
                 gap: 12px;
             }
-            
             .chart-container {
                 min-height: 220px;
                 height: 220px;
                 padding: 12px;
             }
-            
             .wide-chart-container {
-                min-height: 240px;
-                height: 240px;
+                min-height: 280px;
+                height: 280px;
                 padding: 12px;
             }
-            
             .chart-box {
                 min-height: 140px;
                 height: 140px;
             }
-            
             .wide-chart-box {
-                min-height: 160px;
-                height: 160px;
+                min-height: 180px;
+                height: 180px;
             }
-            
             .stats-container {
                 grid-template-columns: repeat(3, 1fr);
                 gap: 6px;
             }
-            
             .stat-card {
                 padding: 8px 4px;
                 min-height: 65px;
             }
-            
             .stat-icon {
                 font-size: 13px;
                 margin-bottom: 3px;
             }
-            
             .stat-value {
                 font-size: 12px;
             }
-            
             .stat-label {
                 font-size: 8px;
             }
-            
             .plant-labels-container {
                 gap: 8px;
             }
-            
             .plant-label-item {
                 font-size: 10px;
             }
-            
             .project-details {
-                height: 600px; /* Kurangi tinggi di mobile */
+                height: 600px;
             }
         }
-        
         @media (max-width: 576px) {
             .chart-container {
                 min-height: 200px;
                 height: 200px;
                 padding: 10px;
             }
-            
             .wide-chart-container {
-                min-height: 220px;
-                height: 220px;
+                min-height: 260px;
+                height: 260px;
                 padding: 10px;
             }
-            
             .chart-box {
                 min-height: 130px;
                 height: 130px;
             }
-            
             .wide-chart-box {
-                min-height: 150px;
-                height: 150px;
+                min-height: 160px;
+                height: 160px;
             }
-            
             .stats-container {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 6px;
             }
-            
             .stat-card {
                 padding: 7px 4px;
                 min-height: 60px;
             }
-            
             .stat-icon {
                 font-size: 12px;
                 margin-bottom: 2px;
             }
-            
             .stat-value {
                 font-size: 11px;
             }
-            
             .stat-label {
                 font-size: 7px;
             }
-            
             .plant-labels-container {
                 gap: 6px;
                 font-size: 10px;
             }
-            
             .plant-label-item {
                 font-size: 9px;
             }
-            
             .project-details {
-                height: 500px; /* Lebih kecil di layar sangat kecil */
+                height: 500px;
             }
         }
-        
-        /* Tampilan untuk layar yang sangat lebar */
         @media (min-width: 1600px) {
             .chart-grid {
                 grid-template-columns: repeat(3, 1fr);
                 gap: 20px;
             }
-            
             .chart-container {
                 min-height: 300px;
                 height: 300px;
                 padding: 18px;
             }
-            
             .chart-box {
                 min-height: 200px;
                 height: 200px;
             }
-            
             .wide-chart-container {
-                min-height: 340px;
-                height: 340px;
+                min-height: 400px;
+                height: 400px;
                 padding: 18px;
             }
-            
             .wide-chart-box {
-                min-height: 260px;
-                height: 260px;
+                min-height: 300px;
+                height: 300px;
             }
-            
             .stats-container {
                 grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
                 gap: 12px;
             }
-            
             .stat-card {
                 padding: 14px 10px;
                 min-height: 90px;
             }
-            
             .stat-icon {
                 font-size: 20px;
             }
-            
             .stat-value {
                 font-size: 18px;
             }
-            
             .stat-label {
                 font-size: 11px;
             }
         }
-        
         .filter-section h3 {
             margin-bottom: 15px;
             color: var(--primary);
@@ -996,7 +910,6 @@
             align-items: center;
             gap: 10px;
         }
-        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -1060,7 +973,6 @@
             gap: 10px;
             margin-top: 20px;
         }
-        /* Editable Qty */
         .editable-qty {
             cursor: pointer;
             padding: 4px 8px;
@@ -1070,13 +982,11 @@
         .editable-qty:hover {
             background-color: #f0f8ff;
         }
-        /* Date Info */
         .date-info {
             font-size: 11px;
             color: #666;
             margin-top: 3px;
         }
-        /* Compact Filter Row */
         .compact-filter-row {
             display: flex;
             gap: 12px;
@@ -1101,14 +1011,30 @@
             border-radius: 4px;
             font-size: 13px;
         }
+        /* Style untuk chart datalabels */
+        .chartjs-datalabels {
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+        }
+        /* Style khusus untuk data label yang lebih jelas */
+        .datalabel-order {
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+        }
+        .datalabel-delivery {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
     </style>
 </head>
 <body>
-    <!-- Toggle Button -->
     <button class="sidebar-toggle-btn" id="sidebarToggleBtn">
         <i class="fas fa-bars"></i>
     </button>
-    <!-- Sidebar -->
     <div class="sidebar hidden" id="sidebar">
         <div class="sidebar-header">
             <h3>Menu</h3>
@@ -1129,7 +1055,6 @@
                     <p>Memproses file...</p>
                 </div>
             </div>
-            <!-- Dashboard Filters -->
             <div class="filter-section" id="dashboardFilters">
                 <h3><i class="fas fa-filter"></i> Dashboard Filters</h3>
                 <div class="filter-group">
@@ -1161,26 +1086,21 @@
                 <div class="filter-group">
                     <button class="btn" id="dashboard-apply-filter">Apply Filter</button>
                 </div>
-                <!-- Truck Input Section -->
                 <div class="truck-input-section">
                     <h3><i class="fas fa-truck"></i> Jumlah Truck Mixer</h3>
                     <div id="truck-inputs-container">
-                        <!-- Truck inputs will be generated here -->
                         <p class="file-info">Upload file Excel untuk mengisi data plant</p>
                     </div>
                 </div>
-                <!-- Target Volume Section -->
                 <div class="target-volume-section">
                     <h3><i class="fas fa-bullseye"></i> Target Volume per Day</h3>
                     <div id="target-volume-inputs-container">
-                        <!-- Target volume inputs will be generated here -->
                         <p class="file-info">Upload file Excel untuk mengisi data plant</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Main Content -->
     <div class="main-content expanded" id="mainContent">
         <header>
             <div class="header-title">
@@ -1204,7 +1124,6 @@
                     <i class="fas fa-chart-bar"></i> Dashboard
                 </div>
             </div>
-            <!-- Tab Status Order -->
             <div class="tab-content active" id="status-order">
                 <div class="compact-filter-row">
                     <div class="compact-filter-group">
@@ -1261,7 +1180,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Tab List Order -->
             <div class="tab-content" id="list-order">
                 <div class="compact-filter-row">
                     <div class="compact-filter-group">
@@ -1315,10 +1233,8 @@
                     </tbody>
                 </table>
             </div>
-            <!-- Tab Dashboard -->
             <div class="tab-content" id="dashboard">
                 <div class="dashboard-content">
-                    <!-- KPI Cards yang lebih compact -->
                     <div class="stats-container">
                         <div class="stat-card">
                             <div class="stat-icon"><i class="fas fa-industry"></i></div>
@@ -1376,7 +1292,6 @@
                             <div class="stat-label">Total Truck Mixer</div>
                         </div>
                     </div>
-                    <!-- Chart area yang lebih compact -->
                     <div class="chart-grid">
                         <div class="chart-container">
                             <div class="chart-header">
@@ -1387,9 +1302,7 @@
                             <div class="chart-box">
                                 <canvas id="performOrderChart"></canvas>
                             </div>
-                            <div class="chart-legend" id="performOrderLegend">
-                                <!-- Legend will be filled by JavaScript -->
-                            </div>
+                            <div class="chart-legend" id="performOrderLegend"></div>
                         </div>
                         <div class="chart-container">
                             <div class="chart-header">
@@ -1400,9 +1313,7 @@
                             <div class="chart-box">
                                 <canvas id="performProjectChart"></canvas>
                             </div>
-                            <div class="chart-legend" id="performProjectLegend">
-                                <!-- Legend will be filled by JavaScript -->
-                            </div>
+                            <div class="chart-legend" id="performProjectLegend"></div>
                         </div>
                         <div class="chart-container">
                             <div class="chart-header">
@@ -1413,22 +1324,16 @@
                             <div class="chart-box">
                                 <canvas id="statusDistributionChart"></canvas>
                             </div>
-                            <div class="chart-legend" id="statusDistributionLegend">
-                                <!-- Legend will be filled by JavaScript -->
-                            </div>
+                            <div class="chart-legend" id="statusDistributionLegend"></div>
                         </div>
                         <div class="wide-chart-container">
                             <div class="chart-header">
-                                <div class="chart-title" id="qtyOrderPerDayTitle">
-                                    <i class="fas fa-calendar-alt"></i> Qty Order Per Day
+                                <div class="chart-title" id="qtyOrderDeliveryTitle">
+                                    <i class="fas fa-industry"></i> Qty Order & Delivery Per Plant
                                 </div>
                             </div>
                             <div class="wide-chart-box">
-                                <canvas id="qtyOrderPerDayChart"></canvas>
-                            </div>
-                            <!-- Container untuk plant labels -->
-                            <div class="plant-labels-container" id="qtyOrderPerDayLabels">
-                                <!-- Plant labels akan diisi oleh JavaScript -->
+                                <canvas id="qtyOrderDeliveryChart"></canvas>
                             </div>
                         </div>
                     </div>
@@ -1461,7 +1366,6 @@
             </div>
         </div>
     </div>
-    <!-- Edit Modal -->
     <div class="modal" id="editModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1493,7 +1397,9 @@
         </div>
     </div>
     <script>
-        // Variabel global untuk menyimpan data
+        // Daftarkan plugin ChartDataLabels secara global
+        Chart.register(ChartDataLabels);
+        
         let orderData = [];
         let currentCharts = {};
         let truckCounts = {};
@@ -1504,7 +1410,6 @@
         let sortDirection = {};
         let resizeTimeout;
 
-        // Fungsi untuk memproses file Excel
         function processExcelFile(file) {
             const loadingIndicator = document.getElementById('loadingIndicator');
             loadingIndicator.style.display = 'block';
@@ -1531,7 +1436,6 @@
             reader.readAsArrayBuffer(file);
         }
 
-        // Fungsi untuk memproses data dari Excel
         function processData(data) {
             if (!data || data.length === 0) {
                 alert('Data Excel kosong atau tidak valid');
@@ -1597,7 +1501,6 @@
             createCharts(orderData);
         }
 
-        // PERBAIKAN: Fungsi untuk update filter tanggal berdasarkan data yang diupload
         function updateDateFilters(data) {
             const uniqueDates = [...new Set(data.map(item => item.tanggal))].filter(Boolean);
             if (uniqueDates.length === 0) {
@@ -1647,12 +1550,10 @@
             console.log('Date filters updated:', { minDateStr, maxDateStr });
         }
 
-        // PERBAIKAN: Fungsi untuk parsing tanggal dari berbagai format
         function parseDate(dateStr) {
             if (!dateStr) return null;
             
             try {
-                // Format: "06 Nov 2025"
                 const parts = dateStr.split(' ');
                 if (parts.length === 3) {
                     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -1665,13 +1566,11 @@
                     }
                 }
                 
-                // Coba parsing sebagai Date object langsung
                 const date = new Date(dateStr);
                 if (!isNaN(date.getTime())) {
                     return date;
                 }
                 
-                // Coba parsing format Excel serial date
                 if (typeof dateStr === 'number') {
                     const excelDate = new Date((dateStr - (25567 + 1)) * 86400 * 1000);
                     if (!isNaN(excelDate.getTime())) {
@@ -1685,7 +1584,6 @@
             return null;
         }
 
-        // PERBAIKAN: Fungsi untuk memformat tanggal dari Excel
         function formatDateFromExcel(dateValue) {
             if (!dateValue) return '';
             
@@ -1708,9 +1606,7 @@
             return '';
         }
 
-        // Fungsi untuk memformat tanggal
         function formatDate(date) {
-            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
             const day = date.getDate().toString().padStart(2, '0');
             const month = months[date.getMonth()];
@@ -1718,7 +1614,6 @@
             return `${day} ${month} ${year}`;
         }
 
-        // Fungsi untuk inisialisasi truck counts
         function initializeTruckCounts() {
             const plants = [...new Set(orderData.map(item => item.plant))].filter(Boolean);
             truckCounts = {};
@@ -1728,7 +1623,6 @@
             updateTruckInputs();
         }
 
-        // Fungsi untuk inisialisasi target volumes
         function initializeTargetVolumes() {
             const plants = [...new Set(orderData.map(item => item.plant))].filter(Boolean);
             targetVolumes = {};
@@ -1738,7 +1632,6 @@
             updateTargetVolumeInputs();
         }
 
-        // Fungsi untuk update truck inputs
         function updateTruckInputs() {
             const container = document.getElementById('truck-inputs-container');
             container.innerHTML = '';
@@ -1765,7 +1658,6 @@
             });
         }
 
-        // Fungsi untuk update target volume inputs
         function updateTargetVolumeInputs() {
             const container = document.getElementById('target-volume-inputs-container');
             container.innerHTML = '';
@@ -1793,19 +1685,16 @@
             });
         }
 
-        // Fungsi untuk update truck count
         function updateTruckCount(plant, value) {
             truckCounts[plant] = parseInt(value) || 0;
             updateDashboardStats(orderData);
         }
 
-        // Fungsi untuk update target volume
         function updateTargetVolume(plant, value) {
             targetVolumes[plant] = parseFloat(value) || 0;
             updateDashboardStats(orderData);
         }
 
-        // Fungsi untuk mengisi tabel status order
         function populateStatusTable(data) {
             const tableBody = document.querySelector('#status-table tbody');
             tableBody.innerHTML = '';
@@ -1877,7 +1766,6 @@
             updateStatusOrderChart(data);
         }
 
-        // Fungsi untuk membuka modal edit
         function openEditModal(item, index, field) {
             currentEditingRow = index;
             currentEditingField = field;
@@ -1890,7 +1778,6 @@
             document.getElementById('editModal').style.display = 'flex';
         }
 
-        // Fungsi untuk mengisi tabel order
         function populateOrderTable(data) {
             const tableBody = document.querySelector('#order-table tbody');
             tableBody.innerHTML = '';
@@ -1954,7 +1841,6 @@
             });
         }
 
-        // Fungsi untuk update filter plant
         function updatePlantFilters(data) {
             const plants = [...new Set(data.map(item => item.plant))].filter(Boolean);
             const plantSelects = [
@@ -1977,7 +1863,6 @@
             });
         }
 
-        // PERBAIKAN: Fungsi untuk update dashboard statistics
         function updateDashboardStats(data) {
             const filteredData = filterDataForDashboard(data);
             updateProjectRemainDetails(filteredData);
@@ -2037,7 +1922,6 @@
             document.getElementById('total-target-volume').textContent = totalTargetVolume.toFixed(1);
         }
 
-        // PERBAIKAN: Fungsi untuk update project remain details
         function updateProjectRemainDetails(data) {
             const tableBody = document.querySelector('#project-remain-table tbody');
             tableBody.innerHTML = '';
@@ -2067,7 +1951,6 @@
             addSortingToProjectRemainTable();
         }
 
-        // Fungsi untuk menambahkan sorting ke tabel project remain
         function addSortingToProjectRemainTable() {
             const headers = document.querySelectorAll('#project-remain-table th.sortable');
             headers.forEach(header => {
@@ -2078,7 +1961,6 @@
             });
         }
 
-        // Fungsi untuk sorting tabel project remain
         function sortProjectRemainTable(column) {
             if (!sortDirection[column]) {
                 sortDirection[column] = 'asc';
@@ -2158,7 +2040,6 @@
             updateSortIcons(column);
         }
 
-        // Fungsi untuk update sort icons
         function updateSortIcons(currentColumn) {
             const headers = document.querySelectorAll('#project-remain-table th.sortable');
             headers.forEach(header => {
@@ -2174,10 +2055,12 @@
             });
         }
 
-        // PERBAIKAN: Fungsi untuk membuat chart dengan data label hanya pada Qty Order Per Day
         function createCharts(data) {
+            // Hancurkan chart yang ada
             Object.values(currentCharts).forEach(chart => {
-                if (chart) chart.destroy();
+                if (chart && typeof chart.destroy === 'function') {
+                    chart.destroy();
+                }
             });
             currentCharts = {};
 
@@ -2215,71 +2098,31 @@
             const normalCount = filteredData.filter(item => item.orderStatusType === "Normal").length;
             const suddenlyCount = filteredData.filter(item => item.orderStatusType === "Suddenly").length;
 
-            // Data untuk Qty Order Per Day Chart
-            const orderByDayAndPlant = {};
-            const plants = [...new Set(filteredData.map(item => item.plant))].filter(Boolean);
+            const plants = [...new Set(filteredData.map(item => item.plant))].filter(Boolean).sort();
             
+            const plantTotals = {};
             plants.forEach(plant => {
-                orderByDayAndPlant[plant] = {};
-            });
-
-            filteredData.forEach(item => {
-                if (!orderByDayAndPlant[item.plant][item.tanggal]) {
-                    orderByDayAndPlant[item.plant][item.tanggal] = 0;
-                }
-                orderByDayAndPlant[item.plant][item.tanggal] += item.qtyOrder;
-            });
-
-            const allDates = new Set();
-            plants.forEach(plant => {
-                Object.keys(orderByDayAndPlant[plant]).forEach(date => {
-                    allDates.add(date);
-                });
-            });
-
-            const sortedDates = Array.from(allDates).sort((a, b) => {
-                const dateA = parseDate(a);
-                const dateB = parseDate(b);
-                if (!dateA || !dateB) return 0;
-                return dateA.getTime() - dateB.getTime();
-            });
-
-            const plantDatasets = plants.map((plant, index) => {
-                const colors = [
-                    'rgba(54, 162, 235, 0.8)',
-                    'rgba(255, 99, 132, 0.8)',
-                    'rgba(75, 192, 192, 0.8)',
-                    'rgba(255, 205, 86, 0.8)',
-                    'rgba(153, 102, 255, 0.8)',
-                    'rgba(255, 159, 64, 0.8)',
-                    'rgba(201, 203, 207, 0.8)',
-                    'rgba(0, 128, 128, 0.8)',
-                    'rgba(139, 69, 19, 0.8)',
-                    'rgba(255, 0, 255, 0.8)'
-                ];
-
-                const data = sortedDates.map(date => orderByDayAndPlant[plant][date] || 0);
-
-                return {
-                    label: plant,
-                    data: data,
-                    backgroundColor: colors[index % colors.length],
-                    borderColor: colors[index % colors.length],
-                    borderWidth: 1,
-                    borderRadius: 4,
-                    borderSkipped: false,
+                const plantData = filteredData.filter(item => item.plant === plant);
+                const totalOrder = plantData.reduce((sum, item) => sum + item.qtyOrder, 0);
+                const totalDelivery = plantData.reduce((sum, item) => sum + item.qtyDelivery, 0);
+                
+                plantTotals[plant] = {
+                    order: totalOrder,
+                    delivery: totalDelivery
                 };
             });
 
+            const sortedPlants = [...plants].sort((a, b) => {
+                return plantTotals[b].order - plantTotals[a].order;
+            });
+
             const selectedPlant = document.getElementById('dashboard-plant-filter').value;
-            const plantTitle = selectedPlant ? selectedPlant : "East All Area";
+            const plantTitle = selectedPlant ? selectedPlant : "All Plants";
 
             document.getElementById('performOrderTitle').innerHTML = `<i class="fas fa-chart-bar"></i> Perform Order - ${plantTitle}`;
             document.getElementById('performProjectTitle').innerHTML = `<i class="fas fa-chart-pie"></i> Perform Project - ${plantTitle}`;
             document.getElementById('statusDistributionTitle').innerHTML = `<i class="fas fa-chart-line"></i> Status Distribution - ${plantTitle}`;
-            document.getElementById('qtyOrderPerDayTitle').innerHTML = `<i class="fas fa-calendar-alt"></i> Qty Order Per Day - ${plantTitle}`;
-
-            updatePlantLabels(plants, plantDatasets);
+            document.getElementById('qtyOrderDeliveryTitle').innerHTML = `<i class="fas fa-industry"></i> Qty Order & Delivery Per Plant - ${plantTitle}`;
 
             let totalTargetVolume = 0;
             if (selectedPlant) {
@@ -2300,7 +2143,7 @@
                 lineChart: 'rgba(41, 128, 185, 0.8)'
             };
 
-            // Chart 1: Perform Order (Bar Chart)
+            // 1. Perform Order Chart
             const performOrderCtx = document.getElementById('performOrderChart').getContext('2d');
             const performOrderLegend = document.getElementById('performOrderLegend');
             performOrderLegend.innerHTML = `
@@ -2353,9 +2196,7 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
@@ -2363,9 +2204,7 @@
                                 }
                             }
                         },
-                        datalabels: {
-                            display: false
-                        }
+                        datalabels: { display: false }
                     },
                     scales: {
                         y: {
@@ -2373,29 +2212,14 @@
                             title: {
                                 display: true,
                                 text: 'Volume (m³)',
-                                font: {
-                                    size: 11
-                                }
+                                font: { size: 11 }
                             },
-                            ticks: {
-                                font: {
-                                    size: 10
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0,0,0,0.05)'
-                            }
+                            ticks: { font: { size: 10 } },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
                         },
                         x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                display: true,
-                                font: {
-                                    size: 10
-                                }
-                            }
+                            grid: { display: false },
+                            ticks: { display: true, font: { size: 10 } }
                         }
                     },
                     animation: {
@@ -2405,7 +2229,7 @@
                 }
             });
 
-            // Chart 2: Perform Project (Bar Chart)
+            // 2. Perform Project Chart
             const performProjectCtx = document.getElementById('performProjectChart').getContext('2d');
             const performProjectLegend = document.getElementById('performProjectLegend');
             performProjectLegend.innerHTML = `
@@ -2452,9 +2276,7 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
@@ -2462,9 +2284,7 @@
                                 }
                             }
                         },
-                        datalabels: {
-                            display: false
-                        }
+                        datalabels: { display: false }
                     },
                     scales: {
                         y: {
@@ -2472,29 +2292,14 @@
                             title: {
                                 display: true,
                                 text: 'Jumlah Project',
-                                font: {
-                                    size: 11
-                                }
+                                font: { size: 11 }
                             },
-                            ticks: {
-                                font: {
-                                    size: 10
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0,0,0,0.05)'
-                            }
+                            ticks: { font: { size: 10 } },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
                         },
                         x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                display: true,
-                                font: {
-                                    size: 10
-                                }
-                            }
+                            grid: { display: false },
+                            ticks: { display: true, font: { size: 10 } }
                         }
                     },
                     animation: {
@@ -2504,7 +2309,7 @@
                 }
             });
 
-            // Chart 3: Status Distribution (Doughnut Chart)
+            // 3. Status Distribution Chart
             const statusDistributionCtx = document.getElementById('statusDistributionChart').getContext('2d');
             const totalStatus = normalCount + suddenlyCount;
             const normalPercentage = totalStatus > 0 ? Math.round((normalCount / totalStatus) * 100) : 0;
@@ -2542,9 +2347,7 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
@@ -2556,9 +2359,7 @@
                                 }
                             }
                         },
-                        datalabels: {
-                            display: false
-                        }
+                        datalabels: { display: false }
                     },
                     cutout: '55%',
                     animation: {
@@ -2568,19 +2369,196 @@
                 }
             });
 
-            // Chart 4: Qty Order Per Day (Bar Chart) - DENGAN DATA LABEL
-            const qtyOrderPerDayCtx = document.getElementById('qtyOrderPerDayChart').getContext('2d');
-            currentCharts.qtyOrderPerDay = new Chart(qtyOrderPerDayCtx, {
+            // 4. Qty Order & Delivery Chart - DENGAN PERBAIKAN LEGEND
+            const qtyOrderDeliveryCtx = document.getElementById('qtyOrderDeliveryChart').getContext('2d');
+            
+            const orderDataValues = sortedPlants.map(plant => plantTotals[plant].order);
+            const deliveryDataValues = sortedPlants.map(plant => plantTotals[plant].delivery);
+            
+            // Warna untuk Qty Order (dataset pertama)
+            const orderColors = sortedPlants.map((_, index) => {
+                const colors = [
+                    'rgba(54, 162, 235, 0.8)',    // Biru terang
+                    'rgba(255, 99, 132, 0.8)',    // Merah terang
+                    'rgba(75, 192, 192, 0.8)',    // Cyan terang
+                    'rgba(255, 205, 86, 0.8)',    // Kuning terang
+                    'rgba(153, 102, 255, 0.8)',   // Ungu terang
+                    'rgba(255, 159, 64, 0.8)',    // Orange terang
+                    'rgba(201, 203, 207, 0.8)',   // Abu-abu terang
+                    'rgba(0, 128, 128, 0.8)',     // Teal terang
+                    'rgba(139, 69, 19, 0.8)',     // Coklat terang
+                    'rgba(255, 0, 255, 0.8)'      // Magenta terang
+                ];
+                return colors[index % colors.length];
+            });
+
+            // Warna untuk Qty Delivery (dataset kedua) - lebih gelap untuk kontras
+            const deliveryColors = sortedPlants.map((_, index) => {
+                const colors = [
+                    'rgba(31, 119, 180, 0.8)',    // Biru gelap
+                    'rgba(214, 39, 40, 0.8)',     // Merah gelap
+                    'rgba(44, 160, 44, 0.8)',     // Hijau gelap
+                    'rgba(148, 103, 189, 0.8)',   // Ungu gelap
+                    'rgba(140, 86, 75, 0.8)',     // Coklat gelap
+                    'rgba(227, 119, 194, 0.8)',   // Pink gelap
+                    'rgba(127, 127, 127, 0.8)',   // Abu-abu gelap
+                    'rgba(188, 189, 34, 0.8)',    // Kuning-hijau gelap
+                    'rgba(23, 190, 207, 0.8)',    // Cyan gelap
+                    'rgba(158, 218, 229, 0.8)'    // Biru muda gelap
+                ];
+                return colors[index % colors.length];
+            });
+
+            // Buat array untuk warna legend plant
+            const plantLegendColors = sortedPlants.map((plant, index) => {
+                return {
+                    plant: plant,
+                    orderColor: orderColors[index % orderColors.length],
+                    deliveryColor: deliveryColors[index % deliveryColors.length]
+                };
+            });
+
+            // Buat custom legend untuk plant dengan posisi yang lebih rendah dan teks digeser ke kanan
+            const customLegend = {
+                id: 'customLegend',
+                afterDraw(chart) {
+                    const ctx = chart.ctx;
+                    const xAxis = chart.scales.x;
+                    const yAxis = chart.scales.y;
+                    const legendHeight = 70; // DITINGKATKAN: dari 60 ke 70
+                    
+                    // Simpan state canvas
+                    ctx.save();
+                    
+                    // Gambar background untuk legend area (opsional)
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                    ctx.fillRect(
+                        chart.chartArea.left, 
+                        chart.chartArea.bottom + 15, // DITURUNKAN: dari 5 ke 15
+                        chart.chartArea.width, 
+                        legendHeight
+                    );
+                    
+                    // Hitung posisi untuk setiap plant
+                    const plantCount = sortedPlants.length;
+                    const columnWidth = chart.chartArea.width / plantCount;
+                    const legendStartY = chart.chartArea.bottom + 25; // DITURUNKAN: dari 15 ke 25
+                    
+                    // Gambar legend untuk setiap plant
+                    sortedPlants.forEach((plant, index) => {
+                        const xPos = chart.chartArea.left + (index * columnWidth) + (columnWidth / 2);
+                        const plantInfo = plantLegendColors[index];
+                        
+                        // GESER KE KANAN: warna kotak Order
+                        ctx.fillStyle = plantInfo.orderColor;
+                        ctx.fillRect(xPos - 20, legendStartY, 8, 8); // DIGESER: dari xPos - 25 ke xPos - 20
+                        
+                        // GESER KE KANAN: warna kotak Delivery
+                        ctx.fillStyle = plantInfo.deliveryColor;
+                        ctx.fillRect(xPos - 20, legendStartY + 15, 8, 8); // DIGESER: dari xPos - 25 ke xPos - 20
+                        
+                        // Tulis nama plant
+                        ctx.fillStyle = '#333';
+                        ctx.font = 'bold 10px Arial';
+                        ctx.textAlign = 'center';
+                        
+                        // GESER KE KANAN: teks "Order"
+                        ctx.fillText('Order', xPos + 5, legendStartY + 7); // DIGESER: dari xPos ke xPos + 5
+                        
+                        // GESER KE KANAN: teks "Delivery"
+                        ctx.fillText('Delivery', xPos + 10, legendStartY + 22); // DIGESER: dari xPos ke xPos + 10
+                        
+                        // Tulis nama plant (tetap di tengah)
+                        ctx.font = 'bold 11px Arial';
+                        ctx.fillText(plant, xPos, legendStartY + 40);
+                    });
+                    
+                    ctx.restore();
+                }
+            };
+
+            currentCharts.qtyOrderDelivery = new Chart(qtyOrderDeliveryCtx, {
                 type: 'bar',
                 data: {
-                    labels: sortedDates,
-                    datasets: plantDatasets
+                    labels: sortedPlants,
+                    datasets: [
+                        {
+                            label: 'Qty Order',
+                            data: orderDataValues,
+                            backgroundColor: orderColors,
+                            borderColor: orderColors.map(color => color.replace('0.8', '1')),
+                            borderWidth: 1,
+                            borderRadius: 3,
+                            barPercentage: 0.4,
+                            categoryPercentage: 0.8,
+                            datalabels: {
+                                display: function(context) {
+                                    const value = orderDataValues[context.dataIndex];
+                                    return value > 0;
+                                },
+                                formatter: function(value, context) {
+                                    return value > 0 ? value.toFixed(1) : '';
+                                },
+                                color: '#000000',
+                                font: {
+                                    weight: 'bold',
+                                    size: 11
+                                },
+                                anchor: 'end',
+                                align: 'top',
+                                offset: 8,
+                                backgroundColor: 'transparent',
+                                borderWidth: 0,
+                                padding: {
+                                    top: 2,
+                                    bottom: 2,
+                                    left: 4,
+                                    right: 4
+                                }
+                            }
+                        },
+                        {
+                            label: 'Qty Delivery',
+                            data: deliveryDataValues,
+                            backgroundColor: deliveryColors,
+                            borderColor: deliveryColors.map(color => color.replace('0.8', '1')),
+                            borderWidth: 1,
+                            borderRadius: 3,
+                            barPercentage: 0.4,
+                            categoryPercentage: 0.8,
+                            datalabels: {
+                                display: function(context) {
+                                    const value = deliveryDataValues[context.dataIndex];
+                                    return value > 0;
+                                },
+                                formatter: function(value, context) {
+                                    return value > 0 ? value.toFixed(1) : '';
+                                },
+                                color: '#FF0000',
+                                font: {
+                                    weight: 'bold',
+                                    size: 11
+                                },
+                                anchor: 'end',
+                                align: 'top',
+                                offset: 8,
+                                backgroundColor: 'transparent',
+                                borderWidth: 0,
+                                padding: {
+                                    top: 2,
+                                    bottom: 2,
+                                    left: 4,
+                                    right: 4
+                                }
+                            }
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
+                        legend: { 
                             display: false,
                         },
                         tooltip: {
@@ -2592,20 +2570,9 @@
                         },
                         datalabels: {
                             display: true,
-                            color: '#000',
-                            font: {
-                                weight: 'bold',
-                                size: 9
-                            },
+                            color: '#000000',
                             formatter: function(value, context) {
                                 return value > 0 ? value.toFixed(1) : '';
-                            },
-                            anchor: 'end',
-                            align: 'top',
-                            offset: 3,
-                            display: function(context) {
-                                const value = context.dataset.data[context.dataIndex];
-                                return value > 0;
                             }
                         }
                     },
@@ -2616,71 +2583,52 @@
                             title: {
                                 display: true,
                                 text: 'Volume (m³)',
-                                font: {
-                                    size: 11
-                                }
+                                font: { size: 12, weight: 'bold' }
                             },
                             ticks: {
-                                font: {
-                                    size: 9
+                                font: { size: 10 },
+                                callback: function(value) {
+                                    return value.toFixed(1);
                                 }
                             },
-                            grid: {
-                                color: 'rgba(0,0,0,0.05)'
+                            grid: { 
+                                color: 'rgba(0,0,0,0.1)',
+                                drawBorder: false
                             }
                         },
                         x: {
                             stacked: false,
-                            grid: {
-                                color: 'rgba(0,0,0,0.05)'
+                            grid: { 
+                                color: 'rgba(0,0,0,0.05)',
+                                drawBorder: false
                             },
                             ticks: {
                                 maxRotation: 45,
                                 minRotation: 45,
-                                font: {
-                                    size: 9
+                                font: { 
+                                    size: 10,
+                                    weight: 'bold'
                                 }
                             }
                         }
-                    },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
                     },
                     animation: {
                         duration: 1000,
                         easing: 'easeOutQuart'
                     },
                     layout: {
-                        padding: {
-                            top: 15
+                        padding: { 
+                            top: 10,
+                            bottom: 90, // DITINGKATKAN: dari 80 ke 90 (legend diturunkan)
+                            left: 10,
+                            right: 10
                         }
                     }
                 },
-                plugins: [ChartDataLabels]
+                plugins: [ChartDataLabels, customLegend]
             });
         }
 
-        // PERBAIKAN: Fungsi untuk update plant labels di bawah chart Qty Order Per Day
-        function updatePlantLabels(plants, plantDatasets) {
-            const labelsContainer = document.getElementById('qtyOrderPerDayLabels');
-            labelsContainer.innerHTML = '';
-
-            plants.forEach((plant, index) => {
-                const labelItem = document.createElement('div');
-                labelItem.className = 'plant-label-item';
-                
-                const color = plantDatasets[index].backgroundColor;
-                
-                labelItem.innerHTML = `
-                    <div class="plant-color" style="background-color: ${color}"></div>
-                    <span>${plant}</span>
-                `;
-                labelsContainer.appendChild(labelItem);
-            });
-        }
-
-        // Fungsi untuk update chart status order
         function updateStatusOrderChart(data) {
             const normalCount = data.filter(item => item.orderStatusType === "Normal").length;
             const suddenlyCount = data.filter(item => item.orderStatusType === "Suddenly").length;
@@ -2726,7 +2674,6 @@
             });
         }
 
-        // Fungsi untuk filter data dashboard
         function filterDataForDashboard(data) {
             const startDate = document.getElementById('dashboard-start-date').value;
             const endDate = document.getElementById('dashboard-end-date').value;
@@ -2735,7 +2682,6 @@
             return filterData(data, startDate, endDate, plant, status);
         }
 
-        // Fungsi untuk filter data status order
         function filterDataForStatus(data) {
             const startDate = document.getElementById('status-start-date').value;
             const endDate = document.getElementById('status-end-date').value;
@@ -2749,7 +2695,6 @@
             return filteredData;
         }
 
-        // Fungsi untuk filter data dengan perbaikan parsing tanggal
         function filterData(data, startDate, endDate, plant, status) {
             return data.filter(item => {
                 const itemDate = parseDate(item.tanggal);
@@ -2771,7 +2716,6 @@
             });
         }
 
-        // Fungsi untuk menentukan status berdasarkan kuantitas
         function determineStatus(qtyOrder, qtyDelivery, qtyCancel) {
             if (qtyOrder === qtyCancel) {
                 return '90 : Cancel';
@@ -2786,7 +2730,6 @@
             }
         }
 
-        // Fungsi untuk toggle sidebar
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
@@ -2794,7 +2737,6 @@
             mainContent.classList.toggle('expanded');
         }
 
-        // Fungsi untuk resize charts ketika window di-resize
         function handleResize() {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(function() {
@@ -2805,7 +2747,7 @@
             }, 250);
         }
 
-        // Inisialisasi aplikasi
+        // Event Listeners
         document.addEventListener('DOMContentLoaded', function() {
             const now = new Date();
             const options = { day: 'numeric', month: 'long', year: 'numeric' };
@@ -2892,9 +2834,12 @@
                 }
             });
 
-            // Event listener untuk resize window
             window.addEventListener('resize', handleResize);
         });
+
+        // Fungsi global untuk truck inputs
+        window.updateTruckCount = updateTruckCount;
+        window.updateTargetVolume = updateTargetVolume;
     </script>
 </body>
 </html>
