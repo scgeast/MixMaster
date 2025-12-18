@@ -34,6 +34,7 @@
             color: #333;
             display: flex;
             min-height: 100vh;
+            overflow-x: hidden;
         }
         .sidebar {
             width: 320px;
@@ -43,6 +44,11 @@
             display: flex;
             flex-direction: column;
             z-index: 1000;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            transform: translateX(0);
         }
         .sidebar-header {
             padding: 20px;
@@ -129,23 +135,36 @@
             flex-direction: column;
             overflow: hidden;
             transition: margin-left 0.3s ease;
+            margin-left: 320px;
+            width: calc(100% - 320px);
         }
         .main-content.expanded {
             margin-left: 0;
+            width: 100%;
         }
+        /* HEADER - STICKY FIXED */
         header {
-            padding: 20px 25px 10px 40px;
+            padding: 15px 25px 15px 50px;
             background: var(--header-gradient);
             color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: none;
-            position: relative;
-            height: 50px;
+            position: fixed;
+            top: 0;
+            left: 320px;
+            right: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: 60px;
+            min-height: 60px;
+            transition: all 0.3s ease;
+        }
+        .main-content.expanded header {
+            left: 0;
         }
         .header-title {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -157,7 +176,7 @@
             font-size: 20px;
         }
         .current-date {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 500;
             display: flex;
             align-items: center;
@@ -169,6 +188,7 @@
             overflow-y: auto;
             width: 100%;
             max-width: 100%;
+            margin-top: 60px; /* Tambahkan margin top untuk header fixed */
         }
         .tabs {
             display: flex;
@@ -289,7 +309,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 25px;
+            gap: 15px;
             width: 100%;
             max-width: 100%;
             overflow-x: hidden;
@@ -298,7 +318,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             padding: 0;
             overflow-x: visible;
             max-width: 100%;
@@ -361,8 +381,8 @@
         .chart-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
+            gap: 12px;
+            margin-bottom: 15px;
         }
         .chart-container {
             background-color: white;
@@ -384,8 +404,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
-            padding-bottom: 8px;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
             border-bottom: 1px solid #f0f0f0;
         }
         .chart-title {
@@ -395,6 +415,18 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            flex: 1;
+        }
+        .chart-date-filter {
+            font-size: 11px;
+            color: #666;
+            font-weight: normal;
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+            margin-left: auto;
+            font-style: italic;
         }
         .chart-title i {
             color: var(--secondary);
@@ -406,8 +438,8 @@
             font-size: 10px;
             flex-wrap: wrap;
             justify-content: center;
-            margin-top: 10px;
-            padding-top: 10px;
+            margin-top: 8px;
+            padding-top: 8px;
             border-top: 1px solid #f0f0f0;
         }
         .legend-item {
@@ -437,8 +469,9 @@
             flex-direction: column;
             transition: transform 0.3s, box-shadow 0.3s;
             border: 1px solid #f0f0f0;
-            min-height: 380px;
-            height: 380px;
+            min-height: 400px;
+            height: 400px;
+            margin-bottom: 5px;
         }
         .wide-chart-container:hover {
             transform: translateY(-2px);
@@ -446,17 +479,17 @@
         }
         .wide-chart-box {
             flex: 1;
-            min-height: 280px;
+            min-height: 300px;
             position: relative;
-            height: 280px;
+            height: 300px;
         }
         .plant-labels-container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 15px;
-            margin-top: 15px;
-            padding-top: 15px;
+            margin-top: 12px;
+            padding-top: 12px;
             border-top: 1px solid #f0f0f0;
             font-size: 11px;
         }
@@ -535,10 +568,11 @@
             border-radius: 4px;
             text-align: center;
         }
+        /* SIDEBAR TOGGLE BUTTON - DIATAS HEADER */
         .sidebar-toggle-btn {
             position: fixed;
-            left: 2px;
-            top: 10px;
+            left: 10px;
+            top: 15px;
             z-index: 1001;
             background: transparent;
             color: white;
@@ -550,26 +584,32 @@
             box-shadow: none;
             transition: all 0.3s ease;
         }
-        .project-details {
-            margin-top: 20px;
-            width: 100%;
-            overflow-x: auto;
-            height: 800px;
-            display: flex;
-            flex-direction: column;
+        /* PERBAIKAN: Project Details Layout yang Lebih Rapi dan Dekat */
+        .chart-container.project-details {
+            height: auto;
+            min-height: 300px;
+            padding-top: 10px;
+            padding-bottom: 10px;
         }
-        .project-details h3 {
-            margin-bottom: 15px;
+        .project-details .chart-title {
+            margin: 0;
+            padding: 0 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            font-weight: 600;
             color: var(--primary);
-            font-size: 18px;
-            flex-shrink: 0;
         }
         .project-details-table-container {
             flex: 1;
             overflow-y: auto;
             border: 1px solid #eee;
             border-radius: 8px;
+            margin: 0 10px;
+            margin-top: 5px;
+            height: calc(100% - 50px);
         }
+
         #project-remain-table {
             table-layout: auto;
             margin-top: 0;
@@ -580,6 +620,7 @@
             white-space: normal;
             word-wrap: break-word;
             vertical-align: top;
+            padding: 10px 12px;
         }
         #project-remain-table th:nth-child(3),
         #project-remain-table td:nth-child(3) {
@@ -593,314 +634,6 @@
         #project-remain-table td:nth-child(7) {
             min-width: 60px;
             text-align: right;
-        }
-        @media (max-width: 1400px) {
-            .chart-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 12px;
-            }
-            .chart-container {
-                min-height: 260px;
-                height: 260px;
-                padding: 12px;
-            }
-            .chart-box {
-                min-height: 170px;
-                height: 170px;
-            }
-            .wide-chart-container {
-                min-height: 350px;
-                height: 350px;
-                padding: 12px;
-            }
-            .wide-chart-box {
-                min-height: 250px;
-                height: 250px;
-            }
-            .stats-container {
-                grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
-                gap: 8px;
-            }
-            .stat-card {
-                padding: 10px 6px;
-                min-height: 80px;
-            }
-            .stat-icon {
-                font-size: 16px;
-            }
-            .stat-value {
-                font-size: 15px;
-            }
-            .stat-label {
-                font-size: 9px;
-            }
-        }
-        @media (max-width: 1200px) {
-            .chart-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-            }
-            .chart-container {
-                min-height: 250px;
-                height: 250px;
-            }
-            .chart-box {
-                min-height: 160px;
-                height: 160px;
-            }
-            .wide-chart-container {
-                min-height: 330px;
-                height: 330px;
-            }
-            .wide-chart-box {
-                min-height: 230px;
-                height: 230px;
-            }
-            .stats-container {
-                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-                gap: 8px;
-            }
-            .stat-card {
-                padding: 10px 6px;
-                min-height: 75px;
-            }
-            .stat-icon {
-                font-size: 15px;
-            }
-            .stat-value {
-                font-size: 14px;
-            }
-            .stat-label {
-                font-size: 9px;
-            }
-            .chart-title {
-                font-size: 12px;
-            }
-        }
-        @media (max-width: 1024px) {
-            .sidebar {
-                position: fixed;
-                left: 0;
-                top: 0;
-                bottom: 0;
-                z-index: 1000;
-            }
-            .sidebar.hidden {
-                transform: translateX(-100%);
-            }
-            .main-content {
-                margin-left: 0;
-            }
-        }
-        @media (max-width: 992px) {
-            .chart-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-            .chart-container {
-                min-height: 240px;
-                height: 240px;
-            }
-            .chart-box {
-                min-height: 150px;
-                height: 150px;
-            }
-            .wide-chart-container {
-                min-height: 310px;
-                height: 310px;
-            }
-            .wide-chart-box {
-                min-height: 210px;
-                height: 210px;
-            }
-            .stats-container {
-                grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
-                gap: 8px;
-            }
-            .stat-card {
-                padding: 9px 5px;
-                min-height: 70px;
-            }
-            .stat-icon {
-                font-size: 14px;
-                margin-bottom: 4px;
-            }
-            .stat-value {
-                font-size: 13px;
-            }
-            .stat-label {
-                font-size: 8px;
-            }
-        }
-        @media (max-width: 768px) {
-            .filter-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .filter-group {
-                width: 100%;
-            }
-            .filter-group select, .filter-group input {
-                width: 100%;
-            }
-            table {
-                display: block;
-                overflow-x: auto;
-            }
-            header {
-                padding: 15px 20px 15px 50px;
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
-            }
-            .header-title {
-                font-size: 20px;
-            }
-            .truck-input-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 5px;
-            }
-            .truck-input {
-                width: 100%;
-            }
-            .chart-grid {
-                gap: 12px;
-            }
-            .chart-container {
-                min-height: 220px;
-                height: 220px;
-                padding: 12px;
-            }
-            .wide-chart-container {
-                min-height: 280px;
-                height: 280px;
-                padding: 12px;
-            }
-            .chart-box {
-                min-height: 140px;
-                height: 140px;
-            }
-            .wide-chart-box {
-                min-height: 180px;
-                height: 180px;
-            }
-            .stats-container {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 6px;
-            }
-            .stat-card {
-                padding: 8px 4px;
-                min-height: 65px;
-            }
-            .stat-icon {
-                font-size: 13px;
-                margin-bottom: 3px;
-            }
-            .stat-value {
-                font-size: 12px;
-            }
-            .stat-label {
-                font-size: 8px;
-            }
-            .plant-labels-container {
-                gap: 8px;
-            }
-            .plant-label-item {
-                font-size: 10px;
-            }
-            .project-details {
-                height: 600px;
-            }
-        }
-        @media (max-width: 576px) {
-            .chart-container {
-                min-height: 200px;
-                height: 200px;
-                padding: 10px;
-            }
-            .wide-chart-container {
-                min-height: 260px;
-                height: 260px;
-                padding: 10px;
-            }
-            .chart-box {
-                min-height: 130px;
-                height: 130px;
-            }
-            .wide-chart-box {
-                min-height: 160px;
-                height: 160px;
-            }
-            .stats-container {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 6px;
-            }
-            .stat-card {
-                padding: 7px 4px;
-                min-height: 60px;
-            }
-            .stat-icon {
-                font-size: 12px;
-                margin-bottom: 2px;
-            }
-            .stat-value {
-                font-size: 11px;
-            }
-            .stat-label {
-                font-size: 7px;
-            }
-            .plant-labels-container {
-                gap: 6px;
-                font-size: 10px;
-            }
-            .plant-label-item {
-                font-size: 9px;
-            }
-            .project-details {
-                height: 500px;
-            }
-        }
-        @media (min-width: 1600px) {
-            .chart-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 20px;
-            }
-            .chart-container {
-                min-height: 300px;
-                height: 300px;
-                padding: 18px;
-            }
-            .chart-box {
-                min-height: 200px;
-                height: 200px;
-            }
-            .wide-chart-container {
-                min-height: 400px;
-                height: 400px;
-                padding: 18px;
-            }
-            .wide-chart-box {
-                min-height: 300px;
-                height: 300px;
-            }
-            .stats-container {
-                grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
-                gap: 12px;
-            }
-            .stat-card {
-                padding: 14px 10px;
-                min-height: 90px;
-            }
-            .stat-icon {
-                font-size: 20px;
-            }
-            .stat-value {
-                font-size: 18px;
-            }
-            .stat-label {
-                font-size: 11px;
-            }
         }
         .filter-section h3 {
             margin-bottom: 15px;
@@ -1011,12 +744,10 @@
             border-radius: 4px;
             font-size: 13px;
         }
-        /* Style untuk chart datalabels */
         .chartjs-datalabels {
             font-weight: bold;
             text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
         }
-        /* Style khusus untuk data label yang lebih jelas */
         .datalabel-order {
             background-color: rgba(0, 0, 0, 0.1);
             padding: 2px 6px;
@@ -1029,13 +760,384 @@
             border-radius: 3px;
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
+        @media (max-width: 1400px) {
+            .chart-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+            .chart-container {
+                min-height: 260px;
+                height: 260px;
+                padding: 12px;
+            }
+            .chart-box {
+                min-height: 170px;
+                height: 170px;
+            }
+            .wide-chart-container {
+                min-height: 380px;
+                height: 380px;
+                padding: 12px;
+                margin-bottom: 4px;
+            }
+            .wide-chart-box {
+                min-height: 280px;
+                height: 280px;
+            }
+            .stats-container {
+                grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
+                gap: 8px;
+            }
+            .stat-card {
+                padding: 10px 6px;
+                min-height: 80px;
+            }
+            .stat-icon {
+                font-size: 16px;
+            }
+            .stat-value {
+                font-size: 15px;
+            }
+            .stat-label {
+                font-size: 9px;
+            }
+            /* Responsive: Project Details */
+            .chart-container.project-details {
+                height: 450px;
+            }
+        }
+        @media (max-width: 1200px) {
+            .chart-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .chart-container {
+                min-height: 250px;
+                height: 250px;
+            }
+            .chart-box {
+                min-height: 160px;
+                height: 160px;
+            }
+            .wide-chart-container {
+                min-height: 350px;
+                height: 350px;
+                margin-bottom: 3px;
+            }
+            .wide-chart-box {
+                min-height: 250px;
+                height: 250px;
+            }
+            .stats-container {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 8px;
+            }
+            .stat-card {
+                padding: 10px 6px;
+                min-height: 75px;
+            }
+            .stat-icon {
+                font-size: 15px;
+            }
+            .stat-value {
+                font-size: 14px;
+            }
+            .stat-label {
+                font-size: 9px;
+            }
+            .chart-title {
+                font-size: 12px;
+            }
+            /* Responsive: Project Details */
+            .chart-container.project-details {
+                height: 400px;
+            }
+        }
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                z-index: 1000;
+            }
+            .sidebar.hidden {
+                transform: translateX(-100%);
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            header {
+                left: 0;
+                padding-left: 60px;
+            }
+            .sidebar-toggle-btn {
+                left: 15px;
+            }
+        }
+        @media (max-width: 992px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .chart-container {
+                min-height: 240px;
+                height: 240px;
+            }
+            .chart-box {
+                min-height: 150px;
+                height: 150px;
+            }
+            .wide-chart-container {
+                min-height: 320px;
+                height: 320px;
+                margin-bottom: 2px;
+            }
+            .wide-chart-box {
+                min-height: 220px;
+                height: 220px;
+            }
+            .stats-container {
+                grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+                gap: 8px;
+            }
+            .stat-card {
+                padding: 9px 5px;
+                min-height: 70px;
+            }
+            .stat-icon {
+                font-size: 14px;
+                margin-bottom: 4px;
+            }
+            .stat-value {
+                font-size: 13px;
+            }
+            .stat-label {
+                font-size: 8px;
+            }
+            /* Responsive: Project Details */
+            .chart-container.project-details {
+                height: 350px;
+            }
+            .project-details .chart-title {
+                font-size: 13px;
+            }
+        }
+        @media (max-width: 768px) {
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-group {
+                width: 100%;
+            }
+            .filter-group select, .filter-group input {
+                width: 100%;
+            }
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+            header {
+                padding: 15px 20px 15px 50px;
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+                height: auto;
+                min-height: 80px;
+            }
+            .header-title {
+                font-size: 18px;
+            }
+            .current-date {
+                font-size: 12px;
+            }
+            .truck-input-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            .truck-input {
+                width: 100%;
+            }
+            .chart-grid {
+                gap: 10px;
+            }
+            .chart-container {
+                min-height: 220px;
+                height: 220px;
+                padding: 12px;
+            }
+            .wide-chart-container {
+                min-height: 300px;
+                height: 300px;
+                padding: 12px;
+                margin-bottom: 1px;
+            }
+            .chart-box {
+                min-height: 140px;
+                height: 140px;
+            }
+            .wide-chart-box {
+                min-height: 200px;
+                height: 200px;
+            }
+            .stats-container {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+            .stat-card {
+                padding: 8px 4px;
+                min-height: 65px;
+            }
+            .stat-icon {
+                font-size: 13px;
+                margin-bottom: 3px;
+            }
+            .stat-value {
+                font-size: 12px;
+            }
+            .stat-label {
+                font-size: 8px;
+            }
+            .plant-labels-container {
+                gap: 8px;
+            }
+            .plant-label-item {
+                font-size: 10px;
+            }
+            /* Responsive: Project Details */
+            .chart-container.project-details {
+                height: 300px;
+            }
+            .project-details .chart-title {
+                font-size: 12px;
+            }
+            .chart-date-filter {
+                display: none;
+            }
+            .sidebar-toggle-btn {
+                top: 10px;
+                left: 10px;
+                font-size: 16px;
+            }
+        }
+        @media (max-width: 576px) {
+            .chart-container {
+                min-height: 200px;
+                height: 200px;
+                padding: 10px;
+            }
+            .wide-chart-container {
+                min-height: 280px;
+                height: 280px;
+                padding: 10px;
+                margin-bottom: 0;
+            }
+            .chart-box {
+                min-height: 130px;
+                height: 130px;
+            }
+            .wide-chart-box {
+                min-height: 180px;
+                height: 180px;
+            }
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
+            }
+            .stat-card {
+                padding: 7px 4px;
+                min-height: 60px;
+            }
+            .stat-icon {
+                font-size: 12px;
+                margin-bottom: 2px;
+            }
+            .stat-value {
+                font-size: 11px;
+            }
+            .stat-label {
+                font-size: 7px;
+            }
+            .plant-labels-container {
+                gap: 6px;
+                font-size: 10px;
+            }
+            .plant-label-item {
+                font-size: 9px;
+            }
+            /* Responsive: Project Details */
+            .chart-container.project-details {
+                height: 250px;
+            }
+            header {
+                padding: 12px 15px 12px 45px;
+                min-height: 70px;
+            }
+            .header-title {
+                font-size: 16px;
+            }
+            .sidebar-toggle-btn {
+                top: 8px;
+                left: 8px;
+                font-size: 14px;
+            }
+        }
+        @media (min-width: 1600px) {
+            .chart-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+            }
+            .chart-container {
+                min-height: 300px;
+                height: 300px;
+                padding: 18px;
+            }
+            .chart-box {
+                min-height: 200px;
+                height: 200px;
+            }
+            .wide-chart-container {
+                min-height: 450px;
+                height: 450px;
+                padding: 18px;
+                margin-bottom: 6px;
+            }
+            .wide-chart-box {
+                min-height: 350px;
+                height: 350px;
+            }
+            .stats-container {
+                grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+                gap: 12px;
+            }
+            .stat-card {
+                padding: 14px 10px;
+                min-height: 90px;
+            }
+            .stat-icon {
+                font-size: 20px;
+            }
+            .stat-value {
+                font-size: 18px;
+            }
+            .stat-label {
+                font-size: 11px;
+            }
+            /* Large Screen: Project Details */
+            .chart-container.project-details {
+                height: 500px;
+            }
+        }
     </style>
 </head>
 <body>
     <button class="sidebar-toggle-btn" id="sidebarToggleBtn">
         <i class="fas fa-bars"></i>
     </button>
-    <div class="sidebar hidden" id="sidebar">
+    <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h3>Menu</h3>
             <button class="sidebar-toggle" id="sidebarToggle">
@@ -1101,7 +1203,8 @@
             </div>
         </div>
     </div>
-    <div class="main-content expanded" id="mainContent">
+    <div class="main-content" id="mainContent">
+        <!-- HEADER STICKY FIXED -->
         <header>
             <div class="header-title">
                 <i class="fas fa-chart-line"></i>
@@ -1337,6 +1440,7 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Project Remain Details Container -->
                     <div class="chart-container project-details">
                         <div class="chart-title">
                             <i class="fas fa-table"></i> Project Remain Details
@@ -1399,7 +1503,6 @@
     <script>
         // Daftarkan plugin ChartDataLabels secara global
         Chart.register(ChartDataLabels);
-        
         let orderData = [];
         let currentCharts = {};
         let truckCounts = {};
@@ -1409,6 +1512,7 @@
         let projectRemainData = [];
         let sortDirection = {};
         let resizeTimeout;
+        let showProgressLine = true;
 
         function processExcelFile(file) {
             const loadingIndicator = document.getElementById('loadingIndicator');
@@ -1441,7 +1545,6 @@
                 alert('Data Excel kosong atau tidak valid');
                 return;
             }
-
             const rows = data.slice(1);
             orderData = rows.map((row, index) => {
                 try {
@@ -1449,15 +1552,12 @@
                     const createDate = row[20];
                     let formattedDeliveryDate = '';
                     let formattedCreateDate = '';
-
                     if (deliveryDate) {
                         formattedDeliveryDate = formatDateFromExcel(deliveryDate);
                     }
-
                     if (createDate) {
                         formattedCreateDate = formatDateFromExcel(createDate);
                     }
-
                     let orderStatusType = "Normal";
                     if (formattedDeliveryDate && formattedCreateDate) {
                         const delivery = parseDate(formattedDeliveryDate);
@@ -1470,7 +1570,6 @@
                             }
                         }
                     }
-
                     return {
                         tanggal: formattedDeliveryDate,
                         createDate: formattedCreateDate,
@@ -1490,7 +1589,6 @@
                     return null;
                 }
             }).filter(item => item && item.tanggal);
-
             initializeTruckCounts();
             initializeTargetVolumes();
             populateStatusTable(orderData);
@@ -1506,15 +1604,11 @@
             if (uniqueDates.length === 0) {
                 return;
             }
-
             const dateObjects = uniqueDates.map(dateStr => parseDate(dateStr)).filter(date => date && !isNaN(date.getTime()));
-
             if (dateObjects.length === 0) {
                 return;
             }
-
             dateObjects.sort((a, b) => a - b);
-
             const formatForInput = (date) => {
                 if (!date || isNaN(date.getTime())) {
                     return '';
@@ -1524,7 +1618,6 @@
                 const day = String(date.getDate()).padStart(2, '0');
                 return `${year}-${month}-${day}`;
             };
-
             const minDate = dateObjects[0];
             const maxDate = dateObjects[dateObjects.length - 1];
             const minDateStr = formatForInput(minDate);
@@ -1535,7 +1628,6 @@
                 'status-start-date', 'status-end-date',
                 'start-date', 'end-date'
             ];
-
             dateInputs.forEach(inputId => {
                 const input = document.getElementById(inputId);
                 if (minDateStr) input.min = minDateStr;
@@ -1546,13 +1638,11 @@
                     input.value = maxDateStr;
                 }
             });
-
             console.log('Date filters updated:', { minDateStr, maxDateStr });
         }
 
         function parseDate(dateStr) {
             if (!dateStr) return null;
-            
             try {
                 const parts = dateStr.split(' ');
                 if (parts.length === 3) {
@@ -1560,17 +1650,14 @@
                     const day = parseInt(parts[0]);
                     const month = months.indexOf(parts[1]);
                     const year = parseInt(parts[2]);
-                    
                     if (month !== -1 && !isNaN(day) && !isNaN(year)) {
                         return new Date(year, month, day);
                     }
                 }
-                
                 const date = new Date(dateStr);
                 if (!isNaN(date.getTime())) {
                     return date;
                 }
-                
                 if (typeof dateStr === 'number') {
                     const excelDate = new Date((dateStr - (25567 + 1)) * 86400 * 1000);
                     if (!isNaN(excelDate.getTime())) {
@@ -1580,13 +1667,11 @@
             } catch (e) {
                 console.warn('Error parsing date:', dateStr, e);
             }
-            
             return null;
         }
 
         function formatDateFromExcel(dateValue) {
             if (!dateValue) return '';
-            
             try {
                 if (typeof dateValue === 'string') {
                     const parsedDate = parseDate(dateValue);
@@ -1602,7 +1687,6 @@
             } catch (e) {
                 console.warn('Error formatting Excel date:', dateValue, e);
             }
-            
             return '';
         }
 
@@ -1612,6 +1696,14 @@
             const month = months[date.getMonth()];
             const year = date.getFullYear();
             return `${day} ${month} ${year}`;
+        }
+
+        function formatDateForDisplay(date) {
+            if (!date || isNaN(date.getTime())) return '';
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
         }
 
         function initializeTruckCounts() {
@@ -1635,22 +1727,20 @@
         function updateTruckInputs() {
             const container = document.getElementById('truck-inputs-container');
             container.innerHTML = '';
-
             const plants = Object.keys(truckCounts).sort();
             if (plants.length === 0) {
                 container.innerHTML = '<p class="file-info">Upload file Excel untuk mengisi data plant</p>';
                 return;
             }
-
             plants.forEach(plant => {
                 const row = document.createElement('div');
                 row.className = 'truck-input-row';
                 row.innerHTML = `
                     <span class="truck-plant-name">${plant}</span>
-                    <input type="number" 
-                           class="truck-input" 
-                           value="${truckCounts[plant]}" 
-                           min="0" 
+                    <input type="number"
+                           class="truck-input"
+                           value="${truckCounts[plant]}"
+                           min="0"
                            data-plant="${plant}"
                            onchange="updateTruckCount('${plant}', this.value)">
                 `;
@@ -1661,22 +1751,20 @@
         function updateTargetVolumeInputs() {
             const container = document.getElementById('target-volume-inputs-container');
             container.innerHTML = '';
-
             const plants = Object.keys(targetVolumes).sort();
             if (plants.length === 0) {
                 container.innerHTML = '<p class="file-info">Upload file Excel untuk mengisi data plant</p>';
                 return;
             }
-
             plants.forEach(plant => {
                 const row = document.createElement('div');
                 row.className = 'truck-input-row';
                 row.innerHTML = `
                     <span class="truck-plant-name">${plant}</span>
-                    <input type="number" 
-                           class="truck-input" 
-                           value="${targetVolumes[plant]}" 
-                           min="0" 
+                    <input type="number"
+                           class="truck-input"
+                           value="${targetVolumes[plant]}"
+                           min="0"
                            step="0.1"
                            data-plant="${plant}"
                            onchange="updateTargetVolume('${plant}', this.value)">
@@ -1698,12 +1786,10 @@
         function populateStatusTable(data) {
             const tableBody = document.querySelector('#status-table tbody');
             tableBody.innerHTML = '';
-
             if (data.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="10" style="text-align: center;">Tidak ada data</td></tr>';
                 return;
             }
-
             data.forEach((item, index) => {
                 const row = document.createElement('tr');
                 let statusBadge = '';
@@ -1712,7 +1798,6 @@
                 } else if (item.orderStatusType === "Suddenly") {
                     statusBadge = '<span class="status-badge status-suddenly">Suddenly</span>';
                 }
-
                 let orderStatusBadge = '';
                 if (item.status.includes('Pending')) {
                     orderStatusBadge = '<span class="status-badge status-pending">Pending</span>';
@@ -1725,7 +1810,6 @@
                 } else {
                     orderStatusBadge = `<span class="status-badge">${item.status}</span>`;
                 }
-
                 row.innerHTML = `
                     <td>${item.tanggal}</td>
                     <td>${item.createDate}</td>
@@ -1747,7 +1831,6 @@
                 `;
                 tableBody.appendChild(row);
             });
-
             document.querySelectorAll('.editable-qty').forEach(qty => {
                 qty.addEventListener('click', function() {
                     const index = this.getAttribute('data-index');
@@ -1755,38 +1838,32 @@
                     openEditModal(data[index], index, field);
                 });
             });
-
             document.querySelectorAll('.edit-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const index = this.getAttribute('data-index');
                     openEditModal(data[index], index, 'all');
                 });
             });
-
             updateStatusOrderChart(data);
         }
 
         function openEditModal(item, index, field) {
             currentEditingRow = index;
             currentEditingField = field;
-
             document.getElementById('edit-qty-order').value = item.qtyOrder;
             document.getElementById('edit-qty-delivery').value = item.qtyDelivery;
             document.getElementById('edit-qty-cancel').value = item.qtyCancel;
             document.getElementById('edit-remarks').value = item.remarks;
-
             document.getElementById('editModal').style.display = 'flex';
         }
 
         function populateOrderTable(data) {
             const tableBody = document.querySelector('#order-table tbody');
             tableBody.innerHTML = '';
-
             if (data.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="11" style="text-align: center;">Tidak ada data</td></tr>';
                 return;
             }
-
             data.forEach((item, index) => {
                 const row = document.createElement('tr');
                 let statusBadge = '';
@@ -1801,7 +1878,6 @@
                 } else {
                     statusBadge = `<span class="status-badge">${item.status}</span>`;
                 }
-
                 row.innerHTML = `
                     <td>${item.tanggal}</td>
                     <td>${item.plant}</td>
@@ -1824,7 +1900,6 @@
                 `;
                 tableBody.appendChild(row);
             });
-
             document.querySelectorAll('.editable-qty').forEach(qty => {
                 qty.addEventListener('click', function() {
                     const index = this.getAttribute('data-index');
@@ -1832,7 +1907,6 @@
                     openEditModal(data[index], index, field);
                 });
             });
-
             document.querySelectorAll('.edit-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const index = this.getAttribute('data-index');
@@ -1848,12 +1922,10 @@
                 document.getElementById('dashboard-plant-filter'),
                 document.getElementById('status-plant-filter')
             ];
-
             plantSelects.forEach(select => {
                 while (select.options.length > 1) {
                     select.remove(1);
                 }
-
                 plants.forEach(plant => {
                     const option = document.createElement('option');
                     option.value = plant;
@@ -1866,7 +1938,6 @@
         function updateDashboardStats(data) {
             const filteredData = filterDataForDashboard(data);
             updateProjectRemainDetails(filteredData);
-
             const plantRemainCount = new Set(projectRemainData.map(item => item.plant)).size;
             const totalOrderQty = filteredData.reduce((sum, item) => sum + item.qtyOrder, 0);
             const totalDelivery = filteredData.reduce((sum, item) => sum + item.qtyDelivery, 0);
@@ -1900,7 +1971,6 @@
             const selectedPlant = document.getElementById('dashboard-plant-filter').value;
             let totalTruckCount = 0;
             let totalTargetVolume = 0;
-
             if (selectedPlant) {
                 totalTruckCount = truckCounts[selectedPlant] || 0;
                 totalTargetVolume = targetVolumes[selectedPlant] || 0;
@@ -1925,15 +1995,12 @@
         function updateProjectRemainDetails(data) {
             const tableBody = document.querySelector('#project-remain-table tbody');
             tableBody.innerHTML = '';
-
             const remainProjects = data.filter(item => item.qtyRemain > 0);
             projectRemainData = remainProjects;
-
             if (remainProjects.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Tidak ada data project remain</td></tr>';
                 return;
             }
-
             remainProjects.forEach(item => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -1947,7 +2014,6 @@
                 `;
                 tableBody.appendChild(row);
             });
-
             addSortingToProjectRemainTable();
         }
 
@@ -1967,7 +2033,6 @@
             } else {
                 sortDirection[column] = sortDirection[column] === 'asc' ? 'desc' : 'asc';
             }
-
             projectRemainData.sort((a, b) => {
                 let aValue, bValue;
                 switch(column) {
@@ -2003,26 +2068,21 @@
                         aValue = a[column];
                         bValue = b[column];
                 }
-
                 if (aValue instanceof Date && bValue instanceof Date) {
                     return sortDirection[column] === 'asc' ? aValue - bValue : bValue - aValue;
                 }
-
                 if (typeof aValue === 'number' && typeof bValue === 'number') {
                     return sortDirection[column] === 'asc' ? aValue - bValue : bValue - aValue;
                 }
-
                 if (typeof aValue === 'string' && typeof bValue === 'string') {
-                    return sortDirection[column] === 'asc' 
-                        ? aValue.localeCompare(bValue) 
+                    return sortDirection[column] === 'asc'
+                        ? aValue.localeCompare(bValue)
                         : bValue.localeCompare(aValue);
                 }
                 return 0;
             });
-
             const tableBody = document.querySelector('#project-remain-table tbody');
             tableBody.innerHTML = '';
-
             projectRemainData.forEach(item => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -2036,7 +2096,6 @@
                 `;
                 tableBody.appendChild(row);
             });
-
             updateSortIcons(column);
         }
 
@@ -2046,8 +2105,8 @@
                 const column = header.getAttribute('data-column');
                 const icon = header.querySelector('i');
                 if (column === currentColumn) {
-                    icon.className = sortDirection[column] === 'asc' 
-                        ? 'fas fa-sort-up' 
+                    icon.className = sortDirection[column] === 'asc'
+                        ? 'fas fa-sort-up'
                         : 'fas fa-sort-down';
                 } else {
                     icon.className = 'fas fa-sort';
@@ -2065,7 +2124,6 @@
             currentCharts = {};
 
             const filteredData = filterDataForDashboard(data);
-
             const totalOrderQty = filteredData.reduce((sum, item) => sum + item.qtyOrder, 0);
             const totalDeliveryQty = filteredData.reduce((sum, item) => sum + item.qtyDelivery, 0);
             const totalRemainQty = filteredData.reduce((sum, item) => sum + (item.qtyRemain > 0 ? item.qtyRemain : 0), 0);
@@ -2099,17 +2157,18 @@
             const suddenlyCount = filteredData.filter(item => item.orderStatusType === "Suddenly").length;
 
             const plants = [...new Set(filteredData.map(item => item.plant))].filter(Boolean).sort();
-            
             const plantTotals = {};
+            const plantPercentages = {};
             plants.forEach(plant => {
                 const plantData = filteredData.filter(item => item.plant === plant);
                 const totalOrder = plantData.reduce((sum, item) => sum + item.qtyOrder, 0);
                 const totalDelivery = plantData.reduce((sum, item) => sum + item.qtyDelivery, 0);
-                
                 plantTotals[plant] = {
                     order: totalOrder,
                     delivery: totalDelivery
                 };
+                // Hitung persentase delivery
+                plantPercentages[plant] = totalOrder > 0 ? (totalDelivery / totalOrder * 100) : 0;
             });
 
             const sortedPlants = [...plants].sort((a, b) => {
@@ -2119,10 +2178,33 @@
             const selectedPlant = document.getElementById('dashboard-plant-filter').value;
             const plantTitle = selectedPlant ? selectedPlant : "All Plants";
 
+            // Dapatkan nilai filter date untuk ditampilkan
+            const startDate = document.getElementById('dashboard-start-date').value;
+            const endDate = document.getElementById('dashboard-end-date').value;
+            let dateFilterText = '';
+            if (startDate && endDate) {
+                dateFilterText = `${formatDateForDisplay(new Date(startDate))} - ${formatDateForDisplay(new Date(endDate))}`;
+            } else {
+                // Jika tidak ada filter, gunakan tanggal dari data
+                const dates = [...new Set(filteredData.map(item => parseDate(item.tanggal)))].filter(d => d);
+                if (dates.length > 0) {
+                    dates.sort((a, b) => a - b);
+                    const minDate = dates[0];
+                    const maxDate = dates[dates.length - 1];
+                    dateFilterText = `${formatDateForDisplay(minDate)} - ${formatDateForDisplay(maxDate)}`;
+                } else {
+                    dateFilterText = 'All Dates';
+                }
+            }
+
+            // Update title dengan date filter di sebelah kanan
+            document.getElementById('qtyOrderDeliveryTitle').innerHTML = `
+                <i class="fas fa-industry"></i> Qty Order & Delivery Per Plant - ${plantTitle}
+                <span class="chart-date-filter">${dateFilterText}</span>
+            `;
             document.getElementById('performOrderTitle').innerHTML = `<i class="fas fa-chart-bar"></i> Perform Order - ${plantTitle}`;
             document.getElementById('performProjectTitle').innerHTML = `<i class="fas fa-chart-pie"></i> Perform Project - ${plantTitle}`;
             document.getElementById('statusDistributionTitle').innerHTML = `<i class="fas fa-chart-line"></i> Status Distribution - ${plantTitle}`;
-            document.getElementById('qtyOrderDeliveryTitle').innerHTML = `<i class="fas fa-industry"></i> Qty Order & Delivery Per Plant - ${plantTitle}`;
 
             let totalTargetVolume = 0;
             if (selectedPlant) {
@@ -2140,7 +2222,8 @@
                 projectTotal: 'rgba(153, 102, 255, 0.8)',
                 normal: 'rgba(54, 162, 235, 0.8)',
                 suddenly: 'rgba(237, 85, 101, 0.8)',
-                lineChart: 'rgba(41, 128, 185, 0.8)'
+                progressLine: 'rgba(231, 76, 60, 1)',
+                progressLineBackground: 'rgba(231, 76, 60, 0.2)'
             };
 
             // 1. Perform Order Chart
@@ -2314,7 +2397,6 @@
             const totalStatus = normalCount + suddenlyCount;
             const normalPercentage = totalStatus > 0 ? Math.round((normalCount / totalStatus) * 100) : 0;
             const suddenlyPercentage = totalStatus > 0 ? Math.round((suddenlyCount / totalStatus) * 100) : 0;
-
             const statusDistributionLegend = document.getElementById('statusDistributionLegend');
             statusDistributionLegend.innerHTML = `
                 <div class="legend-item">
@@ -2369,209 +2451,220 @@
                 }
             });
 
-            // 4. Qty Order & Delivery Chart - DENGAN PERBAIKAN LEGEND
+            // 4. Qty Order & Delivery Chart dengan PROGRESS LINE
             const qtyOrderDeliveryCtx = document.getElementById('qtyOrderDeliveryChart').getContext('2d');
-            
             const orderDataValues = sortedPlants.map(plant => plantTotals[plant].order);
             const deliveryDataValues = sortedPlants.map(plant => plantTotals[plant].delivery);
-            
-            // Warna untuk Qty Order (dataset pertama)
+            const percentageDataValues = sortedPlants.map(plant => plantPercentages[plant]);
+
+            // Warna untuk Qty Order (dataset pertama) - LEBIH TERANG
             const orderColors = sortedPlants.map((_, index) => {
                 const colors = [
-                    'rgba(54, 162, 235, 0.8)',    // Biru terang
-                    'rgba(255, 99, 132, 0.8)',    // Merah terang
-                    'rgba(75, 192, 192, 0.8)',    // Cyan terang
-                    'rgba(255, 205, 86, 0.8)',    // Kuning terang
-                    'rgba(153, 102, 255, 0.8)',   // Ungu terang
-                    'rgba(255, 159, 64, 0.8)',    // Orange terang
-                    'rgba(201, 203, 207, 0.8)',   // Abu-abu terang
-                    'rgba(0, 128, 128, 0.8)',     // Teal terang
-                    'rgba(139, 69, 19, 0.8)',     // Coklat terang
-                    'rgba(255, 0, 255, 0.8)'      // Magenta terang
+                    'rgba(54, 162, 235, 0.9)',    // Biru terang
+                    'rgba(255, 99, 132, 0.9)',    // Merah terang
+                    'rgba(75, 192, 192, 0.9)',    // Cyan terang
+                    'rgba(255, 205, 86, 0.9)',    // Kuning terang
+                    'rgba(153, 102, 255, 0.9)',   // Ungu terang
+                    'rgba(255, 159, 64, 0.9)',    // Orange terang
+                    'rgba(201, 203, 207, 0.9)',   // Abu-abu terang
+                    'rgba(0, 128, 128, 0.9)',     // Teal terang
+                    'rgba(139, 69, 19, 0.9)',     // Coklat terang
+                    'rgba(255, 0, 255, 0.9)'      // Magenta terang
                 ];
                 return colors[index % colors.length];
             });
-
-            // Warna untuk Qty Delivery (dataset kedua) - lebih gelap untuk kontras
+            // Warna untuk Qty Delivery (dataset kedua) - LEBIH GELAP untuk kontras
             const deliveryColors = sortedPlants.map((_, index) => {
                 const colors = [
-                    'rgba(31, 119, 180, 0.8)',    // Biru gelap
-                    'rgba(214, 39, 40, 0.8)',     // Merah gelap
-                    'rgba(44, 160, 44, 0.8)',     // Hijau gelap
-                    'rgba(148, 103, 189, 0.8)',   // Ungu gelap
-                    'rgba(140, 86, 75, 0.8)',     // Coklat gelap
-                    'rgba(227, 119, 194, 0.8)',   // Pink gelap
-                    'rgba(127, 127, 127, 0.8)',   // Abu-abu gelap
-                    'rgba(188, 189, 34, 0.8)',    // Kuning-hijau gelap
-                    'rgba(23, 190, 207, 0.8)',    // Cyan gelap
-                    'rgba(158, 218, 229, 0.8)'    // Biru muda gelap
+                    'rgba(31, 119, 180, 0.9)',    // Biru gelap
+                    'rgba(214, 39, 40, 0.9)',     // Merah gelap
+                    'rgba(44, 160, 44, 0.9)',     // Hijau gelap
+                    'rgba(148, 103, 189, 0.9)',   // Ungu gelap
+                    'rgba(140, 86, 75, 0.9)',     // Coklat gelap
+                    'rgba(227, 119, 194, 0.9)',   // Pink gelap
+                    'rgba(127, 127, 127, 0.9)',   // Abu-abu gelap
+                    'rgba(188, 189, 34, 0.9)',    // Kuning-hijau gelap
+                    'rgba(23, 190, 207, 0.9)',    // Cyan gelap
+                    'rgba(158, 218, 229, 0.9)'    // Biru muda gelap
                 ];
                 return colors[index % colors.length];
             });
 
-            // Buat array untuk warna legend plant
-            const plantLegendColors = sortedPlants.map((plant, index) => {
-                return {
-                    plant: plant,
-                    orderColor: orderColors[index % orderColors.length],
-                    deliveryColor: deliveryColors[index % deliveryColors.length]
-                };
-            });
-
-            // Buat custom legend untuk plant dengan posisi yang lebih rendah dan teks digeser ke kanan
-            const customLegend = {
-                id: 'customLegend',
-                afterDraw(chart) {
-                    const ctx = chart.ctx;
-                    const xAxis = chart.scales.x;
-                    const yAxis = chart.scales.y;
-                    const legendHeight = 70; // DITINGKATKAN: dari 60 ke 70
-                    
-                    // Simpan state canvas
-                    ctx.save();
-                    
-                    // Gambar background untuk legend area (opsional)
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-                    ctx.fillRect(
-                        chart.chartArea.left, 
-                        chart.chartArea.bottom + 15, // DITURUNKAN: dari 5 ke 15
-                        chart.chartArea.width, 
-                        legendHeight
-                    );
-                    
-                    // Hitung posisi untuk setiap plant
-                    const plantCount = sortedPlants.length;
-                    const columnWidth = chart.chartArea.width / plantCount;
-                    const legendStartY = chart.chartArea.bottom + 25; // DITURUNKAN: dari 15 ke 25
-                    
-                    // Gambar legend untuk setiap plant
-                    sortedPlants.forEach((plant, index) => {
-                        const xPos = chart.chartArea.left + (index * columnWidth) + (columnWidth / 2);
-                        const plantInfo = plantLegendColors[index];
-                        
-                        // GESER KE KANAN: warna kotak Order
-                        ctx.fillStyle = plantInfo.orderColor;
-                        ctx.fillRect(xPos - 20, legendStartY, 8, 8); // DIGESER: dari xPos - 25 ke xPos - 20
-                        
-                        // GESER KE KANAN: warna kotak Delivery
-                        ctx.fillStyle = plantInfo.deliveryColor;
-                        ctx.fillRect(xPos - 20, legendStartY + 15, 8, 8); // DIGESER: dari xPos - 25 ke xPos - 20
-                        
-                        // Tulis nama plant
-                        ctx.fillStyle = '#333';
-                        ctx.font = 'bold 10px Arial';
-                        ctx.textAlign = 'center';
-                        
-                        // GESER KE KANAN: teks "Order"
-                        ctx.fillText('Order', xPos + 5, legendStartY + 7); // DIGESER: dari xPos ke xPos + 5
-                        
-                        // GESER KE KANAN: teks "Delivery"
-                        ctx.fillText('Delivery', xPos + 10, legendStartY + 22); // DIGESER: dari xPos ke xPos + 10
-                        
-                        // Tulis nama plant (tetap di tengah)
-                        ctx.font = 'bold 11px Arial';
-                        ctx.fillText(plant, xPos, legendStartY + 40);
-                    });
-                    
-                    ctx.restore();
+            // Buat datasets untuk chart
+            const datasets = [
+                {
+                    label: 'Qty Order',
+                    data: orderDataValues,
+                    backgroundColor: orderColors,
+                    borderColor: orderColors.map(color => color.replace('0.9', '1')),
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barPercentage: 0.45,
+                    categoryPercentage: 0.8,
+                    order: 2,
+                    datalabels: {
+                        display: function(context) {
+                            const value = orderDataValues[context.dataIndex];
+                            return value > 0;
+                        },
+                        formatter: function(value, context) {
+                            return value > 0 ? value.toFixed(1) : '';
+                        },
+                        color: '#000000',
+                        font: {
+                            weight: 'bold',
+                            size: 11
+                        },
+                        anchor: 'end',
+                        align: 'top',
+                        offset: 8,
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                        borderWidth: 1,
+                        borderColor: 'rgba(0, 0, 0, 0.2)',
+                        padding: {
+                            top: 3,
+                            bottom: 3,
+                            left: 6,
+                            right: 6
+                        },
+                        borderRadius: 4
+                    }
+                },
+                {
+                    label: 'Qty Delivery',
+                    data: deliveryDataValues,
+                    backgroundColor: deliveryColors,
+                    borderColor: deliveryColors.map(color => color.replace('0.9', '1')),
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barPercentage: 0.45,
+                    categoryPercentage: 0.8,
+                    order: 3,
+                    datalabels: {
+                        display: function(context) {
+                            const value = deliveryDataValues[context.dataIndex];
+                            return value > 0;
+                        },
+                        formatter: function(value, context) {
+                            return value > 0 ? value.toFixed(1) : '';
+                        },
+                        color: '#FFFFFF',
+                        font: {
+                            weight: 'bold',
+                            size: 11
+                        },
+                        anchor: 'end',
+                        align: 'top',
+                        offset: 8,
+                        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                        borderWidth: 1,
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                        padding: {
+                            top: 3,
+                            bottom: 3,
+                            left: 6,
+                            right: 6
+                        },
+                        borderRadius: 4
+                    }
                 }
-            };
+            ];
+
+            // Progress line akan tetap ditampilkan (tanpa toggle switch)
+            datasets.push({
+                label: 'Delivery Progress',
+                data: percentageDataValues,
+                type: 'line',
+                borderColor: brightColors.progressLine,
+                backgroundColor: brightColors.progressLineBackground,
+                borderWidth: 3,
+                borderDash: [5, 5],
+                fill: false,
+                pointBackgroundColor: brightColors.progressLine,
+                pointBorderColor: '#FFFFFF',
+                pointBorderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                order: 1,
+                yAxisID: 'y1',
+                datalabels: {
+                    display: function(context) {
+                        const value = percentageDataValues[context.dataIndex];
+                        return value > 0 && value <= 100;
+                    },
+                    formatter: function(value, context) {
+                        return `${value.toFixed(1)}%`;
+                    },
+                    color: '#FFFFFF',
+                    font: {
+                        weight: 'bold',
+                        size: 10
+                    },
+                    backgroundColor: brightColors.progressLine,
+                    borderWidth: 2,
+                    borderColor: '#FFFFFF',
+                    padding: {
+                        top: 4,
+                        bottom: 4,
+                        left: 6,
+                        right: 6
+                    },
+                    borderRadius: 4,
+                    align: 'top',
+                    anchor: 'center',
+                    offset: 10
+                }
+            });
 
             currentCharts.qtyOrderDelivery = new Chart(qtyOrderDeliveryCtx, {
                 type: 'bar',
                 data: {
                     labels: sortedPlants,
-                    datasets: [
-                        {
-                            label: 'Qty Order',
-                            data: orderDataValues,
-                            backgroundColor: orderColors,
-                            borderColor: orderColors.map(color => color.replace('0.8', '1')),
-                            borderWidth: 1,
-                            borderRadius: 3,
-                            barPercentage: 0.4,
-                            categoryPercentage: 0.8,
-                            datalabels: {
-                                display: function(context) {
-                                    const value = orderDataValues[context.dataIndex];
-                                    return value > 0;
-                                },
-                                formatter: function(value, context) {
-                                    return value > 0 ? value.toFixed(1) : '';
-                                },
-                                color: '#000000',
-                                font: {
-                                    weight: 'bold',
-                                    size: 11
-                                },
-                                anchor: 'end',
-                                align: 'top',
-                                offset: 8,
-                                backgroundColor: 'transparent',
-                                borderWidth: 0,
-                                padding: {
-                                    top: 2,
-                                    bottom: 2,
-                                    left: 4,
-                                    right: 4
-                                }
-                            }
-                        },
-                        {
-                            label: 'Qty Delivery',
-                            data: deliveryDataValues,
-                            backgroundColor: deliveryColors,
-                            borderColor: deliveryColors.map(color => color.replace('0.8', '1')),
-                            borderWidth: 1,
-                            borderRadius: 3,
-                            barPercentage: 0.4,
-                            categoryPercentage: 0.8,
-                            datalabels: {
-                                display: function(context) {
-                                    const value = deliveryDataValues[context.dataIndex];
-                                    return value > 0;
-                                },
-                                formatter: function(value, context) {
-                                    return value > 0 ? value.toFixed(1) : '';
-                                },
-                                color: '#FF0000',
-                                font: {
-                                    weight: 'bold',
-                                    size: 11
-                                },
-                                anchor: 'end',
-                                align: 'top',
-                                offset: 8,
-                                backgroundColor: 'transparent',
-                                borderWidth: 0,
-                                padding: {
-                                    top: 2,
-                                    bottom: 2,
-                                    left: 4,
-                                    right: 4
-                                }
-                            }
-                        }
-                    ]
+                    datasets: datasets
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { 
-                            display: false,
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            align: 'center',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 15,
+                                font: {
+                                    size: 11
+                                }
+                            }
                         },
                         tooltip: {
+                            mode: 'index',
+                            intersect: false,
                             callbacks: {
                                 label: function(context) {
-                                    return `${context.dataset.label}: ${context.parsed.y.toFixed(1)} m³`;
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.dataset.label === 'Delivery Progress') {
+                                        label += `${context.parsed.y.toFixed(1)}%`;
+                                    } else {
+                                        label += `${context.parsed.y.toFixed(1)} m³`;
+                                    }
+                                    return label;
                                 }
                             }
                         },
                         datalabels: {
                             display: true,
-                            color: '#000000',
+                            color: function(context) {
+                                return context.datasetIndex === 0 ? '#000000' : '#FFFFFF';
+                            },
                             formatter: function(value, context) {
+                                if (context.dataset.label === 'Delivery Progress') {
+                                    return value > 0 && value <= 100 ? `${value.toFixed(1)}%` : '';
+                                }
                                 return value > 0 ? value.toFixed(1) : '';
                             }
                         }
@@ -2591,21 +2684,42 @@
                                     return value.toFixed(1);
                                 }
                             },
-                            grid: { 
+                            grid: {
                                 color: 'rgba(0,0,0,0.1)',
                                 drawBorder: false
                             }
                         },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Progress (%)',
+                                font: { size: 11, weight: 'bold' }
+                            },
+                            ticks: {
+                                font: { size: 9 },
+                                callback: function(value) {
+                                    return `${value}%`;
+                                }
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            }
+                        },
                         x: {
                             stacked: false,
-                            grid: { 
+                            grid: {
                                 color: 'rgba(0,0,0,0.05)',
                                 drawBorder: false
                             },
                             ticks: {
                                 maxRotation: 45,
                                 minRotation: 45,
-                                font: { 
+                                font: {
                                     size: 10,
                                     weight: 'bold'
                                 }
@@ -2617,27 +2731,25 @@
                         easing: 'easeOutQuart'
                     },
                     layout: {
-                        padding: { 
+                        padding: {
                             top: 10,
-                            bottom: 90, // DITINGKATKAN: dari 80 ke 90 (legend diturunkan)
+                            bottom: 10,
                             left: 10,
                             right: 10
                         }
                     }
                 },
-                plugins: [ChartDataLabels, customLegend]
+                plugins: [ChartDataLabels]
             });
         }
 
         function updateStatusOrderChart(data) {
             const normalCount = data.filter(item => item.orderStatusType === "Normal").length;
             const suddenlyCount = data.filter(item => item.orderStatusType === "Suddenly").length;
-
             const statusCtx = document.getElementById('statusOrderChart').getContext('2d');
             if (currentCharts.statusOrder) {
                 currentCharts.statusOrder.destroy();
             }
-
             currentCharts.statusOrder = new Chart(statusCtx, {
                 type: 'doughnut',
                 data: {
@@ -2687,7 +2799,6 @@
             const endDate = document.getElementById('status-end-date').value;
             const plant = document.getElementById('status-plant-filter').value;
             const statusType = document.getElementById('status-type-filter').value;
-
             let filteredData = filterData(data, startDate, endDate, plant, '');
             if (statusType) {
                 filteredData = filteredData.filter(item => item.orderStatusType === statusType);
@@ -2699,7 +2810,6 @@
             return data.filter(item => {
                 const itemDate = parseDate(item.tanggal);
                 if (!itemDate) return false;
-
                 let dateMatch = true;
                 if (startDate || endDate) {
                     const start = startDate ? new Date(startDate) : new Date('1900-01-01');
@@ -2708,10 +2818,8 @@
                     end.setHours(23, 59, 59, 999);
                     dateMatch = itemDate >= start && itemDate <= end;
                 }
-
                 const plantMatch = !plant || item.plant === plant;
                 const statusMatch = !status || item.status === status;
-
                 return dateMatch && plantMatch && statusMatch;
             });
         }
@@ -2756,17 +2864,14 @@
             document.getElementById('fileInput').addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (!file) return;
-
                 if (file.size > 200 * 1024 * 1024) {
                     alert('File terlalu besar. Maksimal 200MB.');
                     return;
                 }
-
                 if (!file.name.match(/\.(xlsx|xls)$/)) {
                     alert('Hanya file Excel yang diizinkan.');
                     return;
                 }
-
                 document.getElementById('fileInfo').textContent = `File: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
                 processExcelFile(file);
             });
@@ -2808,7 +2913,6 @@
             document.getElementById('cancelEdit').addEventListener('click', function() {
                 document.getElementById('editModal').style.display = 'none';
             });
-
             document.getElementById('editForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 if (currentEditingRow !== null) {
@@ -2828,7 +2932,6 @@
                     populateOrderTable(orderData);
                     updateDashboardStats(orderData);
                     createCharts(orderData);
-
                     document.getElementById('editModal').style.display = 'none';
                     alert('Data berhasil diperbarui!');
                 }
