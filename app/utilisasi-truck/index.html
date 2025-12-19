@@ -17,6 +17,7 @@
             padding: 0;
             width: 100%;
             overflow-x: hidden;
+            padding-top: 50px;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -26,7 +27,7 @@
         }
         .container {
             display: flex;
-            min-height: 100vh;
+            min-height: calc(100vh - 50px);
             transition: all 0.3s ease;
             margin: 0;
             padding: 0;
@@ -41,7 +42,10 @@
             overflow-y: auto;
             transition: transform 0.3s ease, width 0.3s ease;
             z-index: 1000;
-            position: relative;
+            position: fixed;
+            left: 0;
+            top: 50px;
+            bottom: 0;
             transform: translateX(-100%);
             width: 0;
             min-width: 0;
@@ -55,28 +59,24 @@
             padding: 20px;
             overflow-y: auto;
         }
-        /* PERUBAHAN: Hilangkan background pada toggle button */
         .sidebar-toggle {
             position: fixed;
-            top: 10px; /* Disesuaikan karena header nempel ke atas */
-            left: 10px;
-            background: transparent;
-            color: #ffffff;
+            top: 10px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #8B0000;
             border: none;
-            padding: 10px 12px;
+            padding: 6px 10px;
             border-radius: 5px;
             cursor: pointer;
             z-index: 1001;
-            font-size: 1.2em;
-            transition: left 0.3s ease;
-            box-shadow: none;
-        }
-        .sidebar-toggle.sidebar-open {
-            left: 370px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
         .sidebar-toggle:hover {
-            color: #3498db;
-            background: rgba(52, 152, 219, 0.1);
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.05);
         }
         .sidebar h2 {
             color: #2c3e50;
@@ -85,59 +85,55 @@
             padding-bottom: 15px;
             border-bottom: 2px solid #3498db;
         }
+        /* Main Content - DIPERBAIKI: Tidak ada padding atas */
         .main-content {
             flex: 1;
-            padding: 20px;
+            padding: 0 20px;
             overflow-y: auto;
             transition: all 0.3s ease;
             width: 100%;
             margin-left: 0;
             margin-top: 0;
-            padding-top: 0;
         }
         .main-content.expanded {
             margin-left: 0;
             width: 100%;
         }
-        /* Header Styles - DIPERBARUI: Full width dan nempel ke atas */
+        /* Header Styles */
         .header {
-            background: linear-gradient(135deg, #8B0000 0%, #A52A2A 100%); /* Gradien Blood Moon */
+            background: linear-gradient(135deg, #8B0000 0%, #A52A2A 100%);
             color: white;
-            padding: 15px 25px;
+            padding: 8px 25px 8px 60px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            margin-bottom: 25px;
+            margin-bottom: 0;
             text-align: left;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            min-height: 60px;
-            width: 100vw;
-            position: relative;
-            left: 50%;
-            right: 50%;
-            margin-left: -50vw;
-            margin-right: -50vw;
-            margin-top: 0;
-            border-radius: 0;
-            transition: margin-left 0.3s ease, width 0.3s ease;
+            min-height: 50px;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 999;
+            transition: left 0.3s ease, width 0.3s ease;
         }
         .header.sidebar-open {
-            margin-left: calc(-50vw + 180px);
-            width: calc(100vw - 350px);
+            left: 350px;
+            width: calc(100% - 350px);
         }
         .header-content {
             display: flex;
             align-items: center;
             gap: 20px;
             flex-wrap: wrap;
+            margin-left: 10px;
         }
         .header h1 {
             color: white;
-            font-size: 1.2em;
+            font-size: 1.1em;
             margin-bottom: 0;
             flex: 0 0 auto;
-            /* Tambahkan margin kiri untuk menggeser judul ke kanan */
-            margin-left: 30px; /* Sesuaikan ukuran ini jika perlu */
         }
         .filter-display {
             color: white;
@@ -148,10 +144,105 @@
         }
         .header-info {
             color: #f0f0f0;
-            font-size: 0.8em;
+            font-size: 0.75em;
             text-align: right;
             margin-left: 20px;
         }
+        /* Tabs - DIPERBAIKI: Menempel langsung di bawah header */
+        .tabs {
+            display: flex;
+            margin-bottom: 5px;
+            margin-top: 0; /* DIPERBAIKI: Tidak ada margin atas */
+            background: transparent;
+            border-radius: 0 0 10px 10px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+            border-top: none;
+        }
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 1em;
+            color: #2c3e50;
+            border-right: 1px solid #e0e0e0;
+            background: #f8f9fa;
+        }
+        .tab:last-child {
+            border-right: none;
+        }
+        .tab.active {
+            background: #ffffff;
+            box-shadow: inset 0 -3px 0 #3498db;
+        }
+        .tab:hover {
+            background: #e9ecef;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* Dashboard - DIPERBAIKI: Tidak ada margin atas */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+            margin-top: 10px; /* Sedikit margin atas */
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+            border-left: 4px solid #3498db;
+        }
+        .metric-card:hover {
+            transform: translateY(-3px);
+        }
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 5px 0;
+            color: #ffffff;
+        }
+        .metric-label {
+            font-size: 0.8em;
+            font-weight: 500;
+            color: #ffffff;
+        }
+        .metric-card.kpi-big {
+            background: linear-gradient(135deg, #3498db 0%, #9b59b6 100%);
+            border-left-color: #2980b9;
+        }
+        .metric-card.kpi-mini {
+            background: linear-gradient(135deg, #27ae60 0%, #9b59b6 100%);
+            border-left-color: #27ae60;
+        }
+        .metric-card.kpi-total {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-left-color: #3498db;
+        }
+        .metric-card.kpi-allocation.kpi-big {
+            background: linear-gradient(135deg, #3498db 0%, #9b59b6 100%);
+            border-left-color: #2980b9;
+        }
+        .metric-card.kpi-allocation.kpi-mini {
+            background: linear-gradient(135deg, #27ae60 0%, #9b59b6 100%);
+            border-left-color: #27ae60;
+        }
+        .metric-card.kpi-allocation {
+            background: linear-gradient(135deg, #f39c12 0%, #9b59b6 100%);
+            border-left-color: #f39c12;
+        }
+        /* Upload Area */
         .upload-area {
             border: 3px dashed #3498db;
             border-radius: 10px;
@@ -226,139 +317,44 @@
             margin: 10px 0;
             font-size: 0.9em;
         }
-        /* Dashboard Styles */
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-        .metric-card {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 12px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            transition: transform 0.3s ease;
-            border-left: 4px solid #3498db;
-        }
-        .metric-card:hover {
-            transform: translateY(-3px);
-        }
-        .metric-value {
-            font-size: 1.5em;
-            font-weight: bold;
-            margin: 5px 0;
-            color: #ffffff;
-        }
-        .metric-label {
-            font-size: 0.8em;
-            font-weight: 500;
-            color: #ffffff;
-        }
-        /* Warna Khusus untuk KPI */
-        .metric-card.kpi-big {
-            background: linear-gradient(135deg, #3498db 0%, #9b59b6 100%);
-            border-left-color: #2980b9;
-        }
-        .metric-card.kpi-mini {
-            background: linear-gradient(135deg, #27ae60 0%, #9b59b6 100%);
-            border-left-color: #27ae60;
-        }
-        .metric-card.kpi-total {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-left-color: #3498db;
-        }
-        /* Warna Khusus untuk KPI Allocation */
-        .metric-card.kpi-allocation.kpi-big {
-            background: linear-gradient(135deg, #3498db 0%, #9b59b6 100%);
-            border-left-color: #2980b9;
-        }
-        .metric-card.kpi-allocation.kpi-mini {
-            background: linear-gradient(135deg, #27ae60 0%, #9b59b6 100%);
-            border-left-color: #27ae60;
-        }
-
-        /* Warna Khusus untuk KPI Allocation - Gradient Orange ke Ungu */
-        .metric-card.kpi-allocation {
-            background: linear-gradient(135deg, #f39c12 0%, #9b59b6 100%);
-            border-left-color: #f39c12;
-        }
-        /* Tab Styles - Diperbarui (tinggi diperkecil) */
-        .tabs {
-            display: flex;
-            margin-bottom: 20px;
-            background: transparent;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid #e0e0e0;
-        }
-        .tab {
-            flex: 1;
-            padding: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            font-size: 1.1em;
-            color: #2c3e50;
-            border-right: 1px solid #e0e0e0;
-            background: #f8f9fa;
-        }
-        .tab:last-child {
-            border-right: none;
-        }
-        .tab.active {
-            background: #ffffff;
-            box-shadow: inset 0 -3px 0 #3498db;
-        }
-        .tab:hover {
-            background: #e9ecef;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        /* Chart Layout - Vertikal untuk TM Big */
+        /* Chart Layout */
         .chart-container-vert {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         .chart-section {
             background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
+            padding: 15px;
             border-radius: 15px;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         .chart-section h2 {
             color: #2c3e50;
-            margin-bottom: 15px;
-            font-size: 1.3em;
+            margin-bottom: 12px;
+            font-size: 1.2em;
         }
         .chart-container {
-            height: 350px;
+            height: 320px;
             width: 100%;
         }
         .table-section {
             background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
+            padding: 15px;
             border-radius: 15px;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             overflow-x: auto;
         }
         .table-section h2 {
             color: #2c3e50;
-            margin-bottom: 15px;
-            font-size: 1.3em;
+            margin-bottom: 12px;
+            font-size: 1.2em;
         }
         .table-filter {
             background: #f8f9fa;
-            padding: 15px;
+            padding: 12px;
             border-radius: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
@@ -376,14 +372,14 @@
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
+            margin-top: 12px;
         }
         .data-table th,
         .data-table td {
-            padding: 10px 12px;
+            padding: 8px 10px;
             text-align: left;
             border-bottom: 1px solid #e0e0e0;
-            font-size: 0.9em;
+            font-size: 0.85em;
         }
         .data-table th {
             background: #f8f9fa;
@@ -409,14 +405,6 @@
         .data-table tr:hover {
             background: #f8f9fa;
         }
-        .truck-big {
-            color: #e74c3c;
-            font-weight: bold;
-        }
-        .truck-mini {
-            color: #27ae60;
-            font-weight: bold;
-        }
         .loading {
             text-align: center;
             padding: 40px;
@@ -425,15 +413,15 @@
         .hidden {
             display: none;
         }
-        /* Footer Styles - BARU DITAMBAHKAN */
+        /* Footer Styles */
         .footer {
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             color: white;
-            padding: 15px 20px;
+            padding: 12px 15px;
             border-radius: 10px;
-            margin-top: 20px;
+            margin-top: 15px;
             text-align: center;
-            font-size: 0.9em;
+            font-size: 0.85em;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
         .footer p {
@@ -443,16 +431,16 @@
         /* Styles for Truck Allocation Tab */
         .allocation-form {
             background: #f8f9fa;
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border-left: 4px solid #f39c12;
         }
         .form-row {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 12px;
+            margin-bottom: 12px;
         }
         .form-group {
             flex: 1;
@@ -553,73 +541,63 @@
                 left: 320px;
             }
             .header.sidebar-open {
-                margin-left: calc(-50vw + 180px);
-                width: calc(100vw - 300px);
+                left: 300px;
+                width: calc(100% - 300px);
             }
         }
         @media (max-width: 768px) {
-            .dashboard {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            html, body {
+                padding-top: 45px;
             }
-            .metric-value {
-                font-size: 1.5em;
+            .header {
+                min-height: 45px;
+                padding: 5px 20px 5px 60px;
             }
             .sidebar.open {
                 width: 280px;
                 min-width: 280px;
                 position: fixed;
-                height: 100vh;
-                z-index: 1000;
+                height: calc(100vh - 45px);
+                top: 45px;
             }
             .sidebar-toggle {
-                position: fixed;
-                z-index: 1001;
-                top: 15px; /* Disesuaikan untuk mobile */
+                top: 8px;
+                padding: 5px 8px;
             }
             .sidebar-toggle.sidebar-open {
                 left: 300px;
             }
             .main-content {
-                padding: 10px;
-            }
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                text-align: center;
-                padding: 10px 20px;
-                min-height: 55px;
-                left: 50%;
-                right: 50%;
-                margin-left: -50vw;
-                margin-right: -50vw;
+                padding: 0 15px;
             }
             .header.sidebar-open {
-                margin-left: -50vw;
-                width: 100vw;
+                left: 280px;
+                width: calc(100% - 280px);
             }
             .header-content {
                 flex-direction: column;
-                gap: 10px;
+                gap: 8px;
                 align-items: center;
                 width: 100%;
             }
             .header h1 {
-                font-size: 1.3em;
+                font-size: 1em;
                 margin-bottom: 0;
                 text-align: center;
+                margin-left: 0;
             }
             .filter-display {
-                font-size: 1.1em;
+                font-size: 1em;
                 text-align: center;
             }
             .header-info {
-                font-size: 0.75em;
+                font-size: 0.7em;
                 margin-left: 0;
-                margin-top: 8px;
+                margin-top: 5px;
                 text-align: center;
             }
             .chart-container {
-                height: 300px;
+                height: 280px;
             }
             .table-filter {
                 flex-direction: column;
@@ -629,8 +607,8 @@
                 min-width: 100%;
             }
             .footer {
-                padding: 12px 15px;
-                font-size: 0.85em;
+                padding: 10px 12px;
+                font-size: 0.8em;
             }
             .form-row {
                 flex-direction: column;
@@ -638,66 +616,97 @@
             .form-group {
                 min-width: 100%;
             }
-        }
-        @media (max-width: 480px) {
-            .dashboard {
-                grid-template-columns: 1fr 1fr;
-            }
             .tabs {
-                flex-direction: column;
+                margin-bottom: 0;
             }
             .tab {
-                padding: 10px;
-                border-right: none;
-                border-bottom: 1px solid #e0e0e0;
+                padding: 8px;
+                font-size: 0.9em;
             }
-            .tab:last-child {
-                border-bottom: none;
+            .dashboard {
+                margin-top: 8px;
+            }
+        }
+        @media (max-width: 480px) {
+            html, body {
+                padding-top: 40px;
+            }
+            .header {
+                min-height: 40px;
+                padding: 3px 15px 3px 60px;
+                position: fixed;
+                left: 0;
+                width: 100%;
+            }
+            .header.sidebar-open {
+                left: 0;
+                width: 100%;
             }
             .sidebar.open {
                 width: 100%;
                 min-width: 100%;
+                top: 40px;
+            }
+            .sidebar-toggle {
+                top: 6px;
+                padding: 4px 6px;
             }
             .sidebar-toggle.sidebar-open {
                 left: calc(100% - 50px);
             }
-            .chart-container {
-                height: 250px;
+            .dashboard {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                margin-bottom: 12px;
             }
-            .header {
+            .tabs {
                 flex-direction: column;
-                align-items: center;
-                text-align: center;
-                padding: 8px 15px;
-                min-height: 50px;
-                left: 50%;
-                right: 50%;
-                margin-left: -50vw;
-                margin-right: -50vw;
+                margin-bottom: 0;
             }
-            .header.sidebar-open {
-                margin-left: -50vw;
-                width: 100vw;
+            .tab {
+                padding: 8px;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+                font-size: 0.85em;
+            }
+            .tab:last-child {
+                border-bottom: none;
+            }
+            .chart-container {
+                height: 240px;
             }
             .header-content {
                 flex-direction: column;
-                gap: 8px;
+                gap: 6px;
             }
             .header h1 {
-                font-size: 1.1em;
+                font-size: 0.9em;
+                margin-left: 0;
             }
             .filter-display {
-                font-size: 1.1em;
+                font-size: 0.9em;
             }
             .header-info {
                 margin-left: 0;
-                margin-top: 5px;
+                margin-top: 3px;
                 text-align: center;
-                font-size: 0.7em;
+                font-size: 0.65em;
             }
             .footer {
-                padding: 10px 12px;
-                font-size: 0.8em;
+                padding: 8px 10px;
+                font-size: 0.75em;
+            }
+            .metric-card {
+                padding: 8px;
+            }
+            .metric-value {
+                font-size: 1.3em;
+            }
+            .metric-label {
+                font-size: 0.7em;
+            }
+            .dashboard {
+                margin-top: 5px;
             }
         }
     </style>
@@ -767,7 +776,7 @@
         </div>
         <!-- Main Content -->
         <div class="main-content" id="mainContent">
-            <!-- Header -->
+            <!-- Header - Fixed -->
             <div class="header" id="header">
                 <div class="header-content">
                     <h1>🚛 Truck Mixer Utilization</h1>
@@ -779,7 +788,7 @@
                     <p>Period: <span id="periodeInfo">-</span></p>
                 </div>
             </div>
-            <!-- Tabs -->
+            <!-- Tabs - Rapat dengan Header -->
             <div class="tabs" id="tabsContainer">
                 <div class="tab active" onclick="switchTab('big')">🚛 TM Big</div>
                 <div class="tab" onclick="switchTab('mini')">🚚 TM Mini</div>
@@ -1032,7 +1041,7 @@
         let filteredData = null;
         let excelSheets = [];
         let currentSheet = '';
-        let isSidebarCollapsed = true; // Default sidebar tertutup
+        let isSidebarCollapsed = true;
         let currentTab = 'big';
         let tableData = {
             'Big': [],
@@ -1282,12 +1291,12 @@
             const finalIndices = {
                 dpNo: dpNoIndex !== -1 ? dpNoIndex : 0,
                 date: dateIndex !== -1 ? dateIndex : 1,
-                truckNo: truckNoIndex !== -1 ? truckNoIndex : 18, // Kolom S (Truck No)
+                truckNo: truckNoIndex !== -1 ? truckNoIndex : 18,
                 allocation: allocationIndex !== -1 ? allocationIndex : 17,
                 qty: qtyIndex !== -1 ? qtyIndex : 15,
                 siteNo: siteNoIndex !== -1 ? siteNoIndex : 19,
                 siteName: siteNameIndex !== -1 ? siteNameIndex : 20,
-                distance: distanceIndex !== -1 ? distanceIndex : 21, // Kolom V (Distance)
+                distance: distanceIndex !== -1 ? distanceIndex : 21,
                 area: areaIndex !== -1 ? areaIndex : -1,
                 plantName: plantNameIndex !== -1 ? plantNameIndex : -1
             };
