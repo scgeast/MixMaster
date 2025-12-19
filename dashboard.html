@@ -965,6 +965,15 @@
         .sidebar:not(.collapsed) .mix-master-text {
             display: flex;
         }
+        
+        /* Style untuk link dengan href langsung (untuk new tab) */
+        .menu-link.with-href {
+            text-decoration: none;
+        }
+        
+        .menu-link.with-href:hover {
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -1057,42 +1066,42 @@
             <ul class="sidebar-menu">
                 <!-- Tombol Home Baru -->
                 <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="showWelcomeScreen()" data-tooltip="Home">
+                    <a href="dashboard.html" class="menu-link with-href" onclick="showWelcomeScreen(event)" data-tooltip="Home">
                         <span class="menu-icon">🏠</span>
                         <span class="menu-initial">H</span>
                         <span class="menu-text">Home</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                     <a href="#" class="menu-link" onclick="loadApp('summary-daily-delivery')" data-tooltip="Perform Delivery">
+                     <a href="dashboard.html?app=delivery" class="menu-link with-href" onclick="loadApp('summary-daily-delivery', event)" data-tooltip="Perform Delivery">
                         <span class="menu-icon">📦</span>
                         <span class="menu-initial">D</span>
                         <span class="menu-text">Perform Delivery</span>
                     </a>
                 </li>        
                 <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="loadApp('utilisasi-truck')" data-tooltip="Truck Utilization">
+                    <a href="dashboard.html?app=truck-utilization" class="menu-link with-href" onclick="loadApp('utilisasi-truck', event)" data-tooltip="Truck Utilization">
                         <span class="menu-icon">🚛</span>
                         <span class="menu-initial">U</span>
                         <span class="menu-text">Truck Utilization</span>
                     </a>
                 </li>                    
                 <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="loadApp('monitoring-order')" data-tooltip="Monitoring Order">
+                    <a href="dashboard.html?app=monitoring" class="menu-link with-href" onclick="loadApp('monitoring-order', event)" data-tooltip="Monitoring Order">
                         <span class="menu-icon">📊</span>
                         <span class="menu-initial">M</span>
                         <span class="menu-text">Monitoring Order</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="loadApp('jadwal-pengecoran')" data-tooltip="Pouring Schedule">
+                    <a href="dashboard.html?app=schedule" class="menu-link with-href" onclick="loadApp('jadwal-pengecoran', event)" data-tooltip="Pouring Schedule">
                         <span class="menu-icon">📅</span>
                         <span class="menu-initial">S</span>
                         <span class="menu-text">Pouring Schedule</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="loadApp('production-all-area')" data-tooltip="Production Area">
+                    <a href="dashboard.html?app=production" class="menu-link with-href" onclick="loadApp('production-all-area', event)" data-tooltip="Production Area">
                         <span class="menu-icon">🏭</span>
                         <span class="menu-initial">P</span>
                         <span class="menu-text">Production Area</span>
@@ -1200,14 +1209,19 @@
         const appParameterMap = {
             'summary-daily-delivery': 'summary-daily-delivery',
             'delivery': 'summary-daily-delivery',
+            'perform-delivery': 'summary-daily-delivery',
             'utilisasi-truck': 'utilisasi-truck',
             'truck-utilization': 'utilisasi-truck',
+            'truck': 'utilisasi-truck',
             'monitoring-order': 'monitoring-order',
             'monitoring': 'monitoring-order',
+            'order': 'monitoring-order',
             'jadwal-pengecoran': 'jadwal-pengecoran',
             'schedule': 'jadwal-pengecoran',
+            'pouring': 'jadwal-pengecoran',
             'production-all-area': 'production-all-area',
-            'production': 'production-all-area'
+            'production': 'production-all-area',
+            'area': 'production-all-area'
         };
 
         // Peta aplikasi untuk nama menu
@@ -1280,7 +1294,7 @@
                     link.classList.add('active');
                     
                     // Load aplikasi
-                    loadApp(appName);
+                    loadApp(appName, null);
                     found = true;
                     break;
                 }
@@ -1360,7 +1374,13 @@
         }
 
         // Load application in iframe
-        function loadApp(appName) {
+        function loadApp(appName, event) {
+            // Jika ada event, cegah default behavior untuk klik normal
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
             resetInactivityTimer();
             
             const welcomeScreen = document.getElementById('welcomeScreen');
@@ -1409,6 +1429,9 @@
             if (window.innerWidth <= 768) {
                 document.getElementById('sidebar').classList.remove('mobile-open');
             }
+            
+            // Return false untuk mencegah browser mengikuti href
+            return false;
         }
 
         // Show welcome screen langsung (tanpa event)
@@ -1431,7 +1454,11 @@
 
         // Show welcome screen (dengan event)
         function showWelcomeScreen(event) {
-            if (event) event.preventDefault();
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
             resetInactivityTimer();
             
             const welcomeScreen = document.getElementById('welcomeScreen');
@@ -1453,6 +1480,8 @@
             if (window.innerWidth <= 768) {
                 document.getElementById('sidebar').classList.remove('mobile-open');
             }
+            
+            return false;
         }
 
         // Mobile view handling
@@ -1510,18 +1539,7 @@
             }
         });
 
-        // MODIFIKASI: Tambahkan fungsi untuk membuat URL dengan parameter app
-        function createAppUrl(appName) {
-            const currentUrl = window.location.origin + window.location.pathname;
-            const appParam = Object.keys(appParameterMap).find(key => appParameterMap[key] === appName);
-            
-            if (appParam) {
-                return `${currentUrl}?app=${appParam}`;
-            }
-            return currentUrl;
-        }
-
-        // MODIFIKASI: Ubah menu links untuk mendukung open in new tab
+        // Initialize the dashboard when page loads
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Dashboard initializing...');
             
@@ -1530,85 +1548,61 @@
                 return;
             }
             
-            // Setup menu links untuk open in new tab
-            setTimeout(() => {
-                const menuLinks = document.querySelectorAll('.menu-link');
-                menuLinks.forEach(link => {
-                    // Simpan onclick original
-                    const originalOnClick = link.onclick;
-                    
-                    // Tambahkan event listener untuk ctrl+click atau middle click
-                    link.addEventListener('click', function(e) {
-                        // Jika ctrl+click atau middle click (button = 1)
-                        if (e.ctrlKey || e.metaKey || e.button === 1) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            
-                            // Cari nama app yang sesuai
-                            let appName = null;
-                            const menuText = this.querySelector('.menu-text')?.textContent;
-                            
-                            for (const [key, value] of Object.entries(appMenuMap)) {
-                                if (value === menuText) {
-                                    appName = key;
-                                    break;
-                                }
-                            }
-                            
-                            if (appName && appName !== 'home') {
-                                // Buka di tab baru dengan parameter app
-                                const newTabUrl = createAppUrl(appName);
-                                window.open(newTabUrl, '_blank');
-                            } else if (menuText === 'Home') {
-                                // Untuk Home, buka dashboard tanpa parameter
-                                const newTabUrl = window.location.origin + window.location.pathname;
-                                window.open(newTabUrl, '_blank');
-                            }
-                            return false;
-                        }
-                        
-                        // Jika bukan ctrl+click, jalankan fungsi original
-                        if (originalOnClick) {
-                            return originalOnClick.call(this, e);
-                        }
-                    });
-                    
-                    // Tambahkan title untuk hint
-                    link.title = "Click to open, Ctrl+Click to open in new tab";
-                });
-            }, 100);
-            
             // Initialize dashboard
             setTimeout(() => {
                 initializeDashboard();
             }, 1000);
         });
 
-        // MODIFIKASI: Tambahkan handler untuk mouse middle click
-        document.addEventListener('auxclick', function(e) {
-            if (e.button === 1 && e.target.closest('.menu-link')) {
-                const link = e.target.closest('.menu-link');
-                e.preventDefault();
-                e.stopPropagation();
+        // Fungsi untuk menangani klik kanan pada menu links
+        function setupRightClickHandlers() {
+            const menuLinks = document.querySelectorAll('.menu-link.with-href');
+            
+            menuLinks.forEach(link => {
+                // Simpan onclick original
+                const originalOnClick = link.onclick;
                 
-                let appName = null;
-                const menuText = link.querySelector('.menu-text')?.textContent;
-                
-                for (const [key, value] of Object.entries(appMenuMap)) {
-                    if (value === menuText) {
-                        appName = key;
-                        break;
+                // Tambahkan handler untuk klik normal
+                link.addEventListener('click', function(e) {
+                    // Untuk klik normal (bukan ctrl+click, shift+click, atau middle click)
+                    if (!e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Cari nama app dari href
+                        const href = this.getAttribute('href');
+                        if (href.includes('?app=')) {
+                            const appParam = href.split('?app=')[1];
+                            const appName = appParameterMap[appParam];
+                            if (appName) {
+                                loadApp(appName, e);
+                            }
+                        } else if (href.includes('dashboard.html')) {
+                            showWelcomeScreen(e);
+                        }
+                        
+                        return false;
                     }
-                }
+                    // Untuk ctrl+click atau shift+click, biarkan browser handle (open in new tab/window)
+                });
                 
-                if (appName && appName !== 'home') {
-                    const newTabUrl = createAppUrl(appName);
-                    window.open(newTabUrl, '_blank');
-                } else if (menuText === 'Home') {
-                    const newTabUrl = window.location.origin + window.location.pathname;
-                    window.open(newTabUrl, '_blank');
-                }
-                return false;
+                // Tambahkan title untuk hint
+                link.title = "Click to open, Right-click → 'Open link in new tab' to open directly";
+            });
+        }
+
+        // Setup right click handlers setelah DOM selesai load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                setupRightClickHandlers();
+            }, 1500);
+        });
+
+        // Custom context menu prevention (opsional)
+        document.addEventListener('contextmenu', function(e) {
+            if (e.target.closest('.menu-link.with-href')) {
+                // Biarkan context menu browser muncul
+                console.log('Right-click on menu link - browser will handle "Open link in new tab"');
             }
         });
     </script>
