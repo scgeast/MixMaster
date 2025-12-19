@@ -247,7 +247,7 @@
             height: 40px;
             border-radius: 2px;
             animation: flyingPaper 12s linear infinite;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
         }
 
         .paper-1 { left: 8%; animation-delay: 1s; animation-duration: 15s; }
@@ -1173,7 +1173,7 @@
     </div>
 
     <script>
-        // Authentication check function - PERBAIKAN: Tambahkan return false
+        // Authentication check function
         function checkAuth() {
             const isLoggedIn = localStorage.getItem('isLoggedIn');
             const currentUser = localStorage.getItem('currentUser');
@@ -1182,7 +1182,6 @@
             
             if (!isLoggedIn || !currentUser) {
                 console.log('User not authenticated, redirecting to login');
-                // Redirect to login page
                 window.location.href = 'index.html';
                 return false;
             }
@@ -1191,7 +1190,36 @@
             return true;
         }
 
-        // Initialize dashboard
+        // Fungsi untuk mendapatkan parameter dari URL
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Peta aplikasi untuk parameter URL
+        const appParameterMap = {
+            'summary-daily-delivery': 'summary-daily-delivery',
+            'delivery': 'summary-daily-delivery',
+            'utilisasi-truck': 'utilisasi-truck',
+            'truck-utilization': 'utilisasi-truck',
+            'monitoring-order': 'monitoring-order',
+            'monitoring': 'monitoring-order',
+            'jadwal-pengecoran': 'jadwal-pengecoran',
+            'schedule': 'jadwal-pengecoran',
+            'production-all-area': 'production-all-area',
+            'production': 'production-all-area'
+        };
+
+        // Peta aplikasi untuk nama menu
+        const appMenuMap = {
+            'summary-daily-delivery': 'Perform Delivery',
+            'utilisasi-truck': 'Truck Utilization',
+            'monitoring-order': 'Monitoring Order',
+            'jadwal-pengecoran': 'Pouring Schedule',
+            'production-all-area': 'Production Area'
+        };
+
+        // Initialize dashboard dengan auto-load app dari parameter URL
         function initializeDashboard() {
             // Hide auth loading screen
             document.getElementById('authLoading').style.display = 'none';
@@ -1214,12 +1242,54 @@
             checkMobileView();
             window.addEventListener('resize', checkMobileView);
             
+            // Check for URL parameter to auto-load app
+            const appParam = getUrlParameter('app');
+            if (appParam && appParameterMap[appParam]) {
+                const appName = appParameterMap[appParam];
+                console.log('Auto-loading app from URL parameter:', appName);
+                
+                // Simulate click on the corresponding menu item
+                setTimeout(() => {
+                    autoLoadApp(appName);
+                }, 500);
+            } else {
+                // Show welcome screen jika tidak ada parameter
+                setTimeout(() => {
+                    showWelcomeScreenDirect();
+                }, 500);
+            }
+            
             // Setup screen saver
             setTimeout(() => {
                 setupActivityListeners();
                 resetInactivityTimer();
                 console.log('Screen saver initialized');
             }, 1000);
+        }
+
+        // Fungsi untuk auto-load app berdasarkan parameter
+        function autoLoadApp(appName) {
+            const menuLinks = document.querySelectorAll('.menu-link');
+            let found = false;
+            
+            for (let link of menuLinks) {
+                const menuText = link.querySelector('.menu-text')?.textContent;
+                if (menuText === appMenuMap[appName]) {
+                    // Set sebagai active
+                    menuLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    
+                    // Load aplikasi
+                    loadApp(appName);
+                    found = true;
+                    break;
+                }
+            }
+            
+            if (!found) {
+                console.warn('App not found in menu:', appName);
+                showWelcomeScreenDirect();
+            }
         }
 
         // Screen Saver functionality
@@ -1247,7 +1317,7 @@
             screensaver.classList.remove('active');
             screensaverActive = false;
             console.log('Screen saver deactivated');
-            resetInactivityTimer(); // Reset timer setelah menutup screensaver
+            resetInactivityTimer();
         }
 
         // Event listeners untuk screen saver
@@ -1262,7 +1332,6 @@
                 document.addEventListener(event, resetInactivityTimer, { passive: true });
             });
             
-            // Event listener untuk screensaver
             const screensaver = document.getElementById('screensaver');
             screensaver.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -1292,16 +1361,12 @@
 
         // Load application in iframe
         function loadApp(appName) {
-            resetInactivityTimer(); // Reset timer saat ada aktivitas
+            resetInactivityTimer();
             
             const welcomeScreen = document.getElementById('welcomeScreen');
             const appFrame = document.getElementById('appFrame');
             const loading = document.getElementById('loading');
             const menuLinks = document.querySelectorAll('.menu-link');
-            
-            // Update active menu
-            menuLinks.forEach(link => link.classList.remove('active'));
-            event.target.classList.add('active');
             
             // Show loading
             welcomeScreen.style.display = 'none';
@@ -1324,17 +1389,14 @@
             if (appPath) {
                 console.log('Loading app:', appPath);
                 
-                // Set iframe source
                 appFrame.src = appPath;
                 
-                // Hide loading and show iframe when loaded
                 appFrame.onload = function() {
                     loading.style.display = 'none';
                     appFrame.style.display = 'block';
                     resetInactivityTimer();
                 };
                 
-                // Handle iframe errors
                 appFrame.onerror = function() {
                     loading.style.display = 'none';
                     welcomeScreen.style.display = 'flex';
@@ -1349,25 +1411,45 @@
             }
         }
 
-        // Show welcome screen (Home function)
-        function showWelcomeScreen() {
-            resetInactivityTimer(); // Reset timer saat ada aktivitas
+        // Show welcome screen langsung (tanpa event)
+        function showWelcomeScreenDirect() {
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            const appFrame = document.getElementById('appFrame');
+            const loading = document.getElementById('loading');
+            const menuLinks = document.querySelectorAll('.menu-link');
+            
+            // Set Home as active
+            menuLinks.forEach(link => link.classList.remove('active'));
+            if (menuLinks.length > 0) {
+                menuLinks[0].classList.add('active');
+            }
+            
+            welcomeScreen.style.display = 'flex';
+            appFrame.style.display = 'none';
+            loading.style.display = 'none';
+        }
+
+        // Show welcome screen (dengan event)
+        function showWelcomeScreen(event) {
+            if (event) event.preventDefault();
+            resetInactivityTimer();
             
             const welcomeScreen = document.getElementById('welcomeScreen');
             const appFrame = document.getElementById('appFrame');
             const loading = document.getElementById('loading');
             const menuLinks = document.querySelectorAll('.menu-link');
             
-            // Update active menu - set Home as active
             menuLinks.forEach(link => link.classList.remove('active'));
-            event.target.classList.add('active');
+            if (event && event.target.closest('.menu-link')) {
+                event.target.closest('.menu-link').classList.add('active');
+            } else if (menuLinks.length > 0) {
+                menuLinks[0].classList.add('active');
+            }
             
-            // Show welcome screen and hide others
             welcomeScreen.style.display = 'flex';
             appFrame.style.display = 'none';
             loading.style.display = 'none';
             
-            // Close mobile menu if open
             if (window.innerWidth <= 768) {
                 document.getElementById('sidebar').classList.remove('mobile-open');
             }
@@ -1380,7 +1462,6 @@
             
             if (window.innerWidth <= 768) {
                 if (!mobileBtn) {
-                    // Create mobile menu button if it doesn't exist
                     const newMobileBtn = document.createElement('button');
                     newMobileBtn.className = 'mobile-menu-btn';
                     newMobileBtn.innerHTML = '☰';
@@ -1417,35 +1498,118 @@
             
             console.log('User logged out:', user.name);
             
-            // Redirect to login page
             window.location.href = 'index.html';
         }
 
         // Handle page visibility change
         document.addEventListener('visibilitychange', function() {
             if (document.hidden) {
-                // Page is hidden, mungkin screensaver aktif
                 console.log('Page hidden');
             } else {
-                // Page is visible, reset timer
                 resetInactivityTimer();
             }
         });
 
-        // Initialize the dashboard when page loads - PERBAIKAN: Pindahkan logic
+        // MODIFIKASI: Tambahkan fungsi untuk membuat URL dengan parameter app
+        function createAppUrl(appName) {
+            const currentUrl = window.location.origin + window.location.pathname;
+            const appParam = Object.keys(appParameterMap).find(key => appParameterMap[key] === appName);
+            
+            if (appParam) {
+                return `${currentUrl}?app=${appParam}`;
+            }
+            return currentUrl;
+        }
+
+        // MODIFIKASI: Ubah menu links untuk mendukung open in new tab
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Dashboard initializing...');
             
-            // Check authentication first - TAMBAHKAN RETURN
+            // Check authentication
             if (!checkAuth()) {
-                // Jika tidak terautentikasi, hentikan eksekusi
                 return;
             }
             
-            // If authenticated, initialize dashboard
+            // Setup menu links untuk open in new tab
+            setTimeout(() => {
+                const menuLinks = document.querySelectorAll('.menu-link');
+                menuLinks.forEach(link => {
+                    // Simpan onclick original
+                    const originalOnClick = link.onclick;
+                    
+                    // Tambahkan event listener untuk ctrl+click atau middle click
+                    link.addEventListener('click', function(e) {
+                        // Jika ctrl+click atau middle click (button = 1)
+                        if (e.ctrlKey || e.metaKey || e.button === 1) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            // Cari nama app yang sesuai
+                            let appName = null;
+                            const menuText = this.querySelector('.menu-text')?.textContent;
+                            
+                            for (const [key, value] of Object.entries(appMenuMap)) {
+                                if (value === menuText) {
+                                    appName = key;
+                                    break;
+                                }
+                            }
+                            
+                            if (appName && appName !== 'home') {
+                                // Buka di tab baru dengan parameter app
+                                const newTabUrl = createAppUrl(appName);
+                                window.open(newTabUrl, '_blank');
+                            } else if (menuText === 'Home') {
+                                // Untuk Home, buka dashboard tanpa parameter
+                                const newTabUrl = window.location.origin + window.location.pathname;
+                                window.open(newTabUrl, '_blank');
+                            }
+                            return false;
+                        }
+                        
+                        // Jika bukan ctrl+click, jalankan fungsi original
+                        if (originalOnClick) {
+                            return originalOnClick.call(this, e);
+                        }
+                    });
+                    
+                    // Tambahkan title untuk hint
+                    link.title = "Click to open, Ctrl+Click to open in new tab";
+                });
+            }, 100);
+            
+            // Initialize dashboard
             setTimeout(() => {
                 initializeDashboard();
             }, 1000);
+        });
+
+        // MODIFIKASI: Tambahkan handler untuk mouse middle click
+        document.addEventListener('auxclick', function(e) {
+            if (e.button === 1 && e.target.closest('.menu-link')) {
+                const link = e.target.closest('.menu-link');
+                e.preventDefault();
+                e.stopPropagation();
+                
+                let appName = null;
+                const menuText = link.querySelector('.menu-text')?.textContent;
+                
+                for (const [key, value] of Object.entries(appMenuMap)) {
+                    if (value === menuText) {
+                        appName = key;
+                        break;
+                    }
+                }
+                
+                if (appName && appName !== 'home') {
+                    const newTabUrl = createAppUrl(appName);
+                    window.open(newTabUrl, '_blank');
+                } else if (menuText === 'Home') {
+                    const newTabUrl = window.location.origin + window.location.pathname;
+                    window.open(newTabUrl, '_blank');
+                }
+                return false;
+            }
         });
     </script>
 </body>
