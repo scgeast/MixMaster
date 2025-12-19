@@ -65,7 +65,7 @@
             left: 20px;
             background: none;
             color: #8B0000;
-            border: none;
+            border: 1px solid rgba(139, 0, 0, 0.5); /* Border semi-transparan */
             padding: 6px 10px;
             border-radius: 5px;
             cursor: pointer;
@@ -74,8 +74,10 @@
             transition: all 0.3s ease;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
+        
         .sidebar-toggle:hover {
-            background: rgba(255, 255, 255, 1);
+            background: rgba(255, 255, 255, 0.9);
+            border-color: #8B0000; /* Border lebih solid saat hover */
             transform: scale(1.05);
         }
         .sidebar h2 {
