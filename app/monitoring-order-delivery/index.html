@@ -9,7 +9,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
+        /* CSS VARIABLES */
         :root {
+            /* Mode Original */
             --primary: #2c3e50;
             --secondary: #3498db;
             --success: #27ae60;
@@ -20,27 +22,250 @@
             --header-gradient: linear-gradient(135deg, #8B0000 0%, #800080 100%);
             --kpi-gradient: linear-gradient(135deg, #1a237e 0%, #283593 100%);
             --progress-gradient: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+            --cancel-gradient: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
             --chart-gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --chart-gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             --chart-gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            
+            /* Mode Neon - Default OFF */
+            --neon-blue: #3498db;
+            --neon-green: #27ae60;
+            --neon-purple: #9d4edd;
+            --cyber-blue: #3498db;
+            --cyber-pink: #e74c3c;
+            --background-color: #f5f7fa;
+            --sidebar-bg: white;
+            --sidebar-header-bg: linear-gradient(135deg, #8B0000 0%, #800080 100%);
+            --card-bg: white;
+            --table-bg: white;
+            --text-color: #333;
+            --text-light: #666;
+            --border-color: #ddd;
+            --border-light: #eee;
+            --shadow-color: rgba(0,0,0,0.1);
+            --shadow-light: rgba(0,0,0,0.05);
+            --chart-bg: white;
+            --modal-bg: white;
+            --scrollbar-track: #f1f1f1;
+            --scrollbar-thumb: #888;
+            --tab-bg: white;
+            --tab-hover: #f9f9f9;
         }
+
+        /* Mode Neon ON */
+        body.neon-mode {
+            /* Variables untuk mode neon */
+            --primary: #0a192f;
+            --secondary: #64ffda;
+            --accent: #00d4ff;
+            --success: #00ff9d;
+            --warning: #ffd700;
+            --danger: #ff4757;
+            --light: #ccd6f6;
+            --dark: #112240;
+            --header-gradient: linear-gradient(135deg, #0a192f 0%, #112240 50%, #1a365d 100%);
+            --sidebar-gradient: linear-gradient(180deg, #0a192f 0%, #0d1b2a 100%);
+            --kpi-gradient: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+            --progress-gradient: linear-gradient(135deg, #00b894 0%, #00d4aa 100%);
+            --cancel-gradient: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
+            --chart-gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --chart-gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --chart-gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --neon-blue: #00d4ff;
+            --neon-green: #00ff9d;
+            --neon-purple: #9d4edd;
+            --cyber-blue: #0ff0fc;
+            --cyber-pink: #ff00ff;
+            --background-color: #0a192f;
+            --sidebar-bg: linear-gradient(180deg, #0a192f 0%, #0d1b2a 100%);
+            --sidebar-header-bg: linear-gradient(135deg, rgba(10, 25, 47, 0.9) 0%, rgba(17, 34, 64, 0.9) 100%);
+            --card-bg: rgba(17, 34, 64, 0.7);
+            --table-bg: rgba(17, 34, 64, 0.7);
+            --text-color: #ccd6f6;
+            --text-light: #8892b0;
+            --border-color: rgba(100, 255, 218, 0.2);
+            --border-light: rgba(100, 255, 218, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --chart-bg: rgba(17, 34, 64, 0.7);
+            --modal-bg: linear-gradient(135deg, rgba(17, 34, 64, 0.95) 0%, rgba(10, 25, 47, 0.95) 100%);
+            --scrollbar-track: var(--dark);
+            --scrollbar-thumb: var(--neon-blue);
+            --tab-bg: rgba(17, 34, 64, 0.5);
+            --tab-hover: rgba(100, 255, 218, 0.1);
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
         }
+        
         body {
-            background-color: #f5f7fa;
-            color: #333;
+            background-color: var(--background-color);
+            color: var(--text-color);
             display: flex;
             min-height: 100vh;
             overflow-x: hidden;
+            position: relative;
+            transition: all 0.3s ease;
         }
+        
+        /* Futuristic Background Effects - Hanya di Neon Mode */
+        .grid-lines {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(to right, rgba(100, 255, 218, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(100, 255, 218, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            pointer-events: none;
+            animation: gridMove 20s linear infinite;
+        }
+        
+        body.neon-mode .grid-lines {
+            display: block;
+        }
+        
+        @keyframes gridMove {
+            0% {
+                transform: translateY(0) translateX(0);
+            }
+            100% {
+                transform: translateY(50px) translateX(50px);
+            }
+        }
+        
+        .particles {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        body.neon-mode .particles {
+            display: block;
+        }
+        
+        .particle {
+            position: absolute;
+            background: radial-gradient(circle, var(--neon-blue), transparent);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+        
+        .particle:nth-child(1) {
+            width: 100px;
+            height: 100px;
+            top: 20%;
+            left: 10%;
+            animation-duration: 25s;
+            background: radial-gradient(circle, rgba(100, 255, 218, 0.3), transparent);
+        }
+        
+        .particle:nth-child(2) {
+            width: 150px;
+            height: 150px;
+            top: 60%;
+            left: 80%;
+            animation-duration: 30s;
+            animation-delay: 2s;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.2), transparent);
+        }
+        
+        .particle:nth-child(3) {
+            width: 80px;
+            height: 80px;
+            top: 80%;
+            left: 20%;
+            animation-duration: 20s;
+            animation-delay: 5s;
+            background: radial-gradient(circle, rgba(157, 78, 221, 0.25), transparent);
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(100px, 50px) rotate(90deg);
+            }
+            50% {
+                transform: translate(50px, 100px) rotate(180deg);
+            }
+            75% {
+                transform: translate(-50px, 50px) rotate(270deg);
+            }
+        }
+        
+        /* Neon Glow Effects - Hanya di Neon Mode */
+        .neon-glow {
+            box-shadow: none;
+        }
+        
+        body.neon-mode .neon-glow {
+            box-shadow: 
+                0 0 10px rgba(100, 255, 218, 0.5),
+                0 0 20px rgba(100, 255, 218, 0.3),
+                0 0 30px rgba(100, 255, 218, 0.1);
+        }
+        
+        .neon-border {
+            border: 1px solid var(--border-color);
+        }
+        
+        body.neon-mode .neon-border {
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            box-shadow: 
+                inset 0 0 10px rgba(100, 255, 218, 0.2),
+                0 0 15px rgba(100, 255, 218, 0.1);
+        }
+        
+        /* CSS untuk Progress KPI di Neon Mode - ICON & ANGKA MERAH */
+        body.neon-mode .stat-card.progress-kpi .stat-icon {
+            color: #ff4757; /* Warna merah neon */
+            text-shadow: 0 0 10px #ff4757, 0 0 20px rgba(255, 71, 87, 0.5);
+        }
+
+        body.neon-mode .stat-card.progress-kpi .stat-value {
+            background: linear-gradient(90deg, #ff4757, #ff6b6b); /* Gradient merah */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Animasi khusus untuk progress KPI di neon mode */
+        body.neon-mode .stat-card.progress-kpi {
+            animation: neonPulse 2s infinite;
+        }
+
+        @keyframes neonPulse {
+            0%, 100% {
+                box-shadow: 
+                    0 5px 15px rgba(0, 0, 0, 0.3),
+                    0 0 20px rgba(255, 71, 87, 0.3);
+            }
+            50% {
+                box-shadow: 
+                    0 5px 15px rgba(0, 0, 0, 0.3),
+                    0 0 30px rgba(255, 71, 87, 0.6);
+            }
+        }
+        
         .sidebar {
             width: 320px;
-            background-color: white;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            background: var(--sidebar-bg);
+            box-shadow: 2px 0 10px var(--shadow-color);
             transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
@@ -51,69 +276,344 @@
             bottom: 0;
             transform: translateX(0);
         }
+        
+        body.neon-mode .sidebar {
+            box-shadow: 
+                0 0 30px rgba(0, 212, 255, 0.2),
+                0 0 60px rgba(100, 255, 218, 0.1);
+            border-right: 1px solid var(--border-color);
+        }
+        
         .sidebar-header {
             padding: 20px;
-            background: var(--header-gradient);
+            background: var(--sidebar-header-bg);
             color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid var(--border-color);
         }
+        
+        body.neon-mode .sidebar-header {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body.neon-mode .sidebar-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(100, 255, 218, 0.1), transparent);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
         .sidebar-toggle {
             background: none;
             border: none;
             color: white;
             font-size: 20px;
             cursor: pointer;
-            padding: 2px;
+            padding: 8px;
+            border-radius: 4px;
+            transition: all 0.3s;
         }
+        
+        body.neon-mode .sidebar-toggle {
+            background: rgba(100, 255, 218, 0.1);
+        }
+        
+        body.neon-mode .sidebar-toggle:hover {
+            background: rgba(100, 255, 218, 0.2);
+            transform: scale(1.1);
+        }
+        
         .sidebar-content {
             padding: 20px;
             flex: 1;
             overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
         }
+        
+        .sidebar-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .sidebar-content::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+            border-radius: 3px;
+        }
+        
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 3px;
+        }
+        
+        /* Theme Toggle Switch - KECIL */
+        .theme-toggle-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 5px var(--shadow-color);
+        }
+        
+        .theme-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .theme-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 14px;
+        }
+        
+        .theme-label i {
+            font-size: 16px;
+        }
+        
+        /* Toggle Switch Styling - KECIL */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-green));
+        }
+        
+        body.neon-mode input:checked + .slider {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-green));
+            box-shadow: 0 0 8px var(--neon-blue);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Filter Section Styling - Original Style */
+        .filter-section, .compact-filter-row {
+            background: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-section h3, .compact-filter-row h3 {
+            margin-bottom: 15px;
+            color: var(--text-color);
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+        
+        .filter-section h3 i, .compact-filter-row h3 i {
+            color: var(--secondary);
+        }
+        
+        body.neon-mode .filter-section h3 i,
+        body.neon-mode .compact-filter-row h3 i {
+            color: var(--neon-blue);
+        }
+        
+        .compact-filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: flex-end;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .compact-filter-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 180px;
+        }
+        
+        .compact-filter-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+        
+        body.neon-mode .compact-filter-group label {
+            color: var(--neon-blue);
+        }
+        
+        .compact-filter-group select, 
+        .compact-filter-group input {
+            padding: 8px 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-color);
+            transition: all 0.3s;
+            width: 100%;
+        }
+        
+        .compact-filter-group select:focus, 
+        .compact-filter-group input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 10px rgba(var(--secondary-rgb), 0.3);
+        }
+        
+        body.neon-mode .compact-filter-group select:focus,
+        body.neon-mode .compact-filter-group input:focus {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+        }
+        
         .upload-section {
             margin-bottom: 30px;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
         }
+        
+        body.neon-mode .upload-section:hover {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 20px rgba(100, 255, 218, 0.2);
+        }
+        
         .upload-section h3 {
             margin-bottom: 15px;
-            color: var(--primary);
+            color: var(--secondary);
             font-size: 18px;
             display: flex;
             align-items: center;
             gap: 10px;
+            font-weight: 600;
         }
+        
         .upload-btn {
             display: block;
             width: 100%;
             padding: 12px;
-            background-color: var(--secondary);
+            background: var(--secondary);
             color: white;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
             text-align: center;
             margin-bottom: 10px;
+            border: none;
+            position: relative;
+            overflow: hidden;
         }
+        
+        body.neon-mode .upload-btn {
+            background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-green) 100%);
+            color: var(--primary);
+        }
+        
+        body.neon-mode .upload-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        body.neon-mode .upload-btn:hover::before {
+            left: 100%;
+        }
+        
         .upload-btn:hover {
-            background-color: #2980b9;
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
+        
+        body.neon-mode .upload-btn:hover {
+            background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-green) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+        }
+        
         .upload-btn input {
             display: none;
         }
+        
         .file-info {
             font-size: 14px;
-            color: var(--dark);
+            color: var(--text-light);
             margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            border-left: 3px solid var(--secondary);
         }
+        
         .loading {
             display: none;
             text-align: center;
             padding: 10px;
         }
+        
         .spinner {
-            border: 4px solid #f3f3f3;
+            border: 4px solid rgba(0,0,0,0.1);
             border-top: 4px solid var(--secondary);
             border-radius: 50%;
             width: 30px;
@@ -121,15 +621,18 @@
             animation: spin 2s linear infinite;
             margin: 0 auto 10px;
         }
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
         .sidebar.hidden {
             transform: translateX(-100%);
             width: 0;
             overflow: hidden;
         }
+        
         .main-content {
             flex: 1;
             display: flex;
@@ -138,12 +641,15 @@
             transition: margin-left 0.3s ease;
             margin-left: 320px;
             width: calc(100% - 320px);
+            position: relative;
         }
+        
         .main-content.expanded {
             margin-left: 0;
             width: 100%;
         }
-        /* HEADER - STICKY FIXED */
+        
+        /* HEADER STICKY FIXED */
         header {
             padding: 15px 25px 15px 50px;
             background: var(--header-gradient);
@@ -156,14 +662,24 @@
             left: 320px;
             right: 0;
             z-index: 100;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             height: 60px;
             min-height: 60px;
             transition: all 0.3s ease;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 10px var(--shadow-color);
         }
+        
+        body.neon-mode header {
+            box-shadow: 
+                0 5px 20px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(100, 255, 218, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
         .main-content.expanded header {
             left: 0;
         }
+        
         .header-title {
             font-size: 22px;
             font-weight: 700;
@@ -173,9 +689,23 @@
             margin-left: 5px;
             margin-right: 20px;
         }
-        .header-title i {
-            font-size: 20px;
+        
+        body.neon-mode .header-title {
+            background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
+        
+        .header-title i {
+            color: var(--secondary);
+        }
+        
+        body.neon-mode .header-title i {
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+        
         .current-date {
             font-size: 14px;
             font-weight: 500;
@@ -183,40 +713,98 @@
             align-items: center;
             gap: 6px;
         }
+        
+        body.neon-mode .current-date {
+            color: var(--neon-green);
+            background: rgba(17, 34, 64, 0.5);
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+        
         .container {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
             width: 100%;
             max-width: 100%;
-            margin-top: 60px; /* Tambahkan margin top untuk header fixed */
+            margin-top: 60px;
+            position: relative;
         }
+        
         .tabs {
             display: flex;
             margin-bottom: 20px;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--border-color);
+            gap: 5px;
         }
+        
         .tab {
             padding: 12px 24px;
             cursor: pointer;
             font-weight: 600;
-            color: var(--dark);
+            color: var(--text-color);
             border-bottom: 3px solid transparent;
             transition: all 0.3s;
             display: flex;
             align-items: center;
             gap: 8px;
+            background: var(--tab-bg);
+            margin-right: 5px;
+            border-radius: 8px 8px 0 0;
         }
+        
+        body.neon-mode .tab {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body.neon-mode .tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(100, 255, 218, 0.1), transparent);
+            transition: 0.5s;
+        }
+        
+        body.neon-mode .tab:hover::before {
+            left: 100%;
+        }
+        
+        .tab:hover {
+            background: var(--tab-hover);
+        }
+        
         .tab.active {
             color: var(--secondary);
             border-bottom: 3px solid var(--secondary);
+            background: rgba(var(--secondary-rgb), 0.1);
         }
+        
+        body.neon-mode .tab.active {
+            color: var(--neon-green);
+            border-bottom: 3px solid var(--neon-green);
+            background: rgba(100, 255, 218, 0.1);
+            box-shadow: 0 5px 15px rgba(100, 255, 218, 0.1);
+        }
+        
         .tab-content {
             display: none;
+            animation: fadeIn 0.5s ease;
         }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
         .tab-content.active {
             display: block;
         }
+        
         .filter-row {
             display: flex;
             gap: 15px;
@@ -224,88 +812,174 @@
             flex-wrap: wrap;
             align-items: flex-end;
         }
+        
         .filter-group {
             display: flex;
             flex-direction: column;
         }
+        
         .filter-group label {
             margin-bottom: 5px;
             font-weight: 600;
             font-size: 14px;
-            color: var(--dark);
+            color: var(--text-color);
         }
+        
+        body.neon-mode .filter-group label {
+            color: var(--neon-blue);
+        }
+        
         .filter-group select, .filter-group input {
             padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
             min-width: 150px;
+            color: var(--text-color);
+            transition: all 0.3s;
         }
+        
+        .filter-group select:focus, .filter-group input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 10px rgba(var(--secondary-rgb), 0.3);
+        }
+        
+        body.neon-mode .filter-group select:focus,
+        body.neon-mode .filter-group input:focus {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+        }
+        
         .btn {
             padding: 8px 16px;
-            background-color: var(--secondary);
+            background: var(--secondary);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
         }
+        
+        body.neon-mode .btn {
+            background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-green) 100%);
+            color: var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body.neon-mode .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        body.neon-mode .btn:hover::before {
+            left: 100%;
+        }
+        
         .btn:hover {
-            background-color: #2980b9;
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
+        
+        body.neon-mode .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            background-color: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background: var(--table-bg);
+            box-shadow: 0 2px 5px var(--shadow-color);
             border-radius: 8px;
             overflow: hidden;
+            border: 1px solid var(--border-color);
         }
+        
+        body.neon-mode table {
+            box-shadow: 
+                0 5px 20px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(100, 255, 218, 0.1);
+        }
+        
         th, td {
             padding: 12px 15px;
             text-align: left;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border-light);
         }
+        
         th {
-            background-color: var(--primary);
+            background: var(--kpi-gradient);
             color: white;
             font-weight: 600;
             position: relative;
             cursor: pointer;
             user-select: none;
+            font-size: 14px;
         }
+        
         th.sortable:hover {
-            background-color: #3a506b;
+            background: linear-gradient(135deg, #3a506b 0%, #4a5a7b 100%);
         }
+        
+        body.neon-mode th.sortable:hover {
+            background: linear-gradient(135deg, rgba(26, 83, 92, 0.9) 0%, rgba(36, 36, 62, 0.9) 100%);
+        }
+        
         th i {
             margin-left: 5px;
             font-size: 12px;
-            opacity: 0.7;
+            color: rgba(255,255,255,0.7);
         }
+        
         tr:hover {
-            background-color: #f9f9f9;
+            background: rgba(0,0,0,0.05);
         }
+        
+        body.neon-mode tr:hover {
+            background: rgba(100, 255, 218, 0.05);
+        }
+        
         .action-cell {
             display: flex;
             gap: 10px;
         }
+        
         .action-btn {
             background: none;
             border: none;
             cursor: pointer;
             font-size: 16px;
-            transition: color 0.3s;
+            transition: all 0.3s;
+            padding: 5px;
+            border-radius: 4px;
         }
+        
         .edit-btn {
             color: var(--warning);
+            background: rgba(243, 156, 18, 0.1);
         }
+        
         .delete-btn {
             color: var(--danger);
+            background: rgba(231, 76, 60, 0.1);
         }
+        
         .action-btn:hover {
-            opacity: 0.8;
+            transform: scale(1.2);
+            box-shadow: 0 0 10px currentColor;
         }
+        
         .dashboard-content {
             flex: 1;
             display: flex;
@@ -315,6 +989,7 @@
             max-width: 100%;
             overflow-x: hidden;
         }
+        
         .stats-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -324,14 +999,15 @@
             overflow-x: visible;
             max-width: 100%;
         }
+        
         .stat-card {
             background: var(--kpi-gradient);
             color: white;
             border-radius: 8px;
             padding: 12px 8px;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+            box-shadow: 0 3px 8px var(--shadow-color);
             text-align: center;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s;
             width: 100%;
             flex-shrink: 1;
             flex-grow: 1;
@@ -341,7 +1017,15 @@
             position: relative;
             overflow: hidden;
             min-height: 85px;
+            border: 1px solid var(--border-color);
         }
+        
+        body.neon-mode .stat-card {
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(100, 255, 218, 0.1);
+        }
+        
         .stat-card::before {
             content: '';
             position: absolute;
@@ -351,22 +1035,67 @@
             height: 3px;
             background: rgba(255,255,255,0.3);
         }
+        
+        body.neon-mode .stat-card::before {
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-green));
+        }
+        
+        body.neon-mode .stat-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(100, 255, 218, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        body.neon-mode .stat-card:hover::after {
+            opacity: 1;
+        }
+        
         .stat-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.15);
         }
+        
+        body.neon-mode .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 10px 25px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(100, 255, 218, 0.2);
+        }
+        
         .stat-icon {
             font-size: 18px;
             margin-bottom: 6px;
             opacity: 0.9;
+            z-index: 1;
         }
+        
+        body.neon-mode .stat-icon {
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+        
         .stat-value {
             font-size: 16px;
             font-weight: 700;
             margin: 4px 0;
             text-shadow: 0 1px 2px rgba(0,0,0,0.2);
             line-height: 1.2;
+            z-index: 1;
         }
+        
+        body.neon-mode .stat-value {
+            background: linear-gradient(90deg, #fff, var(--neon-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
         .stat-label {
             font-size: 10px;
             color: rgba(255,255,255,0.9);
@@ -375,55 +1104,93 @@
             text-overflow: ellipsis;
             font-weight: 500;
             line-height: 1.2;
+            z-index: 1;
         }
+        
         .stat-card.cancel-kpi {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            background: var(--cancel-gradient);
         }
+        
         .stat-card.progress-kpi {
             background: var(--progress-gradient);
         }
+        
         .chart-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
             margin-bottom: 15px;
         }
+        
         .chart-container {
-            background-color: white;
+            background: var(--chart-bg);
             border-radius: 10px;
             padding: 15px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            box-shadow: 0 3px 10px var(--shadow-color);
             display: flex;
             flex-direction: column;
-            transition: transform 0.3s, box-shadow 0.3s;
-            border: 1px solid #f0f0f0;
+            transition: all 0.3s;
+            border: 1px solid var(--border-color);
             min-height: 280px;
             height: 280px;
         }
+        
+        body.neon-mode .chart-container {
+            box-shadow: 
+                0 5px 20px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(100, 255, 218, 0.1);
+        }
+        
+        body.neon-mode .chart-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(100, 255, 218, 0.05) 100%);
+            pointer-events: none;
+        }
+        
         .chart-container:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
+        
+        body.neon-mode .chart-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.4),
+                0 0 40px rgba(100, 255, 218, 0.2);
+            border-color: rgba(100, 255, 218, 0.3);
+        }
+        
         .chart-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 8px;
             padding-bottom: 6px;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid var(--border-color);
         }
+        
         .chart-title {
             font-size: 13px;
             font-weight: 600;
-            color: var(--primary);
+            color: var(--text-color);
             display: flex;
             align-items: center;
             gap: 6px;
             flex: 1;
         }
+        
+        body.neon-mode .chart-title {
+            color: var(--neon-green);
+        }
+        
         .chart-date-filter {
             font-size: 11px;
-            color: #666;
+            color: var(--text-light);
             font-weight: normal;
             background: none;
             border: none;
@@ -432,10 +1199,17 @@
             margin-left: auto;
             font-style: italic;
         }
+        
         .chart-title i {
             color: var(--secondary);
             font-size: 14px;
         }
+        
+        body.neon-mode .chart-title i {
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+        
         .chart-legend {
             display: flex;
             gap: 8px;
@@ -444,181 +1218,150 @@
             justify-content: center;
             margin-top: 8px;
             padding-top: 8px;
-            border-top: 1px solid #f0f0f0;
+            border-top: 1px solid var(--border-color);
         }
+        
         .legend-item {
             display: flex;
             align-items: center;
             gap: 4px;
             white-space: nowrap;
+            color: var(--text-color);
         }
+        
         .legend-color {
             width: 8px;
             height: 8px;
             border-radius: 2px;
         }
+        
+        body.neon-mode .legend-color {
+            box-shadow: 0 0 5px currentColor;
+        }
+        
         .chart-box {
             flex: 1;
             min-height: 180px;
             position: relative;
             height: 180px;
         }
+        
         .wide-chart-container {
             grid-column: 1 / -1;
-            background-color: white;
+            background: var(--chart-bg);
             border-radius: 10px;
             padding: 15px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            box-shadow: 0 3px 10px var(--shadow-color);
             display: flex;
             flex-direction: column;
-            transition: transform 0.3s, box-shadow 0.3s;
-            border: 1px solid #f0f0f0;
+            transition: all 0.3s;
+            border: 1px solid var(--border-color);
             min-height: 400px;
             height: 400px;
             margin-bottom: 5px;
         }
+        
+        body.neon-mode .wide-chart-container {
+            box-shadow: 
+                0 5px 20px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(100, 255, 218, 0.1);
+        }
+        
+        body.neon-mode .wide-chart-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(100, 255, 218, 0.05) 100%);
+            pointer-events: none;
+        }
+        
         .wide-chart-container:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
+        
+        body.neon-mode .wide-chart-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.4),
+                0 0 40px rgba(100, 255, 218, 0.2);
+            border-color: rgba(100, 255, 218, 0.3);
+        }
+        
         .wide-chart-box {
             flex: 1;
             min-height: 300px;
             position: relative;
             height: 300px;
         }
-        .plant-labels-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #f0f0f0;
-            font-size: 11px;
-        }
-        .plant-label-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 10px;
-            font-weight: 500;
-        }
-        .plant-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 2px;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        .status-confirmed {
-            background-color: #d1ecf1;
-            color: #0c5460;
-        }
-        .status-delivered {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        .status-canceled {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        .status-normal {
-            background-color: #d1ecf1;
-            color: #0c5460;
-        }
-        .status-suddenly {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        .truck-input-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-        }
-        .target-volume-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-        }
-        .truck-input-group {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 10px;
-        }
-        .truck-input-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        .truck-plant-name {
-            flex: 1;
-            font-size: 14px;
-        }
-        .truck-input {
-            width: 80px;
-            padding: 4px 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            text-align: center;
-        }
-        /* SIDEBAR TOGGLE BUTTON - DIATAS HEADER */
+        
+        /* SIDEBAR TOGGLE BUTTON */
         .sidebar-toggle-btn {
             position: fixed;
             left: 10px;
             top: 15px;
             z-index: 1001;
-            background: transparent;
+            background: rgba(0,0,0,0.8);
             color: white;
             border: none;
-            border-radius: none;
-            padding: 8px 10px;
+            border-radius: 6px;
+            padding: 8px 12px;
             cursor: pointer;
             font-size: 18px;
-            box-shadow: none;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
         }
-        /* PERBAIKAN: Project Details Layout yang Lebih Rapi dan Dekat */
+        
+        body.neon-mode .sidebar-toggle-btn {
+            background: rgba(17, 34, 64, 0.8);
+            color: var(--neon-green);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+        
+        body.neon-mode .sidebar-toggle-btn:hover {
+            background: rgba(100, 255, 218, 0.2);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+        }
+        
+        /* Project Details */
         .chart-container.project-details {
             height: auto;
             min-height: 300px;
             padding-top: 10px;
             padding-bottom: 10px;
         }
+        
         .project-details .chart-title {
             margin: 0;
             padding: 0 15px;
             padding-bottom: 8px;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid var(--border-color);
             font-size: 14px;
             font-weight: 600;
-            color: var(--primary);
         }
+        
         .project-details-table-container {
             flex: 1;
             overflow-y: auto;
-            border: 1px solid #eee;
+            border: 1px solid var(--border-light);
             border-radius: 8px;
             margin: 0 10px;
             margin-top: 5px;
             height: calc(100% - 50px);
+            background: var(--card-bg);
         }
-
+        
         #project-remain-table {
             table-layout: auto;
             margin-top: 0;
             border-radius: 0;
+            background: transparent;
         }
+        
         #project-remain-table th,
         #project-remain-table td {
             white-space: normal;
@@ -626,27 +1369,17 @@
             vertical-align: top;
             padding: 10px 12px;
         }
-        #project-remain-table th:nth-child(3),
-        #project-remain-table td:nth-child(3) {
-            min-width: 150px;
+        
+        #project-remain-table th {
+            background: var(--kpi-gradient);
+            color: white;
         }
-        #project-remain-table th:nth-child(5),
-        #project-remain-table td:nth-child(5),
-        #project-remain-table th:nth-child(6),
-        #project-remain-table td:nth-child(6),
-        #project-remain-table th:nth-child(7),
-        #project-remain-table td:nth-child(7) {
-            min-width: 60px;
-            text-align: right;
+        
+        body.neon-mode #project-remain-table th {
+            color: var(--neon-green);
         }
-        .filter-section h3 {
-            margin-bottom: 15px;
-            color: var(--primary);
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -659,111 +1392,67 @@
             justify-content: center;
             align-items: center;
         }
+        
         .modal-content {
-            background-color: white;
+            background: var(--modal-bg);
             padding: 30px;
             border-radius: 8px;
             width: 90%;
             max-width: 500px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 15px var(--shadow-color);
+            border: 1px solid var(--border-color);
         }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+        
+        body.neon-mode .modal-content {
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.5),
+                0 0 50px rgba(100, 255, 218, 0.2);
         }
-        .modal-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--primary);
+        
+        /* Truck Input Section */
+        .truck-input-section, .target-volume-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
         }
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--dark);
-        }
-        .form-group {
+        
+        .truck-input-section h3, .target-volume-section h3 {
             margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: var(--dark);
-        }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .form-group textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
-        .modal-footer {
+            color: var(--text-color);
+            font-size: 16px;
             display: flex;
-            justify-content: flex-end;
+            align-items: center;
             gap: 10px;
-            margin-top: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
         }
-        .editable-qty {
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-        .editable-qty:hover {
-            background-color: #f0f8ff;
-        }
-        .date-info {
-            font-size: 11px;
-            color: #666;
-            margin-top: 3px;
-        }
-        .compact-filter-row {
+        
+        .truck-input-row {
             display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            align-items: flex-end;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
         }
-        .compact-filter-group {
-            display: flex;
-            flex-direction: column;
-            min-width: 140px;
+        
+        .truck-plant-name {
+            flex: 1;
+            font-size: 14px;
+            color: var(--text-color);
         }
-        .compact-filter-group label {
-            margin-bottom: 5px;
-            font-weight: 600;
-            font-size: 13px;
-            color: var(--dark);
-        }
-        .compact-filter-group select, .compact-filter-group input {
-            padding: 8px 10px;
-            border: 1px solid #ddd;
+        
+        .truck-input {
+            width: 80px;
+            padding: 6px 8px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 4px;
-            font-size: 13px;
+            color: var(--text-color);
+            text-align: right;
         }
-        .chartjs-datalabels {
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
-        }
-        .datalabel-order {
-            background-color: rgba(0, 0, 0, 0.1);
-            padding: 2px 6px;
-            border-radius: 3px;
-            border: 1px solid rgba(0, 0, 0, 0.2);
-        }
-        .datalabel-delivery {
-            background-color: rgba(255, 255, 255, 0.2);
-            padding: 2px 6px;
-            border-radius: 3px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
+        
+        /* Responsive Styles */
         @media (max-width: 1400px) {
             .chart-grid {
                 grid-template-columns: repeat(3, 1fr);
@@ -805,11 +1494,11 @@
             .stat-label {
                 font-size: 9px;
             }
-            /* Responsive: Project Details */
             .chart-container.project-details {
                 height: 450px;
             }
         }
+        
         @media (max-width: 1200px) {
             .chart-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -852,11 +1541,11 @@
             .chart-title {
                 font-size: 12px;
             }
-            /* Responsive: Project Details */
             .chart-container.project-details {
                 height: 400px;
             }
         }
+        
         @media (max-width: 1024px) {
             .sidebar {
                 position: fixed;
@@ -880,6 +1569,7 @@
                 left: 15px;
             }
         }
+        
         @media (max-width: 992px) {
             .chart-grid {
                 grid-template-columns: 1fr;
@@ -920,7 +1610,6 @@
             .stat-label {
                 font-size: 8px;
             }
-            /* Responsive: Project Details */
             .chart-container.project-details {
                 height: 350px;
             }
@@ -928,15 +1617,17 @@
                 font-size: 13px;
             }
         }
+        
         @media (max-width: 768px) {
-            .filter-row {
+            .filter-row, .compact-filter-row {
                 flex-direction: column;
                 align-items: stretch;
             }
-            .filter-group {
+            .filter-group, .compact-filter-group {
                 width: 100%;
             }
-            .filter-group select, .filter-group input {
+            .filter-group select, .filter-group input, 
+            .compact-filter-group select, .compact-filter-group input {
                 width: 100%;
             }
             table {
@@ -1011,7 +1702,6 @@
             .plant-label-item {
                 font-size: 10px;
             }
-            /* Responsive: Project Details */
             .chart-container.project-details {
                 height: 300px;
             }
@@ -1027,6 +1717,7 @@
                 font-size: 16px;
             }
         }
+        
         @media (max-width: 576px) {
             .chart-container {
                 min-height: 200px;
@@ -1072,7 +1763,6 @@
             .plant-label-item {
                 font-size: 9px;
             }
-            /* Responsive: Project Details */
             .chart-container.project-details {
                 height: 250px;
             }
@@ -1089,6 +1779,7 @@
                 font-size: 14px;
             }
         }
+        
         @media (min-width: 1600px) {
             .chart-grid {
                 grid-template-columns: repeat(3, 1fr);
@@ -1130,7 +1821,6 @@
             .stat-label {
                 font-size: 11px;
             }
-            /* Large Screen: Project Details */
             .chart-container.project-details {
                 height: 500px;
             }
@@ -1138,40 +1828,65 @@
     </style>
 </head>
 <body>
+    <!-- Futuristic Background Elements -->
+    <div class="grid-lines"></div>
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+    
     <button class="sidebar-toggle-btn" id="sidebarToggleBtn">
         <i class="fas fa-bars"></i>
     </button>
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h3>Menu</h3>
+            <h3><i class="fas fa-cog"></i> Control Panel</h3>
             <button class="sidebar-toggle" id="sidebarToggle">
                 <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="sidebar-content">
+            <!-- Theme Toggle Switch -->
+            <div class="theme-toggle-container">
+                <div class="theme-toggle">
+                    <div class="theme-label">
+                        <i class="fas fa-palette"></i>
+                        <span>Theme Mode</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="themeToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <p style="font-size: 12px; color: var(--text-light); margin-top: 8px; text-align: center;">
+                    <span id="themeStatus">Original Mode</span>
+                </p>
+            </div>
+            
             <div class="upload-section">
-                <h3><i class="fas fa-file-upload"></i> Upload File Excel</h3>
-                <p class="file-info" id="fileInfo">Maksimal 200MB</p>
+                <h3><i class="fas fa-file-upload"></i> Upload Excel File</h3>
+                <p class="file-info" id="fileInfo">Max 200MB • XLSX/XLS Format</p>
                 <label class="upload-btn">
-                    <i class="fas fa-upload"></i> Pilih File Excel
+                    <i class="fas fa-upload"></i> Select Excel File
                     <input type="file" id="fileInput" accept=".xlsx, .xls">
                 </label>
                 <div class="loading" id="loadingIndicator">
                     <div class="spinner"></div>
-                    <p>Memproses file...</p>
+                    <p>Processing file...</p>
                 </div>
             </div>
-            <div class="filter-section" id="dashboardFilters">
+            
+            <!-- Dashboard Filters -->
+            <div class="filter-section">
                 <h3><i class="fas fa-filter"></i> Dashboard Filters</h3>
                 <div class="filter-group">
                     <label for="dashboard-start-date">Start Date (Delivery Date)</label>
                     <input type="date" id="dashboard-start-date">
-                    <div class="date-info">Filter berdasarkan Delivery Date</div>
                 </div>
                 <div class="filter-group">
                     <label for="dashboard-end-date">End Date (Delivery Date)</label>
                     <input type="date" id="dashboard-end-date">
-                    <div class="date-info">Filter berdasarkan Delivery Date</div>
                 </div>
                 <div class="filter-group">
                     <label for="dashboard-plant-filter">Plant</label>
@@ -1190,23 +1905,28 @@
                     </select>
                 </div>
                 <div class="filter-group">
-                    <button class="btn" id="dashboard-apply-filter">Apply Filter</button>
+                    <button class="btn" id="dashboard-apply-filter"><i class="fas fa-sync-alt"></i> Apply Filter</button>
                 </div>
-                <div class="truck-input-section">
-                    <h3><i class="fas fa-truck"></i> Jumlah Truck Mixer</h3>
-                    <div id="truck-inputs-container">
-                        <p class="file-info">Upload file Excel untuk mengisi data plant</p>
-                    </div>
+            </div>
+            
+            <!-- Truck Mixer Count -->
+            <div class="truck-input-section">
+                <h3><i class="fas fa-truck"></i> Truck Mixer Count</h3>
+                <div id="truck-inputs-container">
+                    <p class="file-info">Upload Excel file to populate plant data</p>
                 </div>
-                <div class="target-volume-section">
-                    <h3><i class="fas fa-bullseye"></i> Target Volume per Day</h3>
-                    <div id="target-volume-inputs-container">
-                        <p class="file-info">Upload file Excel untuk mengisi data plant</p>
-                    </div>
+            </div>
+            
+            <!-- Target Volume per Day -->
+            <div class="target-volume-section">
+                <h3><i class="fas fa-bullseye"></i> Target Volume per Day</h3>
+                <div id="target-volume-inputs-container">
+                    <p class="file-info">Upload Excel file to populate plant data</p>
                 </div>
             </div>
         </div>
     </div>
+    
     <div class="main-content" id="mainContent">
         <!-- HEADER STICKY FIXED -->
         <header>
@@ -1219,6 +1939,7 @@
                 <span id="currentDate">6 November 2025</span>
             </div>
         </header>
+        
         <div class="container">
             <div class="tabs">
                 <div class="tab active" data-tab="status-order">
@@ -1231,8 +1952,11 @@
                     <i class="fas fa-chart-bar"></i> Dashboard
                 </div>
             </div>
+            
+            <!-- Status Order Tab -->
             <div class="tab-content active" id="status-order">
                 <div class="compact-filter-row">
+                    <h3><i class="fas fa-filter"></i> Filter Status Order</h3>
                     <div class="compact-filter-group">
                         <label for="status-start-date">Start Date</label>
                         <input type="date" id="status-start-date">
@@ -1248,7 +1972,7 @@
                         </select>
                     </div>
                     <div class="compact-filter-group">
-                        <label for="status-type-filter">Status</label>
+                        <label for="status-type-filter">Order Type</label>
                         <select id="status-type-filter">
                             <option value="">All</option>
                             <option value="Normal">Normal</option>
@@ -1256,9 +1980,10 @@
                         </select>
                     </div>
                     <div class="compact-filter-group">
-                        <button class="btn" id="status-apply-filter" style="margin-top: 20px;">Apply Filter</button>
+                        <button class="btn" id="status-apply-filter"><i class="fas fa-filter"></i> Apply Filter</button>
                     </div>
                 </div>
+                
                 <table id="status-table">
                     <thead>
                         <tr>
@@ -1276,10 +2001,11 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td colspan="10" style="text-align: center;">Upload file Excel untuk melihat data</td>
+                            <td colspan="10" style="text-align: center; color: var(--secondary);">Upload Excel file to view data</td>
                         </tr>
                     </tbody>
                 </table>
+                
                 <div class="chart-container">
                     <div class="chart-title">Status Order (Normal vs Suddenly)</div>
                     <div class="chart-box">
@@ -1287,8 +2013,11 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- List Order Tab -->
             <div class="tab-content" id="list-order">
                 <div class="compact-filter-row">
+                    <h3><i class="fas fa-filter"></i> Filter List Order</h3>
                     <div class="compact-filter-group">
                         <label for="start-date">Start Date</label>
                         <input type="date" id="start-date">
@@ -1314,9 +2043,10 @@
                         </select>
                     </div>
                     <div class="compact-filter-group">
-                        <button class="btn" id="apply-filter" style="margin-top: 20px;">Apply Filter</button>
+                        <button class="btn" id="apply-filter"><i class="fas fa-filter"></i> Apply Filter</button>
                     </div>
                 </div>
+                
                 <table id="order-table">
                     <thead>
                         <tr>
@@ -1335,11 +2065,13 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td colspan="11" style="text-align: center;">Upload file Excel untuk melihat data</td>
+                            <td colspan="11" style="text-align: center; color: var(--secondary);">Upload Excel file to view data</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+            
+            <!-- Dashboard Tab -->
             <div class="tab-content" id="dashboard">
                 <div class="dashboard-content">
                     <div class="stats-container">
@@ -1404,6 +2136,7 @@
                             <div class="stat-label">Total Truck Mixer</div>
                         </div>
                     </div>
+                    
                     <div class="chart-grid">
                         <div class="chart-container">
                             <div class="chart-header">
@@ -1416,6 +2149,7 @@
                             </div>
                             <div class="chart-legend" id="performOrderLegend"></div>
                         </div>
+                        
                         <div class="chart-container">
                             <div class="chart-header">
                                 <div class="chart-title" id="performProjectTitle">
@@ -1427,6 +2161,7 @@
                             </div>
                             <div class="chart-legend" id="performProjectLegend"></div>
                         </div>
+                        
                         <div class="chart-container">
                             <div class="chart-header">
                                 <div class="chart-title" id="statusDistributionTitle">
@@ -1438,6 +2173,7 @@
                             </div>
                             <div class="chart-legend" id="statusDistributionLegend"></div>
                         </div>
+                        
                         <div class="wide-chart-container">
                             <div class="chart-header">
                                 <div class="chart-title" id="qtyOrderDeliveryTitle">
@@ -1449,6 +2185,7 @@
                             </div>
                         </div>
                     </div>
+                    
                     <!-- Project Remain Details Container -->
                     <div class="chart-container project-details">
                         <div class="chart-title">
@@ -1469,7 +2206,7 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td colspan="7" style="text-align: center;">Upload file Excel untuk melihat data</td>
+                                        <td colspan="7" style="text-align: center; color: var(--secondary);">Upload Excel file to view data</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1479,6 +2216,8 @@
             </div>
         </div>
     </div>
+    
+    <!-- Edit Modal -->
     <div class="modal" id="editModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1500,15 +2239,16 @@
                 </div>
                 <div class="form-group">
                     <label for="edit-remarks">Remarks</label>
-                    <textarea id="edit-remarks" placeholder="Tambahkan catatan..."></textarea>
+                    <textarea id="edit-remarks" placeholder="Add notes..."></textarea>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" id="cancelEdit">Cancel</button>
-                    <button type="submit" class="btn" style="background-color: var(--success);">Save Changes</button>
+                    <button type="submit" class="btn">Save Changes</button>
                 </div>
             </form>
         </div>
     </div>
+    
     <script>
         // Daftarkan plugin ChartDataLabels secara global
         Chart.register(ChartDataLabels);
@@ -1522,6 +2262,48 @@
         let sortDirection = {};
         let resizeTimeout;
         let showProgressLine = true;
+
+        // Theme Toggle Functionality
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.getElementById('themeToggle');
+            const themeStatus = document.getElementById('themeStatus');
+            
+            if (themeToggle.checked) {
+                body.classList.add('neon-mode');
+                themeStatus.textContent = 'Neon Mode';
+                themeStatus.style.color = '#00ff9d';
+            } else {
+                body.classList.remove('neon-mode');
+                themeStatus.textContent = 'Original Mode';
+                themeStatus.style.color = '';
+            }
+            
+            // Re-create charts with new theme colors
+            if (orderData.length > 0) {
+                createCharts(orderData);
+            }
+        }
+
+        // Save theme preference to localStorage
+        function saveThemePreference() {
+            const themeToggle = document.getElementById('themeToggle');
+            localStorage.setItem('neonThemeEnabled', themeToggle.checked);
+        }
+
+        // Load theme preference from localStorage
+        function loadThemePreference() {
+            const savedTheme = localStorage.getItem('neonThemeEnabled');
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (savedTheme === 'true') {
+                themeToggle.checked = true;
+            } else {
+                themeToggle.checked = false;
+            }
+            
+            toggleTheme(); // Apply the loaded theme
+        }
 
         function processExcelFile(file) {
             const loadingIndicator = document.getElementById('loadingIndicator');
@@ -1551,7 +2333,7 @@
 
         function processData(data) {
             if (!data || data.length === 0) {
-                alert('Data Excel kosong atau tidak valid');
+                alert('Excel data is empty or invalid');
                 return;
             }
             const rows = data.slice(1);
@@ -1647,7 +2429,6 @@
                     input.value = maxDateStr;
                 }
             });
-            console.log('Date filters updated:', { minDateStr, maxDateStr });
         }
 
         function parseDate(dateStr) {
@@ -1738,7 +2519,7 @@
             container.innerHTML = '';
             const plants = Object.keys(truckCounts).sort();
             if (plants.length === 0) {
-                container.innerHTML = '<p class="file-info">Upload file Excel untuk mengisi data plant</p>';
+                container.innerHTML = '<p class="file-info">Upload Excel file to populate plant data</p>';
                 return;
             }
             plants.forEach(plant => {
@@ -1762,7 +2543,7 @@
             container.innerHTML = '';
             const plants = Object.keys(targetVolumes).sort();
             if (plants.length === 0) {
-                container.innerHTML = '<p class="file-info">Upload file Excel untuk mengisi data plant</p>';
+                container.innerHTML = '<p class="file-info">Upload Excel file to populate plant data</p>';
                 return;
             }
             plants.forEach(plant => {
@@ -1796,7 +2577,7 @@
             const tableBody = document.querySelector('#status-table tbody');
             tableBody.innerHTML = '';
             if (data.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="10" style="text-align: center;">Tidak ada data</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="10" style="text-align: center; color: var(--secondary);">No data available</td></tr>';
                 return;
             }
             data.forEach((item, index) => {
@@ -1870,7 +2651,7 @@
             const tableBody = document.querySelector('#order-table tbody');
             tableBody.innerHTML = '';
             if (data.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="11" style="text-align: center;">Tidak ada data</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: var(--secondary);">No data available</td></tr>';
                 return;
             }
             data.forEach((item, index) => {
@@ -2014,7 +2795,7 @@
             const remainProjects = data.filter(item => item.qtyRemain > 0);
             projectRemainData = remainProjects;
             if (remainProjects.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Tidak ada data project remain</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--secondary);">No remaining projects</td></tr>';
                 return;
             }
             remainProjects.forEach(item => {
@@ -2232,46 +3013,62 @@
                 totalTargetVolume = Object.values(targetVolumes).reduce((sum, volume) => sum + volume, 0);
             }
 
-            const brightColors = {
+            // Tentukan warna berdasarkan tema - PROGRESS MERAH untuk neon mode
+            const isNeonMode = document.body.classList.contains('neon-mode');
+            const colors = isNeonMode ? {
+                target: 'rgba(0, 212, 255, 0.8)',
+                order: 'rgba(100, 255, 218, 0.8)',
+                delivered: 'rgba(0, 255, 157, 0.8)',
+                remain: 'rgba(255, 215, 0, 0.8)',
+                cancel: 'rgba(255, 71, 87, 0.8)',
+                progress: 'rgba(255, 71, 87, 0.8)', // MERAH untuk progress bar di chart Perform Order
+                projectTotal: 'rgba(86, 207, 225, 0.8)',
+                normal: 'rgba(0, 212, 255, 0.8)',
+                suddenly: 'rgba(255, 71, 87, 0.8)',
+                progressLine: 'rgba(255, 71, 87, 1)', // MERAH untuk progress line di chart Qty Order
+                progressLineBackground: 'rgba(255, 71, 87, 0.2)',
+                chartTextColor: '#ccd6f6'
+            } : {
                 target: 'rgba(255, 99, 132, 0.8)',
                 order: 'rgba(54, 162, 235, 0.8)',
                 delivered: 'rgba(75, 192, 192, 0.8)',
                 remain: 'rgba(255, 205, 86, 0.8)',
                 cancel: 'rgba(255, 87, 51, 0.8)',
-                progress: 'rgba(46, 125, 50, 0.8)',
+                progress: 'rgba(46, 125, 50, 0.8)', // HIJAU untuk original mode
                 projectTotal: 'rgba(153, 102, 255, 0.8)',
                 normal: 'rgba(54, 162, 235, 0.8)',
                 suddenly: 'rgba(237, 85, 101, 0.8)',
                 progressLine: 'rgba(46, 125, 50, 1)',
-                progressLineBackground: 'rgba(46, 125, 50, 0.2)'
+                progressLineBackground: 'rgba(46, 125, 50, 0.2)',
+                chartTextColor: '#333333'
             };
 
-            // 1. Perform Order Chart
+            // 1. Perform Order Chart dengan PROGRESS MERAH
             const performOrderCtx = document.getElementById('performOrderChart').getContext('2d');
             const performOrderLegend = document.getElementById('performOrderLegend');
             performOrderLegend.innerHTML = `
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: ${brightColors.target}"></div>
+                    <div class="legend-color" style="background-color: ${colors.target}"></div>
                     <span>Target</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: ${brightColors.order}"></div>
+                    <div class="legend-color" style="background-color: ${colors.order}"></div>
                     <span>Order</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: ${brightColors.delivered}"></div>
+                    <div class="legend-color" style="background-color: ${colors.delivered}"></div>
                     <span>Delivered</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: ${brightColors.remain}"></div>
+                    <div class="legend-color" style="background-color: ${colors.remain}"></div>
                     <span>Remain</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: ${brightColors.cancel}"></div>
+                    <div class="legend-color" style="background-color: ${colors.cancel}"></div>
                     <span>Cancel</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: ${brightColors.progress}"></div>
+                    <div class="legend-color" style="background-color: ${colors.progress}"></div>
                     <span>Progress: ${totalProgressPercent.toFixed(1)}%</span>
                 </div>
             `;
@@ -2283,14 +3080,21 @@
                         label: 'Volume (m³)',
                         data: [totalTargetVolume, totalOrderQty, totalDeliveryQty, totalRemainQty, totalCancelQty, totalProgressPercent],
                         backgroundColor: [
-                            brightColors.target,
-                            brightColors.order,
-                            brightColors.delivered,
-                            brightColors.remain,
-                            brightColors.cancel,
-                            brightColors.progress
+                            colors.target,
+                            colors.order,
+                            colors.delivered,
+                            colors.remain,
+                            colors.cancel,
+                            colors.progress  // Ini akan menjadi MERAH di neon mode
                         ],
-                        borderColor: [
+                        borderColor: isNeonMode ? [
+                            'rgba(0, 212, 255, 1)',
+                            'rgba(100, 255, 218, 1)',
+                            'rgba(0, 255, 157, 1)',
+                            'rgba(255, 215, 0, 1)',
+                            'rgba(255, 71, 87, 1)',
+                            'rgba(255, 71, 87, 1)'  // Border MERAH untuk progress
+                        ] : [
                             'rgba(255, 99, 132, 1)',
                             'rgba(54, 162, 235, 1)',
                             'rgba(75, 192, 192, 1)',
@@ -2298,7 +3102,8 @@
                             'rgba(255, 87, 51, 1)',
                             'rgba(46, 125, 50, 1)'
                         ],
-                        borderWidth: 1
+                        borderWidth: 1,
+                        borderRadius: isNeonMode ? 6 : 0,
                     }]
                 },
                 options: {
@@ -2324,14 +3129,23 @@
                             title: {
                                 display: true,
                                 text: 'Volume (m³) / %',
-                                font: { size: 11 }
+                                font: { size: 11, color: colors.chartTextColor }
                             },
-                            ticks: { font: { size: 10 } },
-                            grid: { color: 'rgba(0,0,0,0.05)' }
+                            ticks: { 
+                                font: { size: 10 },
+                                color: colors.chartTextColor
+                            },
+                            grid: { 
+                                color: isNeonMode ? 'rgba(100, 255, 218, 0.1)' : 'rgba(0,0,0,0.05)' 
+                            }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { display: true, font: { size: 10 } }
+                            ticks: { 
+                                display: true, 
+                                font: { size: 10 },
+                                color: colors.chartTextColor
+                            }
                         }
                     },
                     animation: {
@@ -2346,19 +3160,19 @@
             const performProjectLegend = document.getElementById('performProjectLegend');
             performProjectLegend.innerHTML = `
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: ${brightColors.projectTotal}"></div>
+                    <div class="legend-color" style="background-color: ${colors.projectTotal}"></div>
                     <span>Total</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: ${brightColors.delivered}"></div>
+                    <div class="legend-color" style="background-color: ${colors.delivered}"></div>
                     <span>Delivered</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: ${brightColors.remain}"></div>
+                    <div class="legend-color" style="background-color: ${colors.remain}"></div>
                     <span>Remain</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: ${brightColors.cancel}"></div>
+                    <div class="legend-color" style="background-color: ${colors.cancel}"></div>
                     <span>Cancel</span>
                 </div>
             `;
@@ -2370,18 +3184,24 @@
                         label: 'Jumlah Project',
                         data: [totalProject, totalProjectDelivered, totalProjectRemain, totalProjectCancel],
                         backgroundColor: [
-                            brightColors.projectTotal,
-                            brightColors.delivered,
-                            brightColors.remain,
-                            brightColors.cancel
+                            colors.projectTotal,
+                            colors.delivered,
+                            colors.remain,
+                            colors.cancel
                         ],
-                        borderColor: [
+                        borderColor: isNeonMode ? [
+                            'rgba(86, 207, 225, 1)',
+                            'rgba(0, 255, 157, 1)',
+                            'rgba(255, 215, 0, 1)',
+                            'rgba(255, 71, 87, 1)'
+                        ] : [
                             'rgba(153, 102, 255, 1)',
                             'rgba(75, 192, 192, 1)',
                             'rgba(255, 205, 86, 1)',
                             'rgba(255, 87, 51, 1)'
                         ],
-                        borderWidth: 1
+                        borderWidth: 1,
+                        borderRadius: isNeonMode ? 6 : 0,
                     }]
                 },
                 options: {
@@ -2404,14 +3224,23 @@
                             title: {
                                 display: true,
                                 text: 'Jumlah Project',
-                                font: { size: 11 }
+                                font: { size: 11, color: colors.chartTextColor }
                             },
-                            ticks: { font: { size: 10 } },
-                            grid: { color: 'rgba(0,0,0,0.05)' }
+                            ticks: { 
+                                font: { size: 10 },
+                                color: colors.chartTextColor
+                            },
+                            grid: { 
+                                color: isNeonMode ? 'rgba(100, 255, 218, 0.1)' : 'rgba(0,0,0,0.05)' 
+                            }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { display: true, font: { size: 10 } }
+                            ticks: { 
+                                display: true, 
+                                font: { size: 10 },
+                                color: colors.chartTextColor
+                            }
                         }
                     },
                     animation: {
@@ -2429,11 +3258,11 @@
             const statusDistributionLegend = document.getElementById('statusDistributionLegend');
             statusDistributionLegend.innerHTML = `
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: ${brightColors.normal}"></div>
+                    <div class="legend-color" style="background-color: ${colors.normal}"></div>
                     <span>Normal: ${normalCount} (${normalPercentage}%)</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: ${brightColors.suddenly}"></div>
+                    <div class="legend-color" style="background-color: ${colors.suddenly}"></div>
                     <span>Suddenly: ${suddenlyCount} (${suddenlyPercentage}%)</span>
                 </div>
             `;
@@ -2444,14 +3273,18 @@
                     datasets: [{
                         data: [normalCount, suddenlyCount],
                         backgroundColor: [
-                            brightColors.normal,
-                            brightColors.suddenly
+                            colors.normal,
+                            colors.suddenly
                         ],
-                        borderColor: [
+                        borderColor: isNeonMode ? [
+                            'rgba(0, 212, 255, 1)',
+                            'rgba(255, 71, 87, 1)'
+                        ] : [
                             'rgba(54, 162, 235, 1)',
                             'rgba(237, 85, 101, 1)'
                         ],
-                        borderWidth: 2
+                        borderWidth: 2,
+                        hoverOffset: isNeonMode ? 15 : 4
                     }]
                 },
                 options: {
@@ -2480,43 +3313,75 @@
                 }
             });
 
-            // 4. Qty Order & Delivery Chart dengan PROGRESS LINE
+            // 4. Qty Order & Delivery Chart dengan PROGRESS LINE MERAH
             const qtyOrderDeliveryCtx = document.getElementById('qtyOrderDeliveryChart').getContext('2d');
             const orderDataValues = sortedPlants.map(plant => plantTotals[plant].order);
             const deliveryDataValues = sortedPlants.map(plant => plantTotals[plant].delivery);
             const percentageDataValues = sortedPlants.map(plant => plantPercentages[plant]);
 
-            // Warna untuk Qty Order (dataset pertama) - LEBIH TERANG
+            // Warna untuk bars
             const orderColors = sortedPlants.map((_, index) => {
-                const colors = [
-                    'rgba(54, 162, 235, 0.9)',    // Biru terang
-                    'rgba(255, 99, 132, 0.9)',    // Merah terang
-                    'rgba(75, 192, 192, 0.9)',    // Cyan terang
-                    'rgba(255, 205, 86, 0.9)',    // Kuning terang
-                    'rgba(153, 102, 255, 0.9)',   // Ungu terang
-                    'rgba(255, 159, 64, 0.9)',    // Orange terang
-                    'rgba(201, 203, 207, 0.9)',   // Abu-abu terang
-                    'rgba(0, 128, 128, 0.9)',     // Teal terang
-                    'rgba(139, 69, 19, 0.9)',     // Coklat terang
-                    'rgba(255, 0, 255, 0.9)'      // Magenta terang
-                ];
-                return colors[index % colors.length];
+                if (isNeonMode) {
+                    const colors = [
+                        'rgba(0, 212, 255, 0.9)',    // Neon Blue
+                        'rgba(100, 255, 218, 0.9)',   // Neon Green
+                        'rgba(157, 78, 221, 0.9)',    // Neon Purple
+                        'rgba(255, 71, 87, 0.9)',     // Neon Red
+                        'rgba(255, 215, 0, 0.9)',     // Neon Yellow
+                        'rgba(86, 207, 225, 0.9)',    // Cyan
+                        'rgba(255, 159, 64, 0.9)',    // Orange
+                        'rgba(201, 203, 207, 0.9)',   // Silver
+                        'rgba(0, 128, 128, 0.9)',     // Teal
+                        'rgba(139, 69, 19, 0.9)'      // Bronze
+                    ];
+                    return colors[index % colors.length];
+                } else {
+                    const colors = [
+                        'rgba(54, 162, 235, 0.9)',    // Biru terang
+                        'rgba(255, 99, 132, 0.9)',    // Merah terang
+                        'rgba(75, 192, 192, 0.9)',    // Cyan terang
+                        'rgba(255, 205, 86, 0.9)',    // Kuning terang
+                        'rgba(153, 102, 255, 0.9)',   // Ungu terang
+                        'rgba(255, 159, 64, 0.9)',    // Orange terang
+                        'rgba(201, 203, 207, 0.9)',   // Abu-abu terang
+                        'rgba(0, 128, 128, 0.9)',     // Teal terang
+                        'rgba(139, 69, 19, 0.9)',     // Coklat terang
+                        'rgba(255, 0, 255, 0.9)'      // Magenta terang
+                    ];
+                    return colors[index % colors.length];
+                }
             });
-            // Warna untuk Qty Delivery (dataset kedua) - LEBIH GELAP untuk kontras
+            
             const deliveryColors = sortedPlants.map((_, index) => {
-                const colors = [
-                    'rgba(31, 119, 180, 0.9)',    // Biru gelap
-                    'rgba(214, 39, 40, 0.9)',     // Merah gelap
-                    'rgba(44, 160, 44, 0.9)',     // Hijau gelap
-                    'rgba(148, 103, 189, 0.9)',   // Ungu gelap
-                    'rgba(140, 86, 75, 0.9)',     // Coklat gelap
-                    'rgba(227, 119, 194, 0.9)',   // Pink gelap
-                    'rgba(127, 127, 127, 0.9)',   // Abu-abu gelap
-                    'rgba(188, 189, 34, 0.9)',    // Kuning-hijau gelap
-                    'rgba(23, 190, 207, 0.9)',    // Cyan gelap
-                    'rgba(158, 218, 229, 0.9)'    // Biru muda gelap
-                ];
-                return colors[index % colors.length];
+                if (isNeonMode) {
+                    const colors = [
+                        'rgba(0, 180, 216, 0.9)',     // Darker Blue
+                        'rgba(72, 187, 120, 0.9)',    // Darker Green
+                        'rgba(127, 63, 191, 0.9)',    // Darker Purple
+                        'rgba(220, 38, 38, 0.9)',     // Darker Red
+                        'rgba(217, 119, 6, 0.9)',     // Darker Yellow
+                        'rgba(56, 178, 172, 0.9)',    // Darker Cyan
+                        'rgba(245, 158, 11, 0.9)',    // Darker Orange
+                        'rgba(156, 163, 175, 0.9)',   // Darker Gray
+                        'rgba(13, 148, 136, 0.9)',    // Darker Teal
+                        'rgba(120, 53, 15, 0.9)'      // Darker Bronze
+                    ];
+                    return colors[index % colors.length];
+                } else {
+                    const colors = [
+                        'rgba(31, 119, 180, 0.9)',    // Biru gelap
+                        'rgba(214, 39, 40, 0.9)',     // Merah gelap
+                        'rgba(44, 160, 44, 0.9)',     // Hijau gelap
+                        'rgba(148, 103, 189, 0.9)',   // Ungu gelap
+                        'rgba(140, 86, 75, 0.9)',     // Coklat gelap
+                        'rgba(227, 119, 194, 0.9)',   // Pink gelap
+                        'rgba(127, 127, 127, 0.9)',   // Abu-abu gelap
+                        'rgba(188, 189, 34, 0.9)',    // Kuning-hijau gelap
+                        'rgba(23, 190, 207, 0.9)',    // Cyan gelap
+                        'rgba(158, 218, 229, 0.9)'    // Biru muda gelap
+                    ];
+                    return colors[index % colors.length];
+                }
             });
 
             // Buat datasets untuk chart
@@ -2527,7 +3392,7 @@
                     backgroundColor: orderColors,
                     borderColor: orderColors.map(color => color.replace('0.9', '1')),
                     borderWidth: 1,
-                    borderRadius: 4,
+                    borderRadius: isNeonMode ? 6 : 4,
                     barPercentage: 0.45,
                     categoryPercentage: 0.8,
                     order: 2,
@@ -2539,7 +3404,7 @@
                         formatter: function(value, context) {
                             return value > 0 ? value.toFixed(1) : '';
                         },
-                        color: '#000000',
+                        color: colors.chartTextColor,
                         font: {
                             weight: 'bold',
                             size: 11
@@ -2547,9 +3412,9 @@
                         anchor: 'end',
                         align: 'top',
                         offset: 8,
-                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                        backgroundColor: isNeonMode ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.8)',
                         borderWidth: 1,
-                        borderColor: 'rgba(0, 0, 0, 0.2)',
+                        borderColor: isNeonMode ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.2)',
                         padding: {
                             top: 3,
                             bottom: 3,
@@ -2565,7 +3430,7 @@
                     backgroundColor: deliveryColors,
                     borderColor: deliveryColors.map(color => color.replace('0.9', '1')),
                     borderWidth: 1,
-                    borderRadius: 4,
+                    borderRadius: isNeonMode ? 6 : 4,
                     barPercentage: 0.45,
                     categoryPercentage: 0.8,
                     order: 3,
@@ -2577,7 +3442,7 @@
                         formatter: function(value, context) {
                             return value > 0 ? value.toFixed(1) : '';
                         },
-                        color: '#FFFFFF',
+                        color: colors.chartTextColor,
                         font: {
                             weight: 'bold',
                             size: 11
@@ -2585,7 +3450,7 @@
                         anchor: 'end',
                         align: 'top',
                         offset: 8,
-                        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                        backgroundColor: isNeonMode ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.8)',
                         borderWidth: 1,
                         borderColor: 'rgba(255, 255, 255, 0.3)',
                         padding: {
@@ -2599,17 +3464,17 @@
                 }
             ];
 
-            // Progress line akan tetap ditampilkan (tanpa toggle switch)
+            // Progress line dengan warna MERAH untuk neon mode
             datasets.push({
                 label: 'Delivery Progress',
                 data: percentageDataValues,
                 type: 'line',
-                borderColor: brightColors.progressLine,
-                backgroundColor: brightColors.progressLineBackground,
+                borderColor: colors.progressLine,
+                backgroundColor: colors.progressLineBackground,
                 borderWidth: 3,
                 borderDash: [5, 5],
                 fill: false,
-                pointBackgroundColor: brightColors.progressLine,
+                pointBackgroundColor: colors.progressLine,
                 pointBorderColor: '#FFFFFF',
                 pointBorderWidth: 2,
                 pointRadius: 6,
@@ -2629,7 +3494,7 @@
                         weight: 'bold',
                         size: 10
                     },
-                    backgroundColor: brightColors.progressLine,
+                    backgroundColor: colors.progressLine,
                     borderWidth: 2,
                     borderColor: '#FFFFFF',
                     padding: {
@@ -2663,7 +3528,8 @@
                                 boxWidth: 12,
                                 padding: 15,
                                 font: {
-                                    size: 11
+                                    size: 11,
+                                    color: colors.chartTextColor
                                 }
                             }
                         },
@@ -2688,7 +3554,7 @@
                         datalabels: {
                             display: true,
                             color: function(context) {
-                                return context.datasetIndex === 0 ? '#000000' : '#FFFFFF';
+                                return colors.chartTextColor;
                             },
                             formatter: function(value, context) {
                                 if (context.dataset.label === 'Delivery Progress') {
@@ -2705,16 +3571,21 @@
                             title: {
                                 display: true,
                                 text: 'Volume (m³)',
-                                font: { size: 12, weight: 'bold' }
+                                font: { 
+                                    size: 12, 
+                                    weight: 'bold',
+                                    color: colors.chartTextColor
+                                }
                             },
                             ticks: {
                                 font: { size: 10 },
+                                color: colors.chartTextColor,
                                 callback: function(value) {
                                     return value.toFixed(1);
                                 }
                             },
                             grid: {
-                                color: 'rgba(0,0,0,0.1)',
+                                color: isNeonMode ? 'rgba(100, 255, 218, 0.1)' : 'rgba(0,0,0,0.1)',
                                 drawBorder: false
                             }
                         },
@@ -2727,10 +3598,15 @@
                             title: {
                                 display: true,
                                 text: 'Progress (%)',
-                                font: { size: 11, weight: 'bold' }
+                                font: { 
+                                    size: 11, 
+                                    weight: 'bold',
+                                    color: colors.chartTextColor
+                                }
                             },
                             ticks: {
                                 font: { size: 9 },
+                                color: colors.chartTextColor,
                                 callback: function(value) {
                                     return `${value}%`;
                                 }
@@ -2742,7 +3618,7 @@
                         x: {
                             stacked: false,
                             grid: {
-                                color: 'rgba(0,0,0,0.05)',
+                                color: isNeonMode ? 'rgba(100, 255, 218, 0.05)' : 'rgba(0,0,0,0.05)',
                                 drawBorder: false
                             },
                             ticks: {
@@ -2751,7 +3627,8 @@
                                 font: {
                                     size: 10,
                                     weight: 'bold'
-                                }
+                                },
+                                color: colors.chartTextColor
                             }
                         }
                     },
@@ -2775,25 +3652,35 @@
         function updateStatusOrderChart(data) {
             const normalCount = data.filter(item => item.orderStatusType === "Normal").length;
             const suddenlyCount = data.filter(item => item.orderStatusType === "Suddenly").length;
+            const isNeonMode = document.body.classList.contains('neon-mode');
             const statusCtx = document.getElementById('statusOrderChart').getContext('2d');
+            
             if (currentCharts.statusOrder) {
                 currentCharts.statusOrder.destroy();
             }
+            
             currentCharts.statusOrder = new Chart(statusCtx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Normal', 'Suddenly'],
                     datasets: [{
                         data: [normalCount, suddenlyCount],
-                        backgroundColor: [
+                        backgroundColor: isNeonMode ? [
+                            'rgba(0, 212, 255, 0.8)',
+                            'rgba(255, 71, 87, 0.8)'
+                        ] : [
                             'rgba(54, 162, 235, 0.8)',
                             'rgba(237, 85, 101, 0.8)'
                         ],
-                        borderColor: [
+                        borderColor: isNeonMode ? [
+                            'rgba(0, 212, 255, 1)',
+                            'rgba(255, 71, 87, 1)'
+                        ] : [
                             'rgba(54, 162, 235, 1)',
                             'rgba(237, 85, 101, 1)'
                         ],
-                        borderWidth: 1
+                        borderWidth: 1,
+                        hoverOffset: isNeonMode ? 15 : 4
                     }]
                 },
                 options: {
@@ -2802,14 +3689,28 @@
                     plugins: {
                         legend: {
                             position: 'top',
+                            labels: {
+                                color: isNeonMode ? '#ccd6f6' : '#333',
+                                font: {
+                                    size: 11
+                                }
+                            }
                         },
                         title: {
                             display: true,
-                            text: 'Status Order (Normal vs Suddenly)'
+                            text: 'Status Order (Normal vs Suddenly)',
+                            color: isNeonMode ? '#64ffda' : '#333',
+                            font: {
+                                size: 14
+                            }
                         },
                         datalabels: {
                             display: false
                         }
+                    },
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true
                     }
                 }
             });
@@ -2890,15 +3791,24 @@
             const options = { day: 'numeric', month: 'long', year: 'numeric' };
             document.getElementById('currentDate').textContent = now.toLocaleDateString('id-ID', options);
 
+            // Load saved theme preference
+            loadThemePreference();
+
+            // Theme toggle event
+            document.getElementById('themeToggle').addEventListener('change', function() {
+                toggleTheme();
+                saveThemePreference();
+            });
+
             document.getElementById('fileInput').addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (!file) return;
                 if (file.size > 200 * 1024 * 1024) {
-                    alert('File terlalu besar. Maksimal 200MB.');
+                    alert('File too large. Maximum 200MB.');
                     return;
                 }
                 if (!file.name.match(/\.(xlsx|xls)$/)) {
-                    alert('Hanya file Excel yang diizinkan.');
+                    alert('Only Excel files are allowed.');
                     return;
                 }
                 document.getElementById('fileInfo').textContent = `File: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
@@ -2962,7 +3872,7 @@
                     updateDashboardStats(orderData);
                     createCharts(orderData);
                     document.getElementById('editModal').style.display = 'none';
-                    alert('Data berhasil diperbarui!');
+                    alert('Data updated successfully!');
                 }
             });
 
