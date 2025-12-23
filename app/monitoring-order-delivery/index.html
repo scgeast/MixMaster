@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
-<head> 
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Monitoring Order & Delivery</title>
@@ -19,6 +19,7 @@
             --dark: #34495e;
             --header-gradient: linear-gradient(135deg, #8B0000 0%, #800080 100%);
             --kpi-gradient: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            --progress-gradient: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
             --chart-gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --chart-gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             --chart-gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
@@ -377,6 +378,9 @@
         }
         .stat-card.cancel-kpi {
             background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        .stat-card.progress-kpi {
+            background: var(--progress-gradient);
         }
         .chart-grid {
             display: grid;
@@ -1369,6 +1373,11 @@
                             <div class="stat-value" id="total-cancel">-</div>
                             <div class="stat-label">Cancel Qty</div>
                         </div>
+                        <div class="stat-card progress-kpi">
+                            <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                            <div class="stat-value" id="total-progress-percent">-</div>
+                            <div class="stat-label">Progress %</div>
+                        </div>
                         <div class="stat-card">
                             <div class="stat-icon"><i class="fas fa-project-diagram"></i></div>
                             <div class="stat-value" id="total-project">-</div>
@@ -1943,6 +1952,12 @@
             const totalDelivery = filteredData.reduce((sum, item) => sum + item.qtyDelivery, 0);
             const totalRemain = filteredData.reduce((sum, item) => sum + item.qtyRemain, 0);
             const totalCancel = filteredData.reduce((sum, item) => sum + item.qtyCancel, 0);
+            
+            // Hitung Progress Persentase
+            let totalProgressPercent = 0;
+            if (totalOrderQty > 0) {
+                totalProgressPercent = (totalDelivery / totalOrderQty) * 100;
+            }
 
             const projectSet = new Set();
             const projectDeliveredSet = new Set();
@@ -1984,6 +1999,7 @@
             document.getElementById('total-delivery').textContent = totalDelivery.toFixed(1);
             document.getElementById('total-remain').textContent = totalRemain.toFixed(1);
             document.getElementById('total-cancel').textContent = totalCancel.toFixed(1);
+            document.getElementById('total-progress-percent').textContent = totalProgressPercent.toFixed(1) + '%';
             document.getElementById('total-project').textContent = totalProject;
             document.getElementById('total-project-delivered').textContent = totalProjectDelivered;
             document.getElementById('total-project-remain').textContent = totalProjectRemain;
@@ -2128,6 +2144,9 @@
             const totalDeliveryQty = filteredData.reduce((sum, item) => sum + item.qtyDelivery, 0);
             const totalRemainQty = filteredData.reduce((sum, item) => sum + (item.qtyRemain > 0 ? item.qtyRemain : 0), 0);
             const totalCancelQty = filteredData.reduce((sum, item) => sum + item.qtyCancel, 0);
+            
+            // Hitung Progress Persentase untuk chart
+            const totalProgressPercent = totalOrderQty > 0 ? (totalDeliveryQty / totalOrderQty) * 100 : 0;
 
             const projectSet = new Set();
             const projectDeliveredSet = new Set();
@@ -2219,11 +2238,12 @@
                 delivered: 'rgba(75, 192, 192, 0.8)',
                 remain: 'rgba(255, 205, 86, 0.8)',
                 cancel: 'rgba(255, 87, 51, 0.8)',
+                progress: 'rgba(46, 125, 50, 0.8)',
                 projectTotal: 'rgba(153, 102, 255, 0.8)',
                 normal: 'rgba(54, 162, 235, 0.8)',
                 suddenly: 'rgba(237, 85, 101, 0.8)',
-                progressLine: 'rgba(231, 76, 60, 1)',
-                progressLineBackground: 'rgba(231, 76, 60, 0.2)'
+                progressLine: 'rgba(46, 125, 50, 1)',
+                progressLineBackground: 'rgba(46, 125, 50, 0.2)'
             };
 
             // 1. Perform Order Chart
@@ -2250,27 +2270,33 @@
                     <div class="legend-color" style="background-color: ${brightColors.cancel}"></div>
                     <span>Cancel</span>
                 </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: ${brightColors.progress}"></div>
+                    <span>Progress: ${totalProgressPercent.toFixed(1)}%</span>
+                </div>
             `;
             currentCharts.performOrder = new Chart(performOrderCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['Target', 'Order', 'Delivered', 'Remain', 'Cancel'],
+                    labels: ['Target', 'Order', 'Delivered', 'Remain', 'Cancel', 'Progress'],
                     datasets: [{
                         label: 'Volume (m³)',
-                        data: [totalTargetVolume, totalOrderQty, totalDeliveryQty, totalRemainQty, totalCancelQty],
+                        data: [totalTargetVolume, totalOrderQty, totalDeliveryQty, totalRemainQty, totalCancelQty, totalProgressPercent],
                         backgroundColor: [
                             brightColors.target,
                             brightColors.order,
                             brightColors.delivered,
                             brightColors.remain,
-                            brightColors.cancel
+                            brightColors.cancel,
+                            brightColors.progress
                         ],
                         borderColor: [
                             'rgba(255, 99, 132, 1)',
                             'rgba(54, 162, 235, 1)',
                             'rgba(75, 192, 192, 1)',
                             'rgba(255, 205, 86, 1)',
-                            'rgba(255, 87, 51, 1)'
+                            'rgba(255, 87, 51, 1)',
+                            'rgba(46, 125, 50, 1)'
                         ],
                         borderWidth: 1
                     }]
@@ -2283,6 +2309,9 @@
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
+                                    if (context.label === 'Progress') {
+                                        return `Progress: ${context.parsed.y.toFixed(1)}%`;
+                                    }
                                     return `${context.dataset.label}: ${context.parsed.y.toFixed(1)} m³`;
                                 }
                             }
@@ -2294,7 +2323,7 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Volume (m³)',
+                                text: 'Volume (m³) / %',
                                 font: { size: 11 }
                             },
                             ticks: { font: { size: 10 } },
