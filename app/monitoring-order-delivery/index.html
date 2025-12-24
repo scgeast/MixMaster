@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Monitoring Order & Delivery</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <style>
         /* CSS VARIABLES */
         :root {
-            /* Mode Original */
+            /* Mode Original - Default */
             --primary: #2c3e50;
             --secondary: #3498db;
             --success: #27ae60;
@@ -27,7 +30,7 @@
             --chart-gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             --chart-gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             
-            /* Mode Neon - Default OFF */
+            /* Mode Neon */
             --neon-blue: #3498db;
             --neon-green: #27ae60;
             --neon-purple: #9d4edd;
@@ -54,7 +57,6 @@
 
         /* Mode Neon ON */
         body.neon-mode {
-            /* Variables untuk mode neon */
             --primary: #0a192f;
             --secondary: #64ffda;
             --accent: #00d4ff;
@@ -93,6 +95,43 @@
             --scrollbar-thumb: var(--neon-blue);
             --tab-bg: rgba(17, 34, 64, 0.5);
             --tab-hover: rgba(100, 255, 218, 0.1);
+        }
+
+        /* Mode Red Blood Moon Metallic ON */
+        body.red-moon-mode {
+            --primary: #1a001a;
+            --secondary: #ff3333;
+            --accent: #ff6666;
+            --success: #4dff88;
+            --warning: #ffcc00;
+            --danger: #ff1a1a;
+            --light: #ffcccc;
+            --dark: #330000;
+            --header-gradient: linear-gradient(135deg, #330000 0%, #660000 50%, #990000 100%);
+            --sidebar-gradient: linear-gradient(180deg, #1a001a 0%, #330000 100%);
+            --kpi-gradient: linear-gradient(135deg, #4d0000 0%, #800000 100%);
+            --progress-gradient: linear-gradient(135deg, #990000 0%, #cc0000 100%);
+            --cancel-gradient: linear-gradient(135deg, #ff1a1a 0%, #cc0000 100%);
+            --chart-gradient-1: linear-gradient(135deg, #ff3333 0%, #cc0000 100%);
+            --chart-gradient-2: linear-gradient(135deg, #ff6666 0%, #ff3333 100%);
+            --chart-gradient-3: linear-gradient(135deg, #ff9999 0%, #ff6666 100%);
+            --background-color: #1a001a;
+            --sidebar-bg: linear-gradient(180deg, #1a001a 0%, #330000 100%);
+            --sidebar-header-bg: linear-gradient(135deg, #4d0000 0%, #800000 100%);
+            --card-bg: rgba(51, 0, 0, 0.8);
+            --table-bg: rgba(51, 0, 0, 0.8);
+            --text-color: #ffcccc;
+            --text-light: #ff9999;
+            --border-color: rgba(255, 51, 51, 0.3);
+            --border-light: rgba(255, 51, 51, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --shadow-light: rgba(0, 0, 0, 0.2);
+            --chart-bg: rgba(51, 0, 0, 0.8);
+            --modal-bg: linear-gradient(135deg, rgba(51, 0, 0, 0.95) 0%, rgba(26, 0, 26, 0.95) 100%);
+            --scrollbar-track: #330000;
+            --scrollbar-thumb: #ff3333;
+            --tab-bg: rgba(51, 0, 0, 0.6);
+            --tab-hover: rgba(255, 51, 51, 0.2);
         }
         
         * {
@@ -133,16 +172,54 @@
             display: block;
         }
         
-        @keyframes gridMove {
-            0% {
-                transform: translateY(0) translateX(0);
-            }
-            100% {
-                transform: translateY(50px) translateX(50px);
-            }
+        /* Red Blood Moon Background Effects */
+        .red-moon-grid {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(to right, rgba(255, 51, 51, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 51, 51, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -1;
+            pointer-events: none;
         }
         
-        .particles {
+        body.red-moon-mode .red-moon-grid {
+            display: block;
+        }
+        
+        .blood-shine {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                125deg,
+                transparent 30%,
+                rgba(255, 51, 51, 0.1) 50%,
+                transparent 70%
+            );
+            z-index: -1;
+            pointer-events: none;
+            animation: bloodShine 15s linear infinite;
+        }
+        
+        body.red-moon-mode .blood-shine {
+            display: block;
+        }
+        
+        @keyframes bloodShine {
+            0% { transform: translateX(-100%) translateY(-100%); }
+            100% { transform: translateX(100%) translateY(100%); }
+        }
+        
+        .blood-particles {
             display: none;
             position: fixed;
             top: 0;
@@ -153,44 +230,58 @@
             pointer-events: none;
         }
         
-        body.neon-mode .particles {
+        body.neon-mode .particles,
+        body.red-moon-mode .blood-particles {
             display: block;
         }
         
-        .particle {
+        .blood-particle {
             position: absolute;
-            background: radial-gradient(circle, var(--neon-blue), transparent);
+            background: radial-gradient(circle, rgba(255, 51, 51, 0.3), transparent);
             border-radius: 50%;
             animation: float 15s infinite linear;
         }
         
-        .particle:nth-child(1) {
+        body.red-moon-mode .blood-particle {
+            background: radial-gradient(circle, rgba(255, 0, 0, 0.3), transparent);
+        }
+        
+        .blood-particle:nth-child(1) {
             width: 100px;
             height: 100px;
             top: 20%;
             left: 10%;
             animation-duration: 25s;
-            background: radial-gradient(circle, rgba(100, 255, 218, 0.3), transparent);
         }
         
-        .particle:nth-child(2) {
+        .blood-particle:nth-child(2) {
             width: 150px;
             height: 150px;
             top: 60%;
             left: 80%;
             animation-duration: 30s;
             animation-delay: 2s;
-            background: radial-gradient(circle, rgba(0, 212, 255, 0.2), transparent);
         }
         
-        .particle:nth-child(3) {
+        .blood-particle:nth-child(3) {
             width: 80px;
             height: 80px;
             top: 80%;
             left: 20%;
             animation-duration: 20s;
             animation-delay: 5s;
-            background: radial-gradient(circle, rgba(157, 78, 221, 0.25), transparent);
+        }
+        
+        body.red-moon-mode .blood-particle:nth-child(1) {
+            background: radial-gradient(circle, rgba(255, 0, 0, 0.25), transparent);
+        }
+        
+        body.red-moon-mode .blood-particle:nth-child(2) {
+            background: radial-gradient(circle, rgba(204, 0, 0, 0.2), transparent);
+        }
+        
+        body.red-moon-mode .blood-particle:nth-child(3) {
+            background: radial-gradient(circle, rgba(153, 0, 0, 0.15), transparent);
         }
         
         @keyframes float {
@@ -208,6 +299,15 @@
             }
         }
         
+        @keyframes gridMove {
+            0% {
+                transform: translateY(0) translateX(0);
+            }
+            100% {
+                transform: translateY(50px) translateX(50px);
+            }
+        }
+        
         /* Neon Glow Effects - Hanya di Neon Mode */
         .neon-glow {
             box-shadow: none;
@@ -220,46 +320,11 @@
                 0 0 30px rgba(100, 255, 218, 0.1);
         }
         
-        .neon-border {
-            border: 1px solid var(--border-color);
-        }
-        
-        body.neon-mode .neon-border {
-            border: 1px solid rgba(100, 255, 218, 0.3);
+        /* Blood Moon Glow Effects - Hanya di Red Moon Mode */
+        body.red-moon-mode .blood-glow {
             box-shadow: 
-                inset 0 0 10px rgba(100, 255, 218, 0.2),
-                0 0 15px rgba(100, 255, 218, 0.1);
-        }
-        
-        /* CSS untuk Progress KPI di Neon Mode - ICON & ANGKA MERAH */
-        body.neon-mode .stat-card.progress-kpi .stat-icon {
-            color: #ff4757; /* Warna merah neon */
-            text-shadow: 0 0 10px #ff4757, 0 0 20px rgba(255, 71, 87, 0.5);
-        }
-
-        body.neon-mode .stat-card.progress-kpi .stat-value {
-            background: linear-gradient(90deg, #ff4757, #ff6b6b); /* Gradient merah */
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Animasi khusus untuk progress KPI di neon mode */
-        body.neon-mode .stat-card.progress-kpi {
-            animation: neonPulse 2s infinite;
-        }
-
-        @keyframes neonPulse {
-            0%, 100% {
-                box-shadow: 
-                    0 5px 15px rgba(0, 0, 0, 0.3),
-                    0 0 20px rgba(255, 71, 87, 0.3);
-            }
-            50% {
-                box-shadow: 
-                    0 5px 15px rgba(0, 0, 0, 0.3),
-                    0 0 30px rgba(255, 71, 87, 0.6);
-            }
+                0 0 20px rgba(255, 51, 51, 0.6),
+                inset 0 0 20px rgba(255, 51, 51, 0.2);
         }
         
         .sidebar {
@@ -284,6 +349,13 @@
             border-right: 1px solid var(--border-color);
         }
         
+        body.red-moon-mode .sidebar {
+            box-shadow: 
+                0 0 30px rgba(255, 51, 51, 0.4),
+                0 0 60px rgba(255, 0, 0, 0.2);
+            border-right: 1px solid var(--border-color);
+        }
+        
         .sidebar-header {
             padding: 20px;
             background: var(--sidebar-header-bg);
@@ -294,12 +366,14 @@
             border-bottom: 1px solid var(--border-color);
         }
         
-        body.neon-mode .sidebar-header {
+        body.neon-mode .sidebar-header,
+        body.red-moon-mode .sidebar-header {
             position: relative;
             overflow: hidden;
         }
         
-        body.neon-mode .sidebar-header::before {
+        body.neon-mode .sidebar-header::before,
+        body.red-moon-mode .sidebar-header::before {
             content: '';
             position: absolute;
             top: 0;
@@ -308,6 +382,10 @@
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(100, 255, 218, 0.1), transparent);
             animation: shine 3s infinite;
+        }
+        
+        body.red-moon-mode .sidebar-header::before {
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
         }
         
         @keyframes shine {
@@ -330,9 +408,18 @@
             background: rgba(100, 255, 218, 0.1);
         }
         
-        body.neon-mode .sidebar-toggle:hover {
+        body.red-moon-mode .sidebar-toggle {
+            background: rgba(255, 51, 51, 0.1);
+        }
+        
+        body.neon-mode .sidebar-toggle:hover,
+        body.red-moon-mode .sidebar-toggle:hover {
             background: rgba(100, 255, 218, 0.2);
             transform: scale(1.1);
+        }
+        
+        body.red-moon-mode .sidebar-toggle:hover {
+            background: rgba(255, 51, 51, 0.2);
         }
         
         .sidebar-content {
@@ -357,8 +444,8 @@
             border-radius: 3px;
         }
         
-        /* Theme Toggle Switch - KECIL */
-        .theme-toggle-container {
+        /* Theme Selector Styling */
+        .theme-selector-container {
             margin: 20px 0;
             padding: 15px;
             background: var(--card-bg);
@@ -367,77 +454,89 @@
             box-shadow: 0 2px 5px var(--shadow-color);
         }
         
-        .theme-toggle {
+        .theme-selector {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 12px;
         }
         
-        .theme-label {
+        .theme-label-main {
             display: flex;
             align-items: center;
             gap: 10px;
             font-weight: 600;
             color: var(--text-color);
             font-size: 14px;
+            margin-bottom: 5px;
         }
         
-        .theme-label i {
+        .theme-label-main i {
             font-size: 16px;
         }
         
-        /* Toggle Switch Styling - KECIL */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
+        .theme-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
         
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .slider {
-            position: absolute;
+        .theme-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background: var(--tab-bg);
+            border-radius: 6px;
             cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
+            transition: all 0.3s;
+            border: 1px solid var(--border-light);
         }
         
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
+        .theme-option:hover {
+            background: var(--tab-hover);
+            transform: translateX(5px);
         }
         
-        input:checked + .slider {
+        .theme-option.active {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+            box-shadow: 0 0 10px rgba(var(--secondary-rgb), 0.3);
+        }
+        
+        body.neon-mode .theme-option.active {
             background: linear-gradient(135deg, var(--neon-blue), var(--neon-green));
+            box-shadow: 0 0 15px rgba(100, 255, 218, 0.4);
         }
         
-        body.neon-mode input:checked + .slider {
-            background: linear-gradient(135deg, var(--neon-blue), var(--neon-green));
-            box-shadow: 0 0 8px var(--neon-blue);
+        body.red-moon-mode .theme-option.active {
+            background: linear-gradient(135deg, var(--secondary), #cc0000);
+            box-shadow: 0 0 15px rgba(255, 51, 51, 0.4);
         }
         
-        input:checked + .slider:before {
-            transform: translateX(26px);
+        .theme-option .theme-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
         }
         
-        /* Filter Section Styling - Original Style */
+        .theme-option .theme-name {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .theme-option .theme-check {
+            color: white;
+            font-size: 12px;
+            opacity: 0;
+        }
+        
+        .theme-option.active .theme-check {
+            opacity: 1;
+        }
+        
+        /* Filter Section Styling */
         .filter-section, .compact-filter-row {
             background: var(--card-bg);
             border-radius: 8px;
@@ -464,6 +563,11 @@
         body.neon-mode .filter-section h3 i,
         body.neon-mode .compact-filter-row h3 i {
             color: var(--neon-blue);
+        }
+        
+        body.red-moon-mode .filter-section h3 i,
+        body.red-moon-mode .compact-filter-row h3 i {
+            color: var(--secondary);
         }
         
         .compact-filter-row {
@@ -495,6 +599,10 @@
             color: var(--neon-blue);
         }
         
+        body.red-moon-mode .compact-filter-group label {
+            color: var(--secondary);
+        }
+        
         .compact-filter-group select, 
         .compact-filter-group input {
             padding: 8px 12px;
@@ -519,6 +627,85 @@
             box-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
         }
         
+        body.red-moon-mode .compact-filter-group select:focus,
+        body.red-moon-mode .compact-filter-group input:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 10px rgba(255, 51, 51, 0.3);
+        }
+        
+        /* Select2 Custom Styling */
+        .select2-container {
+            width: 100% !important;
+        }
+        
+        .select2-container--default .select2-selection--multiple {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            min-height: 38px;
+            color: var(--text-color);
+        }
+        
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: var(--secondary);
+            box-shadow: 0 0 10px rgba(var(--secondary-rgb), 0.3);
+        }
+        
+        body.neon-mode .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+        }
+        
+        body.red-moon-mode .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: var(--secondary);
+            box-shadow: 0 0 10px rgba(255, 51, 51, 0.3);
+        }
+        
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: var(--secondary);
+            border: 1px solid var(--secondary);
+            border-radius: 4px;
+            color: white;
+            padding: 2px 8px;
+        }
+        
+        body.neon-mode .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-green));
+            border: none;
+        }
+        
+        body.red-moon-mode .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background: linear-gradient(135deg, var(--secondary), #cc0000);
+            border: none;
+        }
+        
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            color: white;
+            margin-right: 4px;
+        }
+        
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        body.neon-mode .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-green));
+        }
+        
+        body.red-moon-mode .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background: linear-gradient(135deg, var(--secondary), #cc0000);
+        }
+        
+        .select2-container--default .select2-search--inline .select2-search__field {
+            color: var(--text-color);
+            background: transparent;
+        }
+        
+        .select2-container .select2-selection--multiple .select2-selection__rendered {
+            padding: 2px 8px;
+        }
+        
         .upload-section {
             margin-bottom: 30px;
             padding: 20px;
@@ -531,6 +718,11 @@
         body.neon-mode .upload-section:hover {
             border-color: var(--neon-green);
             box-shadow: 0 0 20px rgba(100, 255, 218, 0.2);
+        }
+        
+        body.red-moon-mode .upload-section:hover {
+            border-color: var(--secondary);
+            box-shadow: 0 0 20px rgba(255, 51, 51, 0.2);
         }
         
         .upload-section h3 {
@@ -565,7 +757,13 @@
             color: var(--primary);
         }
         
-        body.neon-mode .upload-btn::before {
+        body.red-moon-mode .upload-btn {
+            background: linear-gradient(135deg, var(--secondary) 0%, #cc0000 100%);
+            color: white;
+        }
+        
+        body.neon-mode .upload-btn::before,
+        body.red-moon-mode .upload-btn::before {
             content: '';
             position: absolute;
             top: 0;
@@ -576,7 +774,8 @@
             transition: 0.5s;
         }
         
-        body.neon-mode .upload-btn:hover::before {
+        body.neon-mode .upload-btn:hover::before,
+        body.red-moon-mode .upload-btn:hover::before {
             left: 100%;
         }
         
@@ -590,6 +789,12 @@
             background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-green) 100%);
             transform: translateY(-2px);
             box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+        }
+        
+        body.red-moon-mode .upload-btn:hover {
+            background: linear-gradient(135deg, var(--secondary) 0%, #cc0000 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 51, 51, 0.4);
         }
         
         .upload-btn input {
@@ -676,6 +881,13 @@
             backdrop-filter: blur(10px);
         }
         
+        body.red-moon-mode header {
+            box-shadow: 
+                0 5px 20px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(255, 51, 51, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
         .main-content.expanded header {
             left: 0;
         }
@@ -697,6 +909,13 @@
             background-clip: text;
         }
         
+        body.red-moon-mode .header-title {
+            background: linear-gradient(90deg, #ffcccc, #ff3333);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
         .header-title i {
             color: var(--secondary);
         }
@@ -704,6 +923,11 @@
         body.neon-mode .header-title i {
             color: var(--neon-blue);
             text-shadow: 0 0 10px var(--neon-blue);
+        }
+        
+        body.red-moon-mode .header-title i {
+            color: #ffcccc;
+            text-shadow: 0 0 10px rgba(255, 204, 204, 0.5);
         }
         
         .current-date {
@@ -720,6 +944,14 @@
             padding: 8px 15px;
             border-radius: 20px;
             border: 1px solid var(--border-color);
+        }
+        
+        body.red-moon-mode .current-date {
+            color: #ffcccc;
+            background: rgba(51, 0, 0, 0.5);
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 51, 51, 0.3);
         }
         
         .container {
@@ -754,12 +986,14 @@
             border-radius: 8px 8px 0 0;
         }
         
-        body.neon-mode .tab {
+        body.neon-mode .tab,
+        body.red-moon-mode .tab {
             position: relative;
             overflow: hidden;
         }
         
-        body.neon-mode .tab::before {
+        body.neon-mode .tab::before,
+        body.red-moon-mode .tab::before {
             content: '';
             position: absolute;
             top: 0;
@@ -770,7 +1004,12 @@
             transition: 0.5s;
         }
         
-        body.neon-mode .tab:hover::before {
+        body.red-moon-mode .tab::before {
+            background: linear-gradient(90deg, transparent, rgba(255, 51, 51, 0.1), transparent);
+        }
+        
+        body.neon-mode .tab:hover::before,
+        body.red-moon-mode .tab:hover::before {
             left: 100%;
         }
         
@@ -789,6 +1028,13 @@
             border-bottom: 3px solid var(--neon-green);
             background: rgba(100, 255, 218, 0.1);
             box-shadow: 0 5px 15px rgba(100, 255, 218, 0.1);
+        }
+        
+        body.red-moon-mode .tab.active {
+            color: var(--secondary);
+            border-bottom: 3px solid var(--secondary);
+            background: rgba(255, 51, 51, 0.1);
+            box-shadow: 0 5px 15px rgba(255, 51, 51, 0.1);
         }
         
         .tab-content {
@@ -829,6 +1075,10 @@
             color: var(--neon-blue);
         }
         
+        body.red-moon-mode .filter-group label {
+            color: var(--secondary);
+        }
+        
         .filter-group select, .filter-group input {
             padding: 8px 12px;
             background: var(--card-bg);
@@ -851,6 +1101,12 @@
             box-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
         }
         
+        body.red-moon-mode .filter-group select:focus,
+        body.red-moon-mode .filter-group input:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 10px rgba(255, 51, 51, 0.3);
+        }
+        
         .btn {
             padding: 8px 16px;
             background: var(--secondary);
@@ -869,7 +1125,15 @@
             overflow: hidden;
         }
         
-        body.neon-mode .btn::before {
+        body.red-moon-mode .btn {
+            background: linear-gradient(135deg, var(--secondary) 0%, #cc0000 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body.neon-mode .btn::before,
+        body.red-moon-mode .btn::before {
             content: '';
             position: absolute;
             top: 0;
@@ -880,7 +1144,8 @@
             transition: 0.5s;
         }
         
-        body.neon-mode .btn:hover::before {
+        body.neon-mode .btn:hover::before,
+        body.red-moon-mode .btn:hover::before {
             left: 100%;
         }
         
@@ -893,6 +1158,11 @@
         body.neon-mode .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+        }
+        
+        body.red-moon-mode .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 51, 51, 0.4);
         }
         
         table {
@@ -910,6 +1180,12 @@
             box-shadow: 
                 0 5px 20px rgba(0, 0, 0, 0.3),
                 0 0 30px rgba(100, 255, 218, 0.1);
+        }
+        
+        body.red-moon-mode table {
+            box-shadow: 
+                0 5px 20px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(255, 51, 51, 0.1);
         }
         
         th, td {
@@ -936,6 +1212,10 @@
             background: linear-gradient(135deg, rgba(26, 83, 92, 0.9) 0%, rgba(36, 36, 62, 0.9) 100%);
         }
         
+        body.red-moon-mode th.sortable:hover {
+            background: linear-gradient(135deg, #660000 0%, #990000 100%);
+        }
+        
         th i {
             margin-left: 5px;
             font-size: 12px;
@@ -948,6 +1228,10 @@
         
         body.neon-mode tr:hover {
             background: rgba(100, 255, 218, 0.05);
+        }
+        
+        body.red-moon-mode tr:hover {
+            background: rgba(255, 51, 51, 0.05);
         }
         
         .action-cell {
@@ -1026,6 +1310,12 @@
                 0 0 20px rgba(100, 255, 218, 0.1);
         }
         
+        body.red-moon-mode .stat-card {
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(255, 51, 51, 0.1);
+        }
+        
         .stat-card::before {
             content: '';
             position: absolute;
@@ -1040,7 +1330,12 @@
             background: linear-gradient(90deg, var(--neon-blue), var(--neon-green));
         }
         
-        body.neon-mode .stat-card::after {
+        body.red-moon-mode .stat-card::before {
+            background: linear-gradient(90deg, var(--secondary), #cc0000);
+        }
+        
+        body.neon-mode .stat-card::after,
+        body.red-moon-mode .stat-card::after {
             content: '';
             position: absolute;
             top: -50%;
@@ -1052,7 +1347,12 @@
             transition: opacity 0.3s;
         }
         
-        body.neon-mode .stat-card:hover::after {
+        body.red-moon-mode .stat-card::after {
+            background: radial-gradient(circle, rgba(255, 51, 51, 0.1) 0%, transparent 70%);
+        }
+        
+        body.neon-mode .stat-card:hover::after,
+        body.red-moon-mode .stat-card:hover::after {
             opacity: 1;
         }
         
@@ -1068,6 +1368,13 @@
                 0 0 30px rgba(100, 255, 218, 0.2);
         }
         
+        body.red-moon-mode .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 10px 25px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(255, 51, 51, 0.2);
+        }
+        
         .stat-icon {
             font-size: 18px;
             margin-bottom: 6px;
@@ -1078,6 +1385,11 @@
         body.neon-mode .stat-icon {
             color: var(--neon-blue);
             text-shadow: 0 0 10px var(--neon-blue);
+        }
+        
+        body.red-moon-mode .stat-icon {
+            color: #ffcccc;
+            text-shadow: 0 0 10px rgba(255, 204, 204, 0.5);
         }
         
         .stat-value {
@@ -1094,6 +1406,11 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+        }
+        
+        body.red-moon-mode .stat-value {
+            color: #ffcccc;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
         
         .stat-label {
@@ -1141,7 +1458,14 @@
                 0 0 30px rgba(100, 255, 218, 0.1);
         }
         
-        body.neon-mode .chart-container::before {
+        body.red-moon-mode .chart-container {
+            box-shadow: 
+                0 5px 20px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(255, 51, 51, 0.1);
+        }
+        
+        body.neon-mode .chart-container::before,
+        body.red-moon-mode .chart-container::before {
             content: '';
             position: absolute;
             top: 0;
@@ -1150,6 +1474,10 @@
             bottom: 0;
             background: linear-gradient(135deg, transparent 0%, rgba(100, 255, 218, 0.05) 100%);
             pointer-events: none;
+        }
+        
+        body.red-moon-mode .chart-container::before {
+            background: linear-gradient(135deg, transparent 0%, rgba(255, 51, 51, 0.05) 100%);
         }
         
         .chart-container:hover {
@@ -1163,6 +1491,14 @@
                 0 10px 30px rgba(0, 0, 0, 0.4),
                 0 0 40px rgba(100, 255, 218, 0.2);
             border-color: rgba(100, 255, 218, 0.3);
+        }
+        
+        body.red-moon-mode .chart-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.4),
+                0 0 40px rgba(255, 51, 51, 0.2);
+            border-color: rgba(255, 51, 51, 0.3);
         }
         
         .chart-header {
@@ -1188,6 +1524,10 @@
             color: var(--neon-green);
         }
         
+        body.red-moon-mode .chart-title {
+            color: #ffcccc;
+        }
+        
         .chart-date-filter {
             font-size: 11px;
             color: var(--text-light);
@@ -1208,6 +1548,10 @@
         body.neon-mode .chart-title i {
             color: var(--neon-blue);
             text-shadow: 0 0 10px var(--neon-blue);
+        }
+        
+        body.red-moon-mode .chart-title i {
+            color: #ffcccc;
         }
         
         .chart-legend {
@@ -1239,6 +1583,10 @@
             box-shadow: 0 0 5px currentColor;
         }
         
+        body.red-moon-mode .legend-color {
+            box-shadow: 0 0 3px currentColor;
+        }
+        
         .chart-box {
             flex: 1;
             min-height: 180px;
@@ -1267,7 +1615,14 @@
                 0 0 30px rgba(100, 255, 218, 0.1);
         }
         
-        body.neon-mode .wide-chart-container::before {
+        body.red-moon-mode .wide-chart-container {
+            box-shadow: 
+                0 5px 20px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(255, 51, 51, 0.1);
+        }
+        
+        body.neon-mode .wide-chart-container::before,
+        body.red-moon-mode .wide-chart-container::before {
             content: '';
             position: absolute;
             top: 0;
@@ -1276,6 +1631,10 @@
             bottom: 0;
             background: linear-gradient(135deg, transparent 0%, rgba(100, 255, 218, 0.05) 100%);
             pointer-events: none;
+        }
+        
+        body.red-moon-mode .wide-chart-container::before {
+            background: linear-gradient(135deg, transparent 0%, rgba(255, 51, 51, 0.05) 100%);
         }
         
         .wide-chart-container:hover {
@@ -1289,6 +1648,14 @@
                 0 10px 30px rgba(0, 0, 0, 0.4),
                 0 0 40px rgba(100, 255, 218, 0.2);
             border-color: rgba(100, 255, 218, 0.3);
+        }
+        
+        body.red-moon-mode .wide-chart-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.4),
+                0 0 40px rgba(255, 51, 51, 0.2);
+            border-color: rgba(255, 51, 51, 0.3);
         }
         
         .wide-chart-box {
@@ -1321,10 +1688,23 @@
             backdrop-filter: blur(10px);
         }
         
+        body.red-moon-mode .sidebar-toggle-btn {
+            background: rgba(51, 0, 0, 0.8);
+            color: #ffcccc;
+            border: 1px solid rgba(255, 51, 51, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
         body.neon-mode .sidebar-toggle-btn:hover {
             background: rgba(100, 255, 218, 0.2);
             transform: scale(1.1);
             box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+        }
+        
+        body.red-moon-mode .sidebar-toggle-btn:hover {
+            background: rgba(255, 51, 51, 0.3);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 51, 51, 0.3);
         }
         
         /* Project Details */
@@ -1379,6 +1759,10 @@
             color: var(--neon-green);
         }
         
+        body.red-moon-mode #project-remain-table th {
+            color: #ffcccc;
+        }
+        
         /* Modal */
         .modal {
             display: none;
@@ -1407,6 +1791,12 @@
             box-shadow: 
                 0 10px 40px rgba(0, 0, 0, 0.5),
                 0 0 50px rgba(100, 255, 218, 0.2);
+        }
+        
+        body.red-moon-mode .modal-content {
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.5),
+                0 0 50px rgba(255, 51, 51, 0.2);
         }
         
         /* Truck Input Section */
@@ -1828,12 +2218,14 @@
     </style>
 </head>
 <body>
-    <!-- Futuristic Background Elements -->
+    <!-- Background Effects -->
     <div class="grid-lines"></div>
-    <div class="particles">
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
+    <div class="red-moon-grid"></div>
+    <div class="blood-shine"></div>
+    <div class="blood-particles">
+        <div class="blood-particle"></div>
+        <div class="blood-particle"></div>
+        <div class="blood-particle"></div>
     </div>
     
     <button class="sidebar-toggle-btn" id="sidebarToggleBtn">
@@ -1847,20 +2239,33 @@
             </button>
         </div>
         <div class="sidebar-content">
-            <!-- Theme Toggle Switch -->
-            <div class="theme-toggle-container">
-                <div class="theme-toggle">
-                    <div class="theme-label">
+            <!-- Theme Selector -->
+            <div class="theme-selector-container">
+                <div class="theme-selector">
+                    <div class="theme-label-main">
                         <i class="fas fa-palette"></i>
-                        <span>Theme Mode</span>
+                        <span>Theme Selection</span>
                     </div>
-                    <label class="switch">
-                        <input type="checkbox" id="themeToggle">
-                        <span class="slider"></span>
-                    </label>
+                    <div class="theme-options">
+                        <div class="theme-option active" data-theme="original">
+                            <div class="theme-icon"><i class="fas fa-sun"></i></div>
+                            <div class="theme-name">Original Mode</div>
+                            <div class="theme-check"><i class="fas fa-check"></i></div>
+                        </div>
+                        <div class="theme-option" data-theme="neon">
+                            <div class="theme-icon"><i class="fas fa-moon"></i></div>
+                            <div class="theme-name">Neon Mode</div>
+                            <div class="theme-check"><i class="fas fa-check"></i></div>
+                        </div>
+                        <div class="theme-option" data-theme="red-moon">
+                            <div class="theme-icon"><i class="fas fa-moon"></i></div>
+                            <div class="theme-name">Red Blood Moon</div>
+                            <div class="theme-check"><i class="fas fa-check"></i></div>
+                        </div>
+                    </div>
                 </div>
                 <p style="font-size: 12px; color: var(--text-light); margin-top: 8px; text-align: center;">
-                    <span id="themeStatus">Original Mode</span>
+                    <span id="themeStatus">Original Mode Active</span>
                 </p>
             </div>
             
@@ -1889,8 +2294,8 @@
                     <input type="date" id="dashboard-end-date">
                 </div>
                 <div class="filter-group">
-                    <label for="dashboard-plant-filter">Plant</label>
-                    <select id="dashboard-plant-filter">
+                    <label for="dashboard-plant-filter">Plant (Multi Select)</label>
+                    <select id="dashboard-plant-filter" multiple="multiple">
                         <option value="">All Plants</option>
                     </select>
                 </div>
@@ -1966,8 +2371,8 @@
                         <input type="date" id="status-end-date">
                     </div>
                     <div class="compact-filter-group">
-                        <label for="status-plant-filter">Plant</label>
-                        <select id="status-plant-filter">
+                        <label for="status-plant-filter">Plant (Multi Select)</label>
+                        <select id="status-plant-filter" multiple="multiple">
                             <option value="">All Plants</option>
                         </select>
                     </div>
@@ -2027,8 +2432,8 @@
                         <input type="date" id="end-date">
                     </div>
                     <div class="compact-filter-group">
-                        <label for="plant-filter">Plant</label>
-                        <select id="plant-filter">
+                        <label for="plant-filter">Plant (Multi Select)</label>
+                        <select id="plant-filter" multiple="multiple">
                             <option value="">All Plants</option>
                         </select>
                     </div>
@@ -2132,7 +2537,7 @@
                         </div>
                         <div class="stat-card">
                             <div class="stat-icon"><i class="fas fa-truck"></i></div>
-                            <div class="stat-value" id="total-truck-count">-</div>
+                            <div class="stat-value" id="total-truck-count">  </div>
                             <div class="stat-label">Total Truck Mixer</div>
                         </div>
                     </div>
@@ -2263,21 +2668,49 @@
         let resizeTimeout;
         let showProgressLine = true;
 
-        // Theme Toggle Functionality
-        function toggleTheme() {
+        // Inisialisasi Select2 untuk multi-select dropdowns
+        function initializeSelect2() {
+            $('#dashboard-plant-filter, #status-plant-filter, #plant-filter').select2({
+                placeholder: "Select plants...",
+                allowClear: true,
+                width: '100%',
+                theme: 'default'
+            });
+        }
+
+        // Theme Management Functions
+        function setTheme(theme) {
             const body = document.body;
-            const themeToggle = document.getElementById('themeToggle');
             const themeStatus = document.getElementById('themeStatus');
+            const themeOptions = document.querySelectorAll('.theme-option');
             
-            if (themeToggle.checked) {
+            // Remove all theme classes
+            body.classList.remove('neon-mode', 'red-moon-mode');
+            
+            // Set active theme
+            themeOptions.forEach(option => {
+                option.classList.remove('active');
+                if (option.dataset.theme === theme) {
+                    option.classList.add('active');
+                }
+            });
+            
+            // Apply selected theme
+            if (theme === 'neon') {
                 body.classList.add('neon-mode');
-                themeStatus.textContent = 'Neon Mode';
+                themeStatus.textContent = 'Neon Mode Active';
                 themeStatus.style.color = '#00ff9d';
+            } else if (theme === 'red-moon') {
+                body.classList.add('red-moon-mode');
+                themeStatus.textContent = 'Red Blood Moon Active';
+                themeStatus.style.color = '#ff3333';
             } else {
-                body.classList.remove('neon-mode');
-                themeStatus.textContent = 'Original Mode';
+                themeStatus.textContent = 'Original Mode Active';
                 themeStatus.style.color = '';
             }
+            
+            // Save to localStorage
+            localStorage.setItem('selectedTheme', theme);
             
             // Re-create charts with new theme colors
             if (orderData.length > 0) {
@@ -2285,24 +2718,21 @@
             }
         }
 
-        // Save theme preference to localStorage
-        function saveThemePreference() {
-            const themeToggle = document.getElementById('themeToggle');
-            localStorage.setItem('neonThemeEnabled', themeToggle.checked);
-        }
-
         // Load theme preference from localStorage
         function loadThemePreference() {
-            const savedTheme = localStorage.getItem('neonThemeEnabled');
-            const themeToggle = document.getElementById('themeToggle');
-            
-            if (savedTheme === 'true') {
-                themeToggle.checked = true;
-            } else {
-                themeToggle.checked = false;
-            }
-            
-            toggleTheme(); // Apply the loaded theme
+            const savedTheme = localStorage.getItem('selectedTheme') || 'original';
+            setTheme(savedTheme);
+        }
+
+        // Theme option click handlers
+        function setupThemeSelectors() {
+            const themeOptions = document.querySelectorAll('.theme-option');
+            themeOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const theme = this.dataset.theme;
+                    setTheme(theme);
+                });
+            });
         }
 
         function processExcelFile(file) {
@@ -2712,17 +3142,31 @@
                 document.getElementById('dashboard-plant-filter'),
                 document.getElementById('status-plant-filter')
             ];
+            
+            // Clear existing options except the first "All Plants" option
             plantSelects.forEach(select => {
+                // Save the selected values
+                const selectedValues = $(select).val() || [];
+                
+                // Clear options
                 while (select.options.length > 1) {
                     select.remove(1);
                 }
+                
+                // Add new plant options
                 plants.forEach(plant => {
                     const option = document.createElement('option');
                     option.value = plant;
                     option.textContent = plant;
                     select.appendChild(option);
                 });
+                
+                // Re-apply Select2
+                $(select).trigger('change.select2');
             });
+            
+            // Re-initialize Select2 with updated options
+            initializeSelect2();
         }
 
         function updateDashboardStats(data) {
@@ -2764,13 +3208,17 @@
             const totalProjectRemain = projectRemainSet.size;
             const totalProjectCancel = projectCancelSet.size;
 
-            const selectedPlant = document.getElementById('dashboard-plant-filter').value;
+            const selectedPlants = $('#dashboard-plant-filter').val() || [];
             let totalTruckCount = 0;
             let totalTargetVolume = 0;
-            if (selectedPlant) {
-                totalTruckCount = truckCounts[selectedPlant] || 0;
-                totalTargetVolume = targetVolumes[selectedPlant] || 0;
+            
+            if (selectedPlants && selectedPlants.length > 0) {
+                selectedPlants.forEach(plant => {
+                    totalTruckCount += truckCounts[plant] || 0;
+                    totalTargetVolume += targetVolumes[plant] || 0;
+                });
             } else {
+                // If no plants selected, sum all plants
                 totalTruckCount = Object.values(truckCounts).reduce((sum, count) => sum + count, 0);
                 totalTargetVolume = Object.values(targetVolumes).reduce((sum, volume) => sum + volume, 0);
             }
@@ -2975,8 +3423,10 @@
                 return plantTotals[b].order - plantTotals[a].order;
             });
 
-            const selectedPlant = document.getElementById('dashboard-plant-filter').value;
-            const plantTitle = selectedPlant ? selectedPlant : "All Plants";
+            const selectedPlants = $('#dashboard-plant-filter').val() || [];
+            const plantTitle = selectedPlants && selectedPlants.length > 0 
+                ? (selectedPlants.length === 1 ? selectedPlants[0] : `${selectedPlants.length} Plants Selected`)
+                : "All Plants";
 
             // Dapatkan nilai filter date untuk ditampilkan
             const startDate = document.getElementById('dashboard-start-date').value;
@@ -3006,35 +3456,53 @@
             document.getElementById('performProjectTitle').innerHTML = `<i class="fas fa-chart-pie"></i> Perform Project - ${plantTitle}`;
             document.getElementById('statusDistributionTitle').innerHTML = `<i class="fas fa-chart-line"></i> Status Distribution - ${plantTitle}`;
 
+            const selectedPlantsArray = $('#dashboard-plant-filter').val() || [];
             let totalTargetVolume = 0;
-            if (selectedPlant) {
-                totalTargetVolume = targetVolumes[selectedPlant] || 0;
+            if (selectedPlantsArray && selectedPlantsArray.length > 0) {
+                selectedPlantsArray.forEach(plant => {
+                    totalTargetVolume += targetVolumes[plant] || 0;
+                });
             } else {
                 totalTargetVolume = Object.values(targetVolumes).reduce((sum, volume) => sum + volume, 0);
             }
 
-            // Tentukan warna berdasarkan tema - PROGRESS MERAH untuk neon mode
+            // Tentukan warna berdasarkan tema
             const isNeonMode = document.body.classList.contains('neon-mode');
+            const isRedMoonMode = document.body.classList.contains('red-moon-mode');
+            
             const colors = isNeonMode ? {
                 target: 'rgba(0, 212, 255, 0.8)',
                 order: 'rgba(100, 255, 218, 0.8)',
                 delivered: 'rgba(0, 255, 157, 0.8)',
                 remain: 'rgba(255, 215, 0, 0.8)',
                 cancel: 'rgba(255, 71, 87, 0.8)',
-                progress: 'rgba(255, 71, 87, 0.8)', // MERAH untuk progress bar di chart Perform Order
+                progress: 'rgba(255, 71, 87, 0.8)',
                 projectTotal: 'rgba(86, 207, 225, 0.8)',
                 normal: 'rgba(0, 212, 255, 0.8)',
                 suddenly: 'rgba(255, 71, 87, 0.8)',
-                progressLine: 'rgba(255, 71, 87, 1)', // MERAH untuk progress line di chart Qty Order
+                progressLine: 'rgba(255, 71, 87, 1)',
                 progressLineBackground: 'rgba(255, 71, 87, 0.2)',
                 chartTextColor: '#ccd6f6'
+            } : isRedMoonMode ? {
+                target: 'rgba(255, 51, 51, 0.8)',
+                order: 'rgba(255, 140, 0, 0.8)', // ORANYE untuk Qty Order
+                delivered: 'rgba(50, 205, 50, 0.8)', // HIJAU untuk Delivery
+                remain: 'rgba(255, 215, 0, 0.8)',
+                cancel: 'rgba(255, 0, 0, 0.8)',
+                progress: 'rgba(255, 140, 0, 0.8)',
+                projectTotal: 'rgba(255, 99, 132, 0.8)',
+                normal: 'rgba(255, 51, 51, 0.8)',
+                suddenly: 'rgba(255, 0, 255, 0.8)',
+                progressLine: 'rgba(255, 140, 0, 1)',
+                progressLineBackground: 'rgba(255, 140, 0, 0.2)',
+                chartTextColor: '#ffcccc'
             } : {
                 target: 'rgba(255, 99, 132, 0.8)',
                 order: 'rgba(54, 162, 235, 0.8)',
                 delivered: 'rgba(75, 192, 192, 0.8)',
                 remain: 'rgba(255, 205, 86, 0.8)',
                 cancel: 'rgba(255, 87, 51, 0.8)',
-                progress: 'rgba(46, 125, 50, 0.8)', // HIJAU untuk original mode
+                progress: 'rgba(46, 125, 50, 0.8)',
                 projectTotal: 'rgba(153, 102, 255, 0.8)',
                 normal: 'rgba(54, 162, 235, 0.8)',
                 suddenly: 'rgba(237, 85, 101, 0.8)',
@@ -3043,35 +3511,47 @@
                 chartTextColor: '#333333'
             };
 
-            // 1. Perform Order Chart dengan PROGRESS MERAH
+            // 1. Perform Order Chart
             const performOrderCtx = document.getElementById('performOrderChart').getContext('2d');
             const performOrderLegend = document.getElementById('performOrderLegend');
+            
+            // Warna khusus untuk bar "Qty Order" di Red Moon Mode
+            const performOrderColors = [
+                colors.target,
+                colors.order,  // Sudah menggunakan ORANYE untuk Red Moon Mode
+                colors.delivered,
+                colors.remain,
+                colors.cancel,
+                colors.progress
+            ];
+
             performOrderLegend.innerHTML = `
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: ${colors.target}"></div>
+                    <div class="legend-color" style="background-color: ${performOrderColors[0]}"></div>
                     <span>Target</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: ${colors.order}"></div>
+                    <div class="legend-color" style="background-color: ${performOrderColors[1]}"></div>
                     <span>Order</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: ${colors.delivered}"></div>
+                    <div class="legend-color" style="background-color: ${performOrderColors[2]}"></div>
                     <span>Delivered</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: ${colors.remain}"></div>
+                    <div class="legend-color" style="background-color: ${performOrderColors[3]}"></div>
                     <span>Remain</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: ${colors.cancel}"></div>
+                    <div class="legend-color" style="background-color: ${performOrderColors[4]}"></div>
                     <span>Cancel</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: ${colors.progress}"></div>
+                    <div class="legend-color" style="background-color: ${performOrderColors[5]}"></div>
                     <span>Progress: ${totalProgressPercent.toFixed(1)}%</span>
                 </div>
             `;
+            
             currentCharts.performOrder = new Chart(performOrderCtx, {
                 type: 'bar',
                 data: {
@@ -3079,21 +3559,21 @@
                     datasets: [{
                         label: 'Volume (m³)',
                         data: [totalTargetVolume, totalOrderQty, totalDeliveryQty, totalRemainQty, totalCancelQty, totalProgressPercent],
-                        backgroundColor: [
-                            colors.target,
-                            colors.order,
-                            colors.delivered,
-                            colors.remain,
-                            colors.cancel,
-                            colors.progress  // Ini akan menjadi MERAH di neon mode
-                        ],
-                        borderColor: isNeonMode ? [
+                        backgroundColor: performOrderColors,
+                        borderColor: isRedMoonMode ? [
+                            'rgba(255, 51, 51, 1)',        // Target
+                            'rgba(255, 140, 0, 1)',       // Order - ORANYE
+                            'rgba(50, 205, 50, 1)',       // Delivered - HIJAU
+                            'rgba(255, 215, 0, 1)',       // Remain
+                            'rgba(255, 0, 0, 1)',         // Cancel
+                            'rgba(255, 140, 0, 1)'        // Progress
+                        ] : isNeonMode ? [
                             'rgba(0, 212, 255, 1)',
                             'rgba(100, 255, 218, 1)',
                             'rgba(0, 255, 157, 1)',
                             'rgba(255, 215, 0, 1)',
                             'rgba(255, 71, 87, 1)',
-                            'rgba(255, 71, 87, 1)'  // Border MERAH untuk progress
+                            'rgba(255, 71, 87, 1)'
                         ] : [
                             'rgba(255, 99, 132, 1)',
                             'rgba(54, 162, 235, 1)',
@@ -3103,7 +3583,7 @@
                             'rgba(46, 125, 50, 1)'
                         ],
                         borderWidth: 1,
-                        borderRadius: isNeonMode ? 6 : 0,
+                        borderRadius: (isNeonMode || isRedMoonMode) ? 6 : 0,
                     }]
                 },
                 options: {
@@ -3136,7 +3616,9 @@
                                 color: colors.chartTextColor
                             },
                             grid: { 
-                                color: isNeonMode ? 'rgba(100, 255, 218, 0.1)' : 'rgba(0,0,0,0.05)' 
+                                color: isNeonMode ? 'rgba(100, 255, 218, 0.1)' : 
+                                      isRedMoonMode ? 'rgba(255, 51, 51, 0.1)' : 
+                                      'rgba(0,0,0,0.05)' 
                             }
                         },
                         x: {
@@ -3194,6 +3676,11 @@
                             'rgba(0, 255, 157, 1)',
                             'rgba(255, 215, 0, 1)',
                             'rgba(255, 71, 87, 1)'
+                        ] : isRedMoonMode ? [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(50, 205, 50, 1)',
+                            'rgba(255, 215, 0, 1)',
+                            'rgba(255, 0, 0, 1)'
                         ] : [
                             'rgba(153, 102, 255, 1)',
                             'rgba(75, 192, 192, 1)',
@@ -3201,7 +3688,7 @@
                             'rgba(255, 87, 51, 1)'
                         ],
                         borderWidth: 1,
-                        borderRadius: isNeonMode ? 6 : 0,
+                        borderRadius: (isNeonMode || isRedMoonMode) ? 6 : 0,
                     }]
                 },
                 options: {
@@ -3231,7 +3718,9 @@
                                 color: colors.chartTextColor
                             },
                             grid: { 
-                                color: isNeonMode ? 'rgba(100, 255, 218, 0.1)' : 'rgba(0,0,0,0.05)' 
+                                color: isNeonMode ? 'rgba(100, 255, 218, 0.1)' : 
+                                      isRedMoonMode ? 'rgba(255, 51, 51, 0.1)' : 
+                                      'rgba(0,0,0,0.05)' 
                             }
                         },
                         x: {
@@ -3279,12 +3768,15 @@
                         borderColor: isNeonMode ? [
                             'rgba(0, 212, 255, 1)',
                             'rgba(255, 71, 87, 1)'
+                        ] : isRedMoonMode ? [
+                            'rgba(255, 51, 51, 1)',
+                            'rgba(255, 0, 255, 1)'
                         ] : [
                             'rgba(54, 162, 235, 1)',
                             'rgba(237, 85, 101, 1)'
                         ],
                         borderWidth: 2,
-                        hoverOffset: isNeonMode ? 15 : 4
+                        hoverOffset: (isNeonMode || isRedMoonMode) ? 15 : 4
                     }]
                 },
                 options: {
@@ -3313,72 +3805,110 @@
                 }
             });
 
-            // 4. Qty Order & Delivery Chart dengan PROGRESS LINE MERAH
+            // 4. Qty Order & Delivery Chart - DENGAN WARNA KHUSUS UNTUK DENPASAR2
             const qtyOrderDeliveryCtx = document.getElementById('qtyOrderDeliveryChart').getContext('2d');
             const orderDataValues = sortedPlants.map(plant => plantTotals[plant].order);
             const deliveryDataValues = sortedPlants.map(plant => plantTotals[plant].delivery);
             const percentageDataValues = sortedPlants.map(plant => plantPercentages[plant]);
 
-            // Warna untuk bars
-            const orderColors = sortedPlants.map((_, index) => {
+            // Warna untuk bars berdasarkan tema DAN plant tertentu
+            const orderColors = sortedPlants.map((plant, index) => {
+                // Warna khusus untuk plant Denpasar2 di Red Moon Mode
+                if (isRedMoonMode && plant === 'Denpasar2') {
+                    return 'rgba(255, 140, 0, 0.9)';  // ORANYE (#FF8C00) untuk Qty Order
+                }
+                
                 if (isNeonMode) {
                     const colors = [
-                        'rgba(0, 212, 255, 0.9)',    // Neon Blue
-                        'rgba(100, 255, 218, 0.9)',   // Neon Green
-                        'rgba(157, 78, 221, 0.9)',    // Neon Purple
-                        'rgba(255, 71, 87, 0.9)',     // Neon Red
-                        'rgba(255, 215, 0, 0.9)',     // Neon Yellow
-                        'rgba(86, 207, 225, 0.9)',    // Cyan
-                        'rgba(255, 159, 64, 0.9)',    // Orange
-                        'rgba(201, 203, 207, 0.9)',   // Silver
-                        'rgba(0, 128, 128, 0.9)',     // Teal
-                        'rgba(139, 69, 19, 0.9)'      // Bronze
+                        'rgba(0, 212, 255, 0.9)',
+                        'rgba(100, 255, 218, 0.9)',
+                        'rgba(157, 78, 221, 0.9)',
+                        'rgba(255, 71, 87, 0.9)',
+                        'rgba(255, 215, 0, 0.9)',
+                        'rgba(86, 207, 225, 0.9)',
+                        'rgba(255, 159, 64, 0.9)',
+                        'rgba(201, 203, 207, 0.9)',
+                        'rgba(0, 128, 128, 0.9)',
+                        'rgba(139, 69, 19, 0.9)'
+                    ];
+                    return colors[index % colors.length];
+                } else if (isRedMoonMode) {
+                    const colors = [
+                        'rgba(255, 99, 132, 0.9)',    // Merah untuk plant lain
+                        'rgba(255, 51, 51, 0.9)',
+                        'rgba(204, 0, 0, 0.9)',
+                        'rgba(153, 0, 0, 0.9)',
+                        'rgba(102, 0, 0, 0.9)',
+                        'rgba(255, 102, 102, 0.9)',
+                        'rgba(255, 153, 153, 0.9)',
+                        'rgba(255, 204, 204, 0.9)',
+                        'rgba(255, 0, 51, 0.9)',
+                        'rgba(255, 51, 102, 0.9)'
                     ];
                     return colors[index % colors.length];
                 } else {
                     const colors = [
-                        'rgba(54, 162, 235, 0.9)',    // Biru terang
-                        'rgba(255, 99, 132, 0.9)',    // Merah terang
-                        'rgba(75, 192, 192, 0.9)',    // Cyan terang
-                        'rgba(255, 205, 86, 0.9)',    // Kuning terang
-                        'rgba(153, 102, 255, 0.9)',   // Ungu terang
-                        'rgba(255, 159, 64, 0.9)',    // Orange terang
-                        'rgba(201, 203, 207, 0.9)',   // Abu-abu terang
-                        'rgba(0, 128, 128, 0.9)',     // Teal terang
-                        'rgba(139, 69, 19, 0.9)',     // Coklat terang
-                        'rgba(255, 0, 255, 0.9)'      // Magenta terang
+                        'rgba(54, 162, 235, 0.9)',
+                        'rgba(255, 99, 132, 0.9)',
+                        'rgba(75, 192, 192, 0.9)',
+                        'rgba(255, 205, 86, 0.9)',
+                        'rgba(153, 102, 255, 0.9)',
+                        'rgba(255, 159, 64, 0.9)',
+                        'rgba(201, 203, 207, 0.9)',
+                        'rgba(0, 128, 128, 0.9)',
+                        'rgba(139, 69, 19, 0.9)',
+                        'rgba(255, 0, 255, 0.9)'
                     ];
                     return colors[index % colors.length];
                 }
             });
-            
-            const deliveryColors = sortedPlants.map((_, index) => {
+
+            const deliveryColors = sortedPlants.map((plant, index) => {
+                // Warna khusus untuk plant Denpasar2 di Red Moon Mode
+                if (isRedMoonMode && plant === 'Denpasar2') {
+                    return 'rgba(50, 205, 50, 0.9)';  // HIJAU TERANG (#32CD32) untuk Qty Delivery
+                }
+                
                 if (isNeonMode) {
                     const colors = [
-                        'rgba(0, 180, 216, 0.9)',     // Darker Blue
-                        'rgba(72, 187, 120, 0.9)',    // Darker Green
-                        'rgba(127, 63, 191, 0.9)',    // Darker Purple
-                        'rgba(220, 38, 38, 0.9)',     // Darker Red
-                        'rgba(217, 119, 6, 0.9)',     // Darker Yellow
-                        'rgba(56, 178, 172, 0.9)',    // Darker Cyan
-                        'rgba(245, 158, 11, 0.9)',    // Darker Orange
-                        'rgba(156, 163, 175, 0.9)',   // Darker Gray
-                        'rgba(13, 148, 136, 0.9)',    // Darker Teal
-                        'rgba(120, 53, 15, 0.9)'      // Darker Bronze
+                        'rgba(0, 180, 216, 0.9)',
+                        'rgba(72, 187, 120, 0.9)',
+                        'rgba(127, 63, 191, 0.9)',
+                        'rgba(220, 38, 38, 0.9)',
+                        'rgba(217, 119, 6, 0.9)',
+                        'rgba(56, 178, 172, 0.9)',
+                        'rgba(245, 158, 11, 0.9)',
+                        'rgba(156, 163, 175, 0.9)',
+                        'rgba(13, 148, 136, 0.9)',
+                        'rgba(120, 53, 15, 0.9)'
+                    ];
+                    return colors[index % colors.length];
+                } else if (isRedMoonMode) {
+                    const colors = [
+                        'rgba(144, 238, 144, 0.9)',    // Hijau muda untuk plant lain
+                        'rgba(152, 251, 152, 0.9)',
+                        'rgba(0, 255, 127, 0.9)',
+                        'rgba(60, 179, 113, 0.9)',
+                        'rgba(46, 139, 87, 0.9)',
+                        'rgba(34, 139, 34, 0.9)',
+                        'rgba(0, 128, 0, 0.9)',
+                        'rgba(0, 100, 0, 0.9)',
+                        'rgba(154, 205, 50, 0.9)',
+                        'rgba(107, 142, 35, 0.9)'
                     ];
                     return colors[index % colors.length];
                 } else {
                     const colors = [
-                        'rgba(31, 119, 180, 0.9)',    // Biru gelap
-                        'rgba(214, 39, 40, 0.9)',     // Merah gelap
-                        'rgba(44, 160, 44, 0.9)',     // Hijau gelap
-                        'rgba(148, 103, 189, 0.9)',   // Ungu gelap
-                        'rgba(140, 86, 75, 0.9)',     // Coklat gelap
-                        'rgba(227, 119, 194, 0.9)',   // Pink gelap
-                        'rgba(127, 127, 127, 0.9)',   // Abu-abu gelap
-                        'rgba(188, 189, 34, 0.9)',    // Kuning-hijau gelap
-                        'rgba(23, 190, 207, 0.9)',    // Cyan gelap
-                        'rgba(158, 218, 229, 0.9)'    // Biru muda gelap
+                        'rgba(31, 119, 180, 0.9)',
+                        'rgba(214, 39, 40, 0.9)',
+                        'rgba(44, 160, 44, 0.9)',
+                        'rgba(148, 103, 189, 0.9)',
+                        'rgba(140, 86, 75, 0.9)',
+                        'rgba(227, 119, 194, 0.9)',
+                        'rgba(127, 127, 127, 0.9)',
+                        'rgba(188, 189, 34, 0.9)',
+                        'rgba(23, 190, 207, 0.9)',
+                        'rgba(158, 218, 229, 0.9)'
                     ];
                     return colors[index % colors.length];
                 }
@@ -3392,7 +3922,7 @@
                     backgroundColor: orderColors,
                     borderColor: orderColors.map(color => color.replace('0.9', '1')),
                     borderWidth: 1,
-                    borderRadius: isNeonMode ? 6 : 4,
+                    borderRadius: (isNeonMode || isRedMoonMode) ? 6 : 4,
                     barPercentage: 0.45,
                     categoryPercentage: 0.8,
                     order: 2,
@@ -3412,9 +3942,13 @@
                         anchor: 'end',
                         align: 'top',
                         offset: 8,
-                        backgroundColor: isNeonMode ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+                        backgroundColor: isNeonMode ? 'rgba(0, 0, 0, 0.8)' : 
+                                    isRedMoonMode ? 'rgba(51, 0, 0, 0.8)' : 
+                                    'rgba(255, 255, 255, 0.8)',
                         borderWidth: 1,
-                        borderColor: isNeonMode ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.2)',
+                        borderColor: isNeonMode ? 'rgba(255, 255, 255, 0.4)' : 
+                                   isRedMoonMode ? 'rgba(255, 51, 51, 0.3)' : 
+                                   'rgba(0, 0, 0, 0.2)',
                         padding: {
                             top: 3,
                             bottom: 3,
@@ -3430,7 +3964,7 @@
                     backgroundColor: deliveryColors,
                     borderColor: deliveryColors.map(color => color.replace('0.9', '1')),
                     borderWidth: 1,
-                    borderRadius: isNeonMode ? 6 : 4,
+                    borderRadius: (isNeonMode || isRedMoonMode) ? 6 : 4,
                     barPercentage: 0.45,
                     categoryPercentage: 0.8,
                     order: 3,
@@ -3450,7 +3984,9 @@
                         anchor: 'end',
                         align: 'top',
                         offset: 8,
-                        backgroundColor: isNeonMode ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.8)',
+                        backgroundColor: isNeonMode ? 'rgba(0, 0, 0, 0.6)' : 
+                                    isRedMoonMode ? 'rgba(51, 0, 0, 0.8)' : 
+                                    'rgba(255, 255, 255, 0.8)',
                         borderWidth: 1,
                         borderColor: 'rgba(255, 255, 255, 0.3)',
                         padding: {
@@ -3464,7 +4000,7 @@
                 }
             ];
 
-            // Progress line dengan warna MERAH untuk neon mode
+            // Progress line
             datasets.push({
                 label: 'Delivery Progress',
                 data: percentageDataValues,
@@ -3585,7 +4121,9 @@
                                 }
                             },
                             grid: {
-                                color: isNeonMode ? 'rgba(100, 255, 218, 0.1)' : 'rgba(0,0,0,0.1)',
+                                color: isNeonMode ? 'rgba(100, 255, 218, 0.1)' : 
+                                      isRedMoonMode ? 'rgba(255, 51, 51, 0.1)' : 
+                                      'rgba(0,0,0,0.1)',
                                 drawBorder: false
                             }
                         },
@@ -3618,7 +4156,9 @@
                         x: {
                             stacked: false,
                             grid: {
-                                color: isNeonMode ? 'rgba(100, 255, 218, 0.05)' : 'rgba(0,0,0,0.05)',
+                                color: isNeonMode ? 'rgba(100, 255, 218, 0.05)' : 
+                                      isRedMoonMode ? 'rgba(255, 51, 51, 0.05)' : 
+                                      'rgba(0,0,0,0.05)',
                                 drawBorder: false
                             },
                             ticks: {
@@ -3653,6 +4193,7 @@
             const normalCount = data.filter(item => item.orderStatusType === "Normal").length;
             const suddenlyCount = data.filter(item => item.orderStatusType === "Suddenly").length;
             const isNeonMode = document.body.classList.contains('neon-mode');
+            const isRedMoonMode = document.body.classList.contains('red-moon-mode');
             const statusCtx = document.getElementById('statusOrderChart').getContext('2d');
             
             if (currentCharts.statusOrder) {
@@ -3668,6 +4209,9 @@
                         backgroundColor: isNeonMode ? [
                             'rgba(0, 212, 255, 0.8)',
                             'rgba(255, 71, 87, 0.8)'
+                        ] : isRedMoonMode ? [
+                            'rgba(255, 51, 51, 0.8)',
+                            'rgba(255, 0, 255, 0.8)'
                         ] : [
                             'rgba(54, 162, 235, 0.8)',
                             'rgba(237, 85, 101, 0.8)'
@@ -3675,12 +4219,15 @@
                         borderColor: isNeonMode ? [
                             'rgba(0, 212, 255, 1)',
                             'rgba(255, 71, 87, 1)'
+                        ] : isRedMoonMode ? [
+                            'rgba(255, 51, 51, 1)',
+                            'rgba(255, 0, 255, 1)'
                         ] : [
                             'rgba(54, 162, 235, 1)',
                             'rgba(237, 85, 101, 1)'
                         ],
                         borderWidth: 1,
-                        hoverOffset: isNeonMode ? 15 : 4
+                        hoverOffset: (isNeonMode || isRedMoonMode) ? 15 : 4
                     }]
                 },
                 options: {
@@ -3690,7 +4237,8 @@
                         legend: {
                             position: 'top',
                             labels: {
-                                color: isNeonMode ? '#ccd6f6' : '#333',
+                                color: isNeonMode ? '#ccd6f6' : 
+                                      isRedMoonMode ? '#ffcccc' : '#333',
                                 font: {
                                     size: 11
                                 }
@@ -3699,7 +4247,8 @@
                         title: {
                             display: true,
                             text: 'Status Order (Normal vs Suddenly)',
-                            color: isNeonMode ? '#64ffda' : '#333',
+                            color: isNeonMode ? '#64ffda' : 
+                                  isRedMoonMode ? '#ff3333' : '#333',
                             font: {
                                 size: 14
                             }
@@ -3719,27 +4268,32 @@
         function filterDataForDashboard(data) {
             const startDate = document.getElementById('dashboard-start-date').value;
             const endDate = document.getElementById('dashboard-end-date').value;
-            const plant = document.getElementById('dashboard-plant-filter').value;
+            const selectedPlants = $('#dashboard-plant-filter').val() || [];
             const status = document.getElementById('dashboard-status-filter').value;
-            return filterData(data, startDate, endDate, plant, status);
+            return filterData(data, startDate, endDate, selectedPlants, status);
         }
 
         function filterDataForStatus(data) {
             const startDate = document.getElementById('status-start-date').value;
             const endDate = document.getElementById('status-end-date').value;
-            const plant = document.getElementById('status-plant-filter').value;
+            const selectedPlants = $('#status-plant-filter').val() || [];
             const statusType = document.getElementById('status-type-filter').value;
-            let filteredData = filterData(data, startDate, endDate, plant, '');
+            let filteredData = filterData(data, startDate, endDate, selectedPlants, '');
             if (statusType) {
                 filteredData = filteredData.filter(item => item.orderStatusType === statusType);
             }
             return filteredData;
         }
 
-        function filterData(data, startDate, endDate, plant, status) {
+        function filterData(data, startDate, endDate, plants, status) {
+            // Convert plants to array if it's a single value
+            const plantsArray = Array.isArray(plants) ? plants : (plants ? [plants] : []);
+            
             return data.filter(item => {
                 const itemDate = parseDate(item.tanggal);
                 if (!itemDate) return false;
+                
+                // Date filter
                 let dateMatch = true;
                 if (startDate || endDate) {
                     const start = startDate ? new Date(startDate) : new Date('1900-01-01');
@@ -3748,8 +4302,13 @@
                     end.setHours(23, 59, 59, 999);
                     dateMatch = itemDate >= start && itemDate <= end;
                 }
-                const plantMatch = !plant || item.plant === plant;
+                
+                // Plant filter - jika plantsArray kosong (tidak ada plant yang dipilih), tampilkan semua
+                const plantMatch = plantsArray.length === 0 || plantsArray.includes(item.plant);
+                
+                // Status filter
                 const statusMatch = !status || item.status === status;
+                
                 return dateMatch && plantMatch && statusMatch;
             });
         }
@@ -3791,14 +4350,14 @@
             const options = { day: 'numeric', month: 'long', year: 'numeric' };
             document.getElementById('currentDate').textContent = now.toLocaleDateString('id-ID', options);
 
+            // Inisialisasi Select2
+            initializeSelect2();
+            
             // Load saved theme preference
             loadThemePreference();
-
-            // Theme toggle event
-            document.getElementById('themeToggle').addEventListener('change', function() {
-                toggleTheme();
-                saveThemePreference();
-            });
+            
+            // Setup theme selectors
+            setupThemeSelectors();
 
             document.getElementById('fileInput').addEventListener('change', function(e) {
                 const file = e.target.files[0];
@@ -3832,9 +4391,9 @@
             document.getElementById('apply-filter').addEventListener('click', function() {
                 const startDate = document.getElementById('start-date').value;
                 const endDate = document.getElementById('end-date').value;
-                const plant = document.getElementById('plant-filter').value;
+                const selectedPlants = $('#plant-filter').val() || [];
                 const status = document.getElementById('status-filter').value;
-                const filteredData = filterData(orderData, startDate, endDate, plant, status);
+                const filteredData = filterData(orderData, startDate, endDate, selectedPlants, status);
                 populateOrderTable(filteredData);
             });
 
