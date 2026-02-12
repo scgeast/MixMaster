@@ -974,6 +974,24 @@
         .menu-link.with-href:hover {
             text-decoration: none;
         }
+
+        /* New App Badge */
+        .new-badge {
+            background: var(--blood-moon-accent);
+            color: white;
+            font-size: 0.7em;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
     </style>
 </head>
 <body>
@@ -1107,6 +1125,17 @@
                         <span class="menu-text">Production Area</span>
                     </a>
                 </li>
+                <!-- APLIKASI BARU: CodeMatch-Validator -->
+                <li class="menu-item">
+                    <a href="dashboard.html?app=codematch" class="menu-link with-href" onclick="loadApp('codematch-validator', event)" data-tooltip="CodeMatch Validator">
+                        <span class="menu-icon">✅</span>
+                        <span class="menu-initial">C</span>
+                        <span class="menu-text">
+                            CodeMatch-Validator
+                            <span class="new-badge">New</span>
+                        </span>
+                    </a>
+                </li>
              </ul>
             
             <!-- MIX MASTER Text untuk sidebar terbuka -->
@@ -1168,6 +1197,12 @@
                             <h4>Fleet Management</h4>
                             <p>Optimize truck mixer utilization</p>
                         </div>
+                        <!-- APLIKASI BARU di Welcome Screen -->
+                        <div class="feature-card">
+                            <div class="feature-icon">✅</div>
+                            <h4>CodeMatch Validator</h4>
+                            <p>Validate and match code patterns</p>
+                        </div>
                     </div>
 
                     <!-- Footer di Welcome Screen - POJOK KANAN BAWAH TANPA BACKGROUND -->
@@ -1221,7 +1256,12 @@
             'pouring': 'jadwal-pengecoran',
             'production-all-area': 'production-all-area',
             'production': 'production-all-area',
-            'area': 'production-all-area'
+            'area': 'production-all-area',
+            // APLIKASI BARU: CodeMatch-Validator
+            'codematch-validator': 'codematch-validator',
+            'codematch': 'codematch-validator',
+            'code-match': 'codematch-validator',
+            'validator': 'codematch-validator'
         };
 
         // Peta aplikasi untuk nama menu
@@ -1230,7 +1270,9 @@
             'utilisasi-truck': 'Truck Utilization',
             'monitoring-order': 'Monitoring Order',
             'jadwal-pengecoran': 'Pouring Schedule',
-            'production-all-area': 'Production Area'
+            'production-all-area': 'Production Area',
+            // APLIKASI BARU: CodeMatch-Validator
+            'codematch-validator': 'CodeMatch-Validator'
         };
 
         // Initialize dashboard dengan auto-load app dari parameter URL
@@ -1288,7 +1330,13 @@
             
             for (let link of menuLinks) {
                 const menuText = link.querySelector('.menu-text')?.textContent;
-                if (menuText === appMenuMap[appName]) {
+                // Handle special case untuk menu yang punya badge
+                let cleanMenuText = menuText;
+                if (menuText && menuText.includes('CodeMatch-Validator')) {
+                    cleanMenuText = 'CodeMatch-Validator';
+                }
+                
+                if (cleanMenuText === appMenuMap[appName]) {
                     // Set sebagai active
                     menuLinks.forEach(l => l.classList.remove('active'));
                     link.classList.add('active');
@@ -1401,7 +1449,9 @@
                 'jadwal-pengecoran': `${basePath}${appFolder}jadwal-pengecoran/index.html`,
                 'utilisasi-truck': `${basePath}${appFolder}utilisasi-truck/index.html`,
                 'production-all-area': `${basePath}${appFolder}production-all-area/index.html`,
-                'summary-daily-delivery': `${basePath}${appFolder}summary-daily-delivery/index.html`
+                'summary-daily-delivery': `${basePath}${appFolder}summary-daily-delivery/index.html`,
+                // APLIKASI BARU: CodeMatch-Validator
+                'codematch-validator': `${basePath}${appFolder}CodeMatch-Validator/index.html`
             };
             
             const appPath = appPaths[appName];
@@ -1423,6 +1473,11 @@
                     alert('Failed to load application. Please make sure the application is available.');
                     resetInactivityTimer();
                 };
+            } else {
+                console.error('Unknown app name:', appName);
+                loading.style.display = 'none';
+                welcomeScreen.style.display = 'flex';
+                alert('Unknown application: ' + appName);
             }
             
             // Close mobile menu if open
