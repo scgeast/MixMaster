@@ -374,12 +374,12 @@
             color: #666;
             font-size: 0.9em;
             transition: all 0.3s ease;
-            cursor: pointer; /* Menambahkan cursor pointer */
+            cursor: pointer;
         }
 
         .login-footer:hover {
-            color: var(--blood-moon-primary); /* Warna merah gelap Blood Moon */
-            transform: translateX(-3px); /* Efek pergeseran seperti di dashboard */
+            color: var(--blood-moon-primary);
+            transform: translateX(-3px);
         }
 
         .version {
@@ -390,7 +390,7 @@
         }
 
         .login-footer:hover .version {
-            color: var(--blood-moon-primary); /* Warna merah gelap Blood Moon */
+            color: var(--blood-moon-primary);
         }
 
         /* Responsive */
@@ -415,6 +415,24 @@
             .truck-animation {
                 transform: scale(0.8);
             }
+        }
+
+        /* New app indicator */
+        .new-badge {
+            background: var(--blood-moon-accent);
+            color: white;
+            font-size: 0.7em;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
     </style>
 </head>
@@ -441,6 +459,12 @@
                 <div class="feature-item">
                     <span class="feature-icon">🏭</span>
                     <span>Production Management</span>
+                </div>
+                <!-- APLIKASI BARU DITAMBAHKAN: CodeMatch-Validator -->
+                <div class="feature-item">
+                    <span class="feature-icon">✅</span>
+                    <span>CodeMatch-Validator</span>
+                    <span class="new-badge">New</span>
                 </div>
             </div>
 
@@ -492,7 +516,7 @@
 
                 <div class="login-footer">
                     <div>Integrated Management System</div>
-                    <div class="version">v1.0 | Created By Kim Jong Un CDC EAST</div>
+                    <div class="version">v1.1 | Created By Kim Jong Un CDC EAST</div>
                 </div>
             </div>
         </div>
