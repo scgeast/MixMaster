@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CodeMatch Validator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      overflow-y: auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 25px;
+      background-color: #8B0000;
+      color: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .header h1 {
+      color: white;
+      font-size: 1.8rem;
+      margin: 0;
+      letter-spacing: 0.5px;
+    }
+
+    .header p {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.8rem;
+      margin-top: 3px;
+    }
+
+    .title-section {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .upload-section {
+      display: flex;
+      align-items: center;
+    }
+
+    #fileInput {
+      padding: 5px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 200px;
+    }
+
+    #fileInput:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    #fileInput::-webkit-file-upload-button {
+      background-color: white;
+      color: #8B0000;
+      padding: 4px 12px;
+      border: none;
+      border-radius: 3px;
+      font-weight: 600;
+      font-size: 12px;
+      margin-right: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    #fileInput::-webkit-file-upload-button:hover {
+      background-color: #f8f8f8;
+      transform: scale(1.02);
+    }
+
+    .main-content {
+      padding: 20px;
+      flex-grow: 1;
+    }
+
+    .download-btn {
+      margin-top: 15px;
+      background-color: #28a745;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .download-btn:hover {
+      background-color: #218838;
+      transform: scale(1.02);
+    }
+
+    /* Progress Bar Styles */
+    .progress-container {
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 24px;
+      background-color: #f0f0f0;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #8B0000, #b30000);
+      transition: width 0.3s ease;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+      text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+    }
+
+    .progress-text {
+      margin-top: 5px;
+      font-size: 14px;
+      color: #666;
+      font-weight: 600;
+    }
+
+    /* Statistics Cards */
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      border-left: 5px solid #8B0000;
+    }
+
+    .stat-title {
+      font-size: 13px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .stat-sub {
+      font-size: 12px;
+      color: #888;
+      margin-top: 5px;
+    }
+
+    .stat-valid {
+      color: #28a745;
+      font-weight: 600;
+    }
+
+    .stat-invalid {
+      color: #dc3545;
+      font-weight: 600;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .filter-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-status label {
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .filter-status select {
+      padding: 6px 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: white;
+      font-size: 13px;
+    }
+
+    /* Search Styles */
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      padding: 4px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+
+    .search-box input {
+      padding: 6px 10px;
+      border: none;
+      outline: none;
+      font-size: 13px;
+      width: 200px;
+    }
+
+    .search-box button {
+      padding: 6px 12px;
+      background-color: #8B0000;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .search-box button:hover {
+      background-color: #6b0000;
+    }
+
+    .reset-btn {
+      padding: 6px 12px;
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .reset-btn:hover {
+      background-color: #5a6268;
+    }
+
+    .toggle-cols {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .toggle-cols button {
+      padding: 6px 12px;
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.3s ease;
+    }
+
+    .toggle-cols button:hover {
+      background-color: #5a6268;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    #loadingIndicator {
+      text-align: center;
+      font-size: 16px;
+      color: #8B0000;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+
+    /* Tab Styles */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 8px;
+    }
+
+    .tab-btn {
+      background-color: #f0f0f0;
+      color: #333;
+      border: none;
+      padding: 8px 16px;
+      cursor: pointer;
+      border-radius: 4px 4px 0 0;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .tab-btn.active {
+      background-color: #8B0000;
+      color: white;
+    }
+
+    .tab-btn:hover:not(.active) {
+      background-color: #e0e0e0;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .results-wrapper {
+      flex-grow: 1;
+      overflow-x: auto;
+      overflow-y: auto;
+      padding: 5px;
+      background-color: white;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .results-wrapper h2 {
+      color: #8B0000;
+      margin-bottom: 12px;
+      font-size: 1.3rem;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #8B0000;
+    }
+
+    /* Table Styles */
+    #resultsTable,
+    #summaryTable {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    #resultsTable th,
+    #resultsTable td,
+    #summaryTable th,
+    #summaryTable td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    #resultsTable th,
+    #summaryTable th {
+      background-color: #f8f9fa;
+      color: #333;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    #resultsTable th:hover,
+    #summaryTable th:hover {
+      background-color: #e9ecef;
+    }
+
+    .sort-icon {
+      margin-left: 5px;
+      font-size: 12px;
+      display: inline-block;
+    }
+
+    /* Highlight search */
+    .highlight {
+      background-color: #ffeb3b;
+      color: #333;
+      padding: 0;
+      border-radius: 2px;
+      font-weight: 600;
+    }
+
+    /* Summary Table - Custom Column Widths */
+    #summaryTable th:nth-child(1) { width: 5%; }
+    #summaryTable th:nth-child(2) { width: 12%; }
+    #summaryTable th:nth-child(3) { width: 8%; }
+    #summaryTable th:nth-child(4) { width: 15%; }
+    #summaryTable th:nth-child(5) { width: 12%; }
+    #summaryTable th:nth-child(6) { width: 8%; }
+    #summaryTable th:nth-child(7) { width: 12%; }
+    #summaryTable th:nth-child(8) { width: 12%; }
+    #summaryTable th:nth-child(9) { width: 8%; }
+
+    .error {
+      color: #8B0000;
+      text-align: center;
+      margin-top: 20px;
+      padding: 12px;
+      background-color: #ffe6e6;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .date-cell {
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <div class="title-section">
+        <h1>CodeMatch Validator</h1>
+        <p>Product Code & Distance Validation Tool</p>
+      </div>
+      <div class="upload-section">
+        <input type="file" id="fileInput" accept=".xls,.xlsx" />
+      </div>
+    </div>
+
+    <div class="main-content">
+      <!-- Progress Bar -->
+      <div id="progressContainer" class="progress-container hidden">
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-fill" style="width: 0%;">0%</div>
+        </div>
+        <div id="progressText" class="progress-text">Processing...</div>
+      </div>
+
+      <div id="resultsContainer" class="hidden">
+        <div class="tabs">
+          <button id="tabDetailBtn" class="tab-btn active">Detail</button>
+          <button id="tabSummaryBtn" class="tab-btn">Summary</button>
+        </div>
+
+        <!-- Tab Detail Content -->
+        <div id="detailTab" class="tab-content active">
+          <div class="controls">
+            <div class="filter-status">
+              <label for="statusFilter">Filter Status:</label>
+              <select id="statusFilter">
+                <option value="">All</option>
+                <option value="Valid">Valid</option>
+                <option value="Invalid">Invalid</option>
+              </select>
+            </div>
+            <div class="search-box">
+              <input type="text" id="detailSearch" placeholder="Search Site, Product, Status..." />
+              <button id="detailSearchBtn">Search</button>
+              <button id="detailResetBtn" class="reset-btn">Reset</button>
+            </div>
+            <div class="toggle-cols">
+              <button id="toggleRangeBtn">Hide Standard Range</button>
+              <button id="toggleKodeBtn">Hide Expected Code</button>
+            </div>
+          </div>
+
+          <div class="results-wrapper">
+            <h2>Detailed Validation Results</h2>
+            <div id="detailStats" class="stats-container"></div>
+            <table id="resultsTable">
+              <thead>
+                <tr>
+                  <th data-column="DP No">DP No <span class="sort-icon"></span></th>
+                  <th data-column="DP Date">DP Date <span class="sort-icon"></span></th>
+                  <th data-column="Plant Name">Plant Name <span class="sort-icon"></span></th>
+                  <th data-column="Site No">Site No <span class="sort-icon"></span></th>
+                  <th data-column="Site Name">Site Name <span class="sort-icon"></span></th>
+                  <th data-column="Product Code">Product Code <span class="sort-icon"></span></th>
+                  <th data-column="Distance">Distance <span class="sort-icon"></span></th>
+                  <th data-column="Extracted Code">Extracted Code <span class="sort-icon"></span></th>
+                  <th id="rangeTh" data-column="Standard Range">Standard Range <span class="sort-icon"></span></th>
+                  <th id="kodeTh" data-column="Expected Code">Expected Code <span class="sort-icon"></span></th>
+                  <th data-column="Status">Status <span class="sort-icon"></span></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab Summary Content -->
+        <div id="summaryTab" class="tab-content">
+          <div class="controls">
+            <div class="filter-status">
+              <label for="summaryStatusFilter">Filter Status:</label>
+              <select id="summaryStatusFilter">
+                <option value="">All</option>
+                <option value="Valid">Valid</option>
+                <option value="Invalid">Invalid</option>
+              </select>
+            </div>
+            <div class="search-box">
+              <input type="text" id="summarySearch" placeholder="Search Site, Product, Status..." />
+              <button id="summarySearchBtn">Search</button>
+              <button id="summaryResetBtn" class="reset-btn">Reset</button>
+            </div>
+          </div>
+          
+          <div class="results-wrapper">
+            <h2>Summary per Site</h2>
+            <div id="summaryStats" class="stats-container"></div>
+            <table id="summaryTable">
+              <thead>
+                <tr>
+                  <th data-column="No">No <span class="sort-icon"></span></th>
+                  <th data-column="Plant Name">Plant Name <span class="sort-icon"></span></th>
+                  <th data-column="Site No">Site No <span class="sort-icon"></span></th>
+                  <th data-column="Site Name">Site Name <span class="sort-icon"></span></th>
+                  <th data-column="Product Code">Product Code <span class="sort-icon"></span></th>
+                  <th data-column="Distance">Distance <span class="sort-icon"></span></th>
+                  <th data-column="Standard Range">Standard Range <span class="sort-icon"></span></th>
+                  <th data-column="Expected Code">Expected Code <span class="sort-icon"></span></th>
+                  <th data-column="Status">Status <span class="sort-icon"></span></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <button id="downloadBtn" class="download-btn hidden">Download Results</button>
+      </div>
+
+      <div id="errorOutput" class="error hidden"></div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const fileInput = document.getElementById("fileInput");
+      const resultsContainer = document.getElementById("resultsContainer");
+      const resultsTable = document.getElementById("resultsTable").getElementsByTagName("tbody")[0];
+      const summaryTable = document.getElementById("summaryTable").getElementsByTagName("tbody")[0];
+      const downloadBtn = document.getElementById("downloadBtn");
+      const loadingIndicator = document.getElementById("loadingIndicator");
+      const errorOutput = document.getElementById("errorOutput");
+      const progressContainer = document.getElementById("progressContainer");
+      const progressFill = document.getElementById("progressFill");
+      const progressText = document.getElementById("progressText");
+      
+      // Filter elements
+      const statusFilter = document.getElementById("statusFilter");
+      const summaryStatusFilter = document.getElementById("summaryStatusFilter");
+      
+      // Search elements
+      const detailSearch = document.getElementById("detailSearch");
+      const detailSearchBtn = document.getElementById("detailSearchBtn");
+      const detailResetBtn = document.getElementById("detailResetBtn");
+      const summarySearch = document.getElementById("summarySearch");
+      const summarySearchBtn = document.getElementById("summarySearchBtn");
+      const summaryResetBtn = document.getElementById("summaryResetBtn");
+      
+      // Toggle elements
+      const toggleRangeBtn = document.getElementById("toggleRangeBtn");
+      const toggleKodeBtn = document.getElementById("toggleKodeBtn");
+      const rangeTh = document.getElementById("rangeTh");
+      const kodeTh = document.getElementById("kodeTh");
+      
+      // Tab elements
+      const tabDetailBtn = document.getElementById("tabDetailBtn");
+      const tabSummaryBtn = document.getElementById("tabSummaryBtn");
+      const detailTab = document.getElementById("detailTab");
+      const summaryTab = document.getElementById("summaryTab");
+
+      // State
+      let originalData = [];
+      let summaryData = [];
+      let currentDetailData = [];
+      let currentSummaryData = [];
+      let detailSortConfig = { column: null, direction: 'asc' };
+      let summarySortConfig = { column: null, direction: 'asc' };
+      let currentSearchTerm = '';
+
+      const CODE_DISTANCE_MAP = {
+        'A': [0, 15], 'B': [16, 25], 'C': [26, 30], 'D': [31, 35],
+        'E': [36, 40], 'F': [41, 45], 'G': [46, 50], 'H': [51, 55],
+        'I': [56, 60], 'J': [61, 65], 'K': [66, 70], 'L': [71, 75],
+      };
+
+      function getExpectedCode(distance) {
+        for (let code in CODE_DISTANCE_MAP) {
+          const [min, max] = CODE_DISTANCE_MAP[code];
+          if (distance >= min && distance <= max) return code;
+        }
+        return null;
+      }
+
+      function getStandardRange(code) {
+        if (code in CODE_DISTANCE_MAP) {
+          return `${CODE_DISTANCE_MAP[code][0]}-${CODE_DISTANCE_MAP[code][1]}`;
+        }
+        return "Unknown";
+      }
+
+      function formatDate(dateValue) {
+        if (!dateValue) return '';
+        if (typeof dateValue === 'number') {
+          try {
+            const date = XLSX.SSF.parse_date_code(dateValue);
+            if (date) {
+              const day = String(date.d).padStart(2, '0');
+              const month = String(date.m).padStart(2, '0');
+              const year = date.y;
+              return `${day}/${month}/${year}`;
+            }
+          } catch (e) {}
+        }
+        if (typeof dateValue === 'string') {
+          const datePart = dateValue.split(' ')[0];
+          const patterns = [
+            { regex: /^(\d{4})-(\d{2})-(\d{2})$/, format: (y,m,d) => `${d}/${m}/${y}` },
+            { regex: /^(\d{2})\/(\d{2})\/(\d{4})$/, format: (d,m,y) => `${d}/${m}/${y}` },
+            { regex: /^(\d{2})-(\d{2})-(\d{4})$/, format: (d,m,y) => `${d}/${m}/${y}` }
+          ];
+          for (let pattern of patterns) {
+            const match = datePart.match(pattern.regex);
+            if (match) return pattern.format(match[1], match[2], match[3]);
+          }
+        }
+        return dateValue || '';
+      }
+
+      // Progress Bar Functions
+      function updateProgress(percent, message) {
+        progressFill.style.width = `${percent}%`;
+        progressFill.textContent = `${percent}%`;
+        progressText.textContent = message;
+      }
+
+      function showProgress() {
+        progressContainer.classList.remove("hidden");
+      }
+
+      function hideProgress() {
+        progressContainer.classList.add("hidden");
+      }
+
+      // Statistics Functions
+      function renderStatistics(data, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const total = data.length;
+        const valid = data.filter(row => row.Status === "Valid").length;
+        const invalid = total - valid;
+        const validPercent = total ? ((valid / total) * 100).toFixed(1) : 0;
+        
+        // Distance range
+        let distances = data.map(row => parseFloat(row.Distance)).filter(d => !isNaN(d));
+        let minDistance = distances.length ? Math.min(...distances) : 0;
+        let maxDistance = distances.length ? Math.max(...distances) : 0;
+
+        container.innerHTML = `
+          <div class="stat-card">
+            <span class="stat-title">Total Records</span>
+            <span class="stat-value">${total}</span>
+            <span class="stat-sub">Site unique: ${data.length ? generateSummaryData(data).length : 0}</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-title">Valid</span>
+            <span class="stat-value stat-valid">${valid}</span>
+            <span class="stat-sub">${validPercent}% of total</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-title">Invalid</span>
+            <span class="stat-value stat-invalid">${invalid}</span>
+            <span class="stat-sub">${(100 - validPercent).toFixed(1)}% of total</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-title">Distance Range</span>
+            <span class="stat-value">${minDistance} - ${maxDistance}</span>
+            <span class="stat-sub">km</span>
+          </div>
+        `;
+      }
+
+      // Highlight Search Function
+      function highlightText(text, searchTerm) {
+        if (!searchTerm || !text) return text;
+        const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        return text.toString().replace(regex, '<span class="highlight">$1</span>');
+      }
+
+      // Search Function
+      function filterDataBySearch(data, searchTerm) {
+        if (!searchTerm) return data;
+        
+        return data.filter(row => {
+          const searchableFields = [
+            row['Site Name'],
+            row['Site No'],
+            row['Plant Name'],
+            row['Product Code'],
+            row['Status'],
+            row['DP No']
+          ].map(field => field?.toString().toLowerCase() || '');
+          
+          return searchableFields.some(field => 
+            field.includes(searchTerm.toLowerCase())
+          );
+        });
+      }
+
+      // Sort Function
+      function sortData(data, column, direction, isSummary = false) {
+        if (!column) return data;
+
+        return [...data].sort((a, b) => {
+          let aVal = a[column];
+          let bVal = b[column];
+
+          if (column === 'No' && isSummary) {
+            return direction === 'asc' ? aVal - bVal : bVal - aVal;
+          }
+
+          if (column === 'Distance') {
+            aVal = parseFloat(aVal) || 0;
+            bVal = parseFloat(bVal) || 0;
+          }
+
+          if (typeof aVal === 'string' && typeof bVal === 'string') {
+            aVal = aVal.toLowerCase();
+            bVal = bVal.toLowerCase();
+          }
+
+          if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+          if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+          return 0;
+        });
+      }
+
+      // Render Table with Highlight
+      function renderTable(data, searchTerm = '') {
+        resultsTable.innerHTML = '';
+        currentDetailData = data;
+        
+        data.forEach((row) => {
+          const tr = resultsTable.insertRow();
+          
+          // Helper function to set cell content with highlight
+          const setCellContent = (cell, value) => {
+            if (searchTerm) {
+              cell.innerHTML = highlightText(value || '', searchTerm);
+            } else {
+              cell.textContent = value || '';
+            }
+          };
+
+          setCellContent(tr.insertCell(), row['DP No']);
+          setCellContent(tr.insertCell(), row['DP Date']);
+          setCellContent(tr.insertCell(), row['Plant Name']);
+          setCellContent(tr.insertCell(), row['Site No']);
+          setCellContent(tr.insertCell(), row['Site Name']);
+          setCellContent(tr.insertCell(), row['Product Code']);
+          setCellContent(tr.insertCell(), row['Distance']);
+          tr.insertCell().textContent = row['Extracted Code'] || 'N/A';
+          tr.insertCell().textContent = row['Standard Range'] || 'N/A';
+          tr.insertCell().textContent = row['Expected Code'] || 'N/A';
+          
+          const statusCell = tr.insertCell();
+          if (searchTerm) {
+            statusCell.innerHTML = highlightText(row['Status'], searchTerm);
+          } else {
+            statusCell.textContent = row['Status'];
+          }
+
+          if (row['Status'] === "Invalid") {
+            tr.style.backgroundColor = "#ffebee";
+          }
+        });
+
+        renderStatistics(data, 'detailStats');
+      }
+
+      function renderFilteredSummary(status, searchTerm = '') {
+        summaryTable.innerHTML = '';
+        
+        let filteredData = summaryData;
+        if (status) {
+          filteredData = summaryData.filter(row => row.Status === status);
+        }
+        if (searchTerm) {
+          filteredData = filterDataBySearch(filteredData, searchTerm);
+        }
+        
+        filteredData = sortData(filteredData, summarySortConfig.column, summarySortConfig.direction, true);
+        currentSummaryData = filteredData;
+
+        filteredData.forEach((row, index) => {
+          const tr = summaryTable.insertRow();
+          
+          const setCellContent = (cell, value) => {
+            if (searchTerm) {
+              cell.innerHTML = highlightText(value || '', searchTerm);
+            } else {
+              cell.textContent = value || '';
+            }
+          };
+
+          tr.insertCell().textContent = index + 1;
+          setCellContent(tr.insertCell(), row['Plant Name']);
+          setCellContent(tr.insertCell(), row['Site No']);
+          setCellContent(tr.insertCell(), row['Site Name']);
+          setCellContent(tr.insertCell(), row['Product Code']);
+          setCellContent(tr.insertCell(), row['Distance']);
+          tr.insertCell().textContent = row['Standard Range'] || 'N/A';
+          tr.insertCell().textContent = row['Expected Code'] || 'N/A';
+          
+          const statusCell = tr.insertCell();
+          if (searchTerm) {
+            statusCell.innerHTML = highlightText(row['Status'], searchTerm);
+          } else {
+            statusCell.textContent = row['Status'];
+          }
+
+          if (row['Status'] === "Invalid") {
+            tr.style.backgroundColor = "#ffebee";
+          }
+        });
+
+        renderStatistics(filteredData, 'summaryStats');
+      }
+
+      function generateSummaryData(data) {
+        const uniqueSites = new Map();
+        data.forEach((row) => {
+          const siteKey = `${row['Site No']}|${row['Site Name']}`;
+          if (!uniqueSites.has(siteKey)) {
+            uniqueSites.set(siteKey, {
+              'Plant Name': row['Plant Name'],
+              'Site No': row['Site No'],
+              'Site Name': row['Site Name'],
+              'Product Code': row['Product Code'],
+              'Distance': row['Distance'],
+              'Standard Range': row['Standard Range'],
+              'Expected Code': row['Expected Code'],
+              'Status': row['Status']
+            });
+          }
+        });
+        return Array.from(uniqueSites.values());
+      }
+
+      function processFile(file) {
+        if (!file) {
+          showError("Please select a file first.");
+          return;
+        }
+
+        hideError();
+        showProgress();
+        updateProgress(0, "Starting...");
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          updateProgress(30, "Reading file...");
+          
+          setTimeout(() => {
+            try {
+              const data = new Uint8Array(e.target.result);
+              const workbook = XLSX.read(data, { type: 'array' });
+              const firstSheetName = workbook.SheetNames[0];
+              const worksheet = workbook.Sheets[firstSheetName];
+              
+              updateProgress(60, "Processing data...");
+              
+              let jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+                header: 1,
+                defval: '',
+                blankrows: false
+              });
+
+              const headers = jsonData[0];
+              const rows = jsonData.slice(1);
+
+              originalData = [];
+              rows.forEach((row) => {
+                if (row.length === 0) return;
+                
+                const rowData = {};
+                headers.forEach((header, index) => {
+                  rowData[header] = row[index] || '';
+                });
+
+                const productCode = rowData['Product Code'] || rowData['Product Code'.toUpperCase()] || rowData['product code'] || rowData['PRODUCT CODE'] || '';
+                let distanceStr = rowData['Distance'] || rowData['Distance (KM)'] || rowData['DISTANCE'] || rowData['distance'] || '';
+                
+                let dpDate = rowData['DP Date'] || rowData['dp date'] || rowData['DP DATE'] || '';
+                dpDate = formatDate(dpDate);
+
+                let extractedCode = null;
+                if (typeof productCode === 'string' && productCode.length >= 3) {
+                  extractedCode = productCode.slice(-3, -2);
+                  if (!/[A-Z]/i.test(extractedCode)) {
+                    extractedCode = null;
+                  }
+                }
+
+                let distanceNum = null;
+                if (typeof distanceStr === 'number') {
+                  distanceNum = distanceStr;
+                } else if (typeof distanceStr === 'string') {
+                  const numMatch = distanceStr.match(/\d+(\.\d+)?/);
+                  if (numMatch) {
+                    distanceNum = parseFloat(numMatch[0]);
+                  }
+                }
+
+                const expectedCode = getExpectedCode(distanceNum);
+                const standardRange = extractedCode ? getStandardRange(extractedCode) : "N/A";
+                const status = (extractedCode && extractedCode === expectedCode) ? "Valid" : "Invalid";
+
+                originalData.push({
+                  'DP No': rowData['DP No'] || rowData['DP NO'] || rowData['dp no'] || '',
+                  'DP Date': dpDate,
+                  'Plant Name': rowData['Plant Name'] || rowData['plant name'] || '',
+                  'Site No': rowData['Site No'] || rowData['site no'] || '',
+                  'Site Name': rowData['Site Name'] || rowData['site name'] || '',
+                  'Product Code': productCode || '',
+                  'Distance': distanceStr || '',
+                  'Extracted Code': extractedCode || 'N/A',
+                  'Standard Range': standardRange,
+                  'Expected Code': expectedCode || 'N/A',
+                  'Status': status
+                });
+              });
+
+              updateProgress(90, "Rendering data...");
+
+              window.jsonData = originalData;
+              summaryData = generateSummaryData(originalData);
+
+              // Initial render
+              renderTable(originalData);
+              renderFilteredSummary('');
+              renderStatistics(originalData, 'detailStats');
+              renderStatistics(summaryData, 'summaryStats');
+
+              updateProgress(100, "Complete!");
+              setTimeout(() => {
+                hideProgress();
+              }, 500);
+
+              resultsContainer.classList.remove("hidden");
+              downloadBtn.classList.remove("hidden");
+              errorOutput.classList.add("hidden");
+
+            } catch (err) {
+              showError("Failed to read file. Please check the file format.");
+              console.error(err);
+              hideProgress();
+            }
+          }, 500);
+        };
+        reader.readAsArrayBuffer(file);
+      }
+
+      // Event Listeners
+      fileInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          processFile(file);
+        }
+      });
+
+      // Tab switching
+      tabDetailBtn.addEventListener("click", () => {
+        tabDetailBtn.classList.add("active");
+        tabSummaryBtn.classList.remove("active");
+        detailTab.classList.add("active");
+        summaryTab.classList.remove("active");
+      });
+
+      tabSummaryBtn.addEventListener("click", () => {
+        tabSummaryBtn.classList.add("active");
+        tabDetailBtn.classList.remove("active");
+        summaryTab.classList.add("active");
+        detailTab.classList.remove("active");
+      });
+
+      // Filter by status
+      statusFilter.addEventListener("change", () => {
+        const selectedStatus = statusFilter.value;
+        let filteredData = selectedStatus ? originalData.filter(row => row.Status === selectedStatus) : originalData;
+        filteredData = filterDataBySearch(filteredData, detailSearch.value);
+        renderTable(filteredData, detailSearch.value);
+      });
+
+      summaryStatusFilter.addEventListener("change", () => {
+        renderFilteredSummary(summaryStatusFilter.value, summarySearch.value);
+      });
+
+      // Search functionality
+      detailSearchBtn.addEventListener("click", () => {
+        let filteredData = filterDataBySearch(originalData, detailSearch.value);
+        if (statusFilter.value) {
+          filteredData = filteredData.filter(row => row.Status === statusFilter.value);
+        }
+        renderTable(filteredData, detailSearch.value);
+      });
+
+      detailResetBtn.addEventListener("click", () => {
+        detailSearch.value = '';
+        statusFilter.value = '';
+        renderTable(originalData);
+      });
+
+      summarySearchBtn.addEventListener("click", () => {
+        renderFilteredSummary(summaryStatusFilter.value, summarySearch.value);
+      });
+
+      summaryResetBtn.addEventListener("click", () => {
+        summarySearch.value = '';
+        summaryStatusFilter.value = '';
+        renderFilteredSummary('');
+      });
+
+      // Sort functionality
+      document.querySelectorAll('#resultsTable th[data-column]').forEach(th => {
+        th.addEventListener('click', () => {
+          const column = th.dataset.column;
+          if (detailSortConfig.column === column) {
+            detailSortConfig.direction = detailSortConfig.direction === 'asc' ? 'desc' : 'asc';
+          } else {
+            detailSortConfig.column = column;
+            detailSortConfig.direction = 'asc';
+          }
+
+          // Update sort icons
+          document.querySelectorAll('#resultsTable th .sort-icon').forEach(icon => {
+            icon.textContent = '';
+          });
+          
+          const iconSpan = th.querySelector('.sort-icon');
+          if (iconSpan) {
+            iconSpan.textContent = detailSortConfig.direction === 'asc' ? '↑' : '↓';
+          }
+
+          let sortedData = sortData(currentDetailData, column, detailSortConfig.direction);
+          renderTable(sortedData, detailSearch.value);
+        });
+      });
+
+      document.querySelectorAll('#summaryTable th[data-column]').forEach(th => {
+        th.addEventListener('click', () => {
+          const column = th.dataset.column;
+          if (column === 'No') {
+            // Reset to default order
+            summarySortConfig.column = null;
+            renderFilteredSummary(summaryStatusFilter.value, summarySearch.value);
+            
+            document.querySelectorAll('#summaryTable th .sort-icon').forEach(icon => {
+              icon.textContent = '';
+            });
+            return;
+          }
+
+          if (summarySortConfig.column === column) {
+            summarySortConfig.direction = summarySortConfig.direction === 'asc' ? 'desc' : 'asc';
+          } else {
+            summarySortConfig.column = column;
+            summarySortConfig.direction = 'asc';
+          }
+
+          document.querySelectorAll('#summaryTable th .sort-icon').forEach(icon => {
+            icon.textContent = '';
+          });
+          
+          const iconSpan = th.querySelector('.sort-icon');
+          if (iconSpan) {
+            iconSpan.textContent = summarySortConfig.direction === 'asc' ? '↑' : '↓';
+          }
+
+          renderFilteredSummary(summaryStatusFilter.value, summarySearch.value);
+        });
+      });
+
+      // Toggle columns
+      let rangeVisible = true;
+      toggleRangeBtn.addEventListener("click", () => {
+        const cells = document.querySelectorAll(`#resultsTable td:nth-child(9)`);
+        const th = document.querySelector("#rangeTh");
+        if (rangeVisible) {
+          cells.forEach(cell => cell.classList.add("hidden"));
+          th.classList.add("hidden");
+          toggleRangeBtn.textContent = "Show Standard Range";
+          rangeVisible = false;
+        } else {
+          cells.forEach(cell => cell.classList.remove("hidden"));
+          th.classList.remove("hidden");
+          toggleRangeBtn.textContent = "Hide Standard Range";
+          rangeVisible = true;
+        }
+      });
+
+      let kodeVisible = true;
+      toggleKodeBtn.addEventListener("click", () => {
+        const cells = document.querySelectorAll(`#resultsTable td:nth-child(10)`);
+        const th = document.querySelector("#kodeTh");
+        if (kodeVisible) {
+          cells.forEach(cell => cell.classList.add("hidden"));
+          th.classList.add("hidden");
+          toggleKodeBtn.textContent = "Show Expected Code";
+          kodeVisible = false;
+        } else {
+          cells.forEach(cell => cell.classList.remove("hidden"));
+          th.classList.remove("hidden");
+          toggleKodeBtn.textContent = "Hide Expected Code";
+          kodeVisible = true;
+        }
+      });
+
+      downloadBtn.addEventListener("click", () => {
+        const wb = XLSX.utils.book_new();
+        const wsDetail = XLSX.utils.json_to_sheet(originalData);
+        XLSX.utils.book_append_sheet(wb, wsDetail, "Validation Details");
+        const summaryData = generateSummaryData(originalData);
+        const wsSummary = XLSX.utils.json_to_sheet(summaryData);
+        XLSX.utils.book_append_sheet(wb, wsSummary, "Site Summary");
+        XLSX.writeFile(wb, "codematch_validation_results.xlsx");
+      });
+
+      function showError(msg) {
+        errorOutput.textContent = msg;
+        errorOutput.classList.remove("hidden");
+      }
+
+      function hideError() {
+        errorOutput.classList.add("hidden");
+      }
+    });
+  </script>
+</body>
+</html>
