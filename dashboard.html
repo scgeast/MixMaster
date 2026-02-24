@@ -454,6 +454,7 @@
             padding: 0;
             margin: 0;
             flex: 1;
+            overflow-y: auto;
         }
 
         .menu-item {
@@ -710,7 +711,7 @@
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 12px;
             margin-top: 20px;
-            max-width: 550px;
+            max-width: 800px;
         }
 
         .feature-card {
@@ -1090,41 +1091,19 @@
                         <span class="menu-text">Home</span>
                     </a>
                 </li>
+                
+                <!-- APLIKASI BARU: Absence.LastDP -->
                 <li class="menu-item">
-                     <a href="dashboard.html?app=delivery" class="menu-link with-href" onclick="loadApp('summary-daily-delivery', event)" data-tooltip="Perform Delivery">
-                        <span class="menu-icon">📦</span>
-                        <span class="menu-initial">D</span>
-                        <span class="menu-text">Perform Delivery</span>
-                    </a>
-                </li>        
-                <li class="menu-item">
-                    <a href="dashboard.html?app=truck-utilization" class="menu-link with-href" onclick="loadApp('utilisasi-truck', event)" data-tooltip="Truck Utilization">
-                        <span class="menu-icon">🚛</span>
-                        <span class="menu-initial">U</span>
-                        <span class="menu-text">Truck Utilization</span>
-                    </a>
-                </li>                    
-                <li class="menu-item">
-                    <a href="dashboard.html?app=monitoring" class="menu-link with-href" onclick="loadApp('monitoring-order', event)" data-tooltip="Monitoring Order">
-                        <span class="menu-icon">📊</span>
-                        <span class="menu-initial">M</span>
-                        <span class="menu-text">Monitoring Order</span>
+                    <a href="dashboard.html?app=absence" class="menu-link with-href" onclick="loadApp('absence-lastdp', event)" data-tooltip="Absence Last DP">
+                        <span class="menu-icon">⚡</span>
+                        <span class="menu-initial">A</span>
+                        <span class="menu-text">
+                            Absence.LastDP
+                            <span class="new-badge">New</span>
+                        </span>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="dashboard.html?app=schedule" class="menu-link with-href" onclick="loadApp('jadwal-pengecoran', event)" data-tooltip="Pouring Schedule">
-                        <span class="menu-icon">📅</span>
-                        <span class="menu-initial">S</span>
-                        <span class="menu-text">Pouring Schedule</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="dashboard.html?app=production" class="menu-link with-href" onclick="loadApp('production-all-area', event)" data-tooltip="Production Area">
-                        <span class="menu-icon">🏭</span>
-                        <span class="menu-initial">P</span>
-                        <span class="menu-text">Production Area</span>
-                    </a>
-                </li>
+                
                 <!-- APLIKASI BARU: CodeMatch-Validator -->
                 <li class="menu-item">
                     <a href="dashboard.html?app=codematch" class="menu-link with-href" onclick="loadApp('codematch-validator', event)" data-tooltip="CodeMatch Validator">
@@ -1136,7 +1115,64 @@
                         </span>
                     </a>
                 </li>
-             </ul>
+                
+                <!-- APLIKASI BARU: Crack of Dawn Loading Time -->
+                <li class="menu-item">
+                    <a href="dashboard.html?app=crackofdawn" class="menu-link with-href" onclick="loadApp('crackofdawn-loading-time', event)" data-tooltip="Crack of Dawn Loading Time">
+                        <span class="menu-icon">🌅</span>
+                        <span class="menu-initial">C</span>
+                        <span class="menu-text">
+                            Crack of Dawn Loading Time
+                            <span class="new-badge">New</span>
+                        </span>
+                    </a>
+                </li>
+                
+                <!-- APLIKASI: jadwal-pengecoran -->
+                <li class="menu-item">
+                    <a href="dashboard.html?app=schedule" class="menu-link with-href" onclick="loadApp('jadwal-pengecoran', event)" data-tooltip="Pouring Schedule">
+                        <span class="menu-icon">📅</span>
+                        <span class="menu-initial">J</span>
+                        <span class="menu-text">jadwal-pengecoran</span>
+                    </a>
+                </li>
+                
+                <!-- APLIKASI: monitoring-order-delivery -->
+                <li class="menu-item">
+                    <a href="dashboard.html?app=monitoring" class="menu-link with-href" onclick="loadApp('monitoring-order', event)" data-tooltip="Monitoring Order Delivery">
+                        <span class="menu-icon">📊</span>
+                        <span class="menu-initial">M</span>
+                        <span class="menu-text">monitoring-order-delivery</span>
+                    </a>
+                </li>
+                
+                <!-- APLIKASI: production-all-area -->
+                <li class="menu-item">
+                    <a href="dashboard.html?app=production" class="menu-link with-href" onclick="loadApp('production-all-area', event)" data-tooltip="Production All Area">
+                        <span class="menu-icon">🏭</span>
+                        <span class="menu-initial">P</span>
+                        <span class="menu-text">production-all-area</span>
+                    </a>
+                </li>
+                
+                <!-- APLIKASI: summary-daily-delivery -->
+                <li class="menu-item">
+                    <a href="dashboard.html?app=delivery" class="menu-link with-href" onclick="loadApp('summary-daily-delivery', event)" data-tooltip="Summary Daily Delivery">
+                        <span class="menu-icon">📦</span>
+                        <span class="menu-initial">S</span>
+                        <span class="menu-text">summary-daily-delivery</span>
+                    </a>
+                </li>
+                
+                <!-- APLIKASI: utilisasi-truck -->
+                <li class="menu-item">
+                    <a href="dashboard.html?app=truck" class="menu-link with-href" onclick="loadApp('utilisasi-truck', event)" data-tooltip="Truck Utilization">
+                        <span class="menu-icon">🚛</span>
+                        <span class="menu-initial">U</span>
+                        <span class="menu-text">utilisasi-truck</span>
+                    </a>
+                </li>
+            </ul>
             
             <!-- MIX MASTER Text untuk sidebar terbuka -->
             <div class="mix-master-text">
@@ -1199,9 +1235,19 @@
                         </div>
                         <!-- APLIKASI BARU di Welcome Screen -->
                         <div class="feature-card">
+                            <div class="feature-icon">⚡</div>
+                            <h4>Absence.LastDP</h4>
+                            <p>Track and manage attendance records</p>
+                        </div>
+                        <div class="feature-card">
                             <div class="feature-icon">✅</div>
                             <h4>CodeMatch Validator</h4>
                             <p>Validate and match code patterns</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🌅</div>
+                            <h4>Crack of Dawn</h4>
+                            <p>Loading time optimization</p>
                         </div>
                     </div>
 
@@ -1242,37 +1288,43 @@
 
         // Peta aplikasi untuk parameter URL
         const appParameterMap = {
+            // Aplikasi baru
+            'absence': 'absence-lastdp',
+            'absence-lastdp': 'absence-lastdp',
+            'codematch': 'codematch-validator',
+            'codematch-validator': 'codematch-validator',
+            'code-match': 'codematch-validator',
+            'crackofdawn': 'crackofdawn-loading-time',
+            'crack-of-dawn': 'crackofdawn-loading-time',
+            'loading-time': 'crackofdawn-loading-time',
+            // Aplikasi existing
+            'jadwal-pengecoran': 'jadwal-pengecoran',
+            'schedule': 'jadwal-pengecoran',
+            'pouring': 'jadwal-pengecoran',
+            'monitoring-order': 'monitoring-order',
+            'monitoring': 'monitoring-order',
+            'order': 'monitoring-order',
+            'production-all-area': 'production-all-area',
+            'production': 'production-all-area',
+            'area': 'production-all-area',
             'summary-daily-delivery': 'summary-daily-delivery',
             'delivery': 'summary-daily-delivery',
             'perform-delivery': 'summary-daily-delivery',
             'utilisasi-truck': 'utilisasi-truck',
-            'truck-utilization': 'utilisasi-truck',
             'truck': 'utilisasi-truck',
-            'monitoring-order': 'monitoring-order',
-            'monitoring': 'monitoring-order',
-            'order': 'monitoring-order',
-            'jadwal-pengecoran': 'jadwal-pengecoran',
-            'schedule': 'jadwal-pengecoran',
-            'pouring': 'jadwal-pengecoran',
-            'production-all-area': 'production-all-area',
-            'production': 'production-all-area',
-            'area': 'production-all-area',
-            // APLIKASI BARU: CodeMatch-Validator
-            'codematch-validator': 'codematch-validator',
-            'codematch': 'codematch-validator',
-            'code-match': 'codematch-validator',
-            'validator': 'codematch-validator'
+            'truck-utilization': 'utilisasi-truck'
         };
 
         // Peta aplikasi untuk nama menu
         const appMenuMap = {
-            'summary-daily-delivery': 'Perform Delivery',
-            'utilisasi-truck': 'Truck Utilization',
-            'monitoring-order': 'Monitoring Order',
-            'jadwal-pengecoran': 'Pouring Schedule',
-            'production-all-area': 'Production Area',
-            // APLIKASI BARU: CodeMatch-Validator
-            'codematch-validator': 'CodeMatch-Validator'
+            'absence-lastdp': 'Absence.LastDP',
+            'codematch-validator': 'CodeMatch-Validator',
+            'crackofdawn-loading-time': 'Crack of Dawn Loading Time',
+            'jadwal-pengecoran': 'jadwal-pengecoran',
+            'monitoring-order': 'monitoring-order-delivery',
+            'production-all-area': 'production-all-area',
+            'summary-daily-delivery': 'summary-daily-delivery',
+            'utilisasi-truck': 'utilisasi-truck'
         };
 
         // Initialize dashboard dengan auto-load app dari parameter URL
@@ -1332,8 +1384,9 @@
                 const menuText = link.querySelector('.menu-text')?.textContent;
                 // Handle special case untuk menu yang punya badge
                 let cleanMenuText = menuText;
-                if (menuText && menuText.includes('CodeMatch-Validator')) {
-                    cleanMenuText = 'CodeMatch-Validator';
+                if (menuText) {
+                    // Hapus teks badge jika ada
+                    cleanMenuText = menuText.replace(/New/g, '').trim();
                 }
                 
                 if (cleanMenuText === appMenuMap[appName]) {
@@ -1441,17 +1494,18 @@
             appFrame.style.display = 'none';
             loading.style.display = 'flex';
             
-            const basePath = window.GITHUB_PAGES_CONFIG?.isGitHubPages ? '/MixMaster/' : '';
+            const basePath = ''; // Sesuaikan dengan path yang benar
             const appFolder = 'app/';
             
             const appPaths = {
-                'monitoring-order': `${basePath}${appFolder}monitoring-order-delivery/index.html`,
+                'absence-lastdp': `${basePath}${appFolder}Absence.LastDP/index.html`,
+                'codematch-validator': `${basePath}${appFolder}CodeMatch-Validator/index.html`,
+                'crackofdawn-loading-time': `${basePath}${appFolder}Crack of Dawn Loading Time/index.html`,
                 'jadwal-pengecoran': `${basePath}${appFolder}jadwal-pengecoran/index.html`,
-                'utilisasi-truck': `${basePath}${appFolder}utilisasi-truck/index.html`,
+                'monitoring-order': `${basePath}${appFolder}monitoring-order-delivery/index.html`,
                 'production-all-area': `${basePath}${appFolder}production-all-area/index.html`,
                 'summary-daily-delivery': `${basePath}${appFolder}summary-daily-delivery/index.html`,
-                // APLIKASI BARU: CodeMatch-Validator
-                'codematch-validator': `${basePath}${appFolder}CodeMatch-Validator/index.html`
+                'utilisasi-truck': `${basePath}${appFolder}utilisasi-truck/index.html`
             };
             
             const appPath = appPaths[appName];
@@ -1662,4 +1716,4 @@
         });
     </script>
 </body>
-</html>           
+</html>
