@@ -1082,97 +1082,102 @@
                 </div>
             </div>
             
-            <ul class="sidebar-menu">
-                <!-- Tombol Home Baru -->
-                <li class="menu-item">
-                    <a href="dashboard.html" class="menu-link with-href" onclick="showWelcomeScreen(event)" data-tooltip="Home">
-                        <span class="menu-icon">🏠</span>
-                        <span class="menu-initial">H</span>
-                        <span class="menu-text">Home</span>
-                    </a>
-                </li>
-                
-                <!-- APLIKASI BARU: Absence.LastDP -->
-                <li class="menu-item">
-                    <a href="dashboard.html?app=absence" class="menu-link with-href" onclick="loadApp('absence-lastdp', event)" data-tooltip="Absence Last DP">
-                        <span class="menu-icon">⚡</span>
-                        <span class="menu-initial">A</span>
-                        <span class="menu-text">
-                            Absence.LastDP
-                            <span class="new-badge">New</span>
-                        </span>
-                    </a>
-                </li>
-                
-                <!-- APLIKASI BARU: CodeMatch-Validator -->
-                <li class="menu-item">
-                    <a href="dashboard.html?app=codematch" class="menu-link with-href" onclick="loadApp('codematch-validator', event)" data-tooltip="CodeMatch Validator">
-                        <span class="menu-icon">✅</span>
-                        <span class="menu-initial">C</span>
-                        <span class="menu-text">
-                            CodeMatch-Validator
-                            <span class="new-badge">New</span>
-                        </span>
-                    </a>
-                </li>
-                
-                <!-- APLIKASI BARU: Crack of Dawn Loading Time -->
-                <li class="menu-item">
-                    <a href="dashboard.html?app=crackofdawn" class="menu-link with-href" onclick="loadApp('crackofdawn-loading-time', event)" data-tooltip="Crack of Dawn Loading Time">
-                        <span class="menu-icon">🌅</span>
-                        <span class="menu-initial">C</span>
-                        <span class="menu-text">
-                            Crack of Dawn Loading Time
-                            <span class="new-badge">New</span>
-                        </span>
-                    </a>
-                </li>
-                
-                <!-- APLIKASI: jadwal-pengecoran -->
-                <li class="menu-item">
-                    <a href="dashboard.html?app=schedule" class="menu-link with-href" onclick="loadApp('jadwal-pengecoran', event)" data-tooltip="Pouring Schedule">
-                        <span class="menu-icon">📅</span>
-                        <span class="menu-initial">J</span>
-                        <span class="menu-text">jadwal-pengecoran</span>
-                    </a>
-                </li>
-                
-                <!-- APLIKASI: monitoring-order-delivery -->
-                <li class="menu-item">
-                    <a href="dashboard.html?app=monitoring" class="menu-link with-href" onclick="loadApp('monitoring-order', event)" data-tooltip="Monitoring Order Delivery">
-                        <span class="menu-icon">📊</span>
-                        <span class="menu-initial">M</span>
-                        <span class="menu-text">monitoring-order-delivery</span>
-                    </a>
-                </li>
-                
-                <!-- APLIKASI: production-all-area -->
-                <li class="menu-item">
-                    <a href="dashboard.html?app=production" class="menu-link with-href" onclick="loadApp('production-all-area', event)" data-tooltip="Production All Area">
-                        <span class="menu-icon">🏭</span>
-                        <span class="menu-initial">P</span>
-                        <span class="menu-text">production-all-area</span>
-                    </a>
-                </li>
-                
-                <!-- APLIKASI: summary-daily-delivery -->
-                <li class="menu-item">
-                    <a href="dashboard.html?app=delivery" class="menu-link with-href" onclick="loadApp('summary-daily-delivery', event)" data-tooltip="Summary Daily Delivery">
-                        <span class="menu-icon">📦</span>
-                        <span class="menu-initial">S</span>
-                        <span class="menu-text">summary-daily-delivery</span>
-                    </a>
-                </li>
-                
-                <!-- APLIKASI: utilisasi-truck -->
-                <li class="menu-item">
-                    <a href="dashboard.html?app=truck" class="menu-link with-href" onclick="loadApp('utilisasi-truck', event)" data-tooltip="Truck Utilization">
-                        <span class="menu-icon">🚛</span>
-                        <span class="menu-initial">U</span>
-                        <span class="menu-text">utilisasi-truck</span>
-                    </a>
-                </li>
-            </ul>
+        <ul class="sidebar-menu">
+            <!-- Tombol Home Baru -->
+            <li class="menu-item">
+                <a href="dashboard.html" class="menu-link with-href" onclick="showWelcomeScreen(event)" data-tooltip="Home">
+                    <span class="menu-icon">🏠</span>
+                    <span class="menu-initial">H</span>
+                    <span class="menu-text">Home</span>
+                </a>
+            </li>
+            
+            <!-- APLIKASI LAMA (URUTAN ATAS) -->
+            <!-- APLIKASI: summary-daily-delivery -->
+            <li class="menu-item">
+                <a href="dashboard.html?app=delivery" class="menu-link with-href" onclick="loadApp('summary-daily-delivery', event)" data-tooltip="Summary Daily Delivery">
+                    <span class="menu-icon">📦</span>
+                    <span class="menu-initial">S</span>
+                    <span class="menu-text">summary-daily-delivery</span>
+                </a>
+            </li>
+            
+            <!-- APLIKASI: utilisasi-truck -->
+            <li class="menu-item">
+                <a href="dashboard.html?app=truck" class="menu-link with-href" onclick="loadApp('utilisasi-truck', event)" data-tooltip="Truck Utilization">
+                    <span class="menu-icon">🚛</span>
+                    <span class="menu-initial">U</span>
+                    <span class="menu-text">utilisasi-truck</span>
+                </a>
+            </li>
+            
+            <!-- APLIKASI: monitoring-order-delivery -->
+            <li class="menu-item">
+                <a href="dashboard.html?app=monitoring" class="menu-link with-href" onclick="loadApp('monitoring-order', event)" data-tooltip="Monitoring Order Delivery">
+                    <span class="menu-icon">📊</span>
+                    <span class="menu-initial">M</span>
+                    <span class="menu-text">monitoring-order-delivery</span>
+                </a>
+            </li>
+            
+            <!-- APLIKASI: jadwal-pengecoran -->
+            <li class="menu-item">
+                <a href="dashboard.html?app=schedule" class="menu-link with-href" onclick="loadApp('jadwal-pengecoran', event)" data-tooltip="Pouring Schedule">
+                    <span class="menu-icon">📅</span>
+                    <span class="menu-initial">J</span>
+                    <span class="menu-text">jadwal-pengecoran</span>
+                </a>
+            </li>
+            
+            <!-- APLIKASI: production-all-area -->
+            <li class="menu-item">
+                <a href="dashboard.html?app=production" class="menu-link with-href" onclick="loadApp('production-all-area', event)" data-tooltip="Production All Area">
+                    <span class="menu-icon">🏭</span>
+                    <span class="menu-initial">P</span>
+                    <span class="menu-text">production-all-area</span>
+                </a>
+            </li>
+            
+            <!-- PEMISAH: Garis tipis untuk memisahkan aplikasi lama dan baru -->
+            <li style="border-top: 1px solid rgba(255,255,255,0.2); margin: 5px 0;"></li>
+            
+            <!-- APLIKASI BARU (URUTAN BAWAH) -->
+            <!-- APLIKASI BARU: CodeMatch-Validator -->
+            <li class="menu-item">
+                <a href="dashboard.html?app=codematch" class="menu-link with-href" onclick="loadApp('codematch-validator', event)" data-tooltip="CodeMatch Validator">
+                    <span class="menu-icon">✅</span>
+                    <span class="menu-initial">C</span>
+                    <span class="menu-text">
+                        CodeMatch-Validator
+                        <span class="new-badge">New</span>
+                    </span>
+                </a>
+            </li>
+            
+            <!-- APLIKASI BARU: Absence.LastDP -->
+            <li class="menu-item">
+                <a href="dashboard.html?app=absence" class="menu-link with-href" onclick="loadApp('absence-lastdp', event)" data-tooltip="Absence Last DP">
+                    <span class="menu-icon">⚡</span>
+                    <span class="menu-initial">A</span>
+                    <span class="menu-text">
+                        Absence.LastDP
+                        <span class="new-badge">New</span>
+                    </span>
+                </a>
+            </li>
+            
+            <!-- APLIKASI BARU: Crack of Dawn Loading Time -->
+            <li class="menu-item">
+                <a href="dashboard.html?app=crackofdawn" class="menu-link with-href" onclick="loadApp('crackofdawn-loading-time', event)" data-tooltip="Crack of Dawn Loading Time">
+                    <span class="menu-icon">🌅</span>
+                    <span class="menu-initial">C</span>
+                    <span class="menu-text">
+                        Crack of Dawn Loading Time
+                        <span class="new-badge">New</span>
+                    </span>
+                </a>
+            </li>
+        </ul>
             
             <!-- MIX MASTER Text untuk sidebar terbuka -->
             <div class="mix-master-text">
