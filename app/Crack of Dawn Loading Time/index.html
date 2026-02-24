@@ -1,0 +1,2276 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crack of Dawn - Loading Time Tracker</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Chart.js untuk visualisasi -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS untuk membaca Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- FileSaver untuk download Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: white;
+            color: #4a4a4a;
+            height: 100vh;
+            overflow-y: auto;
+            transition: width 0.3s ease;
+            position: relative;
+            border-right: 2px solid #8b0000;
+            box-shadow: 2px 0 10px rgba(139, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .sidebar.closed {
+            width: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .sidebar-content {
+            padding: 15px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Toggle Button - Lebih Tipis */
+        .toggle-btn {
+            position: fixed;
+            left: 290px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #8b0000;
+            color: white;
+            width: 18px;
+            height: 60px;
+            border-radius: 0 4px 4px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: left 0.3s ease;
+            border: 1px solid #b22222;
+            border-left: none;
+            box-shadow: 2px 0 5px rgba(139, 0, 0, 0.15);
+            font-size: 10px;
+        }
+
+        .toggle-btn.closed {
+            left: 0;
+        }
+
+        .toggle-btn i {
+            font-size: 10px;
+        }
+
+        .toggle-btn:hover {
+            background: #b22222;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            background: #f8f9fa;
+            overflow-y: auto;
+            padding: 0;
+            position: relative;
+        }
+
+        /* Header - Full width dan nempel atas */
+        .header {
+            background: linear-gradient(135deg, #8b0000 0%, #b22222 100%);
+            color: white;
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(139, 0, 0, 0.2);
+            width: 100%;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header h1 {
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        .header h1 i {
+            margin-right: 8px;
+            font-size: 1.1em;
+        }
+
+        .header-subtitle {
+            font-size: 0.75em;
+            opacity: 0.9;
+        }
+
+        /* UPDATE: Header time tanpa background & border */
+        .header-time {
+            font-size: 0.75em;
+            margin-left: 8px;
+            display: inline-block;
+            /* background dan border dihapus */
+        }
+
+        #dateRangeInfo {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Content Wrapper */
+        .content-wrapper {
+            padding: 15px;
+        }
+
+        /* Stats Cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            color: #333;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #8b0000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 0, 0, 0.15);
+        }
+
+        .stat-card i {
+            font-size: 1.4em;
+            margin-bottom: 4px;
+            color: #8b0000;
+        }
+
+        .stat-card .value {
+            font-size: 1.4em;
+            font-weight: bold;
+            line-height: 1.2;
+            color: #333;
+        }
+
+        .stat-card .label {
+            font-size: 0.7em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        /* Special Stats Cards untuk Loading Awal */
+        .stat-card.already-loading {
+            background: linear-gradient(135deg, #1e7e34 0%, #145c23 100%);
+            border-left: 4px solid #0a3a15;
+        }
+
+        .stat-card.already-loading i,
+        .stat-card.already-loading .value,
+        .stat-card.already-loading .label {
+            color: white;
+        }
+
+        .stat-card.not-yet-loading {
+            background: linear-gradient(135deg, #dc3545 0%, #a71d2a 100%);
+            border-left: 4px solid #7a111c;
+        }
+
+        .stat-card.not-yet-loading i,
+        .stat-card.not-yet-loading .value,
+        .stat-card.not-yet-loading .label {
+            color: white;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #8b0000;
+            margin-bottom: 15px;
+            gap: 3px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 8px 15px;
+            cursor: pointer;
+            color: #666;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 6px 6px 0 0;
+            font-size: 0.85em;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background: #e0e0e0;
+            color: #8b0000;
+        }
+
+        .tab.active {
+            background: #8b0000;
+            color: white;
+            border-color: #8b0000;
+        }
+
+        .tab i {
+            margin-right: 5px;
+            font-size: 0.9em;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            background: #f8f9fa;
+            border: 2px dashed #8b0000;
+            border-radius: 8px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .upload-area:hover {
+            border-color: #b22222;
+            background: #fff0f0;
+        }
+
+        .upload-area i {
+            font-size: 2.5em;
+            color: #8b0000;
+            margin-bottom: 5px;
+        }
+
+        .upload-area p {
+            color: #666;
+            margin: 3px 0;
+            font-size: 0.85em;
+        }
+
+        .file-info {
+            font-size: 0.75em;
+            color: #8b0000;
+            word-break: break-all;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+        }
+
+        .filter-section h4 {
+            color: #8b0000;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .filter-section h4 i {
+            color: #8b0000;
+            font-size: 0.9em;
+        }
+
+        .date-input {
+            margin-bottom: 10px;
+        }
+
+        .date-input label {
+            display: block;
+            margin-bottom: 3px;
+            color: #666;
+            font-size: 0.75em;
+            font-weight: 500;
+        }
+
+        .date-input input {
+            width: 100%;
+            padding: 6px 8px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            color: #333;
+            font-size: 0.85em;
+        }
+
+        .date-input input:focus {
+            outline: none;
+            border-color: #8b0000;
+        }
+
+        .apply-filter {
+            width: 100%;
+            padding: 8px;
+            background: #8b0000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .apply-filter:hover {
+            background: #b22222;
+        }
+
+        .apply-filter:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Info Panel */
+        .info-panel {
+            background: #f8f9fa;
+            border-left: 4px solid #8b0000;
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 4px;
+        }
+
+        .info-panel i {
+            color: #8b0000;
+            margin-right: 5px;
+            font-size: 0.9em;
+        }
+
+        .info-panel p {
+            color: #666;
+            font-size: 0.8em;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        th {
+            background: #f8f9fa;
+            color: #333;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.8em;
+            border-bottom: 2px solid #8b0000;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+            color: #555;
+            font-size: 0.8em;
+        }
+
+        tr:hover {
+            background: #fff5f5;
+        }
+
+        /* Double-click editable field */
+        .editable-field {
+            cursor: pointer;
+            position: relative;
+            padding: 2px 4px;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+        }
+
+        .editable-field:hover {
+            background-color: #e9ecef;
+        }
+
+        .time-input-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .time-edit-input {
+            padding: 4px 8px;
+            border: 2px solid #8b0000;
+            border-radius: 4px;
+            font-size: 0.85em;
+            width: 100px;
+            background: white;
+        }
+
+        .time-edit-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.2);
+        }
+
+        .save-time-btn {
+            background: #1e7e34;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75em;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .save-time-btn:hover {
+            background: #145c23;
+        }
+
+        .cancel-time-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75em;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .cancel-time-btn:hover {
+            background: #5a6268;
+        }
+
+        /* Remarks Input */
+        .remarks-input {
+            width: 100%;
+            padding: 5px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.8em;
+            transition: all 0.3s;
+        }
+
+        .remarks-input:focus {
+            outline: none;
+            border-color: #8b0000;
+            box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.1);
+        }
+
+        .save-remarks {
+            background: #8b0000;
+            color: white;
+            border: none;
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75em;
+            margin-left: 5px;
+        }
+
+        .save-remarks:hover {
+            background: #b22222;
+        }
+
+        /* Add Remarks Section */
+        .add-remarks-section {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+        }
+
+        .add-remarks-section h4 {
+            color: #333;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.95em;
+        }
+
+        .add-remarks-section h4 i {
+            color: #8b0000;
+            font-size: 0.9em;
+        }
+
+        .remarks-form {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 3px;
+            color: #666;
+            font-size: 0.75em;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #8b0000;
+        }
+
+        .btn-add-remarks {
+            background: #8b0000;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-add-remarks:hover {
+            background: #b22222;
+        }
+
+        /* Download Buttons */
+        .download-section {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin: 12px 0 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-download {
+            background: white;
+            color: #8b0000;
+            border: 2px solid #8b0000;
+            padding: 6px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-download:hover {
+            background: #8b0000;
+            color: white;
+        }
+
+        .btn-download-excel {
+            background: #1e7e34;
+            color: white;
+            border: 2px solid #145c23;
+        }
+
+        .btn-download-excel:hover {
+            background: #145c23;
+        }
+
+        /* Chart Container - Gabungan 2 chart dalam 1 area */
+        .combined-chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .chart-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .chart-box {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .chart-box h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .chart-box h4 i {
+            color: #8b0000;
+        }
+
+        canvas {
+            max-height: 250px;
+            width: 100% !important;
+        }
+
+        /* Select Dropdown */
+        select {
+            background: white;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            margin-bottom: 12px;
+            min-width: 220px;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #8b0000;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin: 12px 0;
+            border-left: 4px solid;
+            animation: slideIn 0.3s ease;
+            font-size: 0.85em;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-color: #28a745;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-color: #17a2b8;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .loading i {
+            font-size: 2.5em;
+            color: #8b0000;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Welcome Message */
+        #welcomeMessage {
+            text-align: center;
+            padding: 50px 15px;
+            background: white;
+            border-radius: 8px;
+            border: 2px dashed #8b0000;
+            margin: 15px 0;
+        }
+
+        #welcomeMessage i {
+            font-size: 3.5em;
+            color: #8b0000;
+            margin-bottom: 15px;
+        }
+
+        #welcomeMessage h3 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.2em;
+        }
+
+        #welcomeMessage p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #8b0000;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #b22222;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        h3 {
+            color: #333;
+            margin: 15px 0 10px;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h3 i {
+            color: #8b0000;
+            font-size: 1em;
+        }
+
+        /* Sidebar title */
+        .sidebar h3 {
+            color: #8b0000;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        /* Badge */
+        .badge {
+            background: #8b0000;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.7em;
+            margin-left: 5px;
+        }
+
+        /* Format angka dengan separator */
+        .format-number {
+            text-align: right;
+        }
+
+        .unit-m3 {
+            font-size: 0.7em;
+            color: #666;
+            margin-left: 2px;
+        }
+
+        /* Preview table styling */
+        .preview-special-plant {
+            background-color: #fff3cd;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-content">
+                <h3><i class="fas fa-upload" style="color: #8b0000;"></i> Upload File</h3>
+                
+                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Klik untuk upload file Excel</p>
+                    <p class="file-info" id="fileInfo"></p>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+                </div>
+
+                <div class="filter-section">
+                    <h4><i class="fas fa-calendar-alt"></i> Filter Tanggal</h4>
+                    <div class="date-input">
+                        <label>Tanggal Mulai</label>
+                        <input type="date" id="startDate">
+                    </div>
+                    <div class="date-input">
+                        <label>Tanggal Akhir</label>
+                        <input type="date" id="endDate">
+                    </div>
+                    <button class="apply-filter" id="applyFilter" onclick="applyDateFilter()" disabled>
+                        <i class="fas fa-filter"></i> Terapkan Filter
+                    </button>
+                </div>
+
+                <div class="info-panel">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Informasi:</strong>
+                    <p>Analisis loading truck berdasarkan Plant dan Waktu</p>
+                    <p style="margin-top: 5px; font-size: 0.75em;">
+                        <i class="fas fa-pen"></i> Bisa menambahkan remarks manual
+                    </p>
+                    <p style="margin-top: 5px; font-size: 0.75em; color: #8b0000;">
+                        <i class="fas fa-edit"></i> Plant Bali - Denpasar 2 & Bali - Gianyar bisa diedit jamnya (double click)
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toggle Button - Lebih Tipis -->
+        <div class="toggle-btn" id="toggleBtn" onclick="toggleSidebar()">
+            <i class="fas fa-chevron-left" id="toggleIcon"></i>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Header full width nempel atas dengan update time -->
+            <div class="header">
+                <div>
+                    <h1><i class="fas fa-truck"></i> Crack of Dawn</h1>
+                    <div class="header-subtitle">Loading Time Tracker <span class="header-time" id="updateTime">Update: --</span></div>
+                </div>
+                <div class="header-right">
+                    <div id="dateRangeInfo">
+                        <i class="fas fa-calendar"></i> Pilih range
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Wrapper -->
+            <div class="content-wrapper">
+                <!-- Stats Cards -->
+                <div class="stats-container" id="statsContainer"></div>
+
+                <!-- Loading -->
+                <div class="loading" id="loading" style="display: none;">
+                    <i class="fas fa-spinner"></i>
+                    <p>Memuat data...</p>
+                </div>
+
+                <!-- Main Content Area -->
+                <div id="dynamicContent">
+                    <!-- Tabs -->
+                    <div class="tabs" id="tabs" style="display: none;">
+                        <div class="tab active" onclick="showTab('preview', this)">
+                            <i class="fas fa-table"></i> Preview
+                        </div>
+                        <div class="tab" onclick="showTab('earliest', this)">
+                            <i class="fas fa-clock"></i> Loading Awal
+                        </div>
+                        <div class="tab" onclick="showTab('statistics', this)">
+                            <i class="fas fa-chart-bar"></i> Statistik
+                        </div>
+                        <div class="tab" onclick="showTab('truck', this)">
+                            <i class="fas fa-truck"></i> Detail Truck
+                        </div>
+                    </div>
+
+                    <!-- Tab Contents -->
+                    <div id="previewTab" class="tab-content">
+                        <h3><i class="fas fa-table"></i> Preview Data (Semua Record)</h3>
+                        <div class="table-container">
+                            <table id="previewTable">
+                                <thead id="previewHeader"></thead>
+                                <tbody id="previewBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="earliestTab" class="tab-content">
+                        <h3>
+                            <i class="fas fa-clock"></i> Loading Paling Awal per Plant 
+                            <span class="badge" id="remarksCount">0 Remarks</span>
+                        </h3>
+                        
+                        <!-- Tabel Loading Awal -->
+                        <div class="table-container">
+                            <table id="earliestTable">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Tanggal</th>
+                                        <th>Plant Name</th>
+                                        <th>Jam Loading</th>
+                                        <th>Truck No</th>
+                                        <th>DP No</th>
+                                        <th>Site Name</th>
+                                        <th>Remarks</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="earliestBody"></tbody>
+                            </table>
+                        </div>
+
+                        <!-- Download Section -->
+                        <div class="download-section">
+                            <button class="btn-download" onclick="downloadEarliestCSV()">
+                                <i class="fas fa-download"></i> Download CSV
+                            </button>
+                            <button class="btn-download btn-download-excel" onclick="downloadEarliestExcel()">
+                                <i class="fas fa-file-excel"></i> Download Excel
+                            </button>
+                        </div>
+                        
+                        <!-- Form Tambah Remarks -->
+                        <div class="add-remarks-section">
+                            <h4><i class="fas fa-pen"></i> Tambah Remarks Plant Belum Loading</h4>
+                            <div class="remarks-form">
+                                <div class="form-group">
+                                    <label>Tanggal</label>
+                                    <input type="date" id="remarksDate" class="remarks-date">
+                                </div>
+                                <div class="form-group">
+                                    <label>Plant Name</label>
+                                    <input type="text" id="remarksPlant" placeholder="Contoh: Bali - Denpasar 2" list="plantList">
+                                    <datalist id="plantList"></datalist>
+                                </div>
+                                <div class="form-group">
+                                    <label>Remarks</label>
+                                    <input type="text" id="remarksText" placeholder="Alasan belum loading...">
+                                </div>
+                                <button class="btn-add-remarks" onclick="addManualRemarks()">
+                                    <i class="fas fa-plus"></i> Tambah
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="statisticsTab" class="tab-content">
+                        <h3><i class="fas fa-chart-bar"></i> Statistik per Plant</h3>
+                        
+                        <!-- Tabel Statistik -->
+                        <div class="table-container">
+                            <table id="statsTable">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Plant Name</th>
+                                        <th>Jumlah Truck Unik</th>
+                                        <th>Jumlah Loading</th>
+                                        <th>Total QTY (m³)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="statsBody"></tbody>
+                            </table>
+                        </div>
+
+                        <!-- Download Section -->
+                        <div class="download-section">
+                            <button class="btn-download" onclick="downloadStatsCSV()">
+                                <i class="fas fa-download"></i> Download CSV
+                            </button>
+                            <button class="btn-download btn-download-excel" onclick="downloadStatsExcel()">
+                                <i class="fas fa-file-excel"></i> Download Excel
+                            </button>
+                        </div>
+                        
+                        <!-- Combined Chart Container - 2 chart dalam 1 area -->
+                        <div class="combined-chart-container">
+                            <div class="chart-row">
+                                <div class="chart-box">
+                                    <h4><i class="fas fa-chart-bar"></i> Jumlah Loading per Plant</h4>
+                                    <canvas id="statsChart"></canvas>
+                                </div>
+                                <div class="chart-box">
+                                    <h4><i class="fas fa-clock"></i> Distribusi Loading per Jam</h4>
+                                    <canvas id="hourDistributionChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="truckTab" class="tab-content">
+                        <h3><i class="fas fa-truck"></i> Detail Loading per Truck</h3>
+                        
+                        <div>
+                            <select id="truckSelect" onchange="filterTruck()">
+                                <option value="all">Semua Truck</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Tabel Detail Truck -->
+                        <div class="table-container">
+                            <table id="truckTable">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Truck No</th>
+                                        <th>DP Date</th>
+                                        <th>DP Time</th>
+                                        <th>Plant Name</th>
+                                        <th>DP No</th>
+                                        <th>Site Name</th>
+                                        <th>QTY (m³)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="truckBody"></tbody>
+                            </table>
+                        </div>
+
+                        <!-- Download Section -->
+                        <div class="download-section">
+                            <button class="btn-download" onclick="downloadTruckCSV()">
+                                <i class="fas fa-download"></i> Download CSV
+                            </button>
+                            <button class="btn-download btn-download-excel" onclick="downloadTruckExcel()">
+                                <i class="fas fa-file-excel"></i> Download Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Welcome Message -->
+                <div id="welcomeMessage">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Silakan upload file Excel di sidebar</h3>
+                    <p>Format: .xlsx, .xls</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let originalData = null;
+        let filteredData = null;
+        let currentChart1 = null;
+        let currentChart2 = null;
+        let currentActiveTab = 'preview';
+        
+        // Storage untuk remarks manual
+        let manualRemarks = JSON.parse(localStorage.getItem('manualRemarks')) || [];
+        
+        // Storage untuk edited times (khusus Bali - Denpasar 2 dan Bali - Gianyar)
+        let editedTimes = JSON.parse(localStorage.getItem('editedTimes')) || [];
+
+        // Daftar plant yang bisa diedit
+        const EDITABLE_PLANTS = ['Bali - Denpasar 2', 'Bali - Gianyar'];
+
+        // Update waktu setiap detik
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'short', 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            const dateTimeStr = now.toLocaleDateString('id-ID', options);
+            document.getElementById('updateTime').textContent = `Update: ${dateTimeStr}`;
+        }
+
+        // Update waktu setiap detik
+        setInterval(updateDateTime, 1000);
+
+        // Toggle Sidebar Function
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.getElementById('toggleBtn');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            sidebar.classList.toggle('closed');
+            toggleBtn.classList.toggle('closed');
+            
+            if (sidebar.classList.contains('closed')) {
+                toggleIcon.className = 'fas fa-chevron-right';
+            } else {
+                toggleIcon.className = 'fas fa-chevron-left';
+            }
+        }
+
+        // Fungsi untuk format angka dengan separator ribuan
+        function formatNumber(num) {
+            if (num === undefined || num === null) return '0';
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        // Fungsi untuk konversi string tanggal YYYY-MM-DD ke Date object
+        function parseDateFromInput(dateString) {
+            if (!dateString) return null;
+            const parts = dateString.split('-');
+            if (parts.length !== 3) return null;
+            return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), 0, 0, 0);
+        }
+
+        // Fungsi untuk format tanggal ke display (DD/MM/YYYY)
+        function formatDateDisplay(date) {
+            if (!date) return '';
+            const d = new Date(date);
+            return d.toLocaleDateString('id-ID');
+        }
+
+        // Fungsi untuk mengecek apakah plant bisa diedit
+        function isEditablePlant(plantName) {
+            return EDITABLE_PLANTS.includes(plantName);
+        }
+
+        // Fungsi untuk mendapatkan edited time
+        function getEditedTime(plantName, tanggal, originalTime) {
+            const edited = editedTimes.find(e => 
+                e.plantName === plantName && e.tanggal === tanggal
+            );
+            return edited ? edited.newTime : originalTime;
+        }
+
+        // Fungsi untuk menyimpan edited time
+        function saveEditedTime(plantName, tanggal, newTime) {
+            // Hapus entry lama jika ada
+            editedTimes = editedTimes.filter(e => 
+                !(e.plantName === plantName && e.tanggal === tanggal)
+            );
+            
+            // Tambah entry baru
+            editedTimes.push({
+                plantName: plantName,
+                tanggal: tanggal,
+                newTime: newTime,
+                timestamp: new Date().toISOString()
+            });
+            
+            localStorage.setItem('editedTimes', JSON.stringify(editedTimes));
+            
+            // Update waktu terakhir edit
+            updateDateTime();
+        }
+
+        // Fungsi untuk memulai edit time dengan double click
+        function startEditTimeOnDblClick(element, plantName, tanggal, currentTime) {
+            // Cek apakah plant bisa diedit
+            if (!isEditablePlant(plantName)) {
+                showAlert(`Hanya plant ${EDITABLE_PLANTS.join(' dan ')} yang bisa diedit!`, 'error');
+                return;
+            }
+
+            const td = element.parentNode;
+            const currentDisplay = element.innerHTML;
+            
+            // Buat input field
+            const inputHtml = `
+                <div class="time-input-container">
+                    <input type="time" class="time-edit-input" value="${currentTime}" step="1" id="editTimeInput" autofocus>
+                    <button class="save-time-btn" onclick="saveEditTime(this, '${plantName}', '${tanggal}')">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="cancel-time-btn" onclick="cancelEditTime(this, '${currentDisplay}')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            td.innerHTML = inputHtml;
+            document.getElementById('editTimeInput').focus();
+        }
+
+        // Fungsi untuk menyimpan edit time
+        function saveEditTime(btn, plantName, tanggal) {
+            const container = btn.parentNode;
+            const input = document.getElementById('editTimeInput');
+            const newTime = input.value;
+            
+            if (!newTime) {
+                showAlert('Jam tidak valid!', 'error');
+                return;
+            }
+
+            // Validasi format time (HH:MM:SS)
+            let timeToSave = newTime;
+            if (newTime.split(':').length === 2) {
+                timeToSave = newTime + ':00'; // Tambah detik jika hanya jam:menit
+            }
+
+            // Simpan ke localStorage
+            saveEditedTime(plantName, tanggal, timeToSave);
+
+            // Update tampilan
+            const td = container.parentNode;
+            td.innerHTML = `<span class="editable-field" ondblclick="startEditTimeOnDblClick(this, '${plantName}', '${tanggal}', '${timeToSave}')">${timeToSave}</span>`;
+            
+            showAlert(`Jam loading untuk ${plantName} tanggal ${tanggal} berhasil diupdate!`);
+        }
+
+        // Fungsi untuk membatalkan edit
+        function cancelEditTime(btn, originalTime) {
+            const container = btn.parentNode;
+            const td = container.parentNode;
+            td.innerHTML = originalTime;
+        }
+
+        // Event listener untuk file upload
+        document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            document.getElementById('fileInfo').textContent = `File: ${file.name}`;
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('tabs').style.display = 'none';
+            document.getElementById('welcomeMessage').style.display = 'none';
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
+                    
+                    // Konversi ke array of objects
+                    const headers = jsonData[0];
+                    originalData = jsonData.slice(1).map(row => {
+                        const obj = {};
+                        headers.forEach((header, index) => {
+                            obj[header] = row[index];
+                        });
+                        return obj;
+                    });
+
+                    // Konversi DP Date ke Date object
+                    originalData = originalData.map(item => {
+                        if (item['DP Date']) {
+                            if (typeof item['DP Date'] === 'number') {
+                                // Excel date number
+                                const date = new Date((item['DP Date'] - 25569) * 86400 * 1000);
+                                item['DP Date'] = date;
+                            } else if (typeof item['DP Date'] === 'string') {
+                                // Coba parse string tanggal
+                                const parsed = new Date(item['DP Date']);
+                                if (!isNaN(parsed)) {
+                                    item['DP Date'] = parsed;
+                                }
+                            }
+                        }
+                        return item;
+                    });
+
+                    // Update plant list untuk datalist
+                    updatePlantList();
+
+                    // Set date range di filter
+                    setDateRange();
+                    
+                    // Aplikasikan filter awal
+                    applyDateFilter();
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error membaca file: ' + error.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function updatePlantList() {
+            if (!originalData) return;
+            
+            const plants = [...new Set(originalData.map(item => item['Plant Name']).filter(Boolean))];
+            const datalist = document.getElementById('plantList');
+            datalist.innerHTML = plants.map(plant => `<option value="${plant}">`).join('');
+        }
+
+        function setDateRange() {
+            if (!originalData || originalData.length === 0) return;
+
+            const dates = originalData
+                .map(item => item['DP Date'])
+                .filter(date => date && !isNaN(date))
+                .map(date => new Date(date));
+
+            if (dates.length === 0) return;
+
+            const minDate = new Date(Math.min.apply(null, dates));
+            const maxDate = new Date(Math.max.apply(null, dates));
+
+            document.getElementById('startDate').value = minDate.toISOString().split('T')[0];
+            document.getElementById('endDate').value = maxDate.toISOString().split('T')[0];
+            document.getElementById('applyFilter').disabled = false;
+            
+            // Set default tanggal remarks ke hari ini
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('remarksDate').value = today;
+        }
+
+        function applyDateFilter() {
+            if (!originalData) return;
+
+            const startDateInput = document.getElementById('startDate').value;
+            const endDateInput = document.getElementById('endDate').value;
+            
+            if (!startDateInput || !endDateInput) {
+                showAlert('Silakan pilih range tanggal terlebih dahulu!', 'error');
+                return;
+            }
+
+            const startDate = parseDateFromInput(startDateInput);
+            const endDate = parseDateFromInput(endDateInput);
+            endDate.setHours(23, 59, 59, 999);
+
+            filteredData = originalData.filter(item => {
+                if (!item['DP Date']) return false;
+                const itemDate = new Date(item['DP Date']);
+                return itemDate >= startDate && itemDate <= endDate;
+            });
+
+            // Update date range info dengan format Indonesia
+            document.getElementById('dateRangeInfo').innerHTML = `
+                <i class="fas fa-calendar"></i> ${formatDateDisplay(startDate)} - ${formatDateDisplay(endDate)}
+            `;
+
+            // Update tampilan
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('tabs').style.display = 'flex';
+            document.getElementById('welcomeMessage').style.display = 'none';
+            
+            updateStatsByTab(currentActiveTab);
+            updatePreview();
+            updateEarliestAnalysis();
+            updateStatistics();
+            updateTruckSelect();
+            
+            // Show first tab
+            const firstTab = document.querySelector('.tab');
+            if (firstTab) {
+                showTab('preview', firstTab);
+            }
+            
+            // Update waktu terakhir filter
+            updateDateTime();
+            
+            // Show info
+            showAlert(`Menampilkan ${filteredData.length} record dari ${formatDateDisplay(startDate)} hingga ${formatDateDisplay(endDate)}`);
+        }
+
+        function showAlert(message, type = 'success') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
+            document.querySelector('.content-wrapper').insertBefore(alertDiv, document.getElementById('dynamicContent'));
+            setTimeout(() => alertDiv.remove(), 5000);
+        }
+
+        // Update stats berdasarkan tab yang aktif
+        function updateStatsByTab(tabName) {
+            if (!filteredData) return;
+
+            if (tabName === 'earliest') {
+                // Untuk tab Loading Awal
+                const plantsWithLoading = new Set();
+                const plantsWithRemarks = new Set();
+                
+                // Parse data untuk mendapatkan plant yang sudah loading
+                filteredData.forEach(item => {
+                    if (item['Plant Name'] && item['hour'] >= 5) {
+                        plantsWithLoading.add(item['Plant Name']);
+                    }
+                });
+
+                // Dapatkan range tanggal filter
+                const startDate = parseDateFromInput(document.getElementById('startDate').value);
+                const endDate = parseDateFromInput(document.getElementById('endDate').value);
+                endDate.setHours(23, 59, 59, 999);
+
+                // Filter remarks berdasarkan tanggal
+                const filteredRemarks = manualRemarks.filter(remark => {
+                    const remarkDate = parseDateFromInput(remark.tanggal);
+                    return remarkDate >= startDate && remarkDate <= endDate;
+                });
+
+                filteredRemarks.forEach(remark => {
+                    plantsWithRemarks.add(remark.plantName);
+                });
+
+                const totalTruck = new Set(filteredData.map(item => item['Truck No']).filter(Boolean)).size;
+                const totalQty = filteredData.reduce((sum, item) => sum + (parseFloat(item['QTY']) || 0), 0);
+
+                const statsHTML = `
+                    <div class="stat-card already-loading">
+                        <i class="fas fa-check-circle"></i>
+                        <div class="value">${plantsWithLoading.size}</div>
+                        <div class="label">Plant Already Loading</div>
+                    </div>
+                    <div class="stat-card not-yet-loading">
+                        <i class="fas fa-clock"></i>
+                        <div class="value">${plantsWithRemarks.size}</div>
+                        <div class="label">Plant Not Yet Loading</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-truck"></i>
+                        <div class="value">${totalTruck}</div>
+                        <div class="label">Total Truck</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-weight-hanging"></i>
+                        <div class="value">${formatNumber(totalQty.toFixed(0))}<span class="unit-m3">m³</span></div>
+                        <div class="label">Total QTY</div>
+                    </div>
+                `;
+                document.getElementById('statsContainer').innerHTML = statsHTML;
+            } else {
+                // Untuk tab lain (Preview, Statistik, Detail Truck)
+                const plants = new Set(filteredData.map(item => item['Plant Name']).filter(Boolean));
+                const trucks = new Set(filteredData.map(item => item['Truck No']).filter(Boolean));
+                const totalQty = filteredData.reduce((sum, item) => sum + (parseFloat(item['QTY']) || 0), 0);
+
+                const statsHTML = `
+                    <div class="stat-card">
+                        <i class="fas fa-industry"></i>
+                        <div class="value">${plants.size}</div>
+                        <div class="label">Total Plant</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-truck"></i>
+                        <div class="value">${trucks.size}</div>
+                        <div class="label">Total Truck</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-weight-hanging"></i>
+                        <div class="value">${formatNumber(totalQty.toFixed(0))}<span class="unit-m3">m³</span></div>
+                        <div class="label">Total QTY</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-chart-line"></i>
+                        <div class="value">${filteredData.length}</div>
+                        <div class="label">Total Transaksi</div>
+                    </div>
+                `;
+                document.getElementById('statsContainer').innerHTML = statsHTML;
+            }
+        }
+
+        function updatePreview() {
+            if (!filteredData || filteredData.length === 0) return;
+
+            const headers = Object.keys(filteredData[0]).filter(key => 
+                ['DP No', 'DP Date', 'DP Time', 'Plant Name', 'Truck No', 'Site Name', 'QTY'].includes(key)
+            );
+
+            // Tambah kolom No di awal
+            let headerHTML = '<tr><th>No</th>';
+            headers.forEach(header => {
+                if (header === 'QTY') {
+                    headerHTML += `<th>${header} (m³)</th>`;
+                } else {
+                    headerHTML += `<th>${header}</th>`;
+                }
+            });
+            headerHTML += '</tr>';
+            document.getElementById('previewHeader').innerHTML = headerHTML;
+
+            // Tampilkan semua data (tanpa batasan 50 record)
+            let bodyHTML = '';
+            filteredData.forEach((item, index) => {
+                // Cek apakah plant adalah Bali - Denpasar 2 atau Bali - Gianyar
+                const isSpecialPlant = isEditablePlant(item['Plant Name']);
+                const rowClass = isSpecialPlant ? 'preview-special-plant' : '';
+                
+                bodyHTML += `<tr class="${rowClass}">`;
+                bodyHTML += `<td>${index + 1}</td>`;
+                headers.forEach(header => {
+                    let value = item[header];
+                    if (header === 'DP Date' && value) {
+                        value = formatDateDisplay(value);
+                    }
+                    if (header === 'QTY' && value) {
+                        value = formatNumber(parseFloat(value).toFixed(0));
+                    }
+                    bodyHTML += `<td>${value || '-'}</td>`;
+                });
+                bodyHTML += '</tr>';
+            });
+            document.getElementById('previewBody').innerHTML = bodyHTML;
+        }
+
+        // Fungsi ADD MANUAL REMARKS
+        function addManualRemarks() {
+            const dateInput = document.getElementById('remarksDate').value;
+            const plant = document.getElementById('remarksPlant').value.trim();
+            const remarks = document.getElementById('remarksText').value.trim();
+
+            if (!dateInput || !plant || !remarks) {
+                showAlert('Semua field harus diisi!', 'error');
+                return;
+            }
+
+            // Validasi: Pastikan ada filter yang aktif
+            if (!filteredData) {
+                showAlert('Silakan upload file dan terapkan filter tanggal terlebih dahulu!', 'error');
+                return;
+            }
+
+            // Konversi tanggal remarks
+            const remarkDate = parseDateFromInput(dateInput);
+            if (!remarkDate) {
+                showAlert('Format tanggal tidak valid!', 'error');
+                return;
+            }
+
+            // Dapatkan range tanggal dari filter yang sedang aktif
+            const startDateInput = document.getElementById('startDate').value;
+            const endDateInput = document.getElementById('endDate').value;
+            
+            if (!startDateInput || !endDateInput) {
+                showAlert('Range tanggal filter belum lengkap!', 'error');
+                return;
+            }
+
+            const startDate = parseDateFromInput(startDateInput);
+            const endDate = parseDateFromInput(endDateInput);
+            endDate.setHours(23, 59, 59, 999);
+
+            // VALIDASI: Pastikan tanggal remarks berada dalam range filter
+            if (remarkDate < startDate || remarkDate > endDate) {
+                showAlert(
+                    `Tanggal remarks (${formatDateDisplay(remarkDate)}) harus dalam range filter: ${formatDateDisplay(startDate)} - ${formatDateDisplay(endDate)}!`, 
+                    'error'
+                );
+                return;
+            }
+
+            // Cek apakah sudah ada remarks untuk plant yang sama di tanggal yang sama
+            const existingRemark = manualRemarks.find(r => 
+                r.tanggal === dateInput && r.plantName === plant
+            );
+
+            if (existingRemark) {
+                if (!confirm(`Remarks untuk Plant ${plant} tanggal ${formatDateDisplay(remarkDate)} sudah ada. Tetap tambahkan yang baru?`)) {
+                    return;
+                }
+            }
+
+            // Simpan remarks
+            const newRemark = {
+                id: Date.now(),
+                tanggal: dateInput,
+                plantName: plant,
+                remarks: remarks,
+                timestamp: new Date().toISOString()
+            };
+
+            manualRemarks.push(newRemark);
+            localStorage.setItem('manualRemarks', JSON.stringify(manualRemarks));
+
+            // Clear form
+            document.getElementById('remarksPlant').value = '';
+            document.getElementById('remarksText').value = '';
+
+            // Refresh tampilan
+            updateEarliestAnalysis();
+            if (currentActiveTab === 'earliest') {
+                updateStatsByTab('earliest');
+            }
+            
+            // Update waktu terakhir
+            updateDateTime();
+            showAlert(`Remarks untuk Plant ${plant} tanggal ${formatDateDisplay(remarkDate)} berhasil ditambahkan!`);
+        }
+
+        function deleteRemark(id) {
+            if (confirm('Yakin ingin menghapus remarks ini?')) {
+                manualRemarks = manualRemarks.filter(r => r.id !== id);
+                localStorage.setItem('manualRemarks', JSON.stringify(manualRemarks));
+                updateEarliestAnalysis();
+                if (currentActiveTab === 'earliest') {
+                    updateStatsByTab('earliest');
+                }
+                updateDateTime();
+                showAlert('Remarks berhasil dihapus!');
+            }
+        }
+
+        function updateEarliestAnalysis() {
+            if (!filteredData) return;
+
+            // Parse DP Time dan filter loading
+            filteredData.forEach(item => {
+                if (item['DP Time']) {
+                    const timeStr = item['DP Time'].toString();
+                    const [hours, minutes, seconds] = timeStr.split(':').map(Number);
+                    item['DP_DateTime'] = new Date(item['DP Date']);
+                    item['DP_DateTime'].setHours(hours || 0, minutes || 0, seconds || 0);
+                    
+                    // Simpan jam dalam format angka untuk filtering
+                    item['hour'] = hours || 0;
+                }
+            });
+
+            // Filter: Hanya ambil data dengan jam >= 5 pagi untuk loading awal
+            const validForEarliest = filteredData.filter(item => item.hour >= 5);
+
+            // Group by Date and Plant dari data yang valid (jam >= 5)
+            const groups = {};
+            validForEarliest.forEach(item => {
+                if (!item['Plant Name'] || !item['DP_DateTime']) return;
+                
+                const dateKey = new Date(item['DP Date']).toDateString();
+                const plantKey = item['Plant Name'];
+                const key = `${dateKey}|${plantKey}`;
+                
+                if (!groups[key] || item['DP_DateTime'] < groups[key].DP_DateTime) {
+                    groups[key] = {
+                        type: 'actual',
+                        'Tanggal': formatDateDisplay(item['DP Date']),
+                        'Plant Name': plantKey,
+                        'Jam': item['DP Time'],
+                        'DP_DateTime': item['DP_DateTime'],
+                        'Truck No': item['Truck No'],
+                        'DP No': item['DP No'],
+                        'Site Name': item['Site Name'] || '-',
+                        'Remarks': ''
+                    };
+                }
+            });
+
+            // Convert ke array
+            let earliestData = Object.values(groups);
+
+            // Dapatkan range tanggal dari filter yang aktif
+            const startDate = parseDateFromInput(document.getElementById('startDate').value);
+            const endDate = parseDateFromInput(document.getElementById('endDate').value);
+            endDate.setHours(23, 59, 59, 999);
+
+            // FILTER MANUAL REMARKS: Hanya tampilkan remarks yang tanggalnya sesuai dengan filter
+            const filteredRemarks = manualRemarks.filter(remark => {
+                const remarkDate = parseDateFromInput(remark.tanggal);
+                return remarkDate >= startDate && remarkDate <= endDate;
+            });
+
+            // Tambahkan manual remarks yang sudah difilter
+            filteredRemarks.forEach(remark => {
+                const remarkDate = parseDateFromInput(remark.tanggal);
+                earliestData.push({
+                    type: 'manual',
+                    id: remark.id,
+                    'Tanggal': formatDateDisplay(remarkDate),
+                    'Plant Name': remark.plantName,
+                    'Jam': '--:--:--',
+                    'Truck No': '-',
+                    'DP No': '-',
+                    'Site Name': '-',
+                    'Remarks': remark.remarks,
+                    'DP_DateTime': remarkDate
+                });
+            });
+
+            // Sort by date and time
+            earliestData.sort((a, b) => a.DP_DateTime - b.DP_DateTime);
+
+            // Update badge dengan jumlah remarks yang tampil (sesuai filter)
+            const visibleRemarks = earliestData.filter(item => item.type === 'manual').length;
+            document.getElementById('remarksCount').textContent = `${visibleRemarks} Remarks`;
+
+            // Update table dengan fitur double click edit untuk Bali - Denpasar 2 dan Bali - Gianyar
+            let bodyHTML = '';
+            earliestData.forEach((item, index) => {
+                const isSpecialPlant = isEditablePlant(item['Plant Name']);
+                const rowClass = item.type === 'manual' ? 'style="background: #fff0f0;"' : '';
+                
+                bodyHTML += `<tr ${rowClass}>`;
+                bodyHTML += `<td>${index + 1}</td>`;
+                bodyHTML += `<td>${item.Tanggal}</td>`;
+                bodyHTML += `<td>${item['Plant Name']}</td>`;
+                
+                // Kolom Jam Loading dengan fitur double click edit untuk Bali - Denpasar 2 dan Bali - Gianyar
+                if (item.type === 'actual') {
+                    if (isSpecialPlant) {
+                        // Cek apakah ada edited time
+                        const editedTime = getEditedTime(item['Plant Name'], item.Tanggal, item.Jam);
+                        bodyHTML += `<td><span class="editable-field" ondblclick="startEditTimeOnDblClick(this, '${item['Plant Name']}', '${item.Tanggal}', '${editedTime}')">${editedTime}</span></td>`;
+                    } else {
+                        bodyHTML += `<td>${item.Jam}</td>`;
+                    }
+                } else {
+                    bodyHTML += `<td>${item.Jam}</td>`;
+                }
+                
+                bodyHTML += `<td>${item['Truck No'] || '-'}</td>`;
+                bodyHTML += `<td>${item['DP No'] || '-'}</td>`;
+                bodyHTML += `<td>${item['Site Name']}</td>`;
+                
+                // Kolom Remarks
+                if (item.type === 'manual') {
+                    bodyHTML += `<td>${item.Remarks}</td>`;
+                    bodyHTML += `<td>
+                        <button class="save-remarks" onclick="deleteRemark(${item.id})">
+                            <i class="fas fa-trash"></i> Hapus
+                        </button>
+                    </td>`;
+                } else {
+                    bodyHTML += `<td>-</td>`;
+                    bodyHTML += `<td>-</td>`;
+                }
+                
+                bodyHTML += '</tr>';
+            });
+            document.getElementById('earliestBody').innerHTML = bodyHTML;
+        }
+
+        function updateStatistics() {
+            if (!filteredData) return;
+
+            // Group by Plant
+            const plantStats = {};
+            filteredData.forEach(item => {
+                const plant = item['Plant Name'];
+                if (!plant) return;
+                
+                if (!plantStats[plant]) {
+                    plantStats[plant] = {
+                        trucks: new Set(),
+                        loading: 0,
+                        qty: 0
+                    };
+                }
+                
+                if (item['Truck No']) plantStats[plant].trucks.add(item['Truck No']);
+                plantStats[plant].loading++;
+                plantStats[plant].qty += parseFloat(item['QTY']) || 0;
+            });
+
+            // Update table dengan kolom No
+            let bodyHTML = '';
+            const sortedPlants = Object.entries(plantStats).sort((a, b) => b[1].loading - a[1].loading);
+            
+            sortedPlants.forEach(([plant, stats], index) => {
+                bodyHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${plant}</td>
+                        <td>${stats.trucks.size}</td>
+                        <td>${formatNumber(stats.loading)}</td>
+                        <td class="format-number">${formatNumber(stats.qty.toFixed(0))}</td>
+                    </tr>
+                `;
+            });
+            document.getElementById('statsBody').innerHTML = bodyHTML;
+
+            // Update charts
+            updateStatsChart(sortedPlants);
+            updateHourDistribution();
+        }
+
+        function updateStatsChart(data) {
+            if (currentChart1) currentChart1.destroy();
+
+            const ctx = document.getElementById('statsChart').getContext('2d');
+            
+            const plants = data.map(([plant]) => plant);
+            const loadings = data.map(([, stats]) => stats.loading);
+            const qties = data.map(([, stats]) => stats.qty);
+
+            currentChart1 = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: plants,
+                    datasets: [{
+                        label: 'Jumlah Loading',
+                        data: loadings,
+                        backgroundColor: '#8b0000',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#333',
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const index = context.dataIndex;
+                                    return [
+                                        `Loading: ${formatNumber(context.parsed.y)}`,
+                                        `Total QTY: ${formatNumber(qties[index].toFixed(0))} m³`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#eee'
+                            },
+                            ticks: {
+                                color: '#666',
+                                callback: function(value) {
+                                    return formatNumber(value);
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Jumlah Loading',
+                                color: '#666',
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#666',
+                                maxRotation: 45,
+                                minRotation: 45,
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateHourDistribution() {
+            if (currentChart2) currentChart2.destroy();
+
+            // Count by hour dan total QTY per jam
+            const hourCount = new Array(24).fill(0);
+            const hourQty = new Array(24).fill(0);
+            
+            filteredData.forEach(item => {
+                if (item['DP Time']) {
+                    const hour = parseInt(item['DP Time'].split(':')[0]);
+                    if (!isNaN(hour) && hour >= 0 && hour < 24) {
+                        hourCount[hour]++;
+                        hourQty[hour] += parseFloat(item['QTY']) || 0;
+                    }
+                }
+            });
+
+            const ctx = document.getElementById('hourDistributionChart').getContext('2d');
+            
+            currentChart2 = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Array.from({length: 24}, (_, i) => `${i.toString().padStart(2, '0')}:00`),
+                    datasets: [{
+                        label: 'Jumlah Loading',
+                        data: hourCount,
+                        backgroundColor: '#b22222',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#333',
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const index = context.dataIndex;
+                                    return [
+                                        `Loading: ${formatNumber(context.parsed.y)}`,
+                                        `Total QTY: ${formatNumber(hourQty[index].toFixed(0))} m³`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#eee'
+                            },
+                            ticks: {
+                                color: '#666',
+                                callback: function(value) {
+                                    return formatNumber(value);
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Jumlah Loading',
+                                color: '#666',
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#666',
+                                maxRotation: 45,
+                                minRotation: 45,
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateTruckSelect() {
+            if (!filteredData) return;
+
+            const trucks = [...new Set(filteredData.map(item => item['Truck No']).filter(Boolean))].sort();
+            
+            let options = '<option value="all">Semua Truck</option>';
+            trucks.forEach(truck => {
+                options += `<option value="${truck}">${truck}</option>`;
+            });
+            
+            document.getElementById('truckSelect').innerHTML = options;
+            
+            // Show all trucks initially
+            filterTruck();
+        }
+
+        function filterTruck() {
+            const selectedTruck = document.getElementById('truckSelect').value;
+            
+            let truckData = filteredData;
+            if (selectedTruck !== 'all') {
+                truckData = filteredData.filter(item => item['Truck No'] === selectedTruck);
+            }
+
+            // Update table dengan kolom No
+            let bodyHTML = '';
+            truckData.slice(0, 100).forEach((item, index) => {
+                bodyHTML += '<tr>';
+                bodyHTML += `<td>${index + 1}</td>`;
+                bodyHTML += `<td>${item['Truck No'] || '-'}</td>`;
+                bodyHTML += `<td>${item['DP Date'] ? formatDateDisplay(item['DP Date']) : '-'}</td>`;
+                bodyHTML += `<td>${item['DP Time'] || '-'}</td>`;
+                bodyHTML += `<td>${item['Plant Name'] || '-'}</td>`;
+                bodyHTML += `<td>${item['DP No'] || '-'}</td>`;
+                bodyHTML += `<td>${item['Site Name'] || '-'}</td>`;
+                const qty = parseFloat(item['QTY']) || 0;
+                bodyHTML += `<td class="format-number">${formatNumber(qty.toFixed(0))}</td>`;
+                bodyHTML += '</tr>';
+            });
+            document.getElementById('truckBody').innerHTML = bodyHTML;
+        }
+
+        function showTab(tabName, element) {
+            // Update current active tab
+            currentActiveTab = tabName;
+            
+            // Update tab active state
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            if (element) {
+                element.classList.add('active');
+            }
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Update stats berdasarkan tab yang dipilih
+            updateStatsByTab(tabName);
+        }
+
+        // Fungsi download Excel
+        function downloadExcel(data, filename, sheetName = 'Sheet1') {
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, sheetName);
+            XLSX.writeFile(wb, filename);
+        }
+
+        function downloadEarliestCSV() {
+            const rows = [];
+            const table = document.getElementById('earliestTable');
+            
+            // Get headers
+            const headers = [];
+            table.querySelectorAll('thead th').forEach(th => {
+                headers.push(th.textContent);
+            });
+            rows.push(headers.join(','));
+            
+            // Get data
+            table.querySelectorAll('tbody tr').forEach(tr => {
+                const row = [];
+                tr.querySelectorAll('td').forEach(td => {
+                    row.push('"' + td.textContent + '"');
+                });
+                rows.push(row.join(','));
+            });
+            
+            // Download
+            const csv = rows.join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `loading_awal_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            
+            updateDateTime();
+        }
+
+        function downloadEarliestExcel() {
+            const data = [];
+            const table = document.getElementById('earliestTable');
+            
+            // Get headers
+            const headers = [];
+            table.querySelectorAll('thead th').forEach(th => {
+                headers.push(th.textContent);
+            });
+            
+            // Get data
+            table.querySelectorAll('tbody tr').forEach(tr => {
+                const row = {};
+                const cells = tr.querySelectorAll('td');
+                headers.forEach((header, index) => {
+                    if (cells[index]) {
+                        row[header] = cells[index].textContent || '';
+                    }
+                });
+                data.push(row);
+            });
+            
+            downloadExcel(data, `loading_awal_${new Date().toISOString().split('T')[0]}.xlsx`, 'Loading Awal');
+            updateDateTime();
+        }
+
+        function downloadStatsCSV() {
+            const rows = [];
+            const table = document.getElementById('statsTable');
+            
+            // Get headers
+            const headers = [];
+            table.querySelectorAll('thead th').forEach(th => {
+                headers.push(th.textContent);
+            });
+            rows.push(headers.join(','));
+            
+            // Get data
+            table.querySelectorAll('tbody tr').forEach(tr => {
+                const row = [];
+                tr.querySelectorAll('td').forEach(td => {
+                    row.push('"' + td.textContent + '"');
+                });
+                rows.push(row.join(','));
+            });
+            
+            // Download
+            const csv = rows.join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `statistik_plant_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            
+            updateDateTime();
+        }
+
+        function downloadStatsExcel() {
+            const data = [];
+            const table = document.getElementById('statsTable');
+            
+            // Get headers
+            const headers = [];
+            table.querySelectorAll('thead th').forEach(th => {
+                headers.push(th.textContent);
+            });
+            
+            // Get data
+            table.querySelectorAll('tbody tr').forEach(tr => {
+                const row = {};
+                const cells = tr.querySelectorAll('td');
+                headers.forEach((header, index) => {
+                    if (cells[index]) {
+                        row[header] = cells[index].textContent || '';
+                    }
+                });
+                data.push(row);
+            });
+            
+            downloadExcel(data, `statistik_plant_${new Date().toISOString().split('T')[0]}.xlsx`, 'Statistik Plant');
+            updateDateTime();
+        }
+
+        function downloadTruckCSV() {
+            const rows = [];
+            const table = document.getElementById('truckTable');
+            
+            // Get headers
+            const headers = [];
+            table.querySelectorAll('thead th').forEach(th => {
+                headers.push(th.textContent);
+            });
+            rows.push(headers.join(','));
+            
+            // Get data
+            table.querySelectorAll('tbody tr').forEach(tr => {
+                const row = [];
+                tr.querySelectorAll('td').forEach(td => {
+                    row.push('"' + td.textContent + '"');
+                });
+                rows.push(row.join(','));
+            });
+            
+            // Download
+            const csv = rows.join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `detail_truck_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            
+            updateDateTime();
+        }
+
+        function downloadTruckExcel() {
+            const data = [];
+            const table = document.getElementById('truckTable');
+            
+            // Get headers
+            const headers = [];
+            table.querySelectorAll('thead th').forEach(th => {
+                headers.push(th.textContent);
+            });
+            
+            // Get data
+            table.querySelectorAll('tbody tr').forEach(tr => {
+                const row = {};
+                const cells = tr.querySelectorAll('td');
+                headers.forEach((header, index) => {
+                    if (cells[index]) {
+                        row[header] = cells[index].textContent || '';
+                    }
+                });
+                data.push(row);
+            });
+            
+            downloadExcel(data, `detail_truck_${new Date().toISOString().split('T')[0]}.xlsx`, 'Detail Truck');
+            updateDateTime();
+        }
+
+        // Panggil updateDateTime saat halaman dimuat
+        updateDateTime();
+    </script>
+</body>
+</html>
