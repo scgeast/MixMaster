@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Mix Master CDC EAST</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Login - Mix Master CDC EAST</title>
+    <link rel="stylesheet" href="css/style.css">
     <style>
         /* Blood Moon Color Scheme */
         :root {
@@ -15,134 +15,236 @@
             --blood-moon-light: #FF6B6B;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
+        /* Layout utama */
+        .login-body {
+            background: linear-gradient(135deg, #2c0c0c 0%, #5D0000 50%, #8B0000 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
             overflow: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
         }
 
-        .auth-loading {
-            position: fixed;
-            top: 0;
-            left: 0;
+        /* Container utama */
+        .main-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1a0a0a 0%, var(--blood-moon-dark) 50%, var(--blood-moon-primary) 100%);
+            max-width: 1000px;
+            gap: 40px;
+        }
+
+        /* Side content untuk teks */
+        .side-content {
+            flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: center;
             color: white;
-            z-index: 10000;
+            text-align: left;
         }
 
-        .auth-loading .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255,255,255,0.3);
-            border-top: 4px solid var(--blood-moon-light);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .screensaver {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1a0a0a 0%, var(--blood-moon-dark) 50%, var(--blood-moon-primary) 100%);
-            z-index: 9999;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            cursor: pointer;
-        }
-
-        .screensaver.active {
-            display: flex;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .screensaver-logo {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        .screensaver-logo h1 {
-            font-size: 4em;
+        .brand-main {
+            font-size: 3.5em;
             font-weight: bold;
-            background: linear-gradient(135deg, #FF6B6B, #FFD93D);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: white;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+            margin-bottom: 10px;
+            line-height: 1.1;
         }
 
-        .mixer-animation {
-            position: relative;
-            width: 300px;
-            height: 200px;
-            margin: 30px auto;
+        .brand-subtitle {
+            font-size: 1.4em;
+            color: var(--blood-moon-light);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+            margin-bottom: 30px;
+            font-weight: 500;
         }
 
-        .mixer-truck {
-            position: absolute;
-            width: 200px;
-            height: 80px;
-            background: linear-gradient(45deg, #333, #555);
+        .feature-list {
+            margin: 30px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .feature-list::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .feature-list::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
             border-radius: 10px;
-            top: 60px;
-            left: 50px;
-            animation: truckMove 8s ease-in-out infinite;
         }
 
-        .mixer-drum {
+        .feature-list::-webkit-scrollbar-thumb {
+            background: var(--blood-moon-light);
+            border-radius: 10px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 1em;
+            color: rgba(255, 255, 255, 0.9);
+            padding: 5px 0;
+        }
+
+        .feature-icon {
+            margin-right: 10px;
+            font-size: 1.1em;
+            min-width: 30px;
+        }
+
+        .copyright {
+            margin-top: 30px;
+            font-size: 1em;
+            color: rgba(255, 255, 255, 0.7);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .copyright .year {
+            font-weight: bold;
+            color: var(--blood-moon-light);
+        }
+
+        /* Login container */
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 
+                0 25px 50px rgba(139, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 400px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .login-form {
+            padding: 40px 35px;
+        }
+
+        /* Animasi Truck Mixer */
+        .truck-animation {
+            width: 200px;
+            height: 120px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .truck-body {
+            width: 140px;
+            height: 50px;
+            background: linear-gradient(45deg, #333, #555);
+            border-radius: 10px 10px 0 0;
             position: absolute;
-            width: 100px;
-            height: 80px;
+            top: 30px;
+            left: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .truck-cabin {
+            width: 50px;
+            height: 40px;
+            background: linear-gradient(45deg, #444, #666);
+            border-radius: 8px 0 0 0;
+            position: absolute;
+            top: 30px;
+            left: 170px;
+        }
+
+        .truck-mixer {
+            width: 80px;
+            height: 60px;
             background: linear-gradient(45deg, var(--blood-moon-primary), var(--blood-moon-accent));
-            border-radius: 40px;
-            top: 50px;
-            left: 80px;
+            border-radius: 40px 40px 40px 40px;
+            position: absolute;
+            top: 20px;
+            left: 60px;
             animation: rotateMixer 4s linear infinite;
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.5);
+        }
+
+        .truck-mixer::before {
+            content: '';
+            position: absolute;
+            width: 70px;
+            height: 50px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 35px;
+            top: 5px;
+            left: 5px;
         }
 
         .wheel {
-            position: absolute;
-            width: 30px;
-            height: 30px;
+            width: 25px;
+            height: 25px;
             background: #111;
             border-radius: 50%;
-            bottom: -15px;
+            position: absolute;
+            bottom: 10px;
+            border: 3px solid #333;
             animation: rotateWheel 2s linear infinite;
         }
 
-        .wheel-front { left: 160px; }
-        .wheel-back { left: 40px; }
+        .wheel::before {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #666;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
 
-        @keyframes truckMove {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(20px); }
-            50% { transform: translateX(0); }
-            75% { transform: translateX(-20px); }
+        .wheel-front {
+            left: 160px;
+        }
+
+        .wheel-back {
+            left: 50px;
+        }
+
+        .exhaust {
+            width: 8px;
+            height: 15px;
+            background: #666;
+            position: absolute;
+            top: 25px;
+            left: 220px;
+            border-radius: 2px;
+        }
+
+        .exhaust-smoke {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            top: 10px;
+            left: 225px;
+            animation: smoke 2s ease-in-out infinite;
+        }
+
+        .concrete-drip {
+            position: absolute;
+            width: 6px;
+            height: 15px;
+            background: linear-gradient(to bottom, #8B0000, #5D0000);
+            border-radius: 0 0 3px 3px;
+            bottom: -5px;
+            left: 100px;
+            animation: drip 1.5s ease-in-out infinite;
+            opacity: 0.8;
         }
 
         @keyframes rotateMixer {
@@ -155,295 +257,207 @@
             100% { transform: rotate(360deg); }
         }
 
-        .app-container {
-            display: flex;
-            height: 100vh;
-            width: 100vw;
-            display: none;
+        @keyframes smoke {
+            0% { 
+                transform: translateY(0) scale(1); 
+                opacity: 0.3; 
+            }
+            50% { 
+                transform: translateY(-10px) scale(1.2); 
+                opacity: 0.6; 
+            }
+            100% { 
+                transform: translateY(-20px) scale(1.5); 
+                opacity: 0; 
+            }
         }
 
-        .sidebar {
-            width: 250px;
-            height: 100vh;
-            background: linear-gradient(135deg, var(--blood-moon-dark) 0%, var(--blood-moon-primary) 100%);
-            color: white;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
+        @keyframes drip {
+            0%, 100% { 
+                height: 15px; 
+                opacity: 0.8; 
+            }
+            50% { 
+                height: 25px; 
+                opacity: 1; 
+            }
         }
 
-        .sidebar.collapsed {
-            width: 50px;
-        }
-
-        .sidebar-header {
-            padding: 12px 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .toggle-btn {
-            background: transparent;
-            border: none;
-            color: white;
-            font-size: 1em;
-            cursor: pointer;
-            padding: 3px;
-            border-radius: 3px;
-        }
-
-        .toggle-btn:hover {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .sidebar-menu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .menu-link {
-            display: flex;
-            align-items: center;
-            padding: 10px 12px;
-            color: rgba(255,255,255,0.9);
-            text-decoration: none;
-            transition: all 0.3s;
-            border-left: 3px solid transparent;
-            cursor: pointer;
-        }
-
-        .menu-link:hover {
-            background: rgba(255,255,255,0.1);
-            border-left-color: var(--blood-moon-light);
-        }
-
-        .menu-link.active {
-            background: rgba(220, 20, 60, 0.3);
-            border-left-color: var(--blood-moon-light);
-        }
-
-        .menu-icon {
-            font-size: 1.1em;
-            margin-right: 10px;
-            width: 16px;
-            text-align: center;
-        }
-
-        .menu-initial {
-            display: none;
-            font-weight: 700;
-            font-size: 0.9em;
-            text-align: center;
-            width: 100%;
-        }
-
-        .sidebar.collapsed .menu-icon { display: none; }
-        .sidebar.collapsed .menu-initial { display: block; }
-        .sidebar.collapsed .menu-text { display: none; }
-
-        .menu-text {
-            white-space: nowrap;
-            font-weight: 500;
-            font-size: 0.9em;
-        }
-
-        .menu-link::after {
-            content: attr(data-tooltip);
+        /* Road animation */
+        .road {
             position: absolute;
-            left: 100%;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 0.8em;
-            white-space: nowrap;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s;
-            pointer-events: none;
-        }
-
-        .sidebar.collapsed .menu-link:hover::after {
-            opacity: 1;
-            visibility: visible;
-            left: 110%;
-        }
-
-        .sidebar-footer {
-            padding: 12px 10px;
-            border-top: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .logout-btn {
-            display: flex;
-            align-items: center;
+            bottom: 0;
+            left: 0;
             width: 100%;
-            padding: 8px 10px;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s;
-            justify-content: center;
+            height: 20px;
+            background: #444;
+            border-top: 2px dashed #666;
         }
 
-        .logout-btn:hover {
-            background: rgba(255,255,255,0.2);
-        }
-
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #f8f9fa;
-            width: calc(100vw - 250px);
-            transition: width 0.3s ease;
-        }
-
-        .sidebar.collapsed ~ .main-content {
-            width: calc(100vw - 50px);
-        }
-
-        .app-frame-container {
-            flex: 1;
-            background: white;
-            position: relative;
-        }
-
-        .app-frame {
+        .road-line {
+            position: absolute;
+            bottom: 9px;
+            left: 0;
             width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
+            height: 2px;
+            background: repeating-linear-gradient(
+                90deg,
+                yellow,
+                yellow 10px,
+                transparent 10px,
+                transparent 20px
+            );
+            animation: roadMove 3s linear infinite;
         }
 
-        .welcome-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
+        @keyframes roadMove {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-20px); }
+        }
+
+        .company-logo {
             text-align: center;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 20px;
-            position: relative;
-        }
-
-        .welcome-icon {
-            font-size: 3.5em;
-            margin-bottom: 15px;
-            color: var(--blood-moon-primary);
-        }
-
-        .welcome-screen h2 {
-            color: var(--blood-moon-primary);
             margin-bottom: 10px;
         }
 
-        .welcome-features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
-            margin-top: 20px;
-            max-width: 900px;
+        .company-logo h1 {
+            font-size: 2.2em;
+            background: linear-gradient(135deg, var(--blood-moon-primary), var(--blood-moon-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
 
-        .feature-card {
+        .company-logo .subtitle {
+            font-size: 1em;
+            color: var(--blood-moon-accent);
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--blood-moon-accent);
             background: white;
-            padding: 12px;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            border-left: 3px solid var(--blood-moon-accent);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 0, 0, 0.2);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--blood-moon-primary), var(--blood-moon-accent));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 0, 0, 0.4);
+        }
+
+        /* Footer di dalam kotak login - EFEK DIPERBAIKI */
+        .login-footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9em;
             transition: all 0.3s ease;
             cursor: pointer;
         }
 
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-
-        .feature-icon {
-            font-size: 1.6em;
-            margin-bottom: 6px;
+        .login-footer:hover {
             color: var(--blood-moon-primary);
+            transform: translateX(-3px);
         }
 
-        .welcome-footer {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            color: #666;
+        .version {
             font-size: 0.8em;
+            color: #999;
+            margin-top: 5px;
+            transition: color 0.3s ease;
         }
 
-        .loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
+        .login-footer:hover .version {
             color: var(--blood-moon-primary);
         }
 
-        .loading::after {
-            content: '';
-            width: 16px;
-            height: 16px;
-            border: 2px solid var(--blood-moon-primary);
-            border-top: 2px solid transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-left: 6px;
-        }
-
-        .user-info-sidebar {
-            padding: 12px 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 0.9em;
+        /* Error message */
+        .error-message {
+            background: #ff4444;
             color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
         }
 
-        .user-name {
-            font-weight: 600;
-            font-size: 0.9em;
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .side-content {
+                text-align: center;
+            }
+            
+            .brand-main {
+                font-size: 2.5em;
+            }
+            
+            .feature-item {
+                justify-content: center;
+            }
+            
+            .truck-animation {
+                transform: scale(0.8);
+            }
         }
 
-        .user-role {
-            font-size: 0.75em;
-            opacity: 0.8;
-        }
-
-        .sidebar.collapsed .user-details { display: none; }
-
+        /* New app indicator */
         .new-badge {
             background: var(--blood-moon-accent);
             color: white;
             font-size: 0.7em;
-            padding: 2px 6px;
-            border-radius: 10px;
-            margin-left: 8px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 10px;
             font-weight: bold;
+            text-transform: uppercase;
             animation: pulse 2s infinite;
         }
 
@@ -451,390 +465,190 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
         }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                position: fixed;
-                left: -250px;
-                z-index: 1000;
-            }
-            .sidebar.mobile-open { left: 0; }
-            .main-content { width: 100vw; }
-            .mobile-menu-btn {
-                display: block;
-                background: none;
-                border: none;
-                font-size: 1.2em;
-                color: white;
-                margin-right: 10px;
-            }
-        }
-
-        @media (min-width: 769px) {
-            .mobile-menu-btn { display: none; }
-        }
-
-        .mix-master-text, .cdc-east-text {
-            display: none;
-            text-align: center;
-            padding: 15px 0;
-            border-top: 1px solid rgba(255,255,255,0.2);
-            font-size: 0.8em;
-        }
-
-        .sidebar:not(.collapsed) .mix-master-text { display: block; }
-        .sidebar.collapsed .cdc-east-text { display: block; }
     </style>
 </head>
-<body>
-    <div class="auth-loading" id="authLoading">
-        <div class="spinner"></div>
-        <p>Checking authentication...</p>
-    </div>
-
-    <div class="screensaver" id="screensaver">
-        <div class="screensaver-logo">
-            <h1>MIX MASTER</h1>
-            <div class="subtitle" style="color: var(--blood-moon-light);">CDC EAST</div>
-        </div>
-        <div class="mixer-animation">
-            <div class="mixer-truck">
-                <div class="mixer-drum"></div>
-                <div class="wheel wheel-front"></div>
-                <div class="wheel wheel-back"></div>
-            </div>
-        </div>
-        <div class="screensaver-message" style="margin-top: 40px;">System is active and ready</div>
-        <div class="screensaver-tap" style="margin-top: 20px;">Tap anywhere to continue</div>
-    </div>
-
-    <div class="app-container" id="appContainer">
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h2>Application Menu</h2>
-                <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
-            </div>
+<body class="login-body">
+    <div class="main-container">
+        <!-- Side Content dengan Teks -->
+        <div class="side-content">
+            <div class="brand-main">GO EAST</div>
+            <div class="brand-subtitle">Innovation & Excellence</div>
             
-            <div class="user-info-sidebar">
-                <div class="user-avatar" id="userAvatar">KU</div>
-                <div class="user-details">
-                    <div class="user-name" id="userName">Kim Jong Un</div>
-                    <div class="user-role">Administrator</div>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <span class="feature-icon">📌</span>
+                    <span>Concrete Delivery System</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🚛</span>
+                    <span>Truck Monitoring</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">📊</span>
+                    <span>Real-time Analytics</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🏭</span>
+                    <span>Production Management</span>
+                </div>
+                <!-- DAFTAR APLIKASI DARI FOLDER APP -->
+                <div class="feature-item">
+                    <span class="feature-icon">⚡</span>
+                    <span>Absence.LastDP</span>
+                    <span class="new-badge">New</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✅</span>
+                    <span>CodeMatch-Validator</span>
+                    <span class="new-badge">New</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🌅</span>
+                    <span>Crack of Dawn Loading Time</span>
+                    <span class="new-badge">New</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">⚽</span>
+                    <span>Libero Activity</span>
+                    <span class="new-badge">New</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">📅</span>
+                    <span>jadwal-pengecoran</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">📦</span>
+                    <span>monitoring-order-delivery</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🏗️</span>
+                    <span>production-all-area</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">📈</span>
+                    <span>summary-daily-delivery</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🚚</span>
+                    <span>utilisasi-truck</span>
                 </div>
             </div>
-            
-            <ul class="sidebar-menu">
-                <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="showWelcomeScreen(event)" data-tooltip="Home">
-                        <span class="menu-icon">🏠</span>
-                        <span class="menu-initial">H</span>
-                        <span class="menu-text">Home</span>
-                    </a>
-                </li>
-                
-                <!-- Aplikasi Existing -->
-                <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="loadApp('summary-daily-delivery', event)" data-tooltip="Summary Daily Delivery">
-                        <span class="menu-icon">📦</span>
-                        <span class="menu-initial">S</span>
-                        <span class="menu-text">summary-daily-delivery</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="loadApp('utilisasi-truck', event)" data-tooltip="Truck Utilization">
-                        <span class="menu-icon">🚛</span>
-                        <span class="menu-initial">U</span>
-                        <span class="menu-text">utilisasi-truck</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="loadApp('monitoring-order', event)" data-tooltip="Monitoring Order Delivery">
-                        <span class="menu-icon">📊</span>
-                        <span class="menu-initial">M</span>
-                        <span class="menu-text">monitoring-order-delivery</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="loadApp('jadwal-pengecoran', event)" data-tooltip="Pouring Schedule">
-                        <span class="menu-icon">📅</span>
-                        <span class="menu-initial">J</span>
-                        <span class="menu-text">jadwal-pengecoran</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="loadApp('production-all-area', event)" data-tooltip="Production All Area">
-                        <span class="menu-icon">🏭</span>
-                        <span class="menu-initial">P</span>
-                        <span class="menu-text">production-all-area</span>
-                    </a>
-                </li>
-                
-                <li style="border-top: 1px solid rgba(255,255,255,0.2); margin: 5px 0;"></li>
-                
-                <!-- APLIKASI BARU -->
-                <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="loadApp('codematch-validator', event)" data-tooltip="CodeMatch Validator">
-                        <span class="menu-icon">✅</span>
-                        <span class="menu-initial">C</span>
-                        <span class="menu-text">CodeMatch-Validator <span class="new-badge">New</span></span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="loadApp('absence-lastdp', event)" data-tooltip="Absence Last DP">
-                        <span class="menu-icon">⚡</span>
-                        <span class="menu-initial">A</span>
-                        <span class="menu-text">Absence.LastDP <span class="new-badge">New</span></span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="loadApp('crackofdawn-loading-time', event)" data-tooltip="Crack of Dawn Loading Time">
-                        <span class="menu-icon">🌅</span>
-                        <span class="menu-initial">C</span>
-                        <span class="menu-text">Crack of Dawn Loading Time <span class="new-badge">New</span></span>
-                    </a>
-                </li>
-                <!-- LIBERO ACTIVITY - SUDAH TERINTEGRASI -->
-                <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="loadApp('libero-activity', event)" data-tooltip="Libero Activity">
-                        <span class="menu-icon">⚽</span>
-                        <span class="menu-initial">L</span>
-                        <span class="menu-text">Libero Activity <span class="new-badge">New</span></span>
-                    </a>
-                </li>
-            </ul>
-            
-            <div class="mix-master-text">
-                <span>MIX MASTER</span>
-                <span style="display:block; margin-top:3px;">CDC EAST</span>
-            </div>
-            <div class="cdc-east-text">
-                <span>M</span><span>I</span><span>X</span><span style="margin-top:3px;">M</span><span>A</span><span>S</span><span>T</span><span>E</span><span>R</span>
-                <span style="margin-top:5px;">C</span><span>D</span><span>C</span><span style="margin-top:3px;">E</span><span>A</span><span>S</span><span>T</span>
-            </div>
-            
-            <div class="sidebar-footer">
-                <button class="logout-btn" onclick="logout()">
-                    <span class="logout-icon">🚪</span>
-                    <span class="logout-text">Logout</span>
-                </button>
+
+            <div class="copyright">
+                Copy Right <span class="year">2025</span>
             </div>
         </div>
 
-        <div class="main-content">
-            <div class="app-frame-container">
-                <div class="welcome-screen" id="welcomeScreen">
-                    <div class="welcome-icon">🏠</div>
-                    <h2>Welcome to Mix Master CDC EAST</h2>
-                    <p>Integrated management system for monitoring and managing concrete delivery operations</p>
+        <!-- Login Container -->
+        <div class="login-container">
+            <div class="login-form">
+                <div class="company-logo">
+                    <h1>MIX MASTER</h1>
+                    <div class="subtitle">CDC EAST</div>
+                </div>
+
+                <!-- Animasi Truck Mixer -->
+                <div class="truck-animation">
+                    <div class="truck-body"></div>
+                    <div class="truck-cabin"></div>
+                    <div class="truck-mixer"></div>
+                    <div class="wheel wheel-front"></div>
+                    <div class="wheel wheel-back"></div>
+                    <div class="exhaust"></div>
+                    <div class="exhaust-smoke"></div>
+                    <div class="concrete-drip"></div>
+                    <div class="road">
+                        <div class="road-line"></div>
+                    </div>
+                </div>
+
+                <div id="errorMessage" class="error-message"></div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required 
+                               placeholder="Masukkan username Anda">
+                    </div>
                     
-                    <div class="welcome-features">
-                        <div class="feature-card"><div class="feature-icon">📊</div><h4>Real-time Monitoring</h4><p>Monitor orders and deliveries</p></div>
-                        <div class="feature-card"><div class="feature-icon">📅</div><h4>Integrated Schedule</h4><p>Manage pouring schedules</p></div>
-                        <div class="feature-card"><div class="feature-icon">🚛</div><h4>Fleet Management</h4><p>Optimize truck utilization</p></div>
-                        <div class="feature-card"><div class="feature-icon">⚡</div><h4>Absence.LastDP</h4><p>Track attendance records</p></div>
-                        <div class="feature-card"><div class="feature-icon">✅</div><h4>CodeMatch Validator</h4><p>Validate code patterns</p></div>
-                        <div class="feature-card"><div class="feature-icon">🌅</div><h4>Crack of Dawn</h4><p>Loading time optimization</p></div>
-                        <div class="feature-card"><div class="feature-icon">⚽</div><h4>Libero Activity</h4><p>Activity tracking & analytics</p></div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required 
+                               placeholder="Masukkan password Anda">
                     </div>
+                    
+                    <button type="submit" class="btn-login">
+                        <span>Login ke Sistem</span>
+                    </button>
+                </form>
 
-                    <div class="welcome-footer">
-                        Created By Kim Jong Un
-                    </div>
+                <div class="login-footer">
+                    <div>Integrated Management System</div>
+                    <div class="version">v1.1 | Created By Kim Jong Un CDC EAST</div>
                 </div>
-                <iframe class="app-frame" id="appFrame" style="display: none;"></iframe>
-                <div class="loading" id="loading" style="display: none;">Loading application...</div>
             </div>
         </div>
     </div>
 
     <script>
-        function checkAuth() {
+        // Konfigurasi users untuk login
+        const validUsers = [
+            { username: "admin", password: "admin123", name: "Administrator", role: "Administrator" },
+            { username: "user", password: "user123", name: "Staff User", role: "Staff" },
+            { username: "kimjongun", password: "cdceast2025", name: "Kim Jong Un", role: "Super Administrator" }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto focus pada username field
+            document.getElementById('username').focus();
+            
+            // Cek apakah sudah login sebelumnya
             const isLoggedIn = localStorage.getItem('isLoggedIn');
-            const currentUser = localStorage.getItem('currentUser');
-            if (!isLoggedIn || !currentUser) {
-                window.location.href = 'index.html';
-                return false;
+            if (isLoggedIn === 'true') {
+                window.location.href = 'dashboard.html';
+                return;
             }
-            return true;
-        }
 
-        const appPaths = {
-            'libero-activity': 'app/Libero Activity/index.html',
-            'absence-lastdp': 'app/Absence.LastDP/index.html',
-            'codematch-validator': 'app/CodeMatch-Validator/index.html',
-            'crackofdawn-loading-time': 'app/Crack of Dawn Loading Time/index.html',
-            'jadwal-pengecoran': 'app/jadwal-pengecoran/index.html',
-            'monitoring-order': 'app/monitoring-order-delivery/index.html',
-            'production-all-area': 'app/production-all-area/index.html',
-            'summary-daily-delivery': 'app/summary-daily-delivery/index.html',
-            'utilisasi-truck': 'app/utilisasi-truck/index.html'
-        };
+            const loginForm = document.getElementById('loginForm');
+            const errorMessageDiv = document.getElementById('errorMessage');
 
-        let inactivityTimer, screensaverActive = false;
-        const SCREENSAVER_TIMEOUT = 5 * 60 * 1000;
-
-        function resetInactivityTimer() {
-            clearTimeout(inactivityTimer);
-            if (screensaverActive) hideScreensaver();
-            inactivityTimer = setTimeout(showScreensaver, SCREENSAVER_TIMEOUT);
-        }
-
-        function showScreensaver() {
-            document.getElementById('screensaver').classList.add('active');
-            screensaverActive = true;
-        }
-
-        function hideScreensaver() {
-            document.getElementById('screensaver').classList.remove('active');
-            screensaverActive = false;
-            resetInactivityTimer();
-        }
-
-        function setupActivityListeners() {
-            const events = ['mousedown', 'mousemove', 'keypress', 'keydown', 'scroll', 'touchstart', 'click', 'wheel'];
-            events.forEach(event => document.addEventListener(event, resetInactivityTimer, { passive: true }));
-            document.getElementById('screensaver').addEventListener('click', hideScreensaver);
-        }
-
-        function getInitials(name) {
-            return name.split(' ').map(word => word[0]).join('').toUpperCase();
-        }
-
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('collapsed');
-            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
-            resetInactivityTimer();
-        }
-
-        function loadApp(appName, event) {
-            if(event) { event.preventDefault(); event.stopPropagation(); }
-            resetInactivityTimer();
-            
-            const welcomeScreen = document.getElementById('welcomeScreen');
-            const appFrame = document.getElementById('appFrame');
-            const loading = document.getElementById('loading');
-            const menuLinks = document.querySelectorAll('.menu-link');
-            
-            menuLinks.forEach(link => link.classList.remove('active'));
-            if(event && event.target.closest('.menu-link')) {
-                event.target.closest('.menu-link').classList.add('active');
-            }
-            
-            welcomeScreen.style.display = 'none';
-            appFrame.style.display = 'none';
-            loading.style.display = 'flex';
-            
-            const appPath = appPaths[appName];
-            if(appPath) {
-                console.log('Loading app:', appName, 'from:', appPath);
-                appFrame.src = appPath;
-                appFrame.onload = () => {
-                    loading.style.display = 'none';
-                    appFrame.style.display = 'block';
-                    resetInactivityTimer();
-                };
-                appFrame.onerror = () => {
-                    loading.style.display = 'none';
-                    welcomeScreen.style.display = 'flex';
-                    alert('Failed to load application: ' + appName + '\nPlease make sure the folder exists at: ' + appPath);
-                    resetInactivityTimer();
-                };
-            } else {
-                loading.style.display = 'none';
-                welcomeScreen.style.display = 'flex';
-                alert('Unknown application: ' + appName);
-            }
-            
-            if(window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('mobile-open');
-                document.getElementById('sidebar').style.left = '-250px';
-            }
-            return false;
-        }
-
-        function showWelcomeScreen(event) {
-            if(event) { event.preventDefault(); event.stopPropagation(); }
-            resetInactivityTimer();
-            
-            const welcomeScreen = document.getElementById('welcomeScreen');
-            const appFrame = document.getElementById('appFrame');
-            const loading = document.getElementById('loading');
-            const menuLinks = document.querySelectorAll('.menu-link');
-            
-            menuLinks.forEach(link => link.classList.remove('active'));
-            if(event && event.target.closest('.menu-link')) {
-                event.target.closest('.menu-link').classList.add('active');
-            } else if(menuLinks.length > 0) {
-                menuLinks[0].classList.add('active');
-            }
-            
-            welcomeScreen.style.display = 'flex';
-            appFrame.style.display = 'none';
-            loading.style.display = 'none';
-            
-            if(window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('mobile-open');
-                document.getElementById('sidebar').style.left = '-250px';
-            }
-            return false;
-        }
-
-        function checkMobileView() {
-            const sidebar = document.getElementById('sidebar');
-            if(window.innerWidth <= 768) {
-                if(!document.querySelector('.mobile-menu-btn')) {
-                    const btn = document.createElement('button');
-                    btn.className = 'mobile-menu-btn';
-                    btn.innerHTML = '☰';
-                    btn.onclick = () => {
-                        const sidebar = document.getElementById('sidebar');
-                        sidebar.classList.toggle('mobile-open');
-                        sidebar.style.left = sidebar.classList.contains('mobile-open') ? '0' : '-250px';
-                        resetInactivityTimer();
-                    };
-                    document.querySelector('.sidebar-header').prepend(btn);
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+                
+                // Cari user yang valid
+                const user = validUsers.find(u => u.username === username && u.password === password);
+                
+                if (user) {
+                    // Login berhasil
+                    console.log('Login berhasil untuk user:', user.name);
+                    
+                    // Simpan data user ke localStorage
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('currentUser', JSON.stringify({
+                        username: user.username,
+                        name: user.name,
+                        role: user.role
+                    }));
+                    
+                    // Redirect ke dashboard
+                    window.location.href = 'dashboard.html';
+                } else {
+                    // Login gagal
+                    errorMessageDiv.style.display = 'block';
+                    errorMessageDiv.textContent = 'Username atau password salah! Silakan coba lagi.';
+                    
+                    // Clear password field
+                    document.getElementById('password').value = '';
+                    
+                    // Sembunyikan error setelah 3 detik
+                    setTimeout(() => {
+                        errorMessageDiv.style.display = 'none';
+                    }, 3000);
                 }
-                sidebar.classList.remove('collapsed');
-            } else {
-                sidebar.style.left = '0';
-                sidebar.classList.remove('mobile-open');
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('currentUser');
-            window.location.href = 'index.html';
-        }
-
-        function initializeDashboard() {
-            document.getElementById('authLoading').style.display = 'none';
-            document.getElementById('appContainer').style.display = 'flex';
-            
-            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-            document.getElementById('userName').textContent = user.name || 'User';
-            document.getElementById('userAvatar').textContent = getInitials(user.name || 'User');
-            
-            const sidebarState = localStorage.getItem('sidebarCollapsed');
-            if (sidebarState === 'true') {
-                document.getElementById('sidebar').classList.add('collapsed');
-            }
-            
-            checkMobileView();
-            window.addEventListener('resize', checkMobileView);
-            
-            setTimeout(() => {
-                setupActivityListeners();
-                resetInactivityTimer();
-                showWelcomeScreen(null);
-            }, 500);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            if(!checkAuth()) return;
-            initializeDashboard();
-            document.addEventListener('visibilitychange', () => { if(!document.hidden) resetInactivityTimer(); });
+            });
         });
     </script>
 </body>
