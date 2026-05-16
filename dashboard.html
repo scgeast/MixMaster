@@ -711,7 +711,7 @@
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 12px;
             margin-top: 20px;
-            max-width: 800px;
+            max-width: 900px;
         }
 
         .feature-card {
@@ -769,10 +769,10 @@
             font-weight: 500;
             opacity: 0.7;
             transition: all 0.3s ease;
-            background: transparent; /* Tidak ada background */
-            padding: 0; /* Tidak ada padding */
-            border: none; /* Tidak ada border */
-            box-shadow: none; /* Tidak ada shadow */
+            background: transparent;
+            padding: 0;
+            border: none;
+            box-shadow: none;
         }
 
         .welcome-footer:hover {
@@ -805,7 +805,7 @@
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
-           100% { transform: rotate(360deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* User Info di Sidebar - BACKGROUND DIHILANGKAN */
@@ -815,20 +815,20 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            background: transparent; /* Background dihilangkan */
+            background: transparent;
         }
 
         .user-avatar {
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: transparent; /* Background dihilangkan */
+            background: transparent;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
             font-size: 0.9em;
-            color: white; /* Warna teks tetap putih */
+            color: white;
         }
 
         .user-details {
@@ -927,10 +927,10 @@
             border-top: 1px solid rgba(255,255,255,0.2);
             text-align: center;
             font-weight: 700;
-            font-size: 0.8em; /* SAMA DENGAN UKURAN MIX MASTER */
+            font-size: 0.8em;
             letter-spacing: 0.5px;
             color: rgba(255,255,255,0.9);
-            background: transparent; /* Background dihilangkan */
+            background: transparent;
         }
 
         .cdc-east-text span {
@@ -1093,7 +1093,6 @@
             </li>
             
             <!-- APLIKASI LAMA (URUTAN ATAS) -->
-            <!-- APLIKASI: summary-daily-delivery -->
             <li class="menu-item">
                 <a href="dashboard.html?app=delivery" class="menu-link with-href" onclick="loadApp('summary-daily-delivery', event)" data-tooltip="Summary Daily Delivery">
                     <span class="menu-icon">📦</span>
@@ -1101,8 +1100,6 @@
                     <span class="menu-text">summary-daily-delivery</span>
                 </a>
             </li>
-            
-            <!-- APLIKASI: utilisasi-truck -->
             <li class="menu-item">
                 <a href="dashboard.html?app=truck" class="menu-link with-href" onclick="loadApp('utilisasi-truck', event)" data-tooltip="Truck Utilization">
                     <span class="menu-icon">🚛</span>
@@ -1110,8 +1107,6 @@
                     <span class="menu-text">utilisasi-truck</span>
                 </a>
             </li>
-            
-            <!-- APLIKASI: monitoring-order-delivery -->
             <li class="menu-item">
                 <a href="dashboard.html?app=monitoring" class="menu-link with-href" onclick="loadApp('monitoring-order', event)" data-tooltip="Monitoring Order Delivery">
                     <span class="menu-icon">📊</span>
@@ -1119,8 +1114,6 @@
                     <span class="menu-text">monitoring-order-delivery</span>
                 </a>
             </li>
-            
-            <!-- APLIKASI: jadwal-pengecoran -->
             <li class="menu-item">
                 <a href="dashboard.html?app=schedule" class="menu-link with-href" onclick="loadApp('jadwal-pengecoran', event)" data-tooltip="Pouring Schedule">
                     <span class="menu-icon">📅</span>
@@ -1128,8 +1121,6 @@
                     <span class="menu-text">jadwal-pengecoran</span>
                 </a>
             </li>
-            
-            <!-- APLIKASI: production-all-area -->
             <li class="menu-item">
                 <a href="dashboard.html?app=production" class="menu-link with-href" onclick="loadApp('production-all-area', event)" data-tooltip="Production All Area">
                     <span class="menu-icon">🏭</span>
@@ -1141,40 +1132,34 @@
             <!-- PEMISAH: Garis tipis untuk memisahkan aplikasi lama dan baru -->
             <li style="border-top: 1px solid rgba(255,255,255,0.2); margin: 5px 0;"></li>
             
-            <!-- APLIKASI BARU (URUTAN BAWAH) -->
-            <!-- APLIKASI BARU: CodeMatch-Validator -->
+            <!-- APLIKASI BARU -->
             <li class="menu-item">
                 <a href="dashboard.html?app=codematch" class="menu-link with-href" onclick="loadApp('codematch-validator', event)" data-tooltip="CodeMatch Validator">
                     <span class="menu-icon">✅</span>
                     <span class="menu-initial">C</span>
-                    <span class="menu-text">
-                        CodeMatch-Validator
-                        <span class="new-badge">New</span>
-                    </span>
+                    <span class="menu-text">CodeMatch-Validator <span class="new-badge">New</span></span>
                 </a>
             </li>
-            
-            <!-- APLIKASI BARU: Absence.LastDP -->
             <li class="menu-item">
                 <a href="dashboard.html?app=absence" class="menu-link with-href" onclick="loadApp('absence-lastdp', event)" data-tooltip="Absence Last DP">
                     <span class="menu-icon">⚡</span>
                     <span class="menu-initial">A</span>
-                    <span class="menu-text">
-                        Absence.LastDP
-                        <span class="new-badge">New</span>
-                    </span>
+                    <span class="menu-text">Absence.LastDP <span class="new-badge">New</span></span>
                 </a>
             </li>
-            
-            <!-- APLIKASI BARU: Crack of Dawn Loading Time -->
             <li class="menu-item">
                 <a href="dashboard.html?app=crackofdawn" class="menu-link with-href" onclick="loadApp('crackofdawn-loading-time', event)" data-tooltip="Crack of Dawn Loading Time">
                     <span class="menu-icon">🌅</span>
                     <span class="menu-initial">C</span>
-                    <span class="menu-text">
-                        Crack of Dawn Loading Time
-                        <span class="new-badge">New</span>
-                    </span>
+                    <span class="menu-text">Crack of Dawn Loading Time <span class="new-badge">New</span></span>
+                </a>
+            </li>
+            <!-- MENU BARU: Libero Activity -->
+            <li class="menu-item">
+                <a href="dashboard.html?app=libero" class="menu-link with-href" onclick="loadApp('libero-activity', event)" data-tooltip="Libero Activity">
+                    <span class="menu-icon">⚽</span>
+                    <span class="menu-initial">L</span>
+                    <span class="menu-text">Libero Activity <span class="new-badge">New</span></span>
                 </a>
             </li>
         </ul>
@@ -1187,22 +1172,8 @@
             
             <!-- CDC EAST Text di bagian bawah sidebar saat tertutup -->
             <div class="cdc-east-text">
-                <span>M</span>
-                <span>I</span>
-                <span>X</span>
-                <span style="margin-top: 3px;">M</span>
-                <span>A</span>
-                <span>S</span>
-                <span>T</span>
-                <span>E</span>
-                <span>R</span>
-                <span style="margin-top: 5px;">C</span>
-                <span>D</span>
-                <span>C</span>
-                <span style="margin-top: 3px;">E</span>
-                <span>A</span>
-                <span>S</span>
-                <span>T</span>
+                <span>M</span><span>I</span><span>X</span><span style="margin-top: 3px;">M</span><span>A</span><span>S</span><span>T</span><span>E</span><span>R</span>
+                <span style="margin-top: 5px;">C</span><span>D</span><span>C</span><span style="margin-top: 3px;">E</span><span>A</span><span>S</span><span>T</span>
             </div>
             
             <!-- Logout Button di Sidebar Footer -->
@@ -1223,37 +1194,14 @@
                     <p>Integrated management system for monitoring and managing concrete delivery operations</p>
                     
                     <div class="welcome-features">
-                        <div class="feature-card">
-                            <div class="feature-icon">📊</div>
-                            <h4>Real-time Monitoring</h4>
-                            <p>Monitor orders and deliveries in real-time</p>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">📅</div>
-                            <h4>Integrated Schedule</h4>
-                            <p>Manage pouring schedules efficiently</p>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">🚛</div>
-                            <h4>Fleet Management</h4>
-                            <p>Optimize truck mixer utilization</p>
-                        </div>
-                        <!-- APLIKASI BARU di Welcome Screen -->
-                        <div class="feature-card">
-                            <div class="feature-icon">⚡</div>
-                            <h4>Absence.LastDP</h4>
-                            <p>Track and manage attendance records</p>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">✅</div>
-                            <h4>CodeMatch Validator</h4>
-                            <p>Validate and match code patterns</p>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">🌅</div>
-                            <h4>Crack of Dawn</h4>
-                            <p>Loading time optimization</p>
-                        </div>
+                        <div class="feature-card"><div class="feature-icon">📊</div><h4>Real-time Monitoring</h4><p>Monitor orders and deliveries in real-time</p></div>
+                        <div class="feature-card"><div class="feature-icon">📅</div><h4>Integrated Schedule</h4><p>Manage pouring schedules efficiently</p></div>
+                        <div class="feature-card"><div class="feature-icon">🚛</div><h4>Fleet Management</h4><p>Optimize truck mixer utilization</p></div>
+                        <div class="feature-card"><div class="feature-icon">⚡</div><h4>Absence.LastDP</h4><p>Track and manage attendance records</p></div>
+                        <div class="feature-card"><div class="feature-icon">✅</div><h4>CodeMatch Validator</h4><p>Validate and match code patterns</p></div>
+                        <div class="feature-card"><div class="feature-icon">🌅</div><h4>Crack of Dawn</h4><p>Loading time optimization</p></div>
+                        <!-- Libero Activity Feature Card -->
+                        <div class="feature-card"><div class="feature-icon">⚽</div><h4>Libero Activity</h4><p>Activity tracking and analytics</p></div>
                     </div>
 
                     <!-- Footer di Welcome Screen - POJOK KANAN BAWAH TANPA BACKGROUND -->
@@ -1272,56 +1220,32 @@
         function checkAuth() {
             const isLoggedIn = localStorage.getItem('isLoggedIn');
             const currentUser = localStorage.getItem('currentUser');
-            
-            console.log('Auth check - isLoggedIn:', isLoggedIn, 'currentUser:', currentUser);
-            
             if (!isLoggedIn || !currentUser) {
-                console.log('User not authenticated, redirecting to login');
                 window.location.href = 'index.html';
                 return false;
             }
-            
-            console.log('User authenticated successfully');
             return true;
         }
 
-        // Fungsi untuk mendapatkan parameter dari URL
         function getUrlParameter(name) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(name);
         }
 
-        // Peta aplikasi untuk parameter URL
         const appParameterMap = {
-            // Aplikasi baru
-            'absence': 'absence-lastdp',
-            'absence-lastdp': 'absence-lastdp',
-            'codematch': 'codematch-validator',
-            'codematch-validator': 'codematch-validator',
-            'code-match': 'codematch-validator',
-            'crackofdawn': 'crackofdawn-loading-time',
-            'crack-of-dawn': 'crackofdawn-loading-time',
-            'loading-time': 'crackofdawn-loading-time',
-            // Aplikasi existing
-            'jadwal-pengecoran': 'jadwal-pengecoran',
-            'schedule': 'jadwal-pengecoran',
-            'pouring': 'jadwal-pengecoran',
-            'monitoring-order': 'monitoring-order',
-            'monitoring': 'monitoring-order',
-            'order': 'monitoring-order',
-            'production-all-area': 'production-all-area',
-            'production': 'production-all-area',
-            'area': 'production-all-area',
-            'summary-daily-delivery': 'summary-daily-delivery',
-            'delivery': 'summary-daily-delivery',
-            'perform-delivery': 'summary-daily-delivery',
-            'utilisasi-truck': 'utilisasi-truck',
-            'truck': 'utilisasi-truck',
-            'truck-utilization': 'utilisasi-truck'
+            'libero': 'libero-activity', 'libero-activity': 'libero-activity',
+            'absence': 'absence-lastdp', 'absence-lastdp': 'absence-lastdp',
+            'codematch': 'codematch-validator', 'codematch-validator': 'codematch-validator',
+            'crackofdawn': 'crackofdawn-loading-time', 'crackofdawn-loading-time': 'crackofdawn-loading-time',
+            'jadwal-pengecoran': 'jadwal-pengecoran', 'schedule': 'jadwal-pengecoran',
+            'monitoring-order': 'monitoring-order', 'monitoring': 'monitoring-order',
+            'production-all-area': 'production-all-area', 'production': 'production-all-area',
+            'summary-daily-delivery': 'summary-daily-delivery', 'delivery': 'summary-daily-delivery',
+            'utilisasi-truck': 'utilisasi-truck', 'truck': 'utilisasi-truck'
         };
 
-        // Peta aplikasi untuk nama menu
         const appMenuMap = {
+            'libero-activity': 'Libero Activity',
             'absence-lastdp': 'Absence.LastDP',
             'codematch-validator': 'CodeMatch-Validator',
             'crackofdawn-loading-time': 'Crack of Dawn Loading Time',
@@ -1332,146 +1256,70 @@
             'utilisasi-truck': 'utilisasi-truck'
         };
 
-        // Initialize dashboard dengan auto-load app dari parameter URL
         function initializeDashboard() {
-            // Hide auth loading screen
             document.getElementById('authLoading').style.display = 'none';
-            
-            // Show main app container
             document.getElementById('appContainer').style.display = 'flex';
-            
-            // Display user info di sidebar
             const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
             document.getElementById('userName').textContent = user.name || 'User';
             document.getElementById('userAvatar').textContent = getInitials(user.name || 'User');
-            
-            // Initialize sidebar state
             const sidebarState = localStorage.getItem('sidebarCollapsed');
-            if (sidebarState === 'true') {
-                document.getElementById('sidebar').classList.add('collapsed');
-            }
-            
-            // Check mobile view
+            if (sidebarState === 'true') document.getElementById('sidebar').classList.add('collapsed');
             checkMobileView();
             window.addEventListener('resize', checkMobileView);
-            
-            // Check for URL parameter to auto-load app
             const appParam = getUrlParameter('app');
             if (appParam && appParameterMap[appParam]) {
-                const appName = appParameterMap[appParam];
-                console.log('Auto-loading app from URL parameter:', appName);
-                
-                // Simulate click on the corresponding menu item
-                setTimeout(() => {
-                    autoLoadApp(appName);
-                }, 500);
+                setTimeout(() => autoLoadApp(appParameterMap[appParam]), 500);
             } else {
-                // Show welcome screen jika tidak ada parameter
-                setTimeout(() => {
-                    showWelcomeScreenDirect();
-                }, 500);
+                setTimeout(() => showWelcomeScreenDirect(), 500);
             }
-            
-            // Setup screen saver
-            setTimeout(() => {
-                setupActivityListeners();
-                resetInactivityTimer();
-                console.log('Screen saver initialized');
-            }, 1000);
+            setTimeout(() => { setupActivityListeners(); resetInactivityTimer(); }, 1000);
         }
 
-        // Fungsi untuk auto-load app berdasarkan parameter
         function autoLoadApp(appName) {
             const menuLinks = document.querySelectorAll('.menu-link');
-            let found = false;
-            
             for (let link of menuLinks) {
-                const menuText = link.querySelector('.menu-text')?.textContent;
-                // Handle special case untuk menu yang punya badge
-                let cleanMenuText = menuText;
-                if (menuText) {
-                    // Hapus teks badge jika ada
-                    cleanMenuText = menuText.replace(/New/g, '').trim();
-                }
-                
+                let menuText = link.querySelector('.menu-text')?.textContent || '';
+                let cleanMenuText = menuText.replace(/New/g, '').trim();
                 if (cleanMenuText === appMenuMap[appName]) {
-                    // Set sebagai active
                     menuLinks.forEach(l => l.classList.remove('active'));
                     link.classList.add('active');
-                    
-                    // Load aplikasi
                     loadApp(appName, null);
-                    found = true;
-                    break;
+                    return;
                 }
             }
-            
-            if (!found) {
-                console.warn('App not found in menu:', appName);
-                showWelcomeScreenDirect();
-            }
+            showWelcomeScreenDirect();
         }
 
-        // Screen Saver functionality
-        let inactivityTimer;
-        const SCREENSAVER_TIMEOUT = 5 * 60 * 1000; // 5 menit dalam milliseconds
-        let screensaverActive = false;
+        let inactivityTimer, screensaverActive = false;
+        const SCREENSAVER_TIMEOUT = 5 * 60 * 1000;
 
         function resetInactivityTimer() {
             clearTimeout(inactivityTimer);
-            if (screensaverActive) {
-                hideScreensaver();
-            }
+            if (screensaverActive) hideScreensaver();
             inactivityTimer = setTimeout(showScreensaver, SCREENSAVER_TIMEOUT);
         }
 
         function showScreensaver() {
-            const screensaver = document.getElementById('screensaver');
-            screensaver.classList.add('active');
+            document.getElementById('screensaver').classList.add('active');
             screensaverActive = true;
-            console.log('Screen saver activated');
         }
 
         function hideScreensaver() {
-            const screensaver = document.getElementById('screensaver');
-            screensaver.classList.remove('active');
+            document.getElementById('screensaver').classList.remove('active');
             screensaverActive = false;
-            console.log('Screen saver deactivated');
             resetInactivityTimer();
         }
 
-        // Event listeners untuk screen saver
         function setupActivityListeners() {
-            const events = [
-                'mousedown', 'mousemove', 'keypress', 'keydown', 'keyup', 
-                'scroll', 'touchstart', 'touchmove', 'click', 'dblclick',
-                'wheel', 'resize'
-            ];
-            
-            events.forEach(event => {
-                document.addEventListener(event, resetInactivityTimer, { passive: true });
-            });
-            
-            const screensaver = document.getElementById('screensaver');
-            screensaver.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                hideScreensaver();
-            });
-            
-            screensaver.addEventListener('touchstart', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                hideScreensaver();
-            });
+            const events = ['mousedown','mousemove','keypress','keydown','scroll','touchstart','click','wheel'];
+            events.forEach(event => document.addEventListener(event, resetInactivityTimer, { passive: true }));
+            document.getElementById('screensaver').addEventListener('click', hideScreensaver);
         }
 
-        // Fungsi untuk mendapatkan inisial dari nama
         function getInitials(name) {
             return name.split(' ').map(word => word[0]).join('').toUpperCase();
         }
 
-        // Toggle sidebar collapse/expand
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('collapsed');
@@ -1479,30 +1327,19 @@
             resetInactivityTimer();
         }
 
-        // Load application in iframe
         function loadApp(appName, event) {
-            // Jika ada event, cegah default behavior untuk klik normal
-            if (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            
+            if(event) { event.preventDefault(); event.stopPropagation(); }
             resetInactivityTimer();
-            
             const welcomeScreen = document.getElementById('welcomeScreen');
             const appFrame = document.getElementById('appFrame');
             const loading = document.getElementById('loading');
-            const menuLinks = document.querySelectorAll('.menu-link');
-            
-            // Show loading
             welcomeScreen.style.display = 'none';
             appFrame.style.display = 'none';
             loading.style.display = 'flex';
-            
-            const basePath = ''; // Sesuaikan dengan path yang benar
+            const basePath = '';
             const appFolder = 'app/';
-            
             const appPaths = {
+                'libero-activity': `${basePath}${appFolder}Libero Activity/index.html`,
                 'absence-lastdp': `${basePath}${appFolder}Absence.LastDP/index.html`,
                 'codematch-validator': `${basePath}${appFolder}CodeMatch-Validator/index.html`,
                 'crackofdawn-loading-time': `${basePath}${appFolder}Crack of Dawn Loading Time/index.html`,
@@ -1512,113 +1349,62 @@
                 'summary-daily-delivery': `${basePath}${appFolder}summary-daily-delivery/index.html`,
                 'utilisasi-truck': `${basePath}${appFolder}utilisasi-truck/index.html`
             };
-            
             const appPath = appPaths[appName];
-            
-            if (appPath) {
-                console.log('Loading app:', appPath);
-                
+            if(appPath) {
                 appFrame.src = appPath;
-                
-                appFrame.onload = function() {
-                    loading.style.display = 'none';
-                    appFrame.style.display = 'block';
-                    resetInactivityTimer();
-                };
-                
-                appFrame.onerror = function() {
-                    loading.style.display = 'none';
-                    welcomeScreen.style.display = 'flex';
-                    alert('Failed to load application. Please make sure the application is available.');
-                    resetInactivityTimer();
-                };
+                appFrame.onload = () => { loading.style.display = 'none'; appFrame.style.display = 'block'; resetInactivityTimer(); };
+                appFrame.onerror = () => { loading.style.display = 'none'; welcomeScreen.style.display = 'flex'; alert('Failed to load application.'); resetInactivityTimer(); };
             } else {
-                console.error('Unknown app name:', appName);
                 loading.style.display = 'none';
                 welcomeScreen.style.display = 'flex';
                 alert('Unknown application: ' + appName);
             }
-            
-            // Close mobile menu if open
-            if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('mobile-open');
-            }
-            
-            // Return false untuk mencegah browser mengikuti href
+            if(window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('mobile-open');
             return false;
         }
 
-        // Show welcome screen langsung (tanpa event)
         function showWelcomeScreenDirect() {
             const welcomeScreen = document.getElementById('welcomeScreen');
             const appFrame = document.getElementById('appFrame');
             const loading = document.getElementById('loading');
             const menuLinks = document.querySelectorAll('.menu-link');
-            
-            // Set Home as active
             menuLinks.forEach(link => link.classList.remove('active'));
-            if (menuLinks.length > 0) {
-                menuLinks[0].classList.add('active');
-            }
-            
+            if(menuLinks.length > 0) menuLinks[0].classList.add('active');
             welcomeScreen.style.display = 'flex';
             appFrame.style.display = 'none';
             loading.style.display = 'none';
         }
 
-        // Show welcome screen (dengan event)
         function showWelcomeScreen(event) {
-            if (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            
+            if(event) { event.preventDefault(); event.stopPropagation(); }
             resetInactivityTimer();
-            
             const welcomeScreen = document.getElementById('welcomeScreen');
             const appFrame = document.getElementById('appFrame');
             const loading = document.getElementById('loading');
             const menuLinks = document.querySelectorAll('.menu-link');
-            
             menuLinks.forEach(link => link.classList.remove('active'));
-            if (event && event.target.closest('.menu-link')) {
-                event.target.closest('.menu-link').classList.add('active');
-            } else if (menuLinks.length > 0) {
-                menuLinks[0].classList.add('active');
-            }
-            
+            if(event && event.target.closest('.menu-link')) event.target.closest('.menu-link').classList.add('active');
+            else if(menuLinks.length > 0) menuLinks[0].classList.add('active');
             welcomeScreen.style.display = 'flex';
             appFrame.style.display = 'none';
             loading.style.display = 'none';
-            
-            if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('mobile-open');
-            }
-            
+            if(window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('mobile-open');
             return false;
         }
 
-        // Mobile view handling
         function checkMobileView() {
             const sidebar = document.getElementById('sidebar');
-            const mobileBtn = document.querySelector('.mobile-menu-btn');
-            
-            if (window.innerWidth <= 768) {
-                if (!mobileBtn) {
-                    const newMobileBtn = document.createElement('button');
-                    newMobileBtn.className = 'mobile-menu-btn';
-                    newMobileBtn.innerHTML = '☰';
-                    newMobileBtn.onclick = toggleMobileMenu;
-                    document.querySelector('.sidebar-header').prepend(newMobileBtn);
+            if(window.innerWidth <= 768) {
+                if(!document.querySelector('.mobile-menu-btn')) {
+                    const btn = document.createElement('button');
+                    btn.className = 'mobile-menu-btn';
+                    btn.innerHTML = '☰';
+                    btn.onclick = toggleMobileMenu;
+                    document.querySelector('.sidebar-header').prepend(btn);
                 }
                 sidebar.classList.remove('collapsed');
-                if (!sidebar.classList.contains('mobile-open')) {
-                    sidebar.style.left = '-250px';
-                }
+                sidebar.style.left = sidebar.classList.contains('mobile-open') ? '0' : '-250px';
             } else {
-                if (mobileBtn) {
-                    mobileBtn.style.display = 'none';
-                }
                 sidebar.style.left = '0';
                 sidebar.classList.remove('mobile-open');
             }
@@ -1631,93 +1417,32 @@
             resetInactivityTimer();
         }
 
-        // Logout function
         function logout() {
-            console.log('Logging out user');
-            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-            
             localStorage.removeItem('isLoggedIn');
             localStorage.removeItem('currentUser');
-            
-            console.log('User logged out:', user.name);
-            
             window.location.href = 'index.html';
         }
 
-        // Handle page visibility change
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden) {
-                console.log('Page hidden');
-            } else {
-                resetInactivityTimer();
-            }
-        });
-
-        // Initialize the dashboard when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Dashboard initializing...');
-            
-            // Check authentication
-            if (!checkAuth()) {
-                return;
-            }
-            
-            // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            if(!checkAuth()) return;
+            initializeDashboard();
+            document.addEventListener('visibilitychange', () => { if(!document.hidden) resetInactivityTimer(); });
             setTimeout(() => {
-                initializeDashboard();
-            }, 1000);
-        });
-
-        // Fungsi untuk menangani klik kanan pada menu links
-        function setupRightClickHandlers() {
-            const menuLinks = document.querySelectorAll('.menu-link.with-href');
-            
-            menuLinks.forEach(link => {
-                // Simpan onclick original
-                const originalOnClick = link.onclick;
-                
-                // Tambahkan handler untuk klik normal
-                link.addEventListener('click', function(e) {
-                    // Untuk klik normal (bukan ctrl+click, shift+click, atau middle click)
-                    if (!e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        // Cari nama app dari href
-                        const href = this.getAttribute('href');
-                        if (href.includes('?app=')) {
-                            const appParam = href.split('?app=')[1];
-                            const appName = appParameterMap[appParam];
-                            if (appName) {
-                                loadApp(appName, e);
-                            }
-                        } else if (href.includes('dashboard.html')) {
-                            showWelcomeScreen(e);
+                document.querySelectorAll('.menu-link.with-href').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        if(!e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0) {
+                            e.preventDefault();
+                            const href = link.getAttribute('href');
+                            if(href.includes('?app=')) {
+                                const appParam = href.split('?app=')[1];
+                                const appName = appParameterMap[appParam];
+                                if(appName) loadApp(appName, e);
+                            } else if(href.includes('dashboard.html')) showWelcomeScreen(e);
+                            return false;
                         }
-                        
-                        return false;
-                    }
-                    // Untuk ctrl+click atau shift+click, biarkan browser handle (open in new tab/window)
+                    });
                 });
-                
-                // Tambahkan title untuk hint
-                link.title = "Click to open, Right-click → 'Open link in new tab' to open directly";
-            });
-        }
-
-        // Setup right click handlers setelah DOM selesai load
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(() => {
-                setupRightClickHandlers();
-            }, 1500);
-        });
-
-        // Custom context menu prevention (opsional)
-        document.addEventListener('contextmenu', function(e) {
-            if (e.target.closest('.menu-link.with-href')) {
-                // Biarkan context menu browser muncul
-                console.log('Right-click on menu link - browser will handle "Open link in new tab"');
-            }
+            }, 500);
         });
     </script>
 </body>
