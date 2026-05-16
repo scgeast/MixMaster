@@ -11,6 +11,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- html2canvas untuk screenshot full table - TAMBAHAN BARU -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         /* CSS VARIABLES */
         :root {
@@ -230,7 +232,6 @@
             pointer-events: none;
         }
         
-        body.neon-mode .particles,
         body.red-moon-mode .blood-particles {
             display: block;
         }
@@ -270,18 +271,6 @@
             left: 20%;
             animation-duration: 20s;
             animation-delay: 5s;
-        }
-        
-        body.red-moon-mode .blood-particle:nth-child(1) {
-            background: radial-gradient(circle, rgba(255, 0, 0, 0.25), transparent);
-        }
-        
-        body.red-moon-mode .blood-particle:nth-child(2) {
-            background: radial-gradient(circle, rgba(204, 0, 0, 0.2), transparent);
-        }
-        
-        body.red-moon-mode .blood-particle:nth-child(3) {
-            background: radial-gradient(circle, rgba(153, 0, 0, 0.15), transparent);
         }
         
         @keyframes float {
@@ -1763,6 +1752,45 @@
             color: #ffcccc;
         }
         
+        /* TAMBAHAN CSS UNTUK HEADER DOWNLOAD BUTTON */
+        .project-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 0 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .btn-download-image {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-download-image:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow-color);
+        }
+        
+        body.neon-mode .btn-download-image {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-green));
+        }
+        
+        body.red-moon-mode .btn-download-image {
+            background: linear-gradient(135deg, var(--secondary), #cc0000);
+        }
+        
         /* Modal */
         .modal {
             display: none;
@@ -1797,6 +1825,54 @@
             box-shadow: 
                 0 10px 40px rgba(0, 0, 0, 0.5),
                 0 0 50px rgba(255, 51, 51, 0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-color);
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
         }
         
         /* Truck Input Section */
@@ -2591,10 +2667,15 @@
                         </div>
                     </div>
                     
-                    <!-- Project Remain Details Container -->
+                    <!-- Project Remain Details Container - DENGAN TOMBOL DOWNLOAD GAMBAR -->
                     <div class="chart-container project-details">
-                        <div class="chart-title">
-                            <i class="fas fa-table"></i> Project Remain Details
+                        <div class="project-details-header">
+                            <div class="chart-title" style="margin: 0; padding: 0; border-bottom: none;">
+                                <i class="fas fa-table"></i> Project Remain Details
+                            </div>
+                            <button class="btn-download-image" id="downloadProjectImageBtn">
+                                <i class="fas fa-camera"></i> Download as Image
+                            </button>
                         </div>
                         <div class="project-details-table-container">
                             <table id="project-remain-table">
@@ -3359,6 +3440,84 @@
             });
         }
 
+        // ==================== TAMBAHAN FUNGSI DOWNLOAD GAMBAR ====================
+        async function downloadProjectTableAsImage() {
+            const tableWrapper = document.querySelector('#project-remain-table');
+            const container = document.querySelector('.project-details-table-container');
+            
+            if (!tableWrapper || tableWrapper.rows.length <= 1) {
+                alert("Tidak ada data project remain untuk diunduh.");
+                return;
+            }
+            
+            // Simpan style asli
+            const originalOverflow = container.style.overflow;
+            const originalMaxHeight = container.style.maxHeight;
+            
+            // Ubah style agar seluruh tabel terlihat
+            container.style.overflow = 'visible';
+            container.style.maxHeight = 'none';
+            
+            // Clone area yang akan di-capture
+            const cloneContainer = container.cloneNode(true);
+            cloneContainer.style.overflow = 'visible';
+            cloneContainer.style.maxHeight = 'none';
+            cloneContainer.style.backgroundColor = getComputedStyle(container).backgroundColor;
+            cloneContainer.style.padding = '10px';
+            cloneContainer.style.borderRadius = '8px';
+            
+            // Buat wrapper untuk header tabel
+            const headerClone = document.querySelector('.project-details-header').cloneNode(true);
+            const captureArea = document.createElement('div');
+            captureArea.style.backgroundColor = getComputedStyle(document.body).backgroundColor;
+            captureArea.style.padding = '15px';
+            captureArea.style.borderRadius = '8px';
+            captureArea.appendChild(headerClone);
+            captureArea.appendChild(cloneContainer);
+            
+            // Buat elemen sementara
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.top = '-9999px';
+            tempDiv.style.left = '-9999px';
+            tempDiv.appendChild(captureArea);
+            document.body.appendChild(tempDiv);
+            
+            try {
+                const canvas = await html2canvas(tempDiv, {
+                    scale: 2.5,
+                    backgroundColor: getComputedStyle(document.body).backgroundColor,
+                    logging: false,
+                    useCORS: false,
+                    allowTaint: false,
+                    windowWidth: captureArea.scrollWidth,
+                    windowHeight: captureArea.scrollHeight
+                });
+                
+                // Kembalikan style asli
+                container.style.overflow = originalOverflow;
+                container.style.maxHeight = originalMaxHeight;
+                
+                // Hapus elemen sementara
+                document.body.removeChild(tempDiv);
+                
+                // Download gambar
+                const link = document.createElement('a');
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                link.download = `Project_Remain_Details_${timestamp}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+            } catch (error) {
+                console.error('Gagal membuat gambar:', error);
+                alert('Gagal membuat gambar. Silakan coba lagi.');
+                container.style.overflow = originalOverflow;
+                container.style.maxHeight = originalMaxHeight;
+                if (document.body.contains(tempDiv)) document.body.removeChild(tempDiv);
+            }
+        }
+        // ==================== AKHIR TAMBAHAN ====================
+
         function createCharts(data) {
             // Hancurkan chart yang ada
             Object.values(currentCharts).forEach(chart => {
@@ -3485,8 +3644,8 @@
                 chartTextColor: '#ccd6f6'
             } : isRedMoonMode ? {
                 target: 'rgba(255, 51, 51, 0.8)',
-                order: 'rgba(255, 140, 0, 0.8)', // ORANYE untuk Qty Order
-                delivered: 'rgba(50, 205, 50, 0.8)', // HIJAU untuk Delivery
+                order: 'rgba(255, 140, 0, 0.8)',
+                delivered: 'rgba(50, 205, 50, 0.8)',
                 remain: 'rgba(255, 215, 0, 0.8)',
                 cancel: 'rgba(255, 0, 0, 0.8)',
                 progress: 'rgba(255, 140, 0, 0.8)',
@@ -3518,7 +3677,7 @@
             // Warna khusus untuk bar "Qty Order" di Red Moon Mode
             const performOrderColors = [
                 colors.target,
-                colors.order,  // Sudah menggunakan ORANYE untuk Red Moon Mode
+                colors.order,
                 colors.delivered,
                 colors.remain,
                 colors.cancel,
@@ -3561,12 +3720,12 @@
                         data: [totalTargetVolume, totalOrderQty, totalDeliveryQty, totalRemainQty, totalCancelQty, totalProgressPercent],
                         backgroundColor: performOrderColors,
                         borderColor: isRedMoonMode ? [
-                            'rgba(255, 51, 51, 1)',        // Target
-                            'rgba(255, 140, 0, 1)',       // Order - ORANYE
-                            'rgba(50, 205, 50, 1)',       // Delivered - HIJAU
-                            'rgba(255, 215, 0, 1)',       // Remain
-                            'rgba(255, 0, 0, 1)',         // Cancel
-                            'rgba(255, 140, 0, 1)'        // Progress
+                            'rgba(255, 51, 51, 1)',
+                            'rgba(255, 140, 0, 1)',
+                            'rgba(50, 205, 50, 1)',
+                            'rgba(255, 215, 0, 1)',
+                            'rgba(255, 0, 0, 1)',
+                            'rgba(255, 140, 0, 1)'
                         ] : isNeonMode ? [
                             'rgba(0, 212, 255, 1)',
                             'rgba(100, 255, 218, 1)',
@@ -4401,6 +4560,9 @@
                 updateDashboardStats(orderData);
                 createCharts(orderData);
             });
+
+            // ==================== TAMBAHAN EVENT LISTENER UNTUK TOMBOL DOWNLOAD ====================
+            document.getElementById('downloadProjectImageBtn').addEventListener('click', downloadProjectTableAsImage);
 
             document.getElementById('sidebarToggleBtn').addEventListener('click', toggleSidebar);
             document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
