@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Driver Activity Dashboard - Trip Distribution with Gradient Colors</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Inter', 'Roboto', sans-serif;
+        }
+
+        body {
+            background: #eef2f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+            padding: 16px 20px 24px 20px;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        h1 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 0;
+            color: #1a2c3e;
+        }
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .compact-upload {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+            padding: 4px 12px;
+            border-radius: 30px;
+        }
+        .compact-upload .file-label {
+            background: #1f6392;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 25px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .btn-export {
+            background: #2c7a4d;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 25px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+        }
+        #fileInfo {
+            font-size: 0.65rem;
+            color: #2c5a7a;
+            background: #e9f0f5;
+            padding: 4px 8px;
+            border-radius: 20px;
+        }
+
+        .filter-bar {
+            background: #f1f5f9;
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: flex-end;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 140px;
+        }
+        .filter-group label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #2c5a7a;
+        }
+        .filter-group input, .filter-group select {
+            padding: 6px 10px;
+            border-radius: 14px;
+            border: 1px solid #cbdbe0;
+            background: white;
+            font-size: 0.75rem;
+        }
+        .filter-group select[multiple] {
+            min-height: 65px;
+        }
+        .btn-reset {
+            background: #dadfe5;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 25px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        .note-small {
+            font-size: 0.55rem;
+            color: #4a6a85;
+        }
+
+        .summary-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+            background: #f2f6f9;
+            border-radius: 16px;
+            padding: 10px 16px;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 6px 14px;
+            text-align: center;
+            flex: 1 1 120px;
+        }
+        .card .num {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1e4663;
+        }
+        .card div:last-child {
+            font-size: 0.65rem;
+            color: #4a627a;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid #e2edf2;
+            background: white;
+            margin-top: 10px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.7rem;
+            background: white;
+        }
+        .data-table th {
+            background: #eef2f7;
+            color: #1a3a4e;
+            padding: 8px 5px;
+            text-align: center;
+            border: 1px solid #d4dee8;
+            font-weight: 600;
+            font-size: 0.7rem;
+            white-space: nowrap;
+        }
+        .data-table td {
+            border: 1px solid #e2e8f0;
+            padding: 6px 5px;
+            text-align: center;
+            background: white;
+            white-space: nowrap;
+        }
+        .data-table tr:hover td {
+            background-color: #fafbfe;
+        }
+        .driver-name {
+            font-weight: 600;
+            background-color: #fafbfc;
+            text-align: left !important;
+        }
+        /* Warna trip harian */
+        .trip-green { background-color: #90EE90 !important; color: #006400; font-weight: bold; }
+        .trip-orange { background-color: #FFB347 !important; color: #8B4000; font-weight: bold; }
+        .trip-yellow { background-color: #FFE44D !important; color: #886600; font-weight: bold; }
+        .trip-red { background-color: #FFAAAA !important; color: #8B0000; font-weight: bold; }
+        .qty-cell { background-color: #E8F0FE !important; }
+
+        .footer-note {
+            margin-top: 16px;
+            font-size: 0.6rem;
+            color: #5f7f9c;
+            text-align: center;
+            border-top: 1px solid #e2edf2;
+            padding-top: 12px;
+        }
+        .legend-icon {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            margin-right: 3px;
+        }
+        @media (max-width: 700px) {
+            .filter-group { min-width: 100%; }
+            .header-row { flex-direction: column; align-items: stretch; }
+            .header-buttons { justify-content: space-between; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header-row">
+        <h1>🚚 Driver Activity Dashboard</h1>
+        <div class="header-buttons">
+            <button class="btn-export" id="exportBtn">📎 Export Excel</button>
+            <div class="compact-upload">
+                <span class="file-label" onclick="document.getElementById('excelInput').click()">📂 Upload</span>
+                <input type="file" id="excelInput" accept=".xls, .xlsx, .csv" style="display: none;" />
+                <span id="fileInfo">No file</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="filter-bar" id="filterPanel" style="display: none;">
+        <div class="filter-group"><label>Start Date</label><input type="date" id="startDateFilter"></div>
+        <div class="filter-group"><label>End Date</label><input type="date" id="endDateFilter"></div>
+        <div class="filter-group"><label>Area (Province)</label><select id="areaFilter" multiple size="3"></select><div class="note-small">Ctrl+klik multi pilih</div></div>
+        <div class="filter-group"><label>Plant Name</label><select id="plantFilter" multiple size="3"></select><div class="note-small">Otomatis filter area</div></div>
+        <div class="filter-group"><label>Driver Type</label><select id="driverTypeFilter"><option value="all">All Drivers</option><option value="libero">Libero Only</option><option value="non-libero">Non-Libero</option></select></div>
+        <button class="btn-reset" id="resetFiltersBtn">Reset</button>
+    </div>
+
+    <div id="summaryArea" class="summary-cards" style="display: none;"></div>
+    <div id="tableContainer" style="display: none;">
+        <div class="table-wrapper">
+            <table class="data-table" id="resultTable">
+                <thead id="tableHeader"></thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+    <div id="noDataMsg" style="text-align:center; padding: 30px; color: #6c86a3; display: block;">📂 Upload file Excel — data akan muncul otomatis</div>
+    <div class="footer-note">
+        📏 Avg Distance = Total Distance ÷ Total Trip | Avg/Trip/Day = Total Trip ÷ Day Work<br>
+        🎨 Trip Harian: <span class="legend-icon" style="background:#90EE90;"></span> ≥4 <span class="legend-icon" style="background:#FFB347;"></span> 3 <span class="legend-icon" style="background:#FFE44D;"></span> 2 <span class="legend-icon" style="background:#FFAAAA;"></span> 1 atau 0<br>
+        📊 Kolom Distribusi: <span style="color:#8B0000;">■</span> 0-2Trip (merah sesuai intensitas) <span style="color:#006400;">■</span> 3-6Trip+ (hijau sesuai intensitas) - semakin banyak hari semakin pekat
+    </div>
+</div>
+
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+<script>
+    let rawRecords = [];
+    let currentAggregated = null;
+    
+    const fileInput = document.getElementById('excelInput');
+    const fileInfoSpan = document.getElementById('fileInfo');
+    const filterPanel = document.getElementById('filterPanel');
+    const startDateInput = document.getElementById('startDateFilter');
+    const endDateInput = document.getElementById('endDateFilter');
+    const areaSelect = document.getElementById('areaFilter');
+    const plantSelect = document.getElementById('plantFilter');
+    const driverTypeSelect = document.getElementById('driverTypeFilter');
+    const resetBtn = document.getElementById('resetFiltersBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    
+    function formatNumber(num) {
+        if (num === undefined || num === null) return '0';
+        return num.toLocaleString('en-US');
+    }
+    
+    // Fungsi untuk mendapatkan warna berdasarkan nilai dan maxValue (0-2Trip: merah, >=3Trip: hijau)
+    function getDistributionColor(tripValue, count, maxCount) {
+        if (maxCount === 0) return 'background-color: #ffffff;';
+        let intensity = Math.floor((count / maxCount) * 200); // 0-200
+        if (tripValue <= 2) {
+            // Merah: dari merah muda (#FFCCCC) sampai merah tua (#CC0000)
+            let r = 200 + (55 * intensity / 200);
+            let g = 200 - (150 * intensity / 200);
+            let b = 200 - (150 * intensity / 200);
+            return `background-color: rgb(${Math.min(255, r)}, ${Math.max(50, g)}, ${Math.max(50, b)}); color: ${intensity > 100 ? 'white' : '#8B0000'}; font-weight: bold;`;
+        } else {
+            // Hijau: dari hijau muda (#CCFFCC) sampai hijau tua (#006600)
+            let g = 200 + (55 * intensity / 200);
+            let r = 200 - (150 * intensity / 200);
+            let b = 200 - (150 * intensity / 200);
+            return `background-color: rgb(${Math.max(50, r)}, ${Math.min(255, g)}, ${Math.max(50, b)}); color: ${intensity > 100 ? 'white' : '#006400'}; font-weight: bold;`;
+        }
+    }
+    
+    function normalizeDateWithObj(dateValue) {
+        if (!dateValue && dateValue !== 0) return null;
+        let dateObj = null;
+        if (typeof dateValue === 'number') {
+            let d = new Date(Math.round((dateValue - 25569) * 86400 * 1000));
+            if (!isNaN(d.getTime())) dateObj = d;
+        } else {
+            let str = String(dateValue).trim();
+            let ymd = str.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+            if (ymd) dateObj = new Date(parseInt(ymd[1]), parseInt(ymd[2])-1, parseInt(ymd[3]));
+            else {
+                let dmy = str.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+                if (dmy) dateObj = new Date(parseInt(dmy[3]), parseInt(dmy[2])-1, parseInt(dmy[1]));
+                else {
+                    let ts = Date.parse(str);
+                    if (!isNaN(ts)) dateObj = new Date(ts);
+                }
+            }
+        }
+        if (dateObj && !isNaN(dateObj.getTime())) {
+            let day = dateObj.getDate();
+            let month = dateObj.getMonth() + 1;
+            let year = dateObj.getFullYear();
+            let dateStr = `${day.toString().padStart(2,'0')}/${month.toString().padStart(2,'0')}/${year}`;
+            return { dateStr, dateObj };
+        }
+        return null;
+    }
+    
+    function getDriverType(driverName) {
+        if (!driverName) return 'non-libero';
+        return driverName.toLowerCase().includes('libero') ? 'libero' : 'non-libero';
+    }
+    
+    function buildRecordsFromRows(rows) {
+        if (!rows || rows.length < 2) return [];
+        let headers = rows[0];
+        let colIdx = { driverName: -1, plantName: -1, dpDate: -1, qty: -1, province: -1, distance: -1 };
+        for (let i=0; i<headers.length; i++) {
+            let h = String(headers[i] || '').trim().toLowerCase();
+            if (h.includes('driver name')) colIdx.driverName = i;
+            if (h.includes('plant name')) colIdx.plantName = i;
+            if (h === 'dp date' || h.includes('dp date')) colIdx.dpDate = i;
+            if (h === 'qty' || h === 'quantity') colIdx.qty = i;
+            if (h === 'province' || h.includes('province')) colIdx.province = i;
+            if (h === 'distance' || h.includes('distance')) colIdx.distance = i;
+        }
+        if (colIdx.driverName === -1 || colIdx.dpDate === -1 || colIdx.qty === -1) return [];
+        let records = [];
+        for (let i=1; i<rows.length; i++) {
+            let row = rows[i];
+            if (!row) continue;
+            let driver = row[colIdx.driverName] ? String(row[colIdx.driverName]).trim() : '';
+            if (driver === '' || driver === '-') continue;
+            let plant = (colIdx.plantName !== -1 && row[colIdx.plantName]) ? String(row[colIdx.plantName]).trim() : 'N/A';
+            let qtyRaw = row[colIdx.qty];
+            let qty = 0;
+            if (qtyRaw !== undefined && qtyRaw !== null && qtyRaw !== '') {
+                if (typeof qtyRaw === 'number') qty = qtyRaw;
+                else qty = parseFloat(String(qtyRaw).replace(/,/g, '')) || 0;
+            }
+            let distance = 0;
+            if (colIdx.distance !== -1 && row[colIdx.distance] !== undefined && row[colIdx.distance] !== '') {
+                let distRaw = row[colIdx.distance];
+                if (typeof distRaw === 'number') distance = distRaw;
+                else distance = parseFloat(String(distRaw).replace(/,/g, '')) || 0;
+            }
+            let dateParsed = normalizeDateWithObj(row[colIdx.dpDate]);
+            if (!dateParsed) continue;
+            let province = (colIdx.province !== -1 && row[colIdx.province]) ? String(row[colIdx.province]).trim() : 'Unknown';
+            let driverType = getDriverType(driver);
+            records.push({ driver, plant, qty, distance, dateStr: dateParsed.dateStr, dateObj: dateParsed.dateObj, province, driverType });
+        }
+        return records;
+    }
+    
+    function getDateRange(records) {
+        if (records.length === 0) return { minDate: null, maxDate: null };
+        let dates = records.map(r => r.dateObj.getTime());
+        return { minDate: new Date(Math.min(...dates)), maxDate: new Date(Math.max(...dates)) };
+    }
+    
+    function setDateFilterRange(records) {
+        if (records.length === 0) return;
+        let { minDate, maxDate } = getDateRange(records);
+        if (minDate && maxDate) {
+            startDateInput.value = minDate.toISOString().split('T')[0];
+            endDateInput.value = maxDate.toISOString().split('T')[0];
+        }
+    }
+    
+    function applyFilters(records, startDateStr, endDateStr, selectedAreas, selectedPlants, driverTypeVal) {
+        let filtered = [...records];
+        if (startDateStr) {
+            let start = new Date(startDateStr); start.setHours(0,0,0,0);
+            filtered = filtered.filter(r => r.dateObj >= start);
+        }
+        if (endDateStr) {
+            let end = new Date(endDateStr); end.setHours(23,59,59,999);
+            filtered = filtered.filter(r => r.dateObj <= end);
+        }
+        if (selectedAreas && selectedAreas.length > 0) filtered = filtered.filter(r => selectedAreas.includes(r.province));
+        if (selectedPlants && selectedPlants.length > 0) filtered = filtered.filter(r => selectedPlants.includes(r.plant));
+        if (driverTypeVal === 'libero') filtered = filtered.filter(r => r.driverType === 'libero');
+        else if (driverTypeVal === 'non-libero') filtered = filtered.filter(r => r.driverType === 'non-libero');
+        return filtered;
+    }
+    
+    function aggregateDrivers(records) {
+        if (records.length === 0) return { driversMap: new Map(), allDates: [], totalDrivers:0, totalTrips:0, totalQty:0 };
+        let dateSetGlobal = new Set();
+        records.forEach(r => dateSetGlobal.add(r.dateStr));
+        let allDates = Array.from(dateSetGlobal);
+        allDates.sort((a,b) => {
+            let [da,ma,ya] = a.split('/');
+            let [db,mb,yb] = b.split('/');
+            return new Date(ya,ma-1,da) - new Date(yb,mb-1,db);
+        });
+        let driversMap = new Map();
+        records.forEach(rec => {
+            const key = rec.driver;
+            if (!driversMap.has(key)) {
+                driversMap.set(key, {
+                    driver: rec.driver,
+                    plant: rec.plant,
+                    province: rec.province,
+                    totalTrips: 0,
+                    totalQty: 0,
+                    totalDistance: 0,
+                    distanceCount: 0,
+                    uniqueDatesSet: new Set(),
+                    dailyMap: new Map(),
+                    tripDistribution: new Map()
+                });
+            }
+            let dData = driversMap.get(key);
+            dData.totalTrips += 1;
+            dData.totalQty += rec.qty;
+            if (rec.distance > 0) { dData.totalDistance += rec.distance; dData.distanceCount += 1; }
+            dData.uniqueDatesSet.add(rec.dateStr);
+            if (!dData.dailyMap.has(rec.dateStr)) dData.dailyMap.set(rec.dateStr, { trips: 0, qty: 0 });
+            let dayInfo = dData.dailyMap.get(rec.dateStr);
+            dayInfo.trips += 1;
+            dayInfo.qty += rec.qty;
+        });
+        
+        for (let [_, val] of driversMap.entries()) {
+            let distMap = new Map();
+            for (let dt of allDates) {
+                let daily = val.dailyMap.get(dt);
+                let tripVal = daily ? daily.trips : 0;
+                distMap.set(tripVal, (distMap.get(tripVal) || 0) + 1);
+            }
+            val.tripDistribution = distMap;
+            val.dayWork = val.uniqueDatesSet.size;
+            val.avgTripPerDay = (val.dayWork > 0) ? (val.totalTrips / val.dayWork) : 0;
+            val.avgTripPerDay = Math.round(val.avgTripPerDay * 100) / 100;
+            val.avgDistance = (val.distanceCount > 0) ? (val.totalDistance / val.distanceCount) : 0;
+            val.avgDistance = Math.round(val.avgDistance * 10) / 10;
+        }
+        
+        let maxTrip = 0;
+        for (let [_, val] of driversMap.entries()) {
+            let maxDist = Math.max(...Array.from(val.tripDistribution.keys()));
+            if (maxDist > maxTrip) maxTrip = maxDist;
+        }
+        
+        let totalTrips = Array.from(driversMap.values()).reduce((s,d)=> s+d.totalTrips,0);
+        let totalQty = Array.from(driversMap.values()).reduce((s,d)=> s+d.totalQty,0);
+        return { driversMap, allDates, totalDrivers: driversMap.size, totalTrips, totalQty, maxTripValue: maxTrip };
+    }
+    
+    function getTripClass(tripValue) {
+        if (tripValue >= 4) return 'trip-green';
+        if (tripValue === 3) return 'trip-orange';
+        if (tripValue === 2) return 'trip-yellow';
+        return 'trip-red';
+    }
+    
+    function renderFilteredResult(aggregated) {
+        currentAggregated = aggregated;
+        const { driversMap, allDates, totalDrivers, totalTrips, totalQty, maxTripValue } = aggregated;
+        if (driversMap.size === 0) {
+            document.getElementById('tableContainer').style.display = 'none';
+            document.getElementById('summaryArea').style.display = 'none';
+            document.getElementById('noDataMsg').style.display = 'block';
+            document.getElementById('noDataMsg').innerHTML = '⚠️ Tidak ada data sesuai filter';
+            return;
+        }
+        
+        // Hitung max count per kolom distribusi untuk gradient
+        let distMaxCounts = {};
+        for (let i = 0; i <= maxTripValue; i++) {
+            let maxCount = 0;
+            for (let [_, data] of driversMap.entries()) {
+                let cnt = data.tripDistribution.get(i) || 0;
+                if (cnt > maxCount) maxCount = cnt;
+            }
+            distMaxCounts[i] = maxCount;
+        }
+        
+        let sortedEntries = Array.from(driversMap.entries());
+        sortedEntries.sort((a,b) => b[1].avgTripPerDay - a[1].avgTripPerDay);
+        
+        let distHeaders = [];
+        for (let i = 0; i <= maxTripValue; i++) distHeaders.push(`${i}Trip`);
+        
+        let leftCols = ['No', 'Driver Name', 'Plant Name', 'Avg Dist (km)', 'Total Trip', 'Day Work', 'Avg Trip/Day', 'Total Qty'];
+        let rightCols = [...distHeaders];
+        let dateCols = [...allDates];
+        
+        let headerTop = `<tr>`;
+        for (let i = 0; i < leftCols.length; i++) headerTop += `<th rowspan="2">${leftCols[i]}</th>`;
+        for (let dt of dateCols) headerTop += `<th colspan="2">${dt}</th>`;
+        for (let i = 0; i < rightCols.length; i++) headerTop += `<th rowspan="2">${rightCols[i]}</th>`;
+        headerTop += `</tr>`;
+        
+        let headerBottom = `<tr>`;
+        for (let dt of dateCols) headerBottom += `<th>Qty</th><th>Trip</th>`;
+        headerBottom += `</tr>`;
+        
+        document.getElementById('tableHeader').innerHTML = headerTop + headerBottom;
+        
+        let tbodyHtml = '';
+        let idx = 1;
+        for (let [driverName, data] of sortedEntries) {
+            let row = `<tr>
+                <td>${idx++}</td>
+                <td class="driver-name">${escapeHtml(driverName)}</td>
+                <td>${escapeHtml(data.plant)}</td>
+                <td>${formatNumber(data.avgDistance)}</td>
+                <td><strong>${formatNumber(data.totalTrips)}</strong></td>
+                <td>${data.dayWork}</td>
+                <td><strong>${data.avgTripPerDay}</strong></td>
+                <td><strong>${formatNumber(Math.round(data.totalQty * 10)/10)}</strong></td>`;
+            
+            for (let dt of allDates) {
+                let daily = data.dailyMap.get(dt);
+                let qtyVal = daily ? (Math.round(daily.qty * 10)/10) : 0;
+                let tripVal = daily ? daily.trips : 0;
+                let tripClass = getTripClass(tripVal);
+                row += `<td class="qty-cell">${formatNumber(qtyVal)}</td><td class="${tripClass}">${formatNumber(tripVal)}</td>`;
+            }
+            
+            for (let i = 0; i <= maxTripValue; i++) {
+                let count = data.tripDistribution.get(i) || 0;
+                let maxCount = distMaxCounts[i];
+                let style = getDistributionColor(i, count, maxCount);
+                row += `<td style="${style}">${count}</td>`;
+            }
+            row += `</tr>`;
+            tbodyHtml += row;
+        }
+        document.getElementById('tableBody').innerHTML = tbodyHtml;
+        document.getElementById('tableContainer').style.display = 'block';
+        
+        let summaryHtml = `
+            <div class="card"><div class="num">${totalDrivers}</div><div>Active Drivers</div></div>
+            <div class="card"><div class="num">${formatNumber(totalTrips)}</div><div>Total Trips</div></div>
+            <div class="card"><div class="num">${formatNumber(Math.round(totalQty * 10)/10)}</div><div>Concrete (m³)</div></div>
+            <div class="card"><div class="num">${allDates.length}</div><div>Days in range</div></div>
+            <div class="card"><div class="num">${maxTripValue}</div><div>Max Trip/Day</div></div>
+        `;
+        document.getElementById('summaryArea').innerHTML = summaryHtml;
+        document.getElementById('summaryArea').style.display = 'flex';
+        document.getElementById('noDataMsg').style.display = 'none';
+    }
+    
+    function escapeHtml(str) { if(!str) return ''; return String(str).replace(/[&<>]/g, m => (m==='&'?'&amp;':m==='<'?'&lt;':'&gt;')); }
+    
+    function updatePlantOptionsBySelectedAreas() {
+        if (!rawRecords.length) return;
+        let selectedAreas = Array.from(areaSelect.selectedOptions).map(opt => opt.value);
+        let plantsSet = new Set();
+        if (selectedAreas.length === 0) rawRecords.forEach(rec => plantsSet.add(rec.plant));
+        else rawRecords.forEach(rec => { if (selectedAreas.includes(rec.province)) plantsSet.add(rec.plant); });
+        let plantOptions = Array.from(plantsSet).sort();
+        let previouslySelected = Array.from(plantSelect.selectedOptions).map(opt => opt.value);
+        plantSelect.innerHTML = '';
+        plantOptions.forEach(p => { let opt = document.createElement('option'); opt.value = p; opt.textContent = p; if (previouslySelected.includes(p)) opt.selected = true; plantSelect.appendChild(opt); });
+    }
+    
+    function refreshDashboard() {
+        if (!rawRecords.length) { document.getElementById('tableContainer').style.display = 'none'; document.getElementById('summaryArea').style.display = 'none'; document.getElementById('noDataMsg').style.display = 'block'; return; }
+        let startDate = startDateInput.value, endDate = endDateInput.value;
+        let selectedAreas = Array.from(areaSelect.selectedOptions).map(opt => opt.value);
+        let selectedPlants = Array.from(plantSelect.selectedOptions).map(opt => opt.value);
+        let driverTypeVal = driverTypeSelect.value;
+        let filtered = applyFilters(rawRecords, startDate, endDate, selectedAreas, selectedPlants, driverTypeVal);
+        let aggregated = aggregateDrivers(filtered);
+        renderFilteredResult(aggregated);
+        updateAreaDropdown();
+        updatePlantOptionsBySelectedAreas();
+    }
+    
+    function updateAreaDropdown() {
+        if (!rawRecords.length) return;
+        let areas = new Set();
+        rawRecords.forEach(r => areas.add(r.province));
+        let areaList = Array.from(areas).sort();
+        let previouslySelected = Array.from(areaSelect.selectedOptions).map(opt => opt.value);
+        areaSelect.innerHTML = '';
+        areaList.forEach(a => { let opt = document.createElement('option'); opt.value = a; opt.textContent = a; if (previouslySelected.includes(a)) opt.selected = true; areaSelect.appendChild(opt); });
+        updatePlantOptionsBySelectedAreas();
+    }
+    
+    function resetFilters() {
+        if (rawRecords.length) { let { minDate, maxDate } = getDateRange(rawRecords); if (minDate && maxDate) { startDateInput.value = minDate.toISOString().split('T')[0]; endDateInput.value = maxDate.toISOString().split('T')[0]; } }
+        else { startDateInput.value = ''; endDateInput.value = ''; }
+        for (let opt of areaSelect.options) opt.selected = false;
+        for (let opt of plantSelect.options) opt.selected = false;
+        driverTypeSelect.value = 'all';
+        refreshDashboard();
+    }
+    
+    function exportToExcel() {
+        if (!currentAggregated || !currentAggregated.driversMap || currentAggregated.driversMap.size === 0) { alert("Tidak ada data untuk diexport."); return; }
+        const { driversMap, allDates, maxTripValue } = currentAggregated;
+        let sortedEntries = Array.from(driversMap.entries()).sort((a,b) => b[1].avgTripPerDay - a[1].avgTripPerDay);
+        let exportData = [];
+        let headerRow = ['No', 'Driver Name', 'Plant Name', 'Avg Distance (km)', 'Total Trip', 'Day Work', 'Avg/Trip/Day', 'Total Qty (m³)'];
+        for (let dt of allDates) headerRow.push(`${dt} - Qty`, `${dt} - Trip`);
+        for (let i = 0; i <= maxTripValue; i++) headerRow.push(`${i}Trip`);
+        exportData.push(headerRow);
+        let idx = 1;
+        for (let [driverName, data] of sortedEntries) {
+            let row = [idx++, driverName, data.plant, data.avgDistance, data.totalTrips, data.dayWork, data.avgTripPerDay, Math.round(data.totalQty * 10)/10];
+            for (let dt of allDates) { let daily = data.dailyMap.get(dt); row.push(daily ? (Math.round(daily.qty * 10)/10) : 0, daily ? daily.trips : 0); }
+            for (let i = 0; i <= maxTripValue; i++) row.push(data.tripDistribution.get(i) || 0);
+            exportData.push(row);
+        }
+        const ws = XLSX.utils.aoa_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Driver Report');
+        let now = new Date();
+        XLSX.writeFile(wb, `Driver_Report_${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}.xlsx`);
+    }
+    
+    areaSelect.addEventListener('change', () => { updatePlantOptionsBySelectedAreas(); refreshDashboard(); });
+    plantSelect.addEventListener('change', () => refreshDashboard());
+    startDateInput.addEventListener('change', () => refreshDashboard());
+    endDateInput.addEventListener('change', () => refreshDashboard());
+    driverTypeSelect.addEventListener('change', () => refreshDashboard());
+    resetBtn.addEventListener('click', resetFilters);
+    exportBtn.addEventListener('click', exportToExcel);
+    
+    function handleFile(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array', defval: "" });
+                const firstSheet = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheet];
+                const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+                if (!rows || rows.length < 2) throw new Error("Empty data");
+                let records = buildRecordsFromRows(rows);
+                if (records.length === 0) throw new Error("Data tidak valid");
+                rawRecords = records;
+                setDateFilterRange(rawRecords);
+                driverTypeSelect.value = 'all';
+                areaSelect.innerHTML = '';
+                plantSelect.innerHTML = '';
+                updateAreaDropdown();
+                updatePlantOptionsBySelectedAreas();
+                refreshDashboard();
+                filterPanel.style.display = 'flex';
+                fileInfoSpan.innerHTML = `✅ ${file.name} (${rawRecords.length} trips)`;
+            } catch(err) { fileInfoSpan.innerHTML = `❌ Error`; document.getElementById('noDataMsg').innerHTML = `Error: ${err.message}`; filterPanel.style.display = 'none'; }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+    
+    fileInput.addEventListener('change', (e) => { if (fileInput.files.length) handleFile(fileInput.files[0]); });
+    
+    filterPanel.style.display = 'none';
+    document.getElementById('tableContainer').style.display = 'none';
+    document.getElementById('summaryArea').style.display = 'none';
+    document.getElementById('noDataMsg').style.display = 'block';
+</script>
+</body>
+</html>
