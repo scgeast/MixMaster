@@ -170,7 +170,8 @@
             transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Hilangkan semua scroll di sidebar */
+            overflow: hidden;
+            position: relative;
         }
 
         .sidebar.collapsed {
@@ -186,18 +187,25 @@
             flex-shrink: 0;
         }
 
+        .sidebar-header h2 {
+            font-size: 0.85em;
+            margin: 0;
+        }
+
         .toggle-btn {
-            background: transparent;
-            border: none;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
             color: white;
-            font-size: 1em;
+            font-size: 1.1em;
             cursor: pointer;
-            padding: 3px;
-            border-radius: 3px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: all 0.3s;
         }
 
         .toggle-btn:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
         }
 
         .sidebar-menu {
@@ -205,7 +213,7 @@
             padding: 0;
             margin: 0;
             flex: 1;
-            overflow: visible; /* Hilangkan scroll */
+            overflow: visible;
             display: flex;
             flex-direction: column;
         }
@@ -605,8 +613,10 @@
     <div class="app-container" id="appContainer">
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h2 style="font-size: 0.85em;">MENU</h2>
-                <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+                <h2><i class="fas fa-bars"></i> MENU</h2>
+                <button class="toggle-btn" onclick="toggleSidebar()" title="Toggle Sidebar">
+                    <i class="fas fa-chevron-left" id="toggleIcon"></i>
+                </button>
             </div>
             
             <div class="user-info-sidebar">
@@ -764,6 +774,19 @@
     </div>
 
     <script>
+        // Update toggle icon based on sidebar state
+        function updateToggleIcon() {
+            const sidebar = document.getElementById('sidebar');
+            const toggleIcon = document.getElementById('toggleIcon');
+            if (toggleIcon) {
+                if (sidebar.classList.contains('collapsed')) {
+                    toggleIcon.className = 'fas fa-chevron-right';
+                } else {
+                    toggleIcon.className = 'fas fa-chevron-left';
+                }
+            }
+        }
+
         // Load saved menu group states
         function loadMenuGroupStates() {
             const savedStates = localStorage.getItem('menuGroupStates');
@@ -777,7 +800,7 @@
                     const states = JSON.parse(savedStates);
                     isCollapsed = states[index] === 'collapsed';
                 } else {
-                    isCollapsed = false; // Default expanded
+                    isCollapsed = false;
                 }
                 
                 if (isCollapsed) {
@@ -879,6 +902,7 @@
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('collapsed');
             localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            updateToggleIcon();
             resetInactivityTimer();
         }
 
@@ -969,6 +993,7 @@
                 sidebar.style.left = '0';
                 sidebar.classList.remove('mobile-open');
             }
+            updateToggleIcon();
         }
 
         function logout() {
@@ -989,6 +1014,7 @@
             if (sidebarState === 'true') {
                 document.getElementById('sidebar').classList.add('collapsed');
             }
+            updateToggleIcon();
             
             loadMenuGroupStates();
             checkMobileView();
