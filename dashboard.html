@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Mix Master CDC EAST</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Dashboard - Mix Master CDC EAST</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Blood Moon Color Scheme */
         :root {
@@ -15,181 +15,148 @@
             --blood-moon-light: #FF6B6B;
         }
 
-        /* Layout utama */
-        .login-body {
-            background: linear-gradient(135deg, #2c0c0c 0%, #5D0000 50%, #8B0000 100%);
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
+        /* Reset margin dan padding untuk seluruh halaman */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
             overflow: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 20px;
         }
 
-        /* Container utama */
-        .main-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        /* Loading Screen untuk Auth Check */
+        .auth-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            max-width: 1000px;
-            gap: 40px;
-        }
-
-        /* Side content untuk teks */
-        .side-content {
-            flex: 1;
+            height: 100%;
+            background: linear-gradient(135deg, #1a0a0a 0%, var(--blood-moon-dark) 50%, var(--blood-moon-primary) 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
-            color: white;
-            text-align: left;
-        }
-
-        .brand-main {
-            font-size: 3.5em;
-            font-weight: bold;
-            color: white;
-            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
-            margin-bottom: 10px;
-            line-height: 1.1;
-        }
-
-        .brand-subtitle {
-            font-size: 1.4em;
-            color: var(--blood-moon-light);
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-            margin-bottom: 30px;
-            font-weight: 500;
-        }
-
-        .feature-list {
-            margin: 30px 0;
-            max-height: 400px;
-            overflow-y: auto;
-            padding-right: 10px;
-        }
-
-        .feature-list::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        .feature-list::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-        }
-
-        .feature-list::-webkit-scrollbar-thumb {
-            background: var(--blood-moon-light);
-            border-radius: 10px;
-        }
-
-        .feature-item {
-            display: flex;
             align-items: center;
-            margin-bottom: 12px;
-            font-size: 1em;
-            color: rgba(255, 255, 255, 0.9);
-            padding: 5px 0;
+            color: white;
+            z-index: 10000;
         }
 
-        .feature-icon {
-            margin-right: 10px;
-            font-size: 1.1em;
-            min-width: 30px;
-        }
-
-        .copyright {
-            margin-top: 30px;
-            font-size: 1em;
-            color: rgba(255, 255, 255, 0.7);
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-        }
-
-        .copyright .year {
-            font-weight: bold;
-            color: var(--blood-moon-light);
-        }
-
-        /* Login container */
-        .login-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 
-                0 25px 50px rgba(139, 0, 0, 0.4),
-                0 0 0 1px rgba(255, 255, 255, 0.1);
-            overflow: hidden;
-            width: 100%;
-            max-width: 400px;
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .login-form {
-            padding: 40px 35px;
-        }
-
-        /* Animasi Truck Mixer */
-        .truck-animation {
-            width: 200px;
-            height: 120px;
-            margin: 0 auto 30px;
-            position: relative;
-        }
-
-        .truck-body {
-            width: 140px;
-            height: 50px;
-            background: linear-gradient(45deg, #333, #555);
-            border-radius: 10px 10px 0 0;
-            position: absolute;
-            top: 30px;
-            left: 30px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .truck-cabin {
+        .auth-loading .spinner {
             width: 50px;
-            height: 40px;
-            background: linear-gradient(45deg, #444, #666);
-            border-radius: 8px 0 0 0;
-            position: absolute;
-            top: 30px;
-            left: 170px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid var(--blood-moon-light);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
         }
 
-        .truck-mixer {
-            width: 80px;
-            height: 60px;
+        .auth-loading p {
+            font-size: 1.2em;
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* Screen Saver Styles */
+        .screensaver {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a0a0a 0%, var(--blood-moon-dark) 50%, var(--blood-moon-primary) 100%);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            cursor: pointer;
+        }
+
+        .screensaver.active {
+            display: flex;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .screensaver-logo {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .screensaver-logo h1 {
+            font-size: 4em;
+            font-weight: bold;
+            margin: 0;
+            background: linear-gradient(135deg, #FF6B6B, #FFD93D);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+        }
+
+        .screensaver-logo .subtitle {
+            font-size: 1.5em;
+            color: var(--blood-moon-light);
+            margin-top: 10px;
+            letter-spacing: 3px;
+        }
+
+        /* Animasi Concrete Mixer */
+        .mixer-animation {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            margin: 30px auto;
+        }
+
+        .mixer-truck {
+            position: absolute;
+            width: 200px;
+            height: 80px;
+            background: linear-gradient(45deg, #333, #555);
+            border-radius: 10px;
+            top: 60px;
+            left: 50px;
+            animation: truckMove 8s ease-in-out infinite;
+        }
+
+        .mixer-drum {
+            position: absolute;
+            width: 100px;
+            height: 80px;
             background: linear-gradient(45deg, var(--blood-moon-primary), var(--blood-moon-accent));
-            border-radius: 40px 40px 40px 40px;
-            position: absolute;
-            top: 20px;
-            left: 60px;
+            border-radius: 40px;
+            top: 50px;
+            left: 80px;
             animation: rotateMixer 4s linear infinite;
-            box-shadow: 0 0 20px rgba(139, 0, 0, 0.5);
+            box-shadow: 0 0 30px rgba(220, 20, 60, 0.5);
         }
 
-        .truck-mixer::before {
+        .mixer-drum::before {
             content: '';
             position: absolute;
-            width: 70px;
-            height: 50px;
+            width: 80px;
+            height: 60px;
             background: rgba(255,255,255,0.1);
-            border-radius: 35px;
-            top: 5px;
-            left: 5px;
+            border-radius: 30px;
+            top: 10px;
+            left: 10px;
         }
 
         .wheel {
-            width: 25px;
-            height: 25px;
+            position: absolute;
+            width: 30px;
+            height: 30px;
             background: #111;
             border-radius: 50%;
-            position: absolute;
-            bottom: 10px;
+            bottom: -15px;
             border: 3px solid #333;
             animation: rotateWheel 2s linear infinite;
         }
@@ -197,8 +164,8 @@
         .wheel::before {
             content: '';
             position: absolute;
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             background: #666;
             border-radius: 50%;
             top: 50%;
@@ -211,40 +178,105 @@
         }
 
         .wheel-back {
-            left: 50px;
+            left: 40px;
         }
 
-        .exhaust {
+        .concrete-pour {
+            position: absolute;
             width: 8px;
-            height: 15px;
-            background: #666;
-            position: absolute;
-            top: 25px;
-            left: 220px;
-            border-radius: 2px;
-        }
-
-        .exhaust-smoke {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background: rgba(255,255,255,0.3);
-            border-radius: 50%;
-            top: 10px;
-            left: 225px;
-            animation: smoke 2s ease-in-out infinite;
-        }
-
-        .concrete-drip {
-            position: absolute;
-            width: 6px;
-            height: 15px;
+            height: 40px;
             background: linear-gradient(to bottom, #8B0000, #5D0000);
-            border-radius: 0 0 3px 3px;
-            bottom: -5px;
-            left: 100px;
-            animation: drip 1.5s ease-in-out infinite;
+            border-radius: 0 0 4px 4px;
+            bottom: -20px;
+            left: 120px;
+            animation: pour 2s ease-in-out infinite;
             opacity: 0.8;
+        }
+
+        /* Floating Bubbles */
+        .bubble {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .bubble:nth-child(1) { width: 20px; height: 20px; top: 20%; left: 10%; animation-delay: 0s; }
+        .bubble:nth-child(2) { width: 15px; height: 15px; top: 60%; left: 80%; animation-delay: 1s; }
+        .bubble:nth-child(3) { width: 25px; height: 25px; top: 40%; left: 30%; animation-delay: 2s; }
+        .bubble:nth-child(4) { width: 18px; height: 18px; top: 70%; left: 60%; animation-delay: 3s; }
+        .bubble:nth-child(5) { width: 22px; height: 22px; top: 30%; left: 90%; animation-delay: 4s; }
+
+        /* Pulsing Circles */
+        .pulse-circle {
+            position: absolute;
+            border: 2px solid rgba(255, 107, 107, 0.3);
+            border-radius: 50%;
+            animation: pulse 3s ease-out infinite;
+        }
+
+        .pulse-circle:nth-child(1) { width: 100px; height: 100px; top: 20%; left: 20%; animation-delay: 0s; }
+        .pulse-circle:nth-child(2) { width: 150px; height: 150px; top: 60%; left: 70%; animation-delay: 1s; }
+        .pulse-circle:nth-child(3) { width: 80px; height: 80px; top: 80%; left: 30%; animation-delay: 2s; }
+
+        /* ANIMASI BARU: Daun Berguguran */
+        .falling-leaf {
+            position: absolute;
+            color: #FFD93D;
+            font-size: 20px;
+            animation: fallingLeaf 15s linear infinite;
+            opacity: 0.7;
+        }
+
+        .leaf-1 { left: 5%; animation-delay: 0s; animation-duration: 18s; }
+        .leaf-2 { left: 15%; animation-delay: 2s; animation-duration: 20s; }
+        .leaf-3 { left: 25%; animation-delay: 4s; animation-duration: 16s; }
+        .leaf-4 { left: 35%; animation-delay: 6s; animation-duration: 22s; }
+        .leaf-5 { left: 45%; animation-delay: 8s; animation-duration: 19s; }
+        .leaf-6 { left: 55%; animation-delay: 10s; animation-duration: 17s; }
+        .leaf-7 { left: 65%; animation-delay: 12s; animation-duration: 21s; }
+        .leaf-8 { left: 75%; animation-delay: 14s; animation-duration: 18s; }
+        .leaf-9 { left: 85%; animation-delay: 16s; animation-duration: 20s; }
+        .leaf-10 { left: 95%; animation-delay: 18s; animation-duration: 16s; }
+
+        /* ANIMASI BARU: Kertas Terbang */
+        .flying-paper {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            width: 30px;
+            height: 40px;
+            border-radius: 2px;
+            animation: flyingPaper 12s linear infinite;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        .paper-1 { left: 8%; animation-delay: 1s; animation-duration: 15s; }
+        .paper-2 { left: 22%; animation-delay: 3s; animation-duration: 18s; }
+        .paper-3 { left: 38%; animation-delay: 5s; animation-duration: 14s; }
+        .paper-4 { left: 52%; animation-delay: 7s; animation-duration: 16s; }
+        .paper-5 { left: 68%; animation-delay: 9s; animation-duration: 19s; }
+        .paper-6 { left: 82%; animation-delay: 11s; animation-duration: 13s; }
+
+        /* ANIMASI BARU: Dokumen Berputar */
+        .floating-doc {
+            position: absolute;
+            color: #FF6B6B;
+            font-size: 24px;
+            animation: floatingDoc 8s ease-in-out infinite;
+            opacity: 0.8;
+        }
+
+        .doc-1 { top: 15%; left: 12%; animation-delay: 0s; }
+        .doc-2 { top: 25%; left: 78%; animation-delay: 2s; }
+        .doc-3 { top: 65%; left: 18%; animation-delay: 4s; }
+        .doc-4 { top: 75%; left: 82%; animation-delay: 6s; }
+
+        /* Animations */
+        @keyframes truckMove {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(20px); }
+            50% { transform: translateX(0); }
+            75% { transform: translateX(-20px); }
         }
 
         @keyframes rotateMixer {
@@ -257,205 +289,701 @@
             100% { transform: rotate(360deg); }
         }
 
-        @keyframes smoke {
-            0% { 
-                transform: translateY(0) scale(1); 
-                opacity: 0.3; 
+        @keyframes pour {
+            0%, 100% { height: 40px; opacity: 0.8; }
+            50% { height: 60px; opacity: 1; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+            25% { transform: translateY(-20px) translateX(10px); opacity: 0.6; }
+            50% { transform: translateY(-40px) translateX(-10px); opacity: 0.8; }
+            75% { transform: translateY(-20px) translateX(10px); opacity: 0.6; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
+        /* ANIMASI BARU: Daun Berguguran */
+        @keyframes fallingLeaf {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 0;
             }
-            50% { 
-                transform: translateY(-10px) scale(1.2); 
-                opacity: 0.6; 
+            10% {
+                opacity: 0.8;
             }
-            100% { 
-                transform: translateY(-20px) scale(1.5); 
-                opacity: 0; 
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
             }
         }
 
-        @keyframes drip {
-            0%, 100% { 
-                height: 15px; 
-                opacity: 0.8; 
+        /* ANIMASI BARU: Kertas Terbang */
+        @keyframes flyingPaper {
+            0% {
+                transform: translateY(-100px) translateX(0) rotate(0deg);
+                opacity: 0;
             }
-            50% { 
-                height: 25px; 
-                opacity: 1; 
+            10% {
+                opacity: 0.9;
+            }
+            50% {
+                transform: translateY(50vh) translateX(50px) rotate(180deg);
+            }
+            90% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(100vh) translateX(100px) rotate(360deg);
+                opacity: 0;
             }
         }
 
-        /* Road animation */
-        .road {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 20px;
-            background: #444;
-            border-top: 2px dashed #666;
+        /* ANIMASI BARU: Dokumen Berputar */
+        @keyframes floatingDoc {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-20px) rotate(90deg);
+            }
+            50% {
+                transform: translateY(0px) rotate(180deg);
+            }
+            75% {
+                transform: translateY(20px) rotate(270deg);
+            }
         }
 
-        .road-line {
-            position: absolute;
-            bottom: 9px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: repeating-linear-gradient(
-                90deg,
-                yellow,
-                yellow 10px,
-                transparent 10px,
-                transparent 20px
-            );
-            animation: roadMove 3s linear infinite;
-        }
-
-        @keyframes roadMove {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-20px); }
-        }
-
-        .company-logo {
+        .screensaver-message {
             text-align: center;
-            margin-bottom: 10px;
+            margin-top: 40px;
+            font-size: 1.2em;
+            color: rgba(255, 255, 255, 0.8);
+            animation: glow 2s ease-in-out infinite alternate;
         }
 
-        .company-logo h1 {
-            font-size: 2.2em;
-            background: linear-gradient(135deg, var(--blood-moon-primary), var(--blood-moon-accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 5px;
-            font-weight: bold;
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 107, 107, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 107, 107, 0.8), 0 0 30px rgba(255, 107, 107, 0.6); }
         }
 
-        .company-logo .subtitle {
-            font-size: 1em;
-            color: var(--blood-moon-accent);
-            font-weight: 600;
-            letter-spacing: 2px;
-        }
-
-        /* Form Styles */
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--blood-moon-accent);
-            background: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(139, 0, 0, 0.2);
-        }
-
-        .btn-login {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--blood-moon-primary), var(--blood-moon-accent));
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(139, 0, 0, 0.4);
-        }
-
-        /* Footer di dalam kotak login - EFEK DIPERBAIKI */
-        .login-footer {
-            text-align: center;
-            margin-top: 30px;
-            color: #666;
+        .screensaver-tap {
+            margin-top: 20px;
             font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.6);
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 0.6; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        /* Sidebar Styles - FULL SCREEN */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            display: none; /* Sembunyikan dulu sampai auth berhasil */
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--blood-moon-dark) 0%, var(--blood-moon-primary) 100%);
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar.collapsed {
+            width: 50px;
+        }
+
+        .sidebar-header {
+            padding: 12px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 1em;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed .sidebar-header h2 {
+            display: none;
+        }
+
+        .toggle-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            padding: 3px;
+            border-radius: 3px;
+            transition: background 0.3s;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            padding: 0;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .menu-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left-color: var(--blood-moon-light);
+        }
+
+        .menu-link.active {
+            background: rgba(220, 20, 60, 0.3);
+            color: white;
+            border-left-color: var(--blood-moon-light);
+        }
+
+        .menu-icon {
+            font-size: 1.1em;
+            margin-right: 10px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .menu-initial {
+            display: none;
+            font-weight: 700;
+            font-size: 0.9em;
+            text-align: center;
+            width: 100%;
+        }
+
+        .sidebar.collapsed .menu-icon {
+            display: none;
+        }
+
+        .sidebar.collapsed .menu-initial {
+            display: block;
+        }
+
+        .menu-text {
+            white-space: nowrap;
+            transition: opacity 0.3s;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        .sidebar.collapsed .menu-text {
+            opacity: 0;
+            width: 0;
+            display: none;
+        }
+
+        /* Tooltip untuk collapsed state */
+        .menu-link::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .sidebar.collapsed .menu-link:hover::after {
+            opacity: 1;
+            visibility: visible;
+            left: 110%;
+        }
+
+        /* Sidebar Footer untuk Logout */
+        .sidebar-footer {
+            padding: 12px 10px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            margin-top: auto;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 8px 10px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+            font-weight: 500;
+            justify-content: center;
+            position: relative;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-1px);
+        }
+
+        .logout-icon {
+            margin-right: 6px;
+            font-size: 1em;
+        }
+
+        .sidebar.collapsed .logout-text {
+            display: none;
+        }
+
+        .sidebar.collapsed .logout-icon {
+            margin-right: 0;
+        }
+
+        /* Tooltip untuk logout */
+        .logout-btn::after {
+            content: 'Logout';
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .sidebar.collapsed .logout-btn:hover::after {
+            opacity: 1;
+            visibility: visible;
+            left: 110%;
+        }
+
+        /* Main Content Styles - HEADER DIHAPUS */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            width: calc(100vw - 250px);
+            transition: width 0.3s ease;
+        }
+
+        .sidebar.collapsed ~ .main-content {
+            width: calc(100vw - 50px);
+        }
+
+        .app-frame-container {
+            flex: 1;
+            padding: 0;
+            background: white;
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .app-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            color: #7f8c8d;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* Hover Effects untuk Welcome Screen */
+        .welcome-screen:hover {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+            transform: scale(1.01);
+        }
+
+        .welcome-screen:hover .welcome-icon {
+            transform: scale(1.1) rotate(5deg);
+            color: var(--blood-moon-accent);
+        }
+
+        .welcome-screen:hover h2 {
+            color: var(--blood-moon-accent);
+            text-shadow: 0 2px 10px rgba(220, 20, 60, 0.2);
+        }
+
+        .welcome-screen:hover .feature-card {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .welcome-icon {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            opacity: 0.8;
+            color: var(--blood-moon-primary);
+            transition: all 0.4s ease;
+        }
+
+        .welcome-screen h2 {
+            color: var(--blood-moon-primary);
+            margin-bottom: 10px;
+            font-size: 1.6em;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .welcome-screen p {
+            max-width: 500px;
+            line-height: 1.5;
+            font-size: 0.95em;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .welcome-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+            max-width: 800px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 3px solid var(--blood-moon-accent);
             transition: all 0.3s ease;
             cursor: pointer;
         }
 
-        .login-footer:hover {
+        .feature-card:hover {
+            border-left-color: var(--blood-moon-primary);
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        }
+
+        .feature-icon {
+            font-size: 1.6em;
+            margin-bottom: 6px;
+            color: var(--blood-moon-primary);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.2);
+            color: var(--blood-moon-accent);
+        }
+
+        .feature-card h4 {
+            margin: 0 0 6px 0;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover h4 {
+            color: var(--blood-moon-primary);
+        }
+
+        .feature-card p {
+            font-size: 0.85em;
+            margin: 0;
+            line-height: 1.4;
+            transition: all 0.3s ease;
+        }
+
+        /* Footer untuk Welcome Screen - POJOK KANAN BAWAH TANPA BACKGROUND */
+        .welcome-footer {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            text-align: right;
+            color: #666;
+            font-size: 0.8em;
+            font-weight: 500;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            background: transparent; /* Tidak ada background */
+            padding: 0; /* Tidak ada padding */
+            border: none; /* Tidak ada border */
+            box-shadow: none; /* Tidak ada shadow */
+        }
+
+        .welcome-footer:hover {
+            opacity: 1;
             color: var(--blood-moon-primary);
             transform: translateX(-3px);
         }
 
-        .version {
-            font-size: 0.8em;
-            color: #999;
-            margin-top: 5px;
-            transition: color 0.3s ease;
-        }
-
-        .login-footer:hover .version {
+        /* Loading State */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            font-size: 1em;
             color: var(--blood-moon-primary);
+            background: #f8f9fa;
         }
 
-        /* Error message */
-        .error-message {
-            background: #ff4444;
-            color: white;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 14px;
+        .loading::after {
+            content: '';
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--blood-moon-primary);
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 6px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+           100% { transform: rotate(360deg); }
+        }
+
+        /* User Info di Sidebar - BACKGROUND DIHILANGKAN */
+        .user-info-sidebar {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: transparent; /* Background dihilangkan */
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: transparent; /* Background dihilangkan */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+            color: white; /* Warna teks tetap putih */
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-bottom: 2px;
+        }
+
+        .user-role {
+            font-size: 0.75em;
+            opacity: 0.8;
+        }
+
+        .sidebar.collapsed .user-details {
             display: none;
+        }
+
+        .sidebar.collapsed .user-avatar {
+            width: 28px;
+            height: 28px;
+            font-size: 0.8em;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .main-container {
-                flex-direction: column;
-                text-align: center;
+            .sidebar {
+                position: fixed;
+                left: -250px;
+                height: 100vh;
+                z-index: 1000;
             }
-            
-            .side-content {
-                text-align: center;
+
+            .sidebar.mobile-open {
+                left: 0;
             }
-            
-            .brand-main {
+
+            .sidebar.collapsed {
+                left: -50px;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+                background: none;
+                border: none;
+                font-size: 1.2em;
+                cursor: pointer;
+                color: white;
+                margin-right: 10px;
+            }
+
+            .main-content {
+                width: 100vw;
+            }
+
+            .sidebar.collapsed ~ .main-content {
+                width: 100vw;
+            }
+
+            .screensaver-logo h1 {
                 font-size: 2.5em;
             }
-            
-            .feature-item {
-                justify-content: center;
+
+            .screensaver-logo .subtitle {
+                font-size: 1.1em;
             }
-            
-            .truck-animation {
-                transform: scale(0.8);
+
+            .mixer-animation {
+                transform: scale(0.7);
+            }
+
+            .welcome-footer {
+                right: 15px;
+                bottom: 15px;
+                font-size: 0.75em;
             }
         }
 
-        /* New app indicator */
+        /* Desktop only */
+        @media (min-width: 769px) {
+            .mobile-menu-btn {
+                display: none;
+            }
+        }
+
+        /* CDC EAST Vertical Text - DIPINDAHKAN KE BAWAH MENU */
+        .cdc-east-text {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 0;
+            margin-top: auto;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.8em; /* SAMA DENGAN UKURAN MIX MASTER */
+            letter-spacing: 0.5px;
+            color: rgba(255,255,255,0.9);
+            background: transparent; /* Background dihilangkan */
+        }
+
+        .cdc-east-text span {
+            display: block;
+            line-height: 1.2;
+        }
+
+        .sidebar.collapsed .cdc-east-text {
+            display: flex;
+        }
+
+        /* MIX MASTER Text untuk sidebar terbuka */
+        .mix-master-text {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 0;
+            margin-top: auto;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.8em;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.9);
+            background: transparent;
+        }
+
+        .mix-master-text span {
+            display: block;
+            line-height: 1.2;
+        }
+
+        .sidebar:not(.collapsed) .mix-master-text {
+            display: flex;
+        }
+        
+        /* Style untuk link dengan href langsung (untuk new tab) */
+        .menu-link.with-href {
+            text-decoration: none;
+        }
+        
+        .menu-link.with-href:hover {
+            text-decoration: none;
+        }
+
+        /* New App Badge */
         .new-badge {
             background: var(--blood-moon-accent);
             color: white;
             font-size: 0.7em;
-            padding: 2px 8px;
-            border-radius: 12px;
-            margin-left: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
             font-weight: bold;
             text-transform: uppercase;
             animation: pulse 2s infinite;
@@ -467,188 +995,729 @@
         }
     </style>
 </head>
-<body class="login-body">
-    <div class="main-container">
-        <!-- Side Content dengan Teks -->
-        <div class="side-content">
-            <div class="brand-main">GO EAST</div>
-            <div class="brand-subtitle">Innovation & Excellence</div>
+<body>
+    <!-- Loading Screen untuk Authentication Check -->
+    <div class="auth-loading" id="authLoading">
+        <div class="spinner"></div>
+        <p>Checking authentication...</p>
+    </div>
+
+    <!-- Screen Saver -->
+    <div class="screensaver" id="screensaver">
+        <div class="screensaver-logo">
+            <h1>MIX MASTER</h1>
+            <div class="subtitle">CDC EAST</div>
+        </div>
+
+        <!-- Animasi Concrete Mixer -->
+        <div class="mixer-animation">
+            <div class="mixer-truck">
+                <div class="mixer-drum"></div>
+                <div class="wheel wheel-front"></div>
+                <div class="wheel wheel-back"></div>
+                <div class="concrete-pour"></div>
+            </div>
             
-            <div class="feature-list">
-                <div class="feature-item">
-                    <span class="feature-icon">📌</span>
-                    <span>Concrete Delivery System</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">🚛</span>
-                    <span>Truck Monitoring</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">📊</span>
-                    <span>Real-time Analytics</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">🏭</span>
-                    <span>Production Management</span>
-                </div>
-                <!-- DAFTAR APLIKASI DARI FOLDER APP -->
-                <div class="feature-item">
-                    <span class="feature-icon">⚡</span>
-                    <span>Absence.LastDP</span>
-                    <span class="new-badge">New</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">✅</span>
-                    <span>CodeMatch-Validator</span>
-                    <span class="new-badge">New</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">🌅</span>
-                    <span>Crack of Dawn Loading Time</span>
-                    <span class="new-badge">New</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">⚽</span>
-                    <span>Libero Activity</span>
-                    <span class="new-badge">New</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">📅</span>
-                    <span>jadwal-pengecoran</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">📦</span>
-                    <span>monitoring-order-delivery</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">🏗️</span>
-                    <span>production-all-area</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">📈</span>
-                    <span>summary-daily-delivery</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">🚚</span>
-                    <span>utilisasi-truck</span>
+            <!-- Floating Bubbles -->
+            <div class="bubble"></div>
+            <div class="bubble"></div>
+            <div class="bubble"></div>
+            <div class="bubble"></div>
+            <div class="bubble"></div>
+            
+            <!-- Pulsing Circles -->
+            <div class="pulse-circle"></div>
+            <div class="pulse-circle"></div>
+            <div class="pulse-circle"></div>
+
+            <!-- ANIMASI BARU: Daun Berguguran -->
+            <div class="falling-leaf leaf-1">🍂</div>
+            <div class="falling-leaf leaf-2">🍁</div>
+            <div class="falling-leaf leaf-3">🍂</div>
+            <div class="falling-leaf leaf-4">🍁</div>
+            <div class="falling-leaf leaf-5">🍂</div>
+            <div class="falling-leaf leaf-6">🍁</div>
+            <div class="falling-leaf leaf-7">🍂</div>
+            <div class="falling-leaf leaf-8">🍁</div>
+            <div class="falling-leaf leaf-9">🍂</div>
+            <div class="falling-leaf leaf-10">🍁</div>
+
+            <!-- ANIMASI BARU: Kertas Terbang -->
+            <div class="flying-paper paper-1"></div>
+            <div class="flying-paper paper-2"></div>
+            <div class="flying-paper paper-3"></div>
+            <div class="flying-paper paper-4"></div>
+            <div class="flying-paper paper-5"></div>
+            <div class="flying-paper paper-6"></div>
+
+            <!-- ANIMASI BARU: Dokumen Berputar -->
+            <div class="floating-doc doc-1">📄</div>
+            <div class="floating-doc doc-2">📋</div>
+            <div class="floating-doc doc-3">📑</div>
+            <div class="floating-doc doc-4">📊</div>
+        </div>
+
+        <div class="screensaver-message">
+            System is active and ready
+        </div>
+        <div class="screensaver-tap">
+            Tap anywhere to continue
+        </div>
+    </div>
+
+    <div class="app-container" id="appContainer">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Application Menu</h2>
+                <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+            </div>
+            
+            <!-- User Info di Sidebar - TANPA BACKGROUND -->
+            <div class="user-info-sidebar">
+                <div class="user-avatar" id="userAvatar">KU</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Kim Jong Un</div>
+                    <div class="user-role">Administrator</div>
                 </div>
             </div>
-
-            <div class="copyright">
-                Copy Right <span class="year">2025</span>
+            
+        <ul class="sidebar-menu">
+            <!-- Tombol Home Baru -->
+            <li class="menu-item">
+                <a href="dashboard.html" class="menu-link with-href" onclick="showWelcomeScreen(event)" data-tooltip="Home">
+                    <span class="menu-icon">🏠</span>
+                    <span class="menu-initial">H</span>
+                    <span class="menu-text">Home</span>
+                </a>
+            </li>
+            
+            <!-- APLIKASI LAMA (URUTAN ATAS) -->
+            <!-- APLIKASI: summary-daily-delivery -->
+            <li class="menu-item">
+                <a href="dashboard.html?app=delivery" class="menu-link with-href" onclick="loadApp('summary-daily-delivery', event)" data-tooltip="Summary Daily Delivery">
+                    <span class="menu-icon">📦</span>
+                    <span class="menu-initial">S</span>
+                    <span class="menu-text">summary-daily-delivery</span>
+                </a>
+            </li>
+            
+            <!-- APLIKASI: utilisasi-truck -->
+            <li class="menu-item">
+                <a href="dashboard.html?app=truck" class="menu-link with-href" onclick="loadApp('utilisasi-truck', event)" data-tooltip="Truck Utilization">
+                    <span class="menu-icon">🚛</span>
+                    <span class="menu-initial">U</span>
+                    <span class="menu-text">utilisasi-truck</span>
+                </a>
+            </li>
+            
+            <!-- APLIKASI: monitoring-order-delivery -->
+            <li class="menu-item">
+                <a href="dashboard.html?app=monitoring" class="menu-link with-href" onclick="loadApp('monitoring-order', event)" data-tooltip="Monitoring Order Delivery">
+                    <span class="menu-icon">📊</span>
+                    <span class="menu-initial">M</span>
+                    <span class="menu-text">monitoring-order-delivery</span>
+                </a>
+            </li>
+            
+            <!-- APLIKASI: jadwal-pengecoran -->
+            <li class="menu-item">
+                <a href="dashboard.html?app=schedule" class="menu-link with-href" onclick="loadApp('jadwal-pengecoran', event)" data-tooltip="Pouring Schedule">
+                    <span class="menu-icon">📅</span>
+                    <span class="menu-initial">J</span>
+                    <span class="menu-text">jadwal-pengecoran</span>
+                </a>
+            </li>
+            
+            <!-- APLIKASI: production-all-area -->
+            <li class="menu-item">
+                <a href="dashboard.html?app=production" class="menu-link with-href" onclick="loadApp('production-all-area', event)" data-tooltip="Production All Area">
+                    <span class="menu-icon">🏭</span>
+                    <span class="menu-initial">P</span>
+                    <span class="menu-text">production-all-area</span>
+                </a>
+            </li>
+            
+            <!-- PEMISAH: Garis tipis untuk memisahkan aplikasi lama dan baru -->
+            <li style="border-top: 1px solid rgba(255,255,255,0.2); margin: 5px 0;"></li>
+            
+            <!-- APLIKASI BARU (URUTAN BAWAH) -->
+            <!-- APLIKASI BARU: CodeMatch-Validator -->
+            <li class="menu-item">
+                <a href="dashboard.html?app=codematch" class="menu-link with-href" onclick="loadApp('codematch-validator', event)" data-tooltip="CodeMatch Validator">
+                    <span class="menu-icon">✅</span>
+                    <span class="menu-initial">C</span>
+                    <span class="menu-text">
+                        CodeMatch-Validator
+                        <span class="new-badge">New</span>
+                    </span>
+                </a>
+            </li>
+            
+            <!-- APLIKASI BARU: Absence.LastDP -->
+            <li class="menu-item">
+                <a href="dashboard.html?app=absence" class="menu-link with-href" onclick="loadApp('absence-lastdp', event)" data-tooltip="Absence Last DP">
+                    <span class="menu-icon">⚡</span>
+                    <span class="menu-initial">A</span>
+                    <span class="menu-text">
+                        Absence.LastDP
+                        <span class="new-badge">New</span>
+                    </span>
+                </a>
+            </li>
+            
+            <!-- APLIKASI BARU: Crack of Dawn Loading Time -->
+            <li class="menu-item">
+                <a href="dashboard.html?app=crackofdawn" class="menu-link with-href" onclick="loadApp('crackofdawn-loading-time', event)" data-tooltip="Crack of Dawn Loading Time">
+                    <span class="menu-icon">🌅</span>
+                    <span class="menu-initial">C</span>
+                    <span class="menu-text">
+                        Crack of Dawn Loading Time
+                        <span class="new-badge">New</span>
+                    </span>
+                </a>
+            </li>
+        </ul>
+            
+            <!-- MIX MASTER Text untuk sidebar terbuka -->
+            <div class="mix-master-text">
+                <span>MIX MASTER</span>
+                <span style="margin-top: 3px;">CDC EAST</span>
+            </div>
+            
+            <!-- CDC EAST Text di bagian bawah sidebar saat tertutup -->
+            <div class="cdc-east-text">
+                <span>M</span>
+                <span>I</span>
+                <span>X</span>
+                <span style="margin-top: 3px;">M</span>
+                <span>A</span>
+                <span>S</span>
+                <span>T</span>
+                <span>E</span>
+                <span>R</span>
+                <span style="margin-top: 5px;">C</span>
+                <span>D</span>
+                <span>C</span>
+                <span style="margin-top: 3px;">E</span>
+                <span>A</span>
+                <span>S</span>
+                <span>T</span>
+            </div>
+            
+            <!-- Logout Button di Sidebar Footer -->
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logout()">
+                    <span class="logout-icon">🚪</span>
+                    <span class="logout-text">Logout</span>
+                </button>
             </div>
         </div>
 
-        <!-- Login Container -->
-        <div class="login-container">
-            <div class="login-form">
-                <div class="company-logo">
-                    <h1>MIX MASTER</h1>
-                    <div class="subtitle">CDC EAST</div>
-                </div>
-
-                <!-- Animasi Truck Mixer -->
-                <div class="truck-animation">
-                    <div class="truck-body"></div>
-                    <div class="truck-cabin"></div>
-                    <div class="truck-mixer"></div>
-                    <div class="wheel wheel-front"></div>
-                    <div class="wheel wheel-back"></div>
-                    <div class="exhaust"></div>
-                    <div class="exhaust-smoke"></div>
-                    <div class="concrete-drip"></div>
-                    <div class="road">
-                        <div class="road-line"></div>
-                    </div>
-                </div>
-
-                <div id="errorMessage" class="error-message"></div>
-
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" id="username" name="username" required 
-                               placeholder="Masukkan username Anda">
-                    </div>
+        <!-- Main Content - TANPA HEADER -->
+        <div class="main-content">
+            <div class="app-frame-container">
+                <div class="welcome-screen" id="welcomeScreen">
+                    <div class="welcome-icon">🏠</div>
+                    <h2>Welcome to Mix Master CDC EAST</h2>
+                    <p>Integrated management system for monitoring and managing concrete delivery operations</p>
                     
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" required 
-                               placeholder="Masukkan password Anda">
+                    <div class="welcome-features">
+                        <div class="feature-card">
+                            <div class="feature-icon">📊</div>
+                            <h4>Real-time Monitoring</h4>
+                            <p>Monitor orders and deliveries in real-time</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">📅</div>
+                            <h4>Integrated Schedule</h4>
+                            <p>Manage pouring schedules efficiently</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🚛</div>
+                            <h4>Fleet Management</h4>
+                            <p>Optimize truck mixer utilization</p>
+                        </div>
+                        <!-- APLIKASI BARU di Welcome Screen -->
+                        <div class="feature-card">
+                            <div class="feature-icon">⚡</div>
+                            <h4>Absence.LastDP</h4>
+                            <p>Track and manage attendance records</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">✅</div>
+                            <h4>CodeMatch Validator</h4>
+                            <p>Validate and match code patterns</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🌅</div>
+                            <h4>Crack of Dawn</h4>
+                            <p>Loading time optimization</p>
+                        </div>
                     </div>
-                    
-                    <button type="submit" class="btn-login">
-                        <span>Login ke Sistem</span>
-                    </button>
-                </form>
 
-                <div class="login-footer">
-                    <div>Integrated Management System</div>
-                    <div class="version">v1.1 | Created By Kim Jong Un CDC EAST</div>
+                    <!-- Footer di Welcome Screen - POJOK KANAN BAWAH TANPA BACKGROUND -->
+                    <div class="welcome-footer">
+                        Created By Kim Jong Un
+                    </div>
                 </div>
+                <iframe class="app-frame" id="appFrame" style="display: none;"></iframe>
+                <div class="loading" id="loading" style="display: none;">Loading application...</div>
             </div>
         </div>
     </div>
 
     <script>
-        // Konfigurasi users untuk login
-        const validUsers = [
-            { username: "admin", password: "admin123", name: "Administrator", role: "Administrator" },
-            { username: "user", password: "user123", name: "Staff User", role: "Staff" },
-            { username: "kimjongun", password: "cdceast2025", name: "Kim Jong Un", role: "Super Administrator" }
-        ];
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Auto focus pada username field
-            document.getElementById('username').focus();
-            
-            // Cek apakah sudah login sebelumnya
+        // Authentication check function
+        function checkAuth() {
             const isLoggedIn = localStorage.getItem('isLoggedIn');
-            if (isLoggedIn === 'true') {
-                window.location.href = 'dashboard.html';
+            const currentUser = localStorage.getItem('currentUser');
+            
+            console.log('Auth check - isLoggedIn:', isLoggedIn, 'currentUser:', currentUser);
+            
+            if (!isLoggedIn || !currentUser) {
+                console.log('User not authenticated, redirecting to login');
+                window.location.href = 'index.html';
+                return false;
+            }
+            
+            console.log('User authenticated successfully');
+            return true;
+        }
+
+        // Fungsi untuk mendapatkan parameter dari URL
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Peta aplikasi untuk parameter URL
+        const appParameterMap = {
+            // Aplikasi baru
+            'absence': 'absence-lastdp',
+            'absence-lastdp': 'absence-lastdp',
+            'codematch': 'codematch-validator',
+            'codematch-validator': 'codematch-validator',
+            'code-match': 'codematch-validator',
+            'crackofdawn': 'crackofdawn-loading-time',
+            'crack-of-dawn': 'crackofdawn-loading-time',
+            'loading-time': 'crackofdawn-loading-time',
+            // Aplikasi existing
+            'jadwal-pengecoran': 'jadwal-pengecoran',
+            'schedule': 'jadwal-pengecoran',
+            'pouring': 'jadwal-pengecoran',
+            'monitoring-order': 'monitoring-order',
+            'monitoring': 'monitoring-order',
+            'order': 'monitoring-order',
+            'production-all-area': 'production-all-area',
+            'production': 'production-all-area',
+            'area': 'production-all-area',
+            'summary-daily-delivery': 'summary-daily-delivery',
+            'delivery': 'summary-daily-delivery',
+            'perform-delivery': 'summary-daily-delivery',
+            'utilisasi-truck': 'utilisasi-truck',
+            'truck': 'utilisasi-truck',
+            'truck-utilization': 'utilisasi-truck'
+        };
+
+        // Peta aplikasi untuk nama menu
+        const appMenuMap = {
+            'absence-lastdp': 'Absence.LastDP',
+            'codematch-validator': 'CodeMatch-Validator',
+            'crackofdawn-loading-time': 'Crack of Dawn Loading Time',
+            'jadwal-pengecoran': 'jadwal-pengecoran',
+            'monitoring-order': 'monitoring-order-delivery',
+            'production-all-area': 'production-all-area',
+            'summary-daily-delivery': 'summary-daily-delivery',
+            'utilisasi-truck': 'utilisasi-truck'
+        };
+
+        // Initialize dashboard dengan auto-load app dari parameter URL
+        function initializeDashboard() {
+            // Hide auth loading screen
+            document.getElementById('authLoading').style.display = 'none';
+            
+            // Show main app container
+            document.getElementById('appContainer').style.display = 'flex';
+            
+            // Display user info di sidebar
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            document.getElementById('userName').textContent = user.name || 'User';
+            document.getElementById('userAvatar').textContent = getInitials(user.name || 'User');
+            
+            // Initialize sidebar state
+            const sidebarState = localStorage.getItem('sidebarCollapsed');
+            if (sidebarState === 'true') {
+                document.getElementById('sidebar').classList.add('collapsed');
+            }
+            
+            // Check mobile view
+            checkMobileView();
+            window.addEventListener('resize', checkMobileView);
+            
+            // Check for URL parameter to auto-load app
+            const appParam = getUrlParameter('app');
+            if (appParam && appParameterMap[appParam]) {
+                const appName = appParameterMap[appParam];
+                console.log('Auto-loading app from URL parameter:', appName);
+                
+                // Simulate click on the corresponding menu item
+                setTimeout(() => {
+                    autoLoadApp(appName);
+                }, 500);
+            } else {
+                // Show welcome screen jika tidak ada parameter
+                setTimeout(() => {
+                    showWelcomeScreenDirect();
+                }, 500);
+            }
+            
+            // Setup screen saver
+            setTimeout(() => {
+                setupActivityListeners();
+                resetInactivityTimer();
+                console.log('Screen saver initialized');
+            }, 1000);
+        }
+
+        // Fungsi untuk auto-load app berdasarkan parameter
+        function autoLoadApp(appName) {
+            const menuLinks = document.querySelectorAll('.menu-link');
+            let found = false;
+            
+            for (let link of menuLinks) {
+                const menuText = link.querySelector('.menu-text')?.textContent;
+                // Handle special case untuk menu yang punya badge
+                let cleanMenuText = menuText;
+                if (menuText) {
+                    // Hapus teks badge jika ada
+                    cleanMenuText = menuText.replace(/New/g, '').trim();
+                }
+                
+                if (cleanMenuText === appMenuMap[appName]) {
+                    // Set sebagai active
+                    menuLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    
+                    // Load aplikasi
+                    loadApp(appName, null);
+                    found = true;
+                    break;
+                }
+            }
+            
+            if (!found) {
+                console.warn('App not found in menu:', appName);
+                showWelcomeScreenDirect();
+            }
+        }
+
+        // Screen Saver functionality
+        let inactivityTimer;
+        const SCREENSAVER_TIMEOUT = 5 * 60 * 1000; // 5 menit dalam milliseconds
+        let screensaverActive = false;
+
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            if (screensaverActive) {
+                hideScreensaver();
+            }
+            inactivityTimer = setTimeout(showScreensaver, SCREENSAVER_TIMEOUT);
+        }
+
+        function showScreensaver() {
+            const screensaver = document.getElementById('screensaver');
+            screensaver.classList.add('active');
+            screensaverActive = true;
+            console.log('Screen saver activated');
+        }
+
+        function hideScreensaver() {
+            const screensaver = document.getElementById('screensaver');
+            screensaver.classList.remove('active');
+            screensaverActive = false;
+            console.log('Screen saver deactivated');
+            resetInactivityTimer();
+        }
+
+        // Event listeners untuk screen saver
+        function setupActivityListeners() {
+            const events = [
+                'mousedown', 'mousemove', 'keypress', 'keydown', 'keyup', 
+                'scroll', 'touchstart', 'touchmove', 'click', 'dblclick',
+                'wheel', 'resize'
+            ];
+            
+            events.forEach(event => {
+                document.addEventListener(event, resetInactivityTimer, { passive: true });
+            });
+            
+            const screensaver = document.getElementById('screensaver');
+            screensaver.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                hideScreensaver();
+            });
+            
+            screensaver.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                hideScreensaver();
+            });
+        }
+
+        // Fungsi untuk mendapatkan inisial dari nama
+        function getInitials(name) {
+            return name.split(' ').map(word => word[0]).join('').toUpperCase();
+        }
+
+        // Toggle sidebar collapse/expand
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            resetInactivityTimer();
+        }
+
+        // Load application in iframe
+        function loadApp(appName, event) {
+            // Jika ada event, cegah default behavior untuk klik normal
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            resetInactivityTimer();
+            
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            const appFrame = document.getElementById('appFrame');
+            const loading = document.getElementById('loading');
+            const menuLinks = document.querySelectorAll('.menu-link');
+            
+            // Show loading
+            welcomeScreen.style.display = 'none';
+            appFrame.style.display = 'none';
+            loading.style.display = 'flex';
+            
+            const basePath = ''; // Sesuaikan dengan path yang benar
+            const appFolder = 'app/';
+            
+            const appPaths = {
+                'absence-lastdp': `${basePath}${appFolder}Absence.LastDP/index.html`,
+                'codematch-validator': `${basePath}${appFolder}CodeMatch-Validator/index.html`,
+                'crackofdawn-loading-time': `${basePath}${appFolder}Crack of Dawn Loading Time/index.html`,
+                'jadwal-pengecoran': `${basePath}${appFolder}jadwal-pengecoran/index.html`,
+                'monitoring-order': `${basePath}${appFolder}monitoring-order-delivery/index.html`,
+                'production-all-area': `${basePath}${appFolder}production-all-area/index.html`,
+                'summary-daily-delivery': `${basePath}${appFolder}summary-daily-delivery/index.html`,
+                'utilisasi-truck': `${basePath}${appFolder}utilisasi-truck/index.html`
+            };
+            
+            const appPath = appPaths[appName];
+            
+            if (appPath) {
+                console.log('Loading app:', appPath);
+                
+                appFrame.src = appPath;
+                
+                appFrame.onload = function() {
+                    loading.style.display = 'none';
+                    appFrame.style.display = 'block';
+                    resetInactivityTimer();
+                };
+                
+                appFrame.onerror = function() {
+                    loading.style.display = 'none';
+                    welcomeScreen.style.display = 'flex';
+                    alert('Failed to load application. Please make sure the application is available.');
+                    resetInactivityTimer();
+                };
+            } else {
+                console.error('Unknown app name:', appName);
+                loading.style.display = 'none';
+                welcomeScreen.style.display = 'flex';
+                alert('Unknown application: ' + appName);
+            }
+            
+            // Close mobile menu if open
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('mobile-open');
+            }
+            
+            // Return false untuk mencegah browser mengikuti href
+            return false;
+        }
+
+        // Show welcome screen langsung (tanpa event)
+        function showWelcomeScreenDirect() {
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            const appFrame = document.getElementById('appFrame');
+            const loading = document.getElementById('loading');
+            const menuLinks = document.querySelectorAll('.menu-link');
+            
+            // Set Home as active
+            menuLinks.forEach(link => link.classList.remove('active'));
+            if (menuLinks.length > 0) {
+                menuLinks[0].classList.add('active');
+            }
+            
+            welcomeScreen.style.display = 'flex';
+            appFrame.style.display = 'none';
+            loading.style.display = 'none';
+        }
+
+        // Show welcome screen (dengan event)
+        function showWelcomeScreen(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            resetInactivityTimer();
+            
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            const appFrame = document.getElementById('appFrame');
+            const loading = document.getElementById('loading');
+            const menuLinks = document.querySelectorAll('.menu-link');
+            
+            menuLinks.forEach(link => link.classList.remove('active'));
+            if (event && event.target.closest('.menu-link')) {
+                event.target.closest('.menu-link').classList.add('active');
+            } else if (menuLinks.length > 0) {
+                menuLinks[0].classList.add('active');
+            }
+            
+            welcomeScreen.style.display = 'flex';
+            appFrame.style.display = 'none';
+            loading.style.display = 'none';
+            
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('mobile-open');
+            }
+            
+            return false;
+        }
+
+        // Mobile view handling
+        function checkMobileView() {
+            const sidebar = document.getElementById('sidebar');
+            const mobileBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (window.innerWidth <= 768) {
+                if (!mobileBtn) {
+                    const newMobileBtn = document.createElement('button');
+                    newMobileBtn.className = 'mobile-menu-btn';
+                    newMobileBtn.innerHTML = '☰';
+                    newMobileBtn.onclick = toggleMobileMenu;
+                    document.querySelector('.sidebar-header').prepend(newMobileBtn);
+                }
+                sidebar.classList.remove('collapsed');
+                if (!sidebar.classList.contains('mobile-open')) {
+                    sidebar.style.left = '-250px';
+                }
+            } else {
+                if (mobileBtn) {
+                    mobileBtn.style.display = 'none';
+                }
+                sidebar.style.left = '0';
+                sidebar.classList.remove('mobile-open');
+            }
+        }
+
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('mobile-open');
+            sidebar.style.left = sidebar.classList.contains('mobile-open') ? '0' : '-250px';
+            resetInactivityTimer();
+        }
+
+        // Logout function
+        function logout() {
+            console.log('Logging out user');
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('currentUser');
+            
+            console.log('User logged out:', user.name);
+            
+            window.location.href = 'index.html';
+        }
+
+        // Handle page visibility change
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                console.log('Page hidden');
+            } else {
+                resetInactivityTimer();
+            }
+        });
+
+        // Initialize the dashboard when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard initializing...');
+            
+            // Check authentication
+            if (!checkAuth()) {
                 return;
             }
+            
+            // Initialize dashboard
+            setTimeout(() => {
+                initializeDashboard();
+            }, 1000);
+        });
 
-            const loginForm = document.getElementById('loginForm');
-            const errorMessageDiv = document.getElementById('errorMessage');
-
-            loginForm.addEventListener('submit', function(e) {
-                e.preventDefault();
+        // Fungsi untuk menangani klik kanan pada menu links
+        function setupRightClickHandlers() {
+            const menuLinks = document.querySelectorAll('.menu-link.with-href');
+            
+            menuLinks.forEach(link => {
+                // Simpan onclick original
+                const originalOnClick = link.onclick;
                 
-                const username = document.getElementById('username').value.trim();
-                const password = document.getElementById('password').value;
+                // Tambahkan handler untuk klik normal
+                link.addEventListener('click', function(e) {
+                    // Untuk klik normal (bukan ctrl+click, shift+click, atau middle click)
+                    if (!e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Cari nama app dari href
+                        const href = this.getAttribute('href');
+                        if (href.includes('?app=')) {
+                            const appParam = href.split('?app=')[1];
+                            const appName = appParameterMap[appParam];
+                            if (appName) {
+                                loadApp(appName, e);
+                            }
+                        } else if (href.includes('dashboard.html')) {
+                            showWelcomeScreen(e);
+                        }
+                        
+                        return false;
+                    }
+                    // Untuk ctrl+click atau shift+click, biarkan browser handle (open in new tab/window)
+                });
                 
-                // Cari user yang valid
-                const user = validUsers.find(u => u.username === username && u.password === password);
-                
-                if (user) {
-                    // Login berhasil
-                    console.log('Login berhasil untuk user:', user.name);
-                    
-                    // Simpan data user ke localStorage
-                    localStorage.setItem('isLoggedIn', 'true');
-                    localStorage.setItem('currentUser', JSON.stringify({
-                        username: user.username,
-                        name: user.name,
-                        role: user.role
-                    }));
-                    
-                    // Redirect ke dashboard
-                    window.location.href = 'dashboard.html';
-                } else {
-                    // Login gagal
-                    errorMessageDiv.style.display = 'block';
-                    errorMessageDiv.textContent = 'Username atau password salah! Silakan coba lagi.';
-                    
-                    // Clear password field
-                    document.getElementById('password').value = '';
-                    
-                    // Sembunyikan error setelah 3 detik
-                    setTimeout(() => {
-                        errorMessageDiv.style.display = 'none';
-                    }, 3000);
-                }
+                // Tambahkan title untuk hint
+                link.title = "Click to open, Right-click → 'Open link in new tab' to open directly";
             });
+        }
+
+        // Setup right click handlers setelah DOM selesai load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                setupRightClickHandlers();
+            }, 1500);
+        });
+
+        // Custom context menu prevention (opsional)
+        document.addEventListener('contextmenu', function(e) {
+            if (e.target.closest('.menu-link.with-href')) {
+                // Biarkan context menu browser muncul
+                console.log('Right-click on menu link - browser will handle "Open link in new tab"');
+            }
         });
     </script>
 </body>
