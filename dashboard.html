@@ -408,10 +408,34 @@
             flex-direction: column;
             margin: 0;
             padding: 0;
+            /* Hilangkan scrollbar pada sidebar secara default */
+            overflow: hidden;
         }
 
         .sidebar.collapsed {
             width: 50px;
+            /* Saat collapsed, pastikan tidak ada overflow sama sekali */
+            overflow: visible;
+        }
+
+        /* Kontainer untuk menu agar bisa scroll tanpa scrollbar visible */
+        .sidebar-menu-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            /* Sembunyikan scrollbar untuk Chrome, Safari, Opera */
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+        
+        /* Sembunyikan scrollbar untuk Webkit browser */
+        .sidebar-menu-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* Saat sidebar collapsed, menu container tidak perlu scroll sama sekali */
+        .sidebar.collapsed .sidebar-menu-container {
+            overflow: visible;
         }
 
         .sidebar-header {
@@ -420,6 +444,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            flex-shrink: 0;
         }
 
         .sidebar-header h2 {
@@ -453,8 +478,6 @@
             list-style: none;
             padding: 0;
             margin: 0;
-            flex: 1;
-            overflow-y: auto;
         }
 
         .menu-item {
@@ -471,6 +494,7 @@
             border-left: 3px solid transparent;
             position: relative;
             cursor: pointer;
+            white-space: nowrap;
         }
 
         .menu-link:hover {
@@ -552,6 +576,7 @@
             padding: 12px 10px;
             border-top: 1px solid rgba(255,255,255,0.2);
             margin-top: auto;
+            flex-shrink: 0;
         }
 
         .logout-btn {
@@ -816,6 +841,7 @@
             align-items: center;
             gap: 10px;
             background: transparent;
+            flex-shrink: 0;
         }
 
         .user-avatar {
@@ -854,6 +880,85 @@
             width: 28px;
             height: 28px;
             font-size: 0.8em;
+        }
+
+        /* CDC EAST Vertical Text - DIPINDAHKAN KE BAWAH MENU */
+        .cdc-east-text {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 0;
+            margin-top: auto;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.8em;
+            letter-spacing: 0.5px;
+            color: rgba(255,255,255,0.9);
+            background: transparent;
+            flex-shrink: 0;
+        }
+
+        .cdc-east-text span {
+            display: block;
+            line-height: 1.2;
+        }
+
+        .sidebar.collapsed .cdc-east-text {
+            display: flex;
+        }
+
+        /* MIX MASTER Text untuk sidebar terbuka */
+        .mix-master-text {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 0;
+            margin-top: auto;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.8em;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.9);
+            background: transparent;
+            flex-shrink: 0;
+        }
+
+        .mix-master-text span {
+            display: block;
+            line-height: 1.2;
+        }
+
+        .sidebar:not(.collapsed) .mix-master-text {
+            display: flex;
+        }
+        
+        /* Style untuk link dengan href langsung (untuk new tab) */
+        .menu-link.with-href {
+            text-decoration: none;
+        }
+        
+        .menu-link.with-href:hover {
+            text-decoration: none;
+        }
+
+        /* New App Badge */
+        .new-badge {
+            background: var(--blood-moon-accent);
+            color: white;
+            font-size: 0.7em;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
 
         /* Responsive */
@@ -915,83 +1020,6 @@
             .mobile-menu-btn {
                 display: none;
             }
-        }
-
-        /* CDC EAST Vertical Text - DIPINDAHKAN KE BAWAH MENU */
-        .cdc-east-text {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px 0;
-            margin-top: auto;
-            border-top: 1px solid rgba(255,255,255,0.2);
-            text-align: center;
-            font-weight: 700;
-            font-size: 0.8em;
-            letter-spacing: 0.5px;
-            color: rgba(255,255,255,0.9);
-            background: transparent;
-        }
-
-        .cdc-east-text span {
-            display: block;
-            line-height: 1.2;
-        }
-
-        .sidebar.collapsed .cdc-east-text {
-            display: flex;
-        }
-
-        /* MIX MASTER Text untuk sidebar terbuka */
-        .mix-master-text {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px 0;
-            margin-top: auto;
-            border-top: 1px solid rgba(255,255,255,0.2);
-            text-align: center;
-            font-weight: 700;
-            font-size: 0.8em;
-            letter-spacing: 1px;
-            color: rgba(255,255,255,0.9);
-            background: transparent;
-        }
-
-        .mix-master-text span {
-            display: block;
-            line-height: 1.2;
-        }
-
-        .sidebar:not(.collapsed) .mix-master-text {
-            display: flex;
-        }
-        
-        /* Style untuk link dengan href langsung (untuk new tab) */
-        .menu-link.with-href {
-            text-decoration: none;
-        }
-        
-        .menu-link.with-href:hover {
-            text-decoration: none;
-        }
-
-        /* New App Badge */
-        .new-badge {
-            background: var(--blood-moon-accent);
-            color: white;
-            font-size: 0.7em;
-            padding: 2px 6px;
-            border-radius: 10px;
-            margin-left: 8px;
-            font-weight: bold;
-            text-transform: uppercase;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
         }
     </style>
 </head>
@@ -1082,87 +1110,90 @@
                 </div>
             </div>
             
-        <ul class="sidebar-menu">
-            <!-- Tombol Home Baru -->
-            <li class="menu-item">
-                <a href="dashboard.html" class="menu-link with-href" onclick="showWelcomeScreen(event)" data-tooltip="Home">
-                    <span class="menu-icon">🏠</span>
-                    <span class="menu-initial">H</span>
-                    <span class="menu-text">Home</span>
-                </a>
-            </li>
-            
-            <!-- APLIKASI LAMA (URUTAN ATAS) -->
-            <li class="menu-item">
-                <a href="dashboard.html?app=delivery" class="menu-link with-href" onclick="loadApp('summary-daily-delivery', event)" data-tooltip="Summary Daily Delivery">
-                    <span class="menu-icon">📦</span>
-                    <span class="menu-initial">S</span>
-                    <span class="menu-text">summary-daily-delivery</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="dashboard.html?app=truck" class="menu-link with-href" onclick="loadApp('utilisasi-truck', event)" data-tooltip="Truck Utilization">
-                    <span class="menu-icon">🚛</span>
-                    <span class="menu-initial">U</span>
-                    <span class="menu-text">utilisasi-truck</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="dashboard.html?app=monitoring" class="menu-link with-href" onclick="loadApp('monitoring-order', event)" data-tooltip="Monitoring Order Delivery">
-                    <span class="menu-icon">📊</span>
-                    <span class="menu-initial">M</span>
-                    <span class="menu-text">monitoring-order-delivery</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="dashboard.html?app=schedule" class="menu-link with-href" onclick="loadApp('jadwal-pengecoran', event)" data-tooltip="Pouring Schedule">
-                    <span class="menu-icon">📅</span>
-                    <span class="menu-initial">J</span>
-                    <span class="menu-text">jadwal-pengecoran</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="dashboard.html?app=production" class="menu-link with-href" onclick="loadApp('production-all-area', event)" data-tooltip="Production All Area">
-                    <span class="menu-icon">🏭</span>
-                    <span class="menu-initial">P</span>
-                    <span class="menu-text">production-all-area</span>
-                </a>
-            </li>
-            
-            <!-- PEMISAH: Garis tipis untuk memisahkan aplikasi lama dan baru -->
-            <li style="border-top: 1px solid rgba(255,255,255,0.2); margin: 5px 0;"></li>
-            
-            <!-- APLIKASI BARU -->
-            <li class="menu-item">
-                <a href="dashboard.html?app=codematch" class="menu-link with-href" onclick="loadApp('codematch-validator', event)" data-tooltip="CodeMatch Validator">
-                    <span class="menu-icon">✅</span>
-                    <span class="menu-initial">C</span>
-                    <span class="menu-text">CodeMatch-Validator <span class="new-badge">New</span></span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="dashboard.html?app=absence" class="menu-link with-href" onclick="loadApp('absence-lastdp', event)" data-tooltip="Absence Last DP">
-                    <span class="menu-icon">⚡</span>
-                    <span class="menu-initial">A</span>
-                    <span class="menu-text">Absence.LastDP <span class="new-badge">New</span></span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="dashboard.html?app=crackofdawn" class="menu-link with-href" onclick="loadApp('crackofdawn-loading-time', event)" data-tooltip="Crack of Dawn Loading Time">
-                    <span class="menu-icon">🌅</span>
-                    <span class="menu-initial">C</span>
-                    <span class="menu-text">Crack of Dawn Loading Time <span class="new-badge">New</span></span>
-                </a>
-            </li>
-            <!-- MENU BARU: Libero Activity -->
-            <li class="menu-item">
-                <a href="dashboard.html?app=libero" class="menu-link with-href" onclick="loadApp('libero-activity', event)" data-tooltip="Libero Activity">
-                    <span class="menu-icon">⚽</span>
-                    <span class="menu-initial">L</span>
-                    <span class="menu-text">Libero Activity <span class="new-badge">New</span></span>
-                </a>
-            </li>
-        </ul>
+            <!-- Container untuk menu yang bisa di-scroll (tanpa scrollbar visible) -->
+            <div class="sidebar-menu-container">
+                <ul class="sidebar-menu">
+                    <!-- Tombol Home Baru -->
+                    <li class="menu-item">
+                        <a href="dashboard.html" class="menu-link with-href" onclick="showWelcomeScreen(event)" data-tooltip="Home">
+                            <span class="menu-icon">🏠</span>
+                            <span class="menu-initial">H</span>
+                            <span class="menu-text">Home</span>
+                        </a>
+                    </li>
+                    
+                    <!-- APLIKASI LAMA (URUTAN ATAS) -->
+                    <li class="menu-item">
+                        <a href="dashboard.html?app=delivery" class="menu-link with-href" onclick="loadApp('summary-daily-delivery', event)" data-tooltip="Summary Daily Delivery">
+                            <span class="menu-icon">📦</span>
+                            <span class="menu-initial">S</span>
+                            <span class="menu-text">summary-daily-delivery</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="dashboard.html?app=truck" class="menu-link with-href" onclick="loadApp('utilisasi-truck', event)" data-tooltip="Truck Utilization">
+                            <span class="menu-icon">🚛</span>
+                            <span class="menu-initial">U</span>
+                            <span class="menu-text">utilisasi-truck</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="dashboard.html?app=monitoring" class="menu-link with-href" onclick="loadApp('monitoring-order', event)" data-tooltip="Monitoring Order Delivery">
+                            <span class="menu-icon">📊</span>
+                            <span class="menu-initial">M</span>
+                            <span class="menu-text">monitoring-order-delivery</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="dashboard.html?app=schedule" class="menu-link with-href" onclick="loadApp('jadwal-pengecoran', event)" data-tooltip="Pouring Schedule">
+                            <span class="menu-icon">📅</span>
+                            <span class="menu-initial">J</span>
+                            <span class="menu-text">jadwal-pengecoran</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="dashboard.html?app=production" class="menu-link with-href" onclick="loadApp('production-all-area', event)" data-tooltip="Production All Area">
+                            <span class="menu-icon">🏭</span>
+                            <span class="menu-initial">P</span>
+                            <span class="menu-text">production-all-area</span>
+                        </a>
+                    </li>
+                    
+                    <!-- PEMISAH: Garis tipis untuk memisahkan aplikasi lama dan baru -->
+                    <li style="border-top: 1px solid rgba(255,255,255,0.2); margin: 5px 0;"></li>
+                    
+                    <!-- APLIKASI BARU -->
+                    <li class="menu-item">
+                        <a href="dashboard.html?app=codematch" class="menu-link with-href" onclick="loadApp('codematch-validator', event)" data-tooltip="CodeMatch Validator">
+                            <span class="menu-icon">✅</span>
+                            <span class="menu-initial">C</span>
+                            <span class="menu-text">CodeMatch-Validator <span class="new-badge">New</span></span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="dashboard.html?app=absence" class="menu-link with-href" onclick="loadApp('absence-lastdp', event)" data-tooltip="Absence Last DP">
+                            <span class="menu-icon">⚡</span>
+                            <span class="menu-initial">A</span>
+                            <span class="menu-text">Absence.LastDP <span class="new-badge">New</span></span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="dashboard.html?app=crackofdawn" class="menu-link with-href" onclick="loadApp('crackofdawn-loading-time', event)" data-tooltip="Crack of Dawn Loading Time">
+                            <span class="menu-icon">🌅</span>
+                            <span class="menu-initial">C</span>
+                            <span class="menu-text">Crack of Dawn Loading Time <span class="new-badge">New</span></span>
+                        </a>
+                    </li>
+                    <!-- MENU BARU: Libero Activity -->
+                    <li class="menu-item">
+                        <a href="dashboard.html?app=libero" class="menu-link with-href" onclick="loadApp('libero-activity', event)" data-tooltip="Libero Activity">
+                            <span class="menu-icon">⚽</span>
+                            <span class="menu-initial">L</span>
+                            <span class="menu-text">Libero Activity <span class="new-badge">New</span></span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
             
             <!-- MIX MASTER Text untuk sidebar terbuka -->
             <div class="mix-master-text">
