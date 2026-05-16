@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Driver Activity Dashboard - Trip Distribution with Gradient Colors</title>
+    <title>Driver Activity Dashboard - With Total Row</title>
     <style>
         * {
             box-sizing: border-box;
@@ -44,6 +44,7 @@
             display: flex;
             gap: 10px;
             align-items: center;
+            flex-wrap: wrap;
         }
         .compact-upload {
             display: flex;
@@ -72,6 +73,18 @@
             cursor: pointer;
             border: none;
         }
+        .btn-image {
+            background: #9b59b6;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 25px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-image:hover { background: #8e44ad; }
+        .btn-export:hover { background: #1f5f3a; }
         #fileInfo {
             font-size: 0.65rem;
             color: #2c5a7a;
@@ -162,6 +175,7 @@
             border-collapse: collapse;
             font-size: 0.7rem;
             background: white;
+            min-width: 100%;
         }
         .data-table th {
             background: #eef2f7;
@@ -188,7 +202,15 @@
             background-color: #fafbfc;
             text-align: left !important;
         }
-        /* Warna trip harian */
+        .total-row {
+            background-color: #eef2f7 !important;
+            font-weight: 700;
+            border-top: 2px solid #1a3a4e;
+        }
+        .total-row td {
+            background-color: #eef2f7 !important;
+            font-weight: 700;
+        }
         .trip-green { background-color: #90EE90 !important; color: #006400; font-weight: bold; }
         .trip-orange { background-color: #FFB347 !important; color: #8B4000; font-weight: bold; }
         .trip-yellow { background-color: #FFE44D !important; color: #886600; font-weight: bold; }
@@ -216,12 +238,14 @@
             .header-buttons { justify-content: space-between; }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
 <div class="container">
     <div class="header-row">
         <h1>🚚 Driver Activity Dashboard</h1>
         <div class="header-buttons">
+            <button class="btn-image" id="exportImageBtn">📸 Download Full Table Image</button>
             <button class="btn-export" id="exportBtn">📎 Export Excel</button>
             <div class="compact-upload">
                 <span class="file-label" onclick="document.getElementById('excelInput').click()">📂 Upload</span>
@@ -242,7 +266,7 @@
 
     <div id="summaryArea" class="summary-cards" style="display: none;"></div>
     <div id="tableContainer" style="display: none;">
-        <div class="table-wrapper">
+        <div class="table-wrapper" id="tableWrapperForImage">
             <table class="data-table" id="resultTable">
                 <thead id="tableHeader"></thead>
                 <tbody id="tableBody"></tbody>
@@ -253,7 +277,7 @@
     <div class="footer-note">
         📏 Avg Distance = Total Distance ÷ Total Trip | Avg/Trip/Day = Total Trip ÷ Day Work<br>
         🎨 Trip Harian: <span class="legend-icon" style="background:#90EE90;"></span> ≥4 <span class="legend-icon" style="background:#FFB347;"></span> 3 <span class="legend-icon" style="background:#FFE44D;"></span> 2 <span class="legend-icon" style="background:#FFAAAA;"></span> 1 atau 0<br>
-        📊 Kolom Distribusi: <span style="color:#8B0000;">■</span> 0-2Trip (merah sesuai intensitas) <span style="color:#006400;">■</span> 3-6Trip+ (hijau sesuai intensitas) - semakin banyak hari semakin pekat
+        📊 Kolom Distribusi: <span style="color:#8B0000;">■</span> 0-2Trip (merah intensitas) <span style="color:#006400;">■</span> 3-6Trip+ (hijau intensitas)
     </div>
 </div>
 
@@ -272,24 +296,22 @@
     const driverTypeSelect = document.getElementById('driverTypeFilter');
     const resetBtn = document.getElementById('resetFiltersBtn');
     const exportBtn = document.getElementById('exportBtn');
+    const exportImageBtn = document.getElementById('exportImageBtn');
     
     function formatNumber(num) {
         if (num === undefined || num === null) return '0';
         return num.toLocaleString('en-US');
     }
     
-    // Fungsi untuk mendapatkan warna berdasarkan nilai dan maxValue (0-2Trip: merah, >=3Trip: hijau)
     function getDistributionColor(tripValue, count, maxCount) {
         if (maxCount === 0) return 'background-color: #ffffff;';
-        let intensity = Math.floor((count / maxCount) * 200); // 0-200
+        let intensity = Math.floor((count / maxCount) * 200);
         if (tripValue <= 2) {
-            // Merah: dari merah muda (#FFCCCC) sampai merah tua (#CC0000)
             let r = 200 + (55 * intensity / 200);
             let g = 200 - (150 * intensity / 200);
             let b = 200 - (150 * intensity / 200);
             return `background-color: rgb(${Math.min(255, r)}, ${Math.max(50, g)}, ${Math.max(50, b)}); color: ${intensity > 100 ? 'white' : '#8B0000'}; font-weight: bold;`;
         } else {
-            // Hijau: dari hijau muda (#CCFFCC) sampai hijau tua (#006600)
             let g = 200 + (55 * intensity / 200);
             let r = 200 - (150 * intensity / 200);
             let b = 200 - (150 * intensity / 200);
@@ -487,7 +509,6 @@
             return;
         }
         
-        // Hitung max count per kolom distribusi untuk gradient
         let distMaxCounts = {};
         for (let i = 0; i <= maxTripValue; i++) {
             let maxCount = 0;
@@ -522,6 +543,18 @@
         
         let tbodyHtml = '';
         let idx = 1;
+        
+        // Simpan data untuk perhitungan TOTAL
+        let totalQtyPerDate = new Array(dateCols.length).fill(0);
+        let totalTripPerDate = new Array(dateCols.length).fill(0);
+        let totalDistPerTrip = new Array(maxTripValue + 1).fill(0);
+        let totalAllTrips = 0;
+        let totalAllQty = 0;
+        let totalAllDistance = 0;
+        let totalDistanceCount = 0;
+        let totalAllDayWork = 0;
+        let sumAvgTripPerDayWeight = 0;
+        
         for (let [driverName, data] of sortedEntries) {
             let row = `<tr>
                 <td>${idx++}</td>
@@ -533,12 +566,22 @@
                 <td><strong>${data.avgTripPerDay}</strong></td>
                 <td><strong>${formatNumber(Math.round(data.totalQty * 10)/10)}</strong></td>`;
             
-            for (let dt of allDates) {
+            totalAllTrips += data.totalTrips;
+            totalAllQty += data.totalQty;
+            totalAllDistance += data.totalDistance;
+            totalDistanceCount += data.distanceCount;
+            totalAllDayWork += data.dayWork;
+            sumAvgTripPerDayWeight += data.avgTripPerDay * data.totalTrips;
+            
+            for (let i = 0; i < dateCols.length; i++) {
+                let dt = dateCols[i];
                 let daily = data.dailyMap.get(dt);
                 let qtyVal = daily ? (Math.round(daily.qty * 10)/10) : 0;
                 let tripVal = daily ? daily.trips : 0;
                 let tripClass = getTripClass(tripVal);
                 row += `<td class="qty-cell">${formatNumber(qtyVal)}</td><td class="${tripClass}">${formatNumber(tripVal)}</td>`;
+                totalQtyPerDate[i] += qtyVal;
+                totalTripPerDate[i] += tripVal;
             }
             
             for (let i = 0; i <= maxTripValue; i++) {
@@ -546,10 +589,36 @@
                 let maxCount = distMaxCounts[i];
                 let style = getDistributionColor(i, count, maxCount);
                 row += `<td style="${style}">${count}</td>`;
+                totalDistPerTrip[i] += count;
             }
             row += `</tr>`;
             tbodyHtml += row;
         }
+        
+        // Baris TOTAL
+        let totalRow = `<tr class="total-row"><td colspan="1" style="text-align:center; font-weight:bold;">TOTAL</td>`;
+        totalRow += `<td style="text-align:center; font-weight:bold;">${driversMap.size} Drivers</td>`;
+        totalRow += `<td style="text-align:center; font-weight:bold;"></td>`;
+        let avgDistAll = totalDistanceCount > 0 ? (totalAllDistance / totalDistanceCount) : 0;
+        totalRow += `<td style="text-align:center; font-weight:bold;">${formatNumber(Math.round(avgDistAll * 10)/10)}</td>`;
+        totalRow += `<td style="text-align:center; font-weight:bold;">${formatNumber(totalAllTrips)}</td>`;
+        let avgDayWork = totalAllDayWork / driversMap.size;
+        totalRow += `<td style="text-align:center; font-weight:bold;">${formatNumber(Math.round(avgDayWork * 10)/10)}</td>`;
+        let avgTripPerDayAll = totalAllTrips > 0 ? (totalAllTrips / totalAllDayWork) : 0;
+        totalRow += `<td style="text-align:center; font-weight:bold;">${formatNumber(Math.round(avgTripPerDayAll * 100)/100)}</td>`;
+        totalRow += `<td style="text-align:center; font-weight:bold;">${formatNumber(Math.round(totalAllQty * 10)/10)}</td>`;
+        
+        for (let i = 0; i < dateCols.length; i++) {
+            totalRow += `<td class="qty-cell" style="font-weight:bold;">${formatNumber(Math.round(totalQtyPerDate[i] * 10)/10)}</td>`;
+            totalRow += `<td style="font-weight:bold; background-color:#eef2f7;">${formatNumber(totalTripPerDate[i])}</td>`;
+        }
+        
+        for (let i = 0; i <= maxTripValue; i++) {
+            totalRow += `<td style="font-weight:bold; background-color:#eef2f7;">${formatNumber(totalDistPerTrip[i])}</td>`;
+        }
+        totalRow += `</tr>`;
+        tbodyHtml += totalRow;
+        
         document.getElementById('tableBody').innerHTML = tbodyHtml;
         document.getElementById('tableContainer').style.display = 'block';
         
@@ -621,18 +690,124 @@
         for (let dt of allDates) headerRow.push(`${dt} - Qty`, `${dt} - Trip`);
         for (let i = 0; i <= maxTripValue; i++) headerRow.push(`${i}Trip`);
         exportData.push(headerRow);
+        
         let idx = 1;
+        let totalQtyPerDate = new Array(allDates.length).fill(0);
+        let totalTripPerDate = new Array(allDates.length).fill(0);
+        let totalDistPerTrip = new Array(maxTripValue + 1).fill(0);
+        let totalAllTrips = 0;
+        let totalAllQty = 0;
+        let totalAllDistance = 0;
+        let totalDistanceCount = 0;
+        let totalAllDayWork = 0;
+        
         for (let [driverName, data] of sortedEntries) {
             let row = [idx++, driverName, data.plant, data.avgDistance, data.totalTrips, data.dayWork, data.avgTripPerDay, Math.round(data.totalQty * 10)/10];
-            for (let dt of allDates) { let daily = data.dailyMap.get(dt); row.push(daily ? (Math.round(daily.qty * 10)/10) : 0, daily ? daily.trips : 0); }
-            for (let i = 0; i <= maxTripValue; i++) row.push(data.tripDistribution.get(i) || 0);
+            totalAllTrips += data.totalTrips;
+            totalAllQty += data.totalQty;
+            totalAllDistance += data.totalDistance;
+            totalDistanceCount += data.distanceCount;
+            totalAllDayWork += data.dayWork;
+            for (let i = 0; i < allDates.length; i++) {
+                let dt = allDates[i];
+                let daily = data.dailyMap.get(dt);
+                let qtyVal = daily ? (Math.round(daily.qty * 10)/10) : 0;
+                let tripVal = daily ? daily.trips : 0;
+                row.push(qtyVal, tripVal);
+                totalQtyPerDate[i] += qtyVal;
+                totalTripPerDate[i] += tripVal;
+            }
+            for (let i = 0; i <= maxTripValue; i++) {
+                let cnt = data.tripDistribution.get(i) || 0;
+                row.push(cnt);
+                totalDistPerTrip[i] += cnt;
+            }
             exportData.push(row);
         }
+        
+        // Baris TOTAL
+        let totalRow = ['TOTAL', `${driversMap.size} Drivers`, '', ''];
+        let avgDistAll = totalDistanceCount > 0 ? (totalAllDistance / totalDistanceCount) : 0;
+        totalRow.push(Math.round(avgDistAll * 10)/10);
+        totalRow.push(totalAllTrips);
+        let avgDayWork = totalAllDayWork / driversMap.size;
+        totalRow.push(Math.round(avgDayWork * 10)/10);
+        let avgTripPerDayAll = totalAllTrips > 0 ? (totalAllTrips / totalAllDayWork) : 0;
+        totalRow.push(Math.round(avgTripPerDayAll * 100)/100);
+        totalRow.push(Math.round(totalAllQty * 10)/10);
+        for (let i = 0; i < allDates.length; i++) {
+            totalRow.push(Math.round(totalQtyPerDate[i] * 10)/10, totalTripPerDate[i]);
+        }
+        for (let i = 0; i <= maxTripValue; i++) {
+            totalRow.push(totalDistPerTrip[i]);
+        }
+        exportData.push(totalRow);
+        
         const ws = XLSX.utils.aoa_to_sheet(exportData);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Driver Report');
         let now = new Date();
         XLSX.writeFile(wb, `Driver_Report_${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}.xlsx`);
+    }
+    
+    async function exportAsImage() {
+        const originalTableWrapper = document.getElementById('tableWrapperForImage');
+        if (!originalTableWrapper || originalTableWrapper.children.length === 0 || !currentAggregated) {
+            alert("Tidak ada tabel untuk di-download. Pastikan data sudah di-load.");
+            return;
+        }
+        
+        exportImageBtn.innerHTML = "⏳ Processing...";
+        exportImageBtn.disabled = true;
+        
+        try {
+            const cloneWrapper = originalTableWrapper.cloneNode(true);
+            cloneWrapper.style.overflow = 'visible';
+            cloneWrapper.style.width = 'max-content';
+            cloneWrapper.style.border = '1px solid #e2edf2';
+            cloneWrapper.style.backgroundColor = 'white';
+            
+            const cloneTable = cloneWrapper.querySelector('table');
+            if (cloneTable) {
+                cloneTable.style.minWidth = 'max-content';
+                cloneTable.style.width = 'auto';
+                cloneTable.style.whiteSpace = 'nowrap';
+            }
+            
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.top = '-9999px';
+            tempDiv.style.left = '-9999px';
+            tempDiv.style.backgroundColor = 'white';
+            tempDiv.appendChild(cloneWrapper);
+            document.body.appendChild(tempDiv);
+            
+            const canvas = await html2canvas(cloneWrapper, {
+                scale: 2.5,
+                backgroundColor: '#ffffff',
+                logging: false,
+                useCORS: true,
+                allowTaint: false,
+                windowWidth: cloneWrapper.scrollWidth,
+                windowHeight: cloneWrapper.scrollHeight
+            });
+            
+            document.body.removeChild(tempDiv);
+            
+            const link = document.createElement('a');
+            const now = new Date();
+            const filename = `Driver_Activity_FullTable_${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}.png`;
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+        } catch (error) {
+            console.error('Error generating image:', error);
+            alert('Gagal membuat gambar. Silakan coba lagi.');
+        } finally {
+            exportImageBtn.innerHTML = "📸 Download Full Table Image";
+            exportImageBtn.disabled = false;
+        }
     }
     
     areaSelect.addEventListener('change', () => { updatePlantOptionsBySelectedAreas(); refreshDashboard(); });
@@ -642,6 +817,7 @@
     driverTypeSelect.addEventListener('change', () => refreshDashboard());
     resetBtn.addEventListener('click', resetFilters);
     exportBtn.addEventListener('click', exportToExcel);
+    exportImageBtn.addEventListener('click', exportAsImage);
     
     function handleFile(file) {
         if (!file) return;
