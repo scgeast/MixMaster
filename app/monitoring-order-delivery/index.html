@@ -165,10 +165,12 @@
         .form-group input, .form-group textarea { width:100%; padding:8px 12px; background:var(--card-bg); border:1px solid var(--border-color); border-radius:4px; color:var(--text-color); font-size:15px; }
         .modal-footer { display:flex; justify-content:flex-end; gap:10px; margin-top:18px; }
         .truck-input-section, .target-volume-section { margin:18px 0; padding:15px 18px; background:var(--card-bg); border-radius:8px; border:1px solid var(--border-color); }
-        .truck-input-section h3, .target-volume-section h3 { font-size:16px; margin-bottom:10px; }
+        .truck-input-section h3, .target-volume-section h3 { font-size:16px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
+        .truck-input-section h3 .save-indicator, .target-volume-section h3 .save-indicator { font-size:11px; font-weight:400; color:var(--success); }
         .truck-input-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
         .truck-plant-name { flex:1; font-size:14px; color:var(--text-color); }
         .truck-input { width:80px; padding:6px 8px; background:var(--card-bg); border:1px solid var(--border-color); border-radius:4px; color:var(--text-color); text-align:right; font-size:14px; }
+        .truck-input:focus { border-color:var(--secondary); outline:none; box-shadow:0 0 0 2px rgba(52,152,219,.2); }
         @media(max-width:1400px){ .stats-container{grid-template-columns:repeat(6,1fr)} }
         @media(max-width:1200px){ .stats-container{grid-template-columns:repeat(4,1fr)} }
         @media(max-width:992px){ .stats-container{grid-template-columns:repeat(3,1fr)} .chart-grid{grid-template-columns:1fr} .chart-container{height:auto;min-height:240px} .wide-chart-container{height:auto;min-height:340px} }
@@ -203,8 +205,14 @@
                 <div class="filter-group"><label>Status</label><select id="dashboard-status-filter"><option value="">All Status</option><option value="I : Pending Confirmation">Pending</option><option value="A : Confirmed">Confirmed</option><option value="E : Finished Pouring">Delivered</option><option value="90 : Cancel">Canceled</option></select></div>
                 <button class="btn" id="dashboard-apply-filter" style="width:100%;font-size:13px;padding:8px;"><i class="fas fa-sync-alt"></i> Apply</button>
             </div>
-            <div class="truck-input-section"><h3><i class="fas fa-truck"></i> Truck Mixer</h3><div id="truck-inputs-container"><p class="file-info" style="font-size:13px;">Upload Excel to populate</p></div></div>
-            <div class="target-volume-section"><h3><i class="fas fa-bullseye"></i> Target Volume</h3><div id="target-volume-inputs-container"><p class="file-info" style="font-size:13px;">Upload Excel to populate</p></div></div>
+            <div class="truck-input-section">
+                <h3><i class="fas fa-truck"></i> Truck Mixer <span class="save-indicator" id="truckSaveIndicator"><i class="fas fa-check-circle"></i> Saved</span></h3>
+                <div id="truck-inputs-container"><p class="file-info" style="font-size:13px;">Upload Excel to populate</p></div>
+            </div>
+            <div class="target-volume-section">
+                <h3><i class="fas fa-bullseye"></i> Target Volume <span class="save-indicator" id="targetSaveIndicator"><i class="fas fa-check-circle"></i> Saved</span></h3>
+                <div id="target-volume-inputs-container"><p class="file-info" style="font-size:13px;">Upload Excel to populate</p></div>
+            </div>
         </div>
     </div>
     <div class="main-content" id="mainContent">
@@ -284,28 +292,137 @@
         setInterval(updateClock,1e3);updateClock();
         
         function initializeSelect2(){$('#dashboard-plant-filter,#status-plant-filter,#plant-filter').select2({placeholder:"Select plants...",allowClear:!0,width:'100%',theme:'default'});}
-        function saveTruckCounts(){try{localStorage.setItem('truckCounts',JSON.stringify(truckCounts))}catch(e){}}
-        function loadTruckCounts(){try{const s=localStorage.getItem('truckCounts');if(s){const p=JSON.parse(s);Object.keys(truckCounts).forEach(k=>{if(p[k]!==undefined)truckCounts[k]=p[k]})}}catch(e){}}
-        function saveTargetVolumes(){try{localStorage.setItem('targetVolumes',JSON.stringify(targetVolumes))}catch(e){}}
-        function loadTargetVolumes(){try{const s=localStorage.getItem('targetVolumes');if(s){const p=JSON.parse(s);Object.keys(targetVolumes).forEach(k=>{if(p[k]!==undefined)targetVolumes[k]=p[k]})}}catch(e){}}
+        
+        // ===== SAVE & LOAD FUNCTIONS =====
+        function saveTruckCounts(){
+            try{
+                localStorage.setItem('truckCounts',JSON.stringify(truckCounts));
+                document.getElementById('truckSaveIndicator').innerHTML = '<i class="fas fa-check-circle"></i> Saved';
+                document.getElementById('truckSaveIndicator').style.color = 'var(--success)';
+            }catch(e){}
+        }
+        function loadTruckCounts(){
+            try{
+                const s=localStorage.getItem('truckCounts');
+                if(s){
+                    const p=JSON.parse(s);
+                    Object.keys(p).forEach(k=>{
+                        if(truckCounts[k]!==undefined) truckCounts[k]=p[k];
+                    });
+                }
+            }catch(e){}
+        }
+        function saveTargetVolumes(){
+            try{
+                localStorage.setItem('targetVolumes',JSON.stringify(targetVolumes));
+                document.getElementById('targetSaveIndicator').innerHTML = '<i class="fas fa-check-circle"></i> Saved';
+                document.getElementById('targetSaveIndicator').style.color = 'var(--success)';
+            }catch(e){}
+        }
+        function loadTargetVolumes(){
+            try{
+                const s=localStorage.getItem('targetVolumes');
+                if(s){
+                    const p=JSON.parse(s);
+                    Object.keys(p).forEach(k=>{
+                        if(targetVolumes[k]!==undefined) targetVolumes[k]=p[k];
+                    });
+                }
+            }catch(e){}
+        }
+        
+        // ===== TRUCK & TARGET INPUT HANDLERS =====
+        function updateTruckCount(p,v){
+            truckCounts[p]=parseFloat(v)||0;
+            saveTruckCounts();
+            updateDashboardStats(orderData);
+        }
+        function updateTargetVolume(p,v){
+            targetVolumes[p]=parseFloat(v)||0;
+            saveTargetVolumes();
+            updateDashboardStats(orderData);
+        }
+        
+        // ===== UI UPDATE FUNCTIONS =====
+        function updateTruckInputs(){
+            const c=document.getElementById('truck-inputs-container');
+            c.innerHTML='';
+            const plants=Object.keys(truckCounts).sort();
+            if(plants.length===0){
+                c.innerHTML='<p class="file-info" style="font-size:13px;">Upload Excel to populate</p>';
+                return;
+            }
+            plants.forEach(p=>{
+                const r=document.createElement('div');
+                r.className='truck-input-row';
+                r.innerHTML=`<span class="truck-plant-name">${p}</span>
+                    <input type="number" class="truck-input" value="${truckCounts[p]||0}" min="0" 
+                           data-plant="${p}" onchange="updateTruckCount('${p}',this.value)"
+                           oninput="document.getElementById('truckSaveIndicator').innerHTML='<i class=\\'fas fa-save\\'></i> Unsaved';document.getElementById('truckSaveIndicator').style.color='var(--warning)';">`;
+                c.appendChild(r);
+            });
+            // Update indicator after loading
+            document.getElementById('truckSaveIndicator').innerHTML = '<i class="fas fa-check-circle"></i> Saved';
+            document.getElementById('truckSaveIndicator').style.color = 'var(--success)';
+        }
+        
+        function updateTargetVolumeInputs(){
+            const c=document.getElementById('target-volume-inputs-container');
+            c.innerHTML='';
+            const plants=Object.keys(targetVolumes).sort();
+            if(plants.length===0){
+                c.innerHTML='<p class="file-info" style="font-size:13px;">Upload Excel to populate</p>';
+                return;
+            }
+            plants.forEach(p=>{
+                const r=document.createElement('div');
+                r.className='truck-input-row';
+                r.innerHTML=`<span class="truck-plant-name">${p}</span>
+                    <input type="number" class="truck-input" value="${targetVolumes[p]||0}" min="0" step="0.1" 
+                           data-plant="${p}" onchange="updateTargetVolume('${p}',this.value)"
+                           oninput="document.getElementById('targetSaveIndicator').innerHTML='<i class=\\'fas fa-save\\'></i> Unsaved';document.getElementById('targetSaveIndicator').style.color='var(--warning)';">`;
+                c.appendChild(r);
+            });
+            document.getElementById('targetSaveIndicator').innerHTML = '<i class="fas fa-check-circle"></i> Saved';
+            document.getElementById('targetSaveIndicator').style.color = 'var(--success)';
+        }
+        
+        function initializeTruckCounts(){
+            const plants=[...new Set(orderData.map(i=>i.plant))].filter(Boolean);
+            const old={...truckCounts};
+            truckCounts={};
+            plants.forEach(p=>{ truckCounts[p]=old[p]!==undefined?old[p]:0; });
+            // Load saved values
+            loadTruckCounts();
+            // Ensure all plants still exist
+            plants.forEach(p=>{
+                if(truckCounts[p]===undefined) truckCounts[p]=0;
+            });
+            saveTruckCounts();
+        }
+        
+        function initializeTargetVolumes(){
+            const plants=[...new Set(orderData.map(i=>i.plant))].filter(Boolean);
+            const old={...targetVolumes};
+            targetVolumes={};
+            plants.forEach(p=>{ targetVolumes[p]=old[p]!==undefined?old[p]:0; });
+            loadTargetVolumes();
+            plants.forEach(p=>{
+                if(targetVolumes[p]===undefined) targetVolumes[p]=0;
+            });
+            saveTargetVolumes();
+        }
         
         function processExcelFile(file){const l=document.getElementById('loadingIndicator');l.style.display='block';const r=new FileReader();r.onload=function(e){try{const d=new Uint8Array(e.target.result),w=XLSX.read(d,{type:'array'}),s=w.SheetNames[0],ws=w.Sheets[s],j=XLSX.utils.sheet_to_json(ws,{header:1});processData(j);l.style.display='none'}catch(err){alert('Error: '+err.message);l.style.display='none'}};r.onerror=function(){alert('Error reading file');l.style.display='none'};r.readAsArrayBuffer(file);}
         
         function processData(data){if(!data||data.length===0){alert('Excel data is empty');return}
         orderData=data.slice(1).map((r,i)=>{try{let d=formatDateFromExcel(r[6]),c=formatDateFromExcel(r[20]),type="Normal";if(d&&c){const dd=parseDate(d),cc=parseDate(c);if(dd&&cc&&!isNaN(dd.getTime())&&!isNaN(cc.getTime())&&Math.floor((dd.getTime()-cc.getTime())/(864e5))===0)type="Suddenly"}return{tanggal:d,createDate:c,plant:r[8]||'',status:r[12]||'',siteNo:r[4]||'',siteName:r[5]||'',qtyOrder:parseFloat(r[9])||0,qtyDelivery:parseFloat(r[11])||0,qtyRemain:(r[12]==='90 : Cancel')?0:(parseFloat(r[9])||0)-(parseFloat(r[11])||0),qtyCancel:(r[12]==='90 : Cancel')?(parseFloat(r[9])||0):0,remarks:r[21]||'',orderStatusType:type}}catch(e){return null}}).filter(i=>i&&i.tanggal);
-        initializeTruckCounts();initializeTargetVolumes();loadTruckCounts();loadTargetVolumes();updateTruckInputs();updateTargetVolumeInputs();populateStatusTable(orderData);populateOrderTable(orderData);updatePlantFilters(orderData);updateDateFilters(orderData);updateDashboardStats(orderData);createCharts(orderData);}
+        initializeTruckCounts();initializeTargetVolumes();updateTruckInputs();updateTargetVolumeInputs();populateStatusTable(orderData);populateOrderTable(orderData);updatePlantFilters(orderData);updateDateFilters(orderData);updateDashboardStats(orderData);createCharts(orderData);}
         
         function parseDate(s){if(!s)return null;try{const p=s.split(' ');if(p.length===3){const m=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],d=parseInt(p[0]),mo=m.indexOf(p[1]),y=parseInt(p[2]);if(mo>-1&&!isNaN(d)&&!isNaN(y))return new Date(y,mo,d)}const d=new Date(s);if(!isNaN(d.getTime()))return d;if(typeof s==='number'){const ed=new Date((s-25568)*864e5);if(!isNaN(ed.getTime()))return ed}}catch(e){}return null}
         function formatDateFromExcel(v){if(!v)return'';try{if(typeof v==='string'){const d=parseDate(v);return d?formatDate(d):''}if(v instanceof Date)return formatDate(v);if(typeof v==='number'){const d=new Date((v-25568)*864e5);if(!isNaN(d.getTime()))return formatDate(d)}}catch(e){}return''}
         function formatDate(d){const m=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];return`${String(d.getDate()).padStart(2,'0')} ${m[d.getMonth()]} ${d.getFullYear()}`}
         function formatDateForDisplay(d){if(!d||isNaN(d.getTime()))return'';return`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`}
-        
-        function initializeTruckCounts(){const plants=[...new Set(orderData.map(i=>i.plant))].filter(Boolean),old={...truckCounts};truckCounts={};plants.forEach(p=>{truckCounts[p]=old[p]!==undefined?old[p]:0});saveTruckCounts()}
-        function initializeTargetVolumes(){const plants=[...new Set(orderData.map(i=>i.plant))].filter(Boolean),old={...targetVolumes};targetVolumes={};plants.forEach(p=>{targetVolumes[p]=old[p]!==undefined?old[p]:0});saveTargetVolumes()}
-        function updateTruckInputs(){const c=document.getElementById('truck-inputs-container');c.innerHTML='';const plants=Object.keys(truckCounts).sort();if(plants.length===0){c.innerHTML='<p class="file-info" style="font-size:13px;">Upload Excel file to populate</p>';return}plants.forEach(p=>{const r=document.createElement('div');r.className='truck-input-row';r.innerHTML=`<span class="truck-plant-name">${p}</span><input type="number" class="truck-input" value="${truckCounts[p]||0}" min="0" data-plant="${p}" onchange="updateTruckCount('${p}',this.value)">`;c.appendChild(r)})}
-        function updateTargetVolumeInputs(){const c=document.getElementById('target-volume-inputs-container');c.innerHTML='';const plants=Object.keys(targetVolumes).sort();if(plants.length===0){c.innerHTML='<p class="file-info" style="font-size:13px;">Upload Excel file to populate</p>';return}plants.forEach(p=>{const r=document.createElement('div');r.className='truck-input-row';r.innerHTML=`<span class="truck-plant-name">${p}</span><input type="number" class="truck-input" value="${targetVolumes[p]||0}" min="0" step="0.1" data-plant="${p}" onchange="updateTargetVolume('${p}',this.value)">`;c.appendChild(r)})}
-        function updateTruckCount(p,v){truckCounts[p]=parseInt(v)||0;saveTruckCounts();updateDashboardStats(orderData)}
-        function updateTargetVolume(p,v){targetVolumes[p]=parseFloat(v)||0;saveTargetVolumes();updateDashboardStats(orderData)}
         
         function populateStatusTable(data){const tb=document.querySelector('#status-table tbody');tb.innerHTML='';if(data.length===0){tb.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--secondary);font-size:14px;">No data available</td></tr>';return}data.forEach((item,idx)=>{const r=document.createElement('tr');let sb='';if(item.orderStatusType==="Normal")sb='<span class="status-badge status-normal">Normal</span>';else if(item.orderStatusType==="Suddenly")sb='<span class="status-badge status-suddenly">Suddenly</span>';let osb='';if(item.status.includes('Pending'))osb='<span class="status-badge status-pending">Pending</span>';else if(item.status.includes('Confirmed'))osb='<span class="status-badge status-confirmed">Confirmed</span>';else if(item.status.includes('Finished'))osb='<span class="status-badge status-delivered">Delivered</span>';else if(item.status.includes('Cancel'))osb='<span class="status-badge status-canceled">Canceled</span>';else osb=`<span class="status-badge">${item.status}</span>`;r.innerHTML=`<td>${item.tanggal}</td><td>${item.createDate}</td><td>${item.plant}</td><td>${osb}</td><td>${item.siteNo}</td><td title="${item.siteName}">${item.siteName.length>30?item.siteName.substring(0,30)+'...':item.siteName}</td><td class="editable-qty" data-index="${idx}" data-field="qtyOrder">${item.qtyOrder}</td><td>${sb}</td><td title="${item.remarks}">${item.remarks.length>20?item.remarks.substring(0,20)+'...':item.remarks}</td><td class="action-cell"><button class="action-btn edit-btn" title="Edit" data-index="${idx}"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" title="Delete" data-index="${idx}"><i class="fas fa-trash"></i></button></td>`;tb.appendChild(r)});document.querySelectorAll('.editable-qty').forEach(q=>{q.addEventListener('click',function(){const idx=this.dataset.index,f=this.dataset.field;openEditModal(data[idx],idx,f)})});document.querySelectorAll('.edit-btn').forEach(b=>{b.addEventListener('click',function(){const idx=this.dataset.index;openEditModal(data[idx],idx,'all')})});updateStatusOrderChart(data)}
         
@@ -350,7 +467,42 @@
         function setTheme(t){const b=document.body,s=document.getElementById('themeStatus'),opts=document.querySelectorAll('.theme-option');b.classList.remove('neon-mode','neon-blue-mode','red-moon-mode');opts.forEach(o=>{o.classList.toggle('active',o.dataset.theme===t)});if(t==='neon'){b.classList.add('neon-mode');s.textContent='Neon Mode Active';s.style.color='#00ff9d'}else if(t==='neon-blue'){b.classList.add('neon-blue-mode');s.textContent='Neon Blue Active';s.style.color='#00d4ff'}else if(t==='red-moon'){b.classList.add('red-moon-mode');s.textContent='Red Blood Moon Active';s.style.color='#ff3333'}else{s.textContent='Original Mode Active';s.style.color=''}localStorage.setItem('selectedTheme',t);if(orderData.length>0)createCharts(orderData)}
         function loadThemePreference(){setTheme(localStorage.getItem('selectedTheme')||'original')}
         
-        document.addEventListener('DOMContentLoaded',function(){initializeSelect2();loadThemePreference();document.querySelectorAll('.theme-option').forEach(o=>{o.addEventListener('click',function(){setTheme(this.dataset.theme)})});document.getElementById('fileInput').addEventListener('change',function(e){const f=e.target.files[0];if(!f)return;if(f.size>200*1024*1024){alert('File too large. Max 200MB.');return}if(!f.name.match(/\.(xlsx|xls)$/)){alert('Only Excel files allowed.');return}document.getElementById('fileInfo').textContent=`File: ${f.name} (${(f.size/1024/1024).toFixed(2)} MB)`;processExcelFile(f)});document.querySelectorAll('.tab').forEach(t=>{t.addEventListener('click',function(){document.querySelectorAll('.tab').forEach(t2=>t2.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));this.classList.add('active');document.getElementById(this.dataset.tab).classList.add('active')})});document.getElementById('status-apply-filter').addEventListener('click',function(){populateStatusTable(filterDataForStatus(orderData))});document.getElementById('apply-filter').addEventListener('click',function(){const sd=document.getElementById('start-date').value,ed=document.getElementById('end-date').value,pl=$('#plant-filter').val()||[],st=document.getElementById('status-filter').value;populateOrderTable(filterData(orderData,sd,ed,pl,st))});document.getElementById('dashboard-apply-filter').addEventListener('click',function(){updateDashboardStats(orderData);createCharts(orderData)});document.getElementById('downloadProjectImageBtn').addEventListener('click',downloadProjectTableAsImage);document.getElementById('sidebarToggleBtn').addEventListener('click',toggleSidebar);document.getElementById('sidebarToggle').addEventListener('click',toggleSidebar);document.getElementById('closeModal').addEventListener('click',function(){document.getElementById('editModal').style.display='none'});document.getElementById('cancelEdit').addEventListener('click',function(){document.getElementById('editModal').style.display='none'});document.getElementById('editForm').addEventListener('submit',function(e){e.preventDefault();if(currentEditingRow!==null){const o=parseFloat(document.getElementById('edit-qty-order').value),d=parseFloat(document.getElementById('edit-qty-delivery').value),c=parseFloat(document.getElementById('edit-qty-cancel').value),r=document.getElementById('edit-remarks').value;orderData[currentEditingRow].qtyOrder=o;orderData[currentEditingRow].qtyDelivery=d;orderData[currentEditingRow].qtyCancel=c;orderData[currentEditingRow].remarks=r;orderData[currentEditingRow].qtyRemain=o-d;orderData[currentEditingRow].status=determineStatus(o,d,c);populateStatusTable(orderData);populateOrderTable(orderData);updateDashboardStats(orderData);createCharts(orderData);document.getElementById('editModal').style.display='none';alert('Data updated successfully!')}});window.addEventListener('resize',handleResize)});window.updateTruckCount=updateTruckCount;window.updateTargetVolume=updateTargetVolume;
+        document.addEventListener('DOMContentLoaded',function(){
+            initializeSelect2();
+            loadThemePreference();
+            
+            // Load saved truck and target data from localStorage
+            const savedTruck = localStorage.getItem('truckCounts');
+            const savedTarget = localStorage.getItem('targetVolumes');
+            if(savedTruck) {
+                try {
+                    const parsed = JSON.parse(savedTruck);
+                    truckCounts = parsed;
+                } catch(e) {}
+            }
+            if(savedTarget) {
+                try {
+                    const parsed = JSON.parse(savedTarget);
+                    targetVolumes = parsed;
+                } catch(e) {}
+            }
+            
+            document.querySelectorAll('.theme-option').forEach(o=>{o.addEventListener('click',function(){setTheme(this.dataset.theme)})});
+            document.getElementById('fileInput').addEventListener('change',function(e){const f=e.target.files[0];if(!f)return;if(f.size>200*1024*1024){alert('File too large. Max 200MB.');return}if(!f.name.match(/\.(xlsx|xls)$/)){alert('Only Excel files allowed.');return}document.getElementById('fileInfo').textContent=`File: ${f.name} (${(f.size/1024/1024).toFixed(2)} MB)`;processExcelFile(f)});
+            document.querySelectorAll('.tab').forEach(t=>{t.addEventListener('click',function(){document.querySelectorAll('.tab').forEach(t2=>t2.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));this.classList.add('active');document.getElementById(this.dataset.tab).classList.add('active')})});
+            document.getElementById('status-apply-filter').addEventListener('click',function(){populateStatusTable(filterDataForStatus(orderData))});
+            document.getElementById('apply-filter').addEventListener('click',function(){const sd=document.getElementById('start-date').value,ed=document.getElementById('end-date').value,pl=$('#plant-filter').val()||[],st=document.getElementById('status-filter').value;populateOrderTable(filterData(orderData,sd,ed,pl,st))});
+            document.getElementById('dashboard-apply-filter').addEventListener('click',function(){updateDashboardStats(orderData);createCharts(orderData)});
+            document.getElementById('downloadProjectImageBtn').addEventListener('click',downloadProjectTableAsImage);
+            document.getElementById('sidebarToggleBtn').addEventListener('click',toggleSidebar);
+            document.getElementById('sidebarToggle').addEventListener('click',toggleSidebar);
+            document.getElementById('closeModal').addEventListener('click',function(){document.getElementById('editModal').style.display='none'});
+            document.getElementById('cancelEdit').addEventListener('click',function(){document.getElementById('editModal').style.display='none'});
+            document.getElementById('editForm').addEventListener('submit',function(e){e.preventDefault();if(currentEditingRow!==null){const o=parseFloat(document.getElementById('edit-qty-order').value),d=parseFloat(document.getElementById('edit-qty-delivery').value),c=parseFloat(document.getElementById('edit-qty-cancel').value),r=document.getElementById('edit-remarks').value;orderData[currentEditingRow].qtyOrder=o;orderData[currentEditingRow].qtyDelivery=d;orderData[currentEditingRow].qtyCancel=c;orderData[currentEditingRow].remarks=r;orderData[currentEditingRow].qtyRemain=o-d;orderData[currentEditingRow].status=determineStatus(o,d,c);populateStatusTable(orderData);populateOrderTable(orderData);updateDashboardStats(orderData);createCharts(orderData);document.getElementById('editModal').style.display='none';alert('Data updated successfully!')}});
+            window.addEventListener('resize',handleResize);
+        });
+        window.updateTruckCount=updateTruckCount;
+        window.updateTargetVolume=updateTargetVolume;
     </script>
 </body>
 </html>
