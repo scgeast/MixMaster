@@ -753,7 +753,6 @@
         if (selectedArea && selectedArea !== 'all') {
             filtered = filtered.filter(r => r.province === selectedArea);
         }
-        // Plant dapat memilih lebih dari satu. selectedPlant berupa array.
         const selectedPlants = Array.isArray(selectedPlant)
             ? selectedPlant.filter(p => p && p !== 'all')
             : (selectedPlant && selectedPlant !== 'all' ? [selectedPlant] : []);
@@ -1186,10 +1185,16 @@
         document.getElementById('tableBody').innerHTML = tbodyHtml;
         document.getElementById('tableContainer').style.display = 'block';
         
+        // ====== SUMMARY CARDS WITH Avg Trip/Driver ======
+        // Formula: Avg Trip/Driver = Total Trip / Total Hari / Total Driver
+        let totalDays = allDates.length;
+        let avgTripPerDriverOverall = (totalDays > 0 && totalDrivers > 0) ? (totalTrips / totalDays / totalDrivers) : 0;
+        
         let summaryHtml = `
             <div class="card"><div class="num">${totalDrivers}</div><div>Active Drivers</div></div>
             <div class="card"><div class="num">${formatNumber(totalTrips)}</div><div>Total Trips</div></div>
             <div class="card"><div class="num">${formatNumber(Math.round(totalQty * 10)/10)}</div><div>Concrete (m³)</div></div>
+            <div class="card"><div class="num">${formatNumber(avgTripPerDriverOverall.toFixed(2))}</div><div>Avg Trip/Driver</div></div>
             <div class="card"><div class="num">${allDates.length}</div><div>Days in range</div></div>
             <div class="card"><div class="num">${maxTripValue}</div><div>Max Trip/Day</div></div>
         `;
@@ -1289,7 +1294,6 @@
     
     function escapeHtml(str) { if(!str) return ''; return String(str).replace(/[&<>]/g, m => (m==='&'?'&amp;':m==='<'?'&lt;':'&gt;')); }
     
-    // ===== PERBAIKAN UTAMA: Fungsi update Plant berdasarkan Area =====
     function getSelectedPlants() {
         return Array.from(plantSelect.selectedOptions)
             .map(opt => opt.value)
@@ -1305,9 +1309,6 @@
         });
     }
 
-    // Plant otomatis mengikuti Area yang dipilih.
-    // Jika Area = East, hanya plant East yang muncul; jika Bali, hanya plant Bali.
-    // Pilihan plant yang masih valid akan dipertahankan.
     function updatePlantOptionsBySelectedArea() {
         if (!rawRecords.length) return;
 
@@ -1337,7 +1338,6 @@
             plantSelect.appendChild(opt);
         });
 
-        // Hanya pertahankan plant yang masih berada di area terpilih.
         const validSelected = previousSelected.filter(p => plantsSet.has(p));
         setSelectedPlants(validSelected);
     }
@@ -1359,8 +1359,6 @@
         let aggregated = aggregateDrivers(filtered);
         renderFilteredResult(aggregated);
 
-        // Pastikan daftar Plant selalu sesuai Area, tetapi jangan menghapus
-        // multi-selection yang masih valid.
         updateAreaDropdown();
         updatePlantOptionsBySelectedArea();
     }
@@ -1379,7 +1377,6 @@
             if (currentValue === a) opt.selected = true;
             areaSelect.appendChild(opt); 
         });
-        // Update plant options setelah area berubah
         updatePlantOptionsBySelectedArea();
     }
     
@@ -1538,7 +1535,6 @@
     });
     
     plantSelect.addEventListener('change', function() {
-        // Jika All Plants dipilih, batalkan semua pilihan plant lainnya.
         const selected = Array.from(plantSelect.selectedOptions).map(o => o.value);
         if (selected.includes('all')) {
             const nonAll = selected.filter(v => v !== 'all');
