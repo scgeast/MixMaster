@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Driver Activity Dashboard - With Total Row</title>
+    <title>Driver Activity Dashboard - Classic / Premium</title>
     <style>
         * {
             box-sizing: border-box;
@@ -100,41 +100,55 @@
             margin-bottom: 20px;
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
             align-items: flex-end;
         }
         .filter-group {
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            min-width: 140px;
+            gap: 3px;
+            min-width: 100px;
         }
         .filter-group label {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             font-weight: 700;
             color: #2c5a7a;
+            white-space: nowrap;
         }
         .filter-group input, .filter-group select {
-            padding: 6px 10px;
-            border-radius: 14px;
+            padding: 5px 8px;
+            border-radius: 12px;
             border: 1px solid #cbdbe0;
             background: white;
-            font-size: 0.75rem;
-        }
-        .filter-group select[multiple] {
-            min-height: 65px;
+            font-size: 0.7rem;
+            width: 100%;
+            height: 32px;
         }
         .btn-reset {
             background: #dadfe5;
             border: none;
-            padding: 6px 14px;
+            padding: 5px 14px;
             border-radius: 25px;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             cursor: pointer;
+            height: 32px;
+            min-width: 60px;
+            margin-bottom: 0;
         }
-        .note-small {
-            font-size: 0.55rem;
-            color: #4a6a85;
+        .btn-reset:hover {
+            background: #c8d0d8;
+        }
+        .filter-group-small {
+            flex: 0.6;
+            min-width: 90px;
+        }
+        .filter-group-date {
+            flex: 0.7;
+            min-width: 110px;
+        }
+        .filter-group-driver {
+            flex: 0.5;
+            min-width: 100px;
         }
 
         .summary-cards {
@@ -180,19 +194,37 @@
         .data-table th {
             background: #eef2f7;
             color: #1a3a4e;
-            padding: 8px 5px;
+            padding: 6px 4px;
             text-align: center;
             border: 1px solid #d4dee8;
             font-weight: 600;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             white-space: nowrap;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+        }
+        .data-table th:hover {
+            background: #e2eaf2;
+        }
+        .data-table th .sort-icon {
+            display: inline-block;
+            margin-left: 3px;
+            font-size: 0.55rem;
+        }
+        .data-table th .sort-icon.asc::after {
+            content: '▲';
+        }
+        .data-table th .sort-icon.desc::after {
+            content: '▼';
         }
         .data-table td {
             border: 1px solid #e2e8f0;
-            padding: 6px 5px;
+            padding: 5px 4px;
             text-align: center;
             background: white;
             white-space: nowrap;
+            font-size: 0.65rem;
         }
         .data-table tr:hover td {
             background-color: #fafbfe;
@@ -216,14 +248,63 @@
         .trip-yellow { background-color: #FFE44D !important; color: #886600; font-weight: bold; }
         .trip-red { background-color: #FFAAAA !important; color: #8B0000; font-weight: bold; }
         .qty-cell { background-color: #E8F0FE !important; }
+        .date-header {
+            background: #dce4ec !important;
+            font-weight: 700;
+        }
+        .sub-header {
+            background: #e8edf4 !important;
+            font-weight: 600;
+            font-size: 0.6rem;
+        }
 
         .footer-note {
             margin-top: 16px;
-            font-size: 0.6rem;
-            color: #5f7f9c;
-            text-align: center;
+            font-size: 0.7rem;
+            color: #2c5a7a;
             border-top: 1px solid #e2edf2;
-            padding-top: 12px;
+            padding-top: 14px;
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 16px 20px;
+        }
+        .footer-note .insight-title {
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: #1a2c3e;
+            margin-bottom: 8px;
+        }
+        .footer-note .insight-item {
+            padding: 3px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .footer-note .insight-item .bullet {
+            color: #1f6392;
+            font-weight: 700;
+            font-size: 0.8rem;
+            min-width: 14px;
+        }
+        .footer-note .insight-item .highlight {
+            font-weight: 600;
+            color: #1e4663;
+        }
+        .footer-note .insight-item .driver-name-insight {
+            font-weight: 600;
+            color: #c0392b;
+            background: #fde8e8;
+            padding: 0 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+        }
+        .footer-note .insight-item .driver-name-insight-low {
+            font-weight: 600;
+            color: #e67e22;
+            background: #fef5e7;
+            padding: 0 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
         }
         .legend-icon {
             display: inline-block;
@@ -232,19 +313,206 @@
             border-radius: 2px;
             margin-right: 3px;
         }
+        .sortable-header {
+            cursor: pointer;
+        }
+        .sortable-header:hover {
+            background: #dce4ec;
+        }
+
+        /* ===== THEME SYSTEM : PREMIUM / CLASSIC ===== */
+        body.theme-premium { background: radial-gradient(circle at 8% 0%, rgba(54,132,255,.14), transparent 28%), radial-gradient(circle at 92% 12%, rgba(105,72,255,.10), transparent 30%), #07111d; color:#e8f1f8; }
+        body.theme-premium .container { background:rgba(8,20,32,.96); border:1px solid rgba(92,153,215,.18); box-shadow:0 22px 70px rgba(0,0,0,.42); }
+        body.theme-premium h1 { color:#f4f8fc; letter-spacing:.1px; }
+        body.theme-premium .compact-upload { background:#0d1d2c; }
+        body.theme-premium .compact-upload .file-label { background:#1677d2; }
+        body.theme-premium .btn-export { background:#17805b; }
+        body.theme-premium .btn-image { background:#7652c8; }
+        body.theme-premium #fileInfo { color:#9bc8ee; background:#10283d; }
+        body.theme-premium .filter-bar { background:linear-gradient(135deg,#102336,#0c1b2a); border:1px solid rgba(90,150,210,.18); }
+        body.theme-premium .filter-group label { color:#83a9c9; }
+        body.theme-premium .filter-group input, body.theme-premium .filter-group select { background:#091725; color:#e8f1f8; border-color:#29455e; }
+        body.theme-premium .btn-reset { background:#203548; color:#c9d8e5; }
+        body.theme-premium .summary-cards { background:transparent; padding:0; }
+        body.theme-premium .card { background:linear-gradient(145deg,#10283e,#0b1b2a); border:1px solid rgba(78,150,220,.20); box-shadow:0 10px 25px rgba(0,0,0,.18); text-align:left; padding:14px 16px; }
+        body.theme-premium .card .num { color:#f3f8fc; }
+        body.theme-premium .card div:last-child { color:#80a4c1; }
+        body.theme-premium .table-wrapper { border-color:#1a354b; background:#081522; }
+        body.theme-premium .data-table { background:#081522; color:#dce8f2; }
+        body.theme-premium .data-table th { background:#102438; color:#91b7d5; border-color:#203b52; }
+        body.theme-premium .data-table th:hover { background:#153049; }
+        body.theme-premium .data-table td { background:#091826; color:#d8e5ef; border-color:#183047; }
+        body.theme-premium .data-table tr:hover td { background:#102637; }
+        body.theme-premium .driver-name { background:#0c1e2d; color:#f0f6fb; }
+        body.theme-premium .total-row, body.theme-premium .total-row td { background:#102438 !important; color:#eef7ff; border-top-color:#4c83ad; }
+        body.theme-premium .qty-cell { background:#102c43 !important; color:#91c9f5; }
+        body.theme-premium .trip-green { background:#176b43 !important; color:#9bffc5; }
+        body.theme-premium .trip-orange { background:#75451c !important; color:#ffd08c; }
+        body.theme-premium .trip-yellow { background:#665518 !important; color:#ffe98b; }
+        body.theme-premium .trip-red { background:#6d252b !important; color:#ffb0b5; }
+        body.theme-premium .date-header { background:#153049 !important; color:#8dc7f4; }
+        body.theme-premium .sub-header { background:#10283d !important; color:#8aaac3; }
+        body.theme-premium .footer-note { background:#0c1c2b; border-top-color:#203b52; color:#9ab7cd; }
+        body.theme-premium .footer-note .insight-title { color:#eef6fc; }
+        body.theme-premium .footer-note .insight-item .bullet { color:#5daeff; }
+        body.theme-premium .footer-note .insight-item .highlight { color:#bfe2ff; }
+        body.theme-premium .footer-note .insight-item .driver-name-insight { color:#ffadb2; background:#45232a; }
+        body.theme-premium .footer-note .insight-item .driver-name-insight-low { color:#ffd18c; background:#49331d; }
+        /* ===== Analytics / Charts ===== */
+        .analytics-grid {
+            display:grid;
+            grid-template-columns:minmax(0, 1.55fr) minmax(360px, 1fr);
+            gap:14px;
+            margin:0 0 18px 0;
+        }
+        .analytics-card {
+            background:#f7fafc;
+            border:1px solid #dbe6ee;
+            border-radius:16px;
+            padding:14px 16px 16px;
+            min-height:300px;
+            overflow:hidden;
+        }
+        .analytics-title {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:10px;
+            margin-bottom:10px;
+            color:#24384a;
+            font-size:.78rem;
+            font-weight:800;
+        }
+        .analytics-title span {
+            color:#7890a3;
+            font-size:.58rem;
+            font-weight:600;
+        }
+        .chart-box { height:245px; position:relative; }
+        .chart-box canvas { width:100% !important; height:100% !important; }
+        .top-driver-list { display:flex; flex-direction:column; gap:7px; }
+        .top-driver {
+            display:grid;
+            grid-template-columns:34px minmax(0,1fr) 125px 36px;
+            align-items:center;
+            gap:9px;
+            min-height:43px;
+            padding:7px 9px;
+            border:1px solid #e1e9ef;
+            background:#fff;
+            border-radius:10px;
+        }
+        .top-rank {
+            width:28px; height:28px; border-radius:8px;
+            display:flex; align-items:center; justify-content:center;
+            background:#eaf3fa; color:#2773a7; font-size:.68rem; font-weight:800;
+        }
+        .top-driver-name {
+            min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+            color:#344b5f; font-size:.64rem; font-weight:650;
+        }
+        .top-driver-bar { height:7px; background:#e8eef3; border-radius:20px; overflow:hidden; }
+        .top-driver-bar span { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,#2788e8,#56c3f2); }
+        .top-driver-value { text-align:right; color:#203a51; font-size:.72rem; font-weight:800; }
+
+        body.theme-premium .analytics-card {
+            background:linear-gradient(145deg,#0b1c2b,#081522);
+            border-color:#23425b;
+            box-shadow:0 12px 30px rgba(0,0,0,.16);
+        }
+        body.theme-premium .analytics-title { color:#edf6fd; }
+        body.theme-premium .analytics-title span { color:#6e91b1; }
+        body.theme-premium .top-driver {
+            background:rgba(255,255,255,.025); border-color:#1d354a;
+        }
+        body.theme-premium .top-rank { background:#102d46; color:#70baff; }
+        body.theme-premium .top-driver-name { color:#d7e5ef; }
+        body.theme-premium .top-driver-bar { background:#102638; }
+        body.theme-premium .top-driver-value { color:#f0f7fd; }
+
+        @media (max-width: 1000px) {
+            .analytics-grid { grid-template-columns:1fr; }
+        }
+        @media (max-width: 650px) {
+            .top-driver { grid-template-columns:30px minmax(0,1fr) 75px 30px; }
+            .analytics-card { min-height:270px; }
+            .chart-box { height:220px; }
+        }
+
+        .theme-toggle { display:flex; align-items:center; gap:4px; background:#edf2f7; border:1px solid #d4dde6; border-radius:999px; padding:3px; }
+        .theme-toggle button { border:0; border-radius:999px; padding:6px 10px; font-size:.62rem; font-weight:700; cursor:pointer; background:transparent; color:#536b7e; }
+        .theme-toggle button.active { background:#1e4663; color:#fff; box-shadow:0 2px 6px rgba(0,0,0,.15); }
+        body.theme-premium .theme-toggle { background:#0d1e2e; border-color:#29445c; }
+        body.theme-premium .theme-toggle button { color:#7f9eb7; }
+        body.theme-premium .theme-toggle button.active { background:#1677d2; color:white; }
+        .premium-only { display:none; }
+        body.theme-premium .premium-only { display:block; }
+        .classic-only { display:block; }
+        body.theme-premium .classic-only { display:none; }
+        .theme-badge { font-size:.58rem; color:#6f8aa0; padding:0 4px; white-space:nowrap; }
+        body.theme-premium .theme-badge { color:#6e91b1; }
+
+
+        /* ===== Multi-select Plant ===== */
+        #plantFilter {
+            min-height: 92px;
+            max-height: 125px;
+            overflow-y: auto;
+            cursor: pointer;
+        }
+        #plantFilter option {
+            padding: 5px 8px;
+            border-radius: 5px;
+        }
+        #plantFilter option:checked {
+            font-weight: 700;
+        }
+        .filter-hint {
+            margin-top: 3px;
+            font-size: .56rem;
+            color: #7890a7;
+            line-height: 1.2;
+        }
+        body.theme-premium .filter-hint { color:#6688a8; }
+        body.theme-premium #plantFilter option:checked { background:#173b5c; color:#8fc9ff; }
+
         @media (max-width: 700px) {
-            .filter-group { min-width: 100%; }
+            .filter-group { 
+                min-width: 100%; 
+                flex: 1;
+            }
+            .filter-group-small {
+                flex: 1;
+                min-width: 100%;
+            }
+            .filter-group-date {
+                flex: 1;
+                min-width: 100%;
+            }
+            .filter-group-driver {
+                flex: 1;
+                min-width: 100%;
+            }
             .header-row { flex-direction: column; align-items: stretch; }
             .header-buttons { justify-content: space-between; }
+            .data-table th, .data-table td {
+                font-size: 0.55rem;
+                padding: 3px 2px;
+            }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <div class="container">
     <div class="header-row">
         <h1>🚚 Driver Activity Dashboard</h1>
         <div class="header-buttons">
+            <div class="theme-toggle" title="Pilih tampilan dashboard">
+                <button id="classicThemeBtn" class="active" type="button">Classic</button>
+                <button id="premiumThemeBtn" type="button">Premium</button>
+            </div>
             <button class="btn-image" id="exportImageBtn">📸 Download Full Table Image</button>
             <button class="btn-export" id="exportBtn">📎 Export Excel</button>
             <div class="compact-upload">
@@ -256,15 +524,55 @@
     </div>
 
     <div class="filter-bar" id="filterPanel" style="display: none;">
-        <div class="filter-group"><label>Start Date</label><input type="date" id="startDateFilter"></div>
-        <div class="filter-group"><label>End Date</label><input type="date" id="endDateFilter"></div>
-        <div class="filter-group"><label>Area (Province)</label><select id="areaFilter" multiple size="3"></select><div class="note-small">Ctrl+klik multi pilih</div></div>
-        <div class="filter-group"><label>Plant Name</label><select id="plantFilter" multiple size="3"></select><div class="note-small">Otomatis filter area</div></div>
-        <div class="filter-group"><label>Driver Type</label><select id="driverTypeFilter"><option value="all">All Drivers</option><option value="libero">Libero Only</option><option value="non-libero">Non-Libero</option></select></div>
+        <div class="filter-group filter-group-date">
+            <label>Start Date</label>
+            <input type="date" id="startDateFilter">
+        </div>
+        <div class="filter-group filter-group-date">
+            <label>End Date</label>
+            <input type="date" id="endDateFilter">
+        </div>
+        <div class="filter-group filter-group-small">
+            <label>Area (Province)</label>
+            <select id="areaFilter">
+                <option value="all">All Areas</option>
+            </select>
+        </div>
+        <div class="filter-group filter-group-small">
+            <label>Plant Name</label>
+            <select id="plantFilter" multiple size="4" aria-label="Plant Name - multi select">
+                <option value="all">All Plants</option>
+            </select>
+            <div class="filter-hint">Ctrl / Cmd + klik untuk pilih lebih dari 1 plant</div>
+        </div>
+        <div class="filter-group filter-group-driver">
+            <label>Driver Type</label>
+            <select id="driverTypeFilter">
+                <option value="all">All Drivers</option>
+                <option value="libero">Libero Only</option>
+                <option value="non-libero">Non-Libero</option>
+            </select>
+        </div>
         <button class="btn-reset" id="resetFiltersBtn">Reset</button>
     </div>
 
     <div id="summaryArea" class="summary-cards" style="display: none;"></div>
+    <div id="analyticsArea" class="analytics-grid" style="display:none;">
+        <div class="analytics-card">
+            <div class="analytics-title">
+                <span style="color:inherit;font-size:.78rem;font-weight:800;">📈 Trips Trend</span>
+                <span>Daily total trips</span>
+            </div>
+            <div class="chart-box"><canvas id="tripTrendChart"></canvas></div>
+        </div>
+        <div class="analytics-card">
+            <div class="analytics-title">
+                <span style="color:inherit;font-size:.78rem;font-weight:800;">🏆 Top 5 Drivers</span>
+                <span>By total trips</span>
+            </div>
+            <div id="topDriversList" class="top-driver-list"></div>
+        </div>
+    </div>
     <div id="tableContainer" style="display: none;">
         <div class="table-wrapper" id="tableWrapperForImage">
             <table class="data-table" id="resultTable">
@@ -274,10 +582,9 @@
         </div>
     </div>
     <div id="noDataMsg" style="text-align:center; padding: 30px; color: #6c86a3; display: block;">📂 Upload file Excel — data akan muncul otomatis</div>
-    <div class="footer-note">
-        📏 Avg Distance = Total Distance ÷ Total Trip | Avg/Trip/Day = Total Trip ÷ Day Work<br>
-        🎨 Trip Harian: <span class="legend-icon" style="background:#90EE90;"></span> ≥4 <span class="legend-icon" style="background:#FFB347;"></span> 3 <span class="legend-icon" style="background:#FFE44D;"></span> 2 <span class="legend-icon" style="background:#FFAAAA;"></span> 1 atau 0<br>
-        📊 Kolom Distribusi: <span style="color:#8B0000;">■</span> 0-2Trip (merah intensitas) <span style="color:#006400;">■</span> 3-6Trip+ (hijau intensitas)
+    <div class="footer-note" id="insightFooter" style="display: none;">
+        <div class="insight-title">📊 Key Performance Insights</div>
+        <div id="insightContent"></div>
     </div>
 </div>
 
@@ -285,6 +592,10 @@
 <script>
     let rawRecords = [];
     let currentAggregated = null;
+    let tripTrendChart = null;
+    let currentSortColumn = 'Total Trip';
+    let currentSortDirection = 'desc';
+    let driverDataArray = [];
     
     const fileInput = document.getElementById('excelInput');
     const fileInfoSpan = document.getElementById('fileInfo');
@@ -297,6 +608,25 @@
     const resetBtn = document.getElementById('resetFiltersBtn');
     const exportBtn = document.getElementById('exportBtn');
     const exportImageBtn = document.getElementById('exportImageBtn');
+    const insightFooter = document.getElementById('insightFooter');
+    const insightContent = document.getElementById('insightContent');
+
+    const classicThemeBtn = document.getElementById('classicThemeBtn');
+    const premiumThemeBtn = document.getElementById('premiumThemeBtn');
+
+    function setTheme(theme) {
+        document.body.classList.toggle('theme-premium', theme === 'premium');
+        classicThemeBtn.classList.toggle('active', theme === 'classic');
+        premiumThemeBtn.classList.toggle('active', theme === 'premium');
+        localStorage.setItem('driverDashboardTheme', theme);
+        if (typeof currentAggregated !== 'undefined' && currentAggregated) {
+            renderAnalytics(currentAggregated);
+        }
+    }
+
+    classicThemeBtn.addEventListener('click', () => setTheme('classic'));
+    premiumThemeBtn.addEventListener('click', () => setTheme('premium'));
+    setTheme(localStorage.getItem('driverDashboardTheme') || 'classic');
     
     function formatNumber(num) {
         if (num === undefined || num === null) return '0';
@@ -410,7 +740,7 @@
         }
     }
     
-    function applyFilters(records, startDateStr, endDateStr, selectedAreas, selectedPlants, driverTypeVal) {
+    function applyFilters(records, startDateStr, endDateStr, selectedArea, selectedPlant, driverTypeVal) {
         let filtered = [...records];
         if (startDateStr) {
             let start = new Date(startDateStr); start.setHours(0,0,0,0);
@@ -420,8 +750,18 @@
             let end = new Date(endDateStr); end.setHours(23,59,59,999);
             filtered = filtered.filter(r => r.dateObj <= end);
         }
-        if (selectedAreas && selectedAreas.length > 0) filtered = filtered.filter(r => selectedAreas.includes(r.province));
-        if (selectedPlants && selectedPlants.length > 0) filtered = filtered.filter(r => selectedPlants.includes(r.plant));
+        if (selectedArea && selectedArea !== 'all') {
+            filtered = filtered.filter(r => r.province === selectedArea);
+        }
+        // Plant dapat memilih lebih dari satu. selectedPlant berupa array.
+        const selectedPlants = Array.isArray(selectedPlant)
+            ? selectedPlant.filter(p => p && p !== 'all')
+            : (selectedPlant && selectedPlant !== 'all' ? [selectedPlant] : []);
+
+        if (selectedPlants.length > 0) {
+            const selectedSet = new Set(selectedPlants);
+            filtered = filtered.filter(r => selectedSet.has(r.plant));
+        }
         if (driverTypeVal === 'libero') filtered = filtered.filter(r => r.driverType === 'libero');
         else if (driverTypeVal === 'non-libero') filtered = filtered.filter(r => r.driverType === 'non-libero');
         return filtered;
@@ -498,14 +838,162 @@
         return 'trip-red';
     }
     
+    function sortDriverData(dataArray, column, direction) {
+        return dataArray.sort((a, b) => {
+            let valA, valB;
+            
+            switch(column) {
+                case 'No':
+                    valA = a._originalNo || a.no;
+                    valB = b._originalNo || b.no;
+                    break;
+                case 'Driver Name':
+                    valA = a.driverName.toLowerCase();
+                    valB = b.driverName.toLowerCase();
+                    break;
+                case 'Plant Name':
+                    valA = a.plant.toLowerCase();
+                    valB = b.plant.toLowerCase();
+                    break;
+                case 'Avg Dist (km)':
+                    valA = a.avgDistance;
+                    valB = b.avgDistance;
+                    break;
+                case 'Total Trip':
+                    valA = a.totalTrips;
+                    valB = b.totalTrips;
+                    break;
+                case 'Day Work':
+                    valA = a.dayWork;
+                    valB = b.dayWork;
+                    break;
+                case 'Avg Trip/Day':
+                    valA = a.avgTripPerDay;
+                    valB = b.avgTripPerDay;
+                    break;
+                case 'Total Qty':
+                    valA = a.totalQty;
+                    valB = b.totalQty;
+                    break;
+                default:
+                    if (column.includes('/')) {
+                        if (column.includes('Qty')) {
+                            valA = a.dailyQty[column] || 0;
+                            valB = b.dailyQty[column] || 0;
+                        } else if (column.includes('Trip')) {
+                            valA = a.dailyTrip[column] || 0;
+                            valB = b.dailyTrip[column] || 0;
+                        }
+                    } else if (column.includes('Trip') && !column.includes('Total') && !column.includes('Avg')) {
+                        let tripVal = parseInt(column);
+                        valA = a.tripDistribution[tripVal] || 0;
+                        valB = b.tripDistribution[tripVal] || 0;
+                    }
+                    break;
+            }
+            
+            if (typeof valA === 'string') {
+                return direction === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+            }
+            return direction === 'asc' ? valA - valB : valB - valA;
+        });
+    }
+    
+    function generateInsights(aggregated) {
+        const { driversMap, allDates, totalDrivers, totalTrips, totalQty, maxTripValue } = aggregated;
+        if (driversMap.size === 0) return [];
+        
+        let insights = [];
+        let totalDriversCount = driversMap.size;
+        let totalDays = allDates.length;
+        let totalTripsAll = totalTrips;
+        let totalQtyAll = totalQty;
+        
+        let avgTripPerDriver = totalTripsAll / totalDriversCount;
+        let avgQtyPerTrip = totalQtyAll / totalTripsAll;
+        let avgTripPerDay = totalTripsAll / (totalDays * totalDriversCount);
+        
+        let topDriver = null;
+        let maxTrips = 0;
+        let topDriverName = '';
+        for (let [name, data] of driversMap.entries()) {
+            if (data.totalTrips > maxTrips) {
+                maxTrips = data.totalTrips;
+                topDriverName = name;
+                topDriver = data;
+            }
+        }
+        
+        let zeroTripDrivers = [];
+        let lowPerformerDrivers = [];
+        let highPerformerCount = 0;
+        for (let [name, data] of driversMap.entries()) {
+            if (data.totalTrips === 0) {
+                zeroTripDrivers.push(name);
+            } else if (data.totalTrips < 5 && data.totalTrips > 0) {
+                lowPerformerDrivers.push(name);
+            }
+            if (data.totalTrips >= 15) {
+                highPerformerCount++;
+            }
+        }
+        
+        let liberoCount = 0;
+        let liberoTrips = 0;
+        let nonLiberoCount = 0;
+        let nonLiberoTrips = 0;
+        for (let [name, data] of driversMap.entries()) {
+            if (getDriverType(name) === 'libero') {
+                liberoCount++;
+                liberoTrips += data.totalTrips;
+            } else {
+                nonLiberoCount++;
+                nonLiberoTrips += data.totalTrips;
+            }
+        }
+        
+        insights.push(`📌 Total <span class="highlight">${totalDriversCount}</span> driver aktif dalam <span class="highlight">${totalDays}</span> hari dengan total <span class="highlight">${formatNumber(totalTripsAll)}</span> trip dan volume <span class="highlight">${formatNumber(Math.round(totalQtyAll * 10)/10)} m³</span>`);
+        insights.push(`📌 Rata-rata trip per driver: <span class="highlight">${avgTripPerDriver.toFixed(1)}</span> trip | Rata-rata trip per hari: <span class="highlight">${avgTripPerDay.toFixed(2)}</span> trip | Rata-rata volume per trip: <span class="highlight">${avgQtyPerTrip.toFixed(1)} m³</span>`);
+        
+        if (topDriver) {
+            insights.push(`🏆 Driver terbaik: <span class="highlight">${topDriverName}</span> dengan <span class="highlight">${topDriver.totalTrips}</span> trip (${topDriver.avgTripPerDay.toFixed(2)} trip/hari) dan volume <span class="highlight">${formatNumber(Math.round(topDriver.totalQty * 10)/10)} m³</span>`);
+        }
+        
+        if (zeroTripDrivers.length > 0) {
+            let driverNames = zeroTripDrivers.map(name => `<span class="driver-name-insight">${escapeHtml(name)}</span>`).join(', ');
+            insights.push(`⚠️ <span class="highlight">${zeroTripDrivers.length}</span> driver tanpa aktivitas: ${driverNames} - perlu evaluasi dan penjadwalan ulang`);
+        }
+        
+        if (lowPerformerDrivers.length > 0) {
+            let driverNames = lowPerformerDrivers.map(name => `<span class="driver-name-insight-low">${escapeHtml(name)}</span>`).join(', ');
+            insights.push(`⚠️ <span class="highlight">${lowPerformerDrivers.length}</span> driver dengan aktivitas rendah (&lt;5 trip): ${driverNames} - perlu perhatian dan motivasi`);
+        }
+        
+        if (highPerformerCount > 0) {
+            insights.push(`⭐ <span class="highlight">${highPerformerCount}</span> driver dengan performa tinggi (≥15 trip) - berikan apresiasi dan pertahankan motivasi`);
+        }
+        
+        if (liberoCount > 0 && nonLiberoCount > 0) {
+            let liberoAvg = (liberoCount > 0) ? (liberoTrips / liberoCount) : 0;
+            let nonLiberoAvg = (nonLiberoCount > 0) ? (nonLiberoTrips / nonLiberoCount) : 0;
+            let diff = ((liberoAvg - nonLiberoAvg) / nonLiberoAvg * 100).toFixed(1);
+            let comparison = diff > 0 ? `${diff}% lebih produktif` : `${Math.abs(diff)}% kurang produktif`;
+            insights.push(`📊 Perbandingan: ${liberoCount} Libero driver avg ${liberoAvg.toFixed(1)} trip vs ${nonLiberoCount} Non-Libero avg ${nonLiberoAvg.toFixed(1)} trip (Libero ${comparison})`);
+        }
+        
+        return insights;
+    }
+    
     function renderFilteredResult(aggregated) {
         currentAggregated = aggregated;
         const { driversMap, allDates, totalDrivers, totalTrips, totalQty, maxTripValue } = aggregated;
         if (driversMap.size === 0) {
             document.getElementById('tableContainer').style.display = 'none';
             document.getElementById('summaryArea').style.display = 'none';
+            document.getElementById('analyticsArea').style.display = 'none';
             document.getElementById('noDataMsg').style.display = 'block';
             document.getElementById('noDataMsg').innerHTML = '⚠️ Tidak ada data sesuai filter';
+            insightFooter.style.display = 'none';
             return;
         }
         
@@ -519,9 +1007,69 @@
             distMaxCounts[i] = maxCount;
         }
         
-        let sortedEntries = Array.from(driversMap.entries());
-        sortedEntries.sort((a,b) => b[1].avgTripPerDay - a[1].avgTripPerDay);
+        // Prepare data for sorting
+        driverDataArray = [];
+        let idx = 1;
+        let totalAllTrips = 0;
+        let totalAllQty = 0;
+        let totalAllDistance = 0;
+        let totalDistanceCount = 0;
+        let totalAllDayWork = 0;
         
+        // First pass: calculate totals
+        for (let [driverName, data] of driversMap.entries()) {
+            totalAllTrips += data.totalTrips;
+            totalAllQty += data.totalQty;
+            totalAllDistance += data.totalDistance;
+            totalDistanceCount += data.distanceCount;
+            totalAllDayWork += data.dayWork;
+        }
+        
+        // Second pass: build data array dengan nomor urut asli
+        let tempArray = [];
+        for (let [driverName, data] of driversMap.entries()) {
+            let dailyQty = {};
+            let dailyTrip = {};
+            for (let dt of allDates) {
+                let daily = data.dailyMap.get(dt);
+                dailyQty[dt] = daily ? (Math.round(daily.qty * 10)/10) : 0;
+                dailyTrip[dt] = daily ? daily.trips : 0;
+            }
+            
+            let tripDist = {};
+            for (let i = 0; i <= maxTripValue; i++) {
+                tripDist[i] = data.tripDistribution.get(i) || 0;
+            }
+            
+            tempArray.push({
+                _originalNo: idx,
+                driverName: driverName,
+                plant: data.plant,
+                avgDistance: data.avgDistance,
+                totalTrips: data.totalTrips,
+                dayWork: data.dayWork,
+                avgTripPerDay: data.avgTripPerDay,
+                totalQty: Math.round(data.totalQty * 10)/10,
+                dailyQty: dailyQty,
+                dailyTrip: dailyTrip,
+                tripDistribution: tripDist,
+                rawData: data
+            });
+            idx++;
+        }
+        
+        // Apply sorting
+        sortDriverData(tempArray, currentSortColumn, currentSortDirection);
+        
+        // Re-assign nomor urut berdasarkan posisi setelah sorting
+        driverDataArray = tempArray.map((item, index) => {
+            return {
+                ...item,
+                no: index + 1
+            };
+        });
+        
+        // Build table
         let distHeaders = [];
         for (let i = 0; i <= maxTripValue; i++) distHeaders.push(`${i}Trip`);
         
@@ -529,55 +1077,71 @@
         let rightCols = [...distHeaders];
         let dateCols = [...allDates];
         
+        // Build header with sort icons
         let headerTop = `<tr>`;
-        for (let i = 0; i < leftCols.length; i++) headerTop += `<th rowspan="2">${leftCols[i]}</th>`;
-        for (let dt of dateCols) headerTop += `<th colspan="2">${dt}</th>`;
-        for (let i = 0; i < rightCols.length; i++) headerTop += `<th rowspan="2">${rightCols[i]}</th>`;
+        for (let col of leftCols) {
+            let sortIcon = '';
+            if (col === currentSortColumn) {
+                sortIcon = `<span class="sort-icon ${currentSortDirection}"></span>`;
+            }
+            headerTop += `<th rowspan="2" class="sortable-header" onclick="sortTable('${col}')">${col} ${sortIcon}</th>`;
+        }
+        for (let dt of dateCols) {
+            let sortIcon = '';
+            if (dt === currentSortColumn) {
+                sortIcon = `<span class="sort-icon ${currentSortDirection}"></span>`;
+            }
+            headerTop += `<th colspan="2" class="sortable-header date-header" onclick="sortTable('${dt}')">${dt} ${sortIcon}</th>`;
+        }
+        for (let col of rightCols) {
+            let sortIcon = '';
+            if (col === currentSortColumn) {
+                sortIcon = `<span class="sort-icon ${currentSortDirection}"></span>`;
+            }
+            headerTop += `<th rowspan="2" class="sortable-header" onclick="sortTable('${col}')">${col} ${sortIcon}</th>`;
+        }
         headerTop += `</tr>`;
         
         let headerBottom = `<tr>`;
-        for (let dt of dateCols) headerBottom += `<th>Qty</th><th>Trip</th>`;
+        for (let dt of dateCols) {
+            let sortIconQty = '';
+            let sortIconTrip = '';
+            let colQty = dt + ' - Qty';
+            let colTrip = dt + ' - Trip';
+            if (colQty === currentSortColumn) {
+                sortIconQty = `<span class="sort-icon ${currentSortDirection}"></span>`;
+            }
+            if (colTrip === currentSortColumn) {
+                sortIconTrip = `<span class="sort-icon ${currentSortDirection}"></span>`;
+            }
+            headerBottom += `<th class="sortable-header sub-header" onclick="sortTable('${colQty}')">Qty ${sortIconQty}</th>`;
+            headerBottom += `<th class="sortable-header sub-header" onclick="sortTable('${colTrip}')">Trip ${sortIconTrip}</th>`;
+        }
         headerBottom += `</tr>`;
         
         document.getElementById('tableHeader').innerHTML = headerTop + headerBottom;
         
+        // Build body
         let tbodyHtml = '';
-        let idx = 1;
-        
-        // Simpan data untuk perhitungan TOTAL
         let totalQtyPerDate = new Array(dateCols.length).fill(0);
         let totalTripPerDate = new Array(dateCols.length).fill(0);
         let totalDistPerTrip = new Array(maxTripValue + 1).fill(0);
-        let totalAllTrips = 0;
-        let totalAllQty = 0;
-        let totalAllDistance = 0;
-        let totalDistanceCount = 0;
-        let totalAllDayWork = 0;
-        let sumAvgTripPerDayWeight = 0;
         
-        for (let [driverName, data] of sortedEntries) {
+        for (let driver of driverDataArray) {
             let row = `<tr>
-                <td>${idx++}</td>
-                <td class="driver-name">${escapeHtml(driverName)}</td>
-                <td>${escapeHtml(data.plant)}</td>
-                <td>${formatNumber(data.avgDistance)}</td>
-                <td><strong>${formatNumber(data.totalTrips)}</strong></td>
-                <td>${data.dayWork}</td>
-                <td><strong>${data.avgTripPerDay}</strong></td>
-                <td><strong>${formatNumber(Math.round(data.totalQty * 10)/10)}</strong></td>`;
-            
-            totalAllTrips += data.totalTrips;
-            totalAllQty += data.totalQty;
-            totalAllDistance += data.totalDistance;
-            totalDistanceCount += data.distanceCount;
-            totalAllDayWork += data.dayWork;
-            sumAvgTripPerDayWeight += data.avgTripPerDay * data.totalTrips;
+                <td>${driver.no}</td>
+                <td class="driver-name">${escapeHtml(driver.driverName)}</td>
+                <td>${escapeHtml(driver.plant)}</td>
+                <td>${formatNumber(driver.avgDistance)}</td>
+                <td><strong>${formatNumber(driver.totalTrips)}</strong></td>
+                <td>${driver.dayWork}</td>
+                <td><strong>${driver.avgTripPerDay}</strong></td>
+                <td><strong>${formatNumber(driver.totalQty)}</strong></td>`;
             
             for (let i = 0; i < dateCols.length; i++) {
                 let dt = dateCols[i];
-                let daily = data.dailyMap.get(dt);
-                let qtyVal = daily ? (Math.round(daily.qty * 10)/10) : 0;
-                let tripVal = daily ? daily.trips : 0;
+                let qtyVal = driver.dailyQty[dt] || 0;
+                let tripVal = driver.dailyTrip[dt] || 0;
                 let tripClass = getTripClass(tripVal);
                 row += `<td class="qty-cell">${formatNumber(qtyVal)}</td><td class="${tripClass}">${formatNumber(tripVal)}</td>`;
                 totalQtyPerDate[i] += qtyVal;
@@ -585,7 +1149,7 @@
             }
             
             for (let i = 0; i <= maxTripValue; i++) {
-                let count = data.tripDistribution.get(i) || 0;
+                let count = driver.tripDistribution[i] || 0;
                 let maxCount = distMaxCounts[i];
                 let style = getDistributionColor(i, count, maxCount);
                 row += `<td style="${style}">${count}</td>`;
@@ -631,34 +1195,174 @@
         `;
         document.getElementById('summaryArea').innerHTML = summaryHtml;
         document.getElementById('summaryArea').style.display = 'flex';
+        renderAnalytics(aggregated);
         document.getElementById('noDataMsg').style.display = 'none';
+        
+        // Generate and display insights
+        const insights = generateInsights(aggregated);
+        if (insights.length > 0) {
+            let insightHtml = '';
+            insights.forEach((text, index) => {
+                insightHtml += `<div class="insight-item"><span class="bullet">${index + 1}.</span><span>${text}</span></div>`;
+            });
+            insightContent.innerHTML = insightHtml;
+            insightFooter.style.display = 'block';
+        } else {
+            insightFooter.style.display = 'none';
+        }
+    }
+    
+    function renderAnalytics(aggregated) {
+        const analyticsArea = document.getElementById('analyticsArea');
+        if (!analyticsArea || !aggregated || !aggregated.driversMap || aggregated.driversMap.size === 0) {
+            if (analyticsArea) analyticsArea.style.display = 'none';
+            if (tripTrendChart) { tripTrendChart.destroy(); tripTrendChart = null; }
+            return;
+        }
+
+        analyticsArea.style.display = 'grid';
+        const dates = aggregated.allDates || [];
+        const dailyTrips = dates.map(dt => {
+            let total = 0;
+            aggregated.driversMap.forEach(data => {
+                const day = data.dailyMap.get(dt);
+                if (day) total += Number(day.trips || 0);
+            });
+            return total;
+        });
+
+        const canvas = document.getElementById('tripTrendChart');
+        if (canvas && window.Chart) {
+            const premium = document.body.classList.contains('theme-premium');
+            const gridColor = premium ? 'rgba(112,157,190,.10)' : 'rgba(70,100,125,.10)';
+            const tickColor = premium ? '#6e91b1' : '#71889a';
+            if (tripTrendChart) tripTrendChart.destroy();
+            tripTrendChart = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: dates.map(d => d.slice(0,5)),
+                    datasets: [{
+                        label: 'Trips', data: dailyTrips,
+                        borderColor: '#4aa3ff', backgroundColor: 'rgba(74,163,255,.14)',
+                        borderWidth: 3, fill: true, tension: .38,
+                        pointRadius: 3, pointHoverRadius: 5,
+                        pointBackgroundColor: '#8bcaff', pointBorderColor: '#0b2033', pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive:true, maintainAspectRatio:false, animation:{duration:500},
+                    plugins:{ legend:{display:false}, tooltip:{displayColors:false, callbacks:{label:ctx=>` ${ctx.parsed.y} trips`}}},
+                    scales:{
+                        x:{grid:{color:gridColor}, ticks:{color:tickColor,font:{size:10}}},
+                        y:{beginAtZero:true, suggestedMax:Math.max(...dailyTrips,1)*1.08, grid:{color:gridColor}, ticks:{color:tickColor,font:{size:10},precision:0}}
+                    }
+                }
+            });
+        }
+
+        const top = Array.from(aggregated.driversMap.entries())
+            .sort((a,b) => b[1].totalTrips - a[1].totalTrips)
+            .slice(0,5);
+        const maxTrips = top.length ? Math.max(top[0][1].totalTrips,1) : 1;
+        document.getElementById('topDriversList').innerHTML = top.map(([name,data],i) => {
+            const pct = Math.max(3, Math.round((data.totalTrips/maxTrips)*100));
+            return `<div class="top-driver">
+                <div class="top-rank">${i+1}</div>
+                <div class="top-driver-name" title="${escapeHtml(name)}">${escapeHtml(name)}</div>
+                <div class="top-driver-bar"><span style="width:${pct}%"></span></div>
+                <div class="top-driver-value">${formatNumber(data.totalTrips)}</div>
+            </div>`;
+        }).join('');
+    }
+
+    function sortTable(column) {
+        if (currentSortColumn === column) {
+            currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            currentSortColumn = column;
+            currentSortDirection = 'desc';
+        }
+        if (currentAggregated) {
+            renderFilteredResult(currentAggregated);
+        }
     }
     
     function escapeHtml(str) { if(!str) return ''; return String(str).replace(/[&<>]/g, m => (m==='&'?'&amp;':m==='<'?'&lt;':'&gt;')); }
     
-    function updatePlantOptionsBySelectedAreas() {
-        if (!rawRecords.length) return;
-        let selectedAreas = Array.from(areaSelect.selectedOptions).map(opt => opt.value);
-        let plantsSet = new Set();
-        if (selectedAreas.length === 0) rawRecords.forEach(rec => plantsSet.add(rec.plant));
-        else rawRecords.forEach(rec => { if (selectedAreas.includes(rec.province)) plantsSet.add(rec.plant); });
-        let plantOptions = Array.from(plantsSet).sort();
-        let previouslySelected = Array.from(plantSelect.selectedOptions).map(opt => opt.value);
-        plantSelect.innerHTML = '';
-        plantOptions.forEach(p => { let opt = document.createElement('option'); opt.value = p; opt.textContent = p; if (previouslySelected.includes(p)) opt.selected = true; plantSelect.appendChild(opt); });
+    // ===== PERBAIKAN UTAMA: Fungsi update Plant berdasarkan Area =====
+    function getSelectedPlants() {
+        return Array.from(plantSelect.selectedOptions)
+            .map(opt => opt.value)
+            .filter(v => v && v !== 'all');
     }
-    
+
+    function setSelectedPlants(values) {
+        const selected = new Set(Array.isArray(values) ? values : []);
+        Array.from(plantSelect.options).forEach(opt => {
+            opt.selected = opt.value === 'all'
+                ? selected.size === 0
+                : selected.has(opt.value);
+        });
+    }
+
+    // Plant otomatis mengikuti Area yang dipilih.
+    // Jika Area = East, hanya plant East yang muncul; jika Bali, hanya plant Bali.
+    // Pilihan plant yang masih valid akan dipertahankan.
+    function updatePlantOptionsBySelectedArea() {
+        if (!rawRecords.length) return;
+
+        const selectedArea = areaSelect.value;
+        const previousSelected = getSelectedPlants();
+        const plantsSet = new Set();
+
+        rawRecords.forEach(rec => {
+            if (selectedArea === 'all' || rec.province === selectedArea) {
+                if (rec.plant) plantsSet.add(rec.plant);
+            }
+        });
+
+        const plantOptions = Array.from(plantsSet).sort((a,b) => a.localeCompare(b));
+
+        plantSelect.innerHTML = '';
+
+        const allOpt = document.createElement('option');
+        allOpt.value = 'all';
+        allOpt.textContent = 'All Plants';
+        plantSelect.appendChild(allOpt);
+
+        plantOptions.forEach(plant => {
+            const opt = document.createElement('option');
+            opt.value = plant;
+            opt.textContent = plant;
+            plantSelect.appendChild(opt);
+        });
+
+        // Hanya pertahankan plant yang masih berada di area terpilih.
+        const validSelected = previousSelected.filter(p => plantsSet.has(p));
+        setSelectedPlants(validSelected);
+    }
+
     function refreshDashboard() {
-        if (!rawRecords.length) { document.getElementById('tableContainer').style.display = 'none'; document.getElementById('summaryArea').style.display = 'none'; document.getElementById('noDataMsg').style.display = 'block'; return; }
+        if (!rawRecords.length) { 
+            document.getElementById('tableContainer').style.display = 'none'; 
+            document.getElementById('summaryArea').style.display = 'none'; 
+            document.getElementById('analyticsArea').style.display = 'none';
+            document.getElementById('noDataMsg').style.display = 'block'; 
+            insightFooter.style.display = 'none'; 
+            return; 
+        }
         let startDate = startDateInput.value, endDate = endDateInput.value;
-        let selectedAreas = Array.from(areaSelect.selectedOptions).map(opt => opt.value);
-        let selectedPlants = Array.from(plantSelect.selectedOptions).map(opt => opt.value);
+        let selectedArea = areaSelect.value;
+        let selectedPlant = getSelectedPlants();
         let driverTypeVal = driverTypeSelect.value;
-        let filtered = applyFilters(rawRecords, startDate, endDate, selectedAreas, selectedPlants, driverTypeVal);
+        let filtered = applyFilters(rawRecords, startDate, endDate, selectedArea, selectedPlant, driverTypeVal);
         let aggregated = aggregateDrivers(filtered);
         renderFilteredResult(aggregated);
+
+        // Pastikan daftar Plant selalu sesuai Area, tetapi jangan menghapus
+        // multi-selection yang masih valid.
         updateAreaDropdown();
-        updatePlantOptionsBySelectedAreas();
+        updatePlantOptionsBySelectedArea();
     }
     
     function updateAreaDropdown() {
@@ -666,18 +1370,35 @@
         let areas = new Set();
         rawRecords.forEach(r => areas.add(r.province));
         let areaList = Array.from(areas).sort();
-        let previouslySelected = Array.from(areaSelect.selectedOptions).map(opt => opt.value);
-        areaSelect.innerHTML = '';
-        areaList.forEach(a => { let opt = document.createElement('option'); opt.value = a; opt.textContent = a; if (previouslySelected.includes(a)) opt.selected = true; areaSelect.appendChild(opt); });
-        updatePlantOptionsBySelectedAreas();
+        let currentValue = areaSelect.value;
+        areaSelect.innerHTML = '<option value="all">All Areas</option>';
+        areaList.forEach(a => { 
+            let opt = document.createElement('option'); 
+            opt.value = a; 
+            opt.textContent = a; 
+            if (currentValue === a) opt.selected = true;
+            areaSelect.appendChild(opt); 
+        });
+        // Update plant options setelah area berubah
+        updatePlantOptionsBySelectedArea();
     }
     
     function resetFilters() {
-        if (rawRecords.length) { let { minDate, maxDate } = getDateRange(rawRecords); if (minDate && maxDate) { startDateInput.value = minDate.toISOString().split('T')[0]; endDateInput.value = maxDate.toISOString().split('T')[0]; } }
-        else { startDateInput.value = ''; endDateInput.value = ''; }
-        for (let opt of areaSelect.options) opt.selected = false;
-        for (let opt of plantSelect.options) opt.selected = false;
+        if (rawRecords.length) { 
+            let { minDate, maxDate } = getDateRange(rawRecords); 
+            if (minDate && maxDate) { 
+                startDateInput.value = minDate.toISOString().split('T')[0]; 
+                endDateInput.value = maxDate.toISOString().split('T')[0]; 
+            } 
+        } else { 
+            startDateInput.value = ''; 
+            endDateInput.value = ''; 
+        }
+        areaSelect.value = 'all';
+        setSelectedPlants([]);
         driverTypeSelect.value = 'all';
+        currentSortColumn = 'Total Trip';
+        currentSortDirection = 'desc';
         refreshDashboard();
     }
     
@@ -725,7 +1446,6 @@
             exportData.push(row);
         }
         
-        // Baris TOTAL
         let totalRow = ['TOTAL', `${driversMap.size} Drivers`, '', ''];
         let avgDistAll = totalDistanceCount > 0 ? (totalAllDistance / totalDistanceCount) : 0;
         totalRow.push(Math.round(avgDistAll * 10)/10);
@@ -810,11 +1530,39 @@
         }
     }
     
-    areaSelect.addEventListener('change', () => { updatePlantOptionsBySelectedAreas(); refreshDashboard(); });
-    plantSelect.addEventListener('change', () => refreshDashboard());
-    startDateInput.addEventListener('change', () => refreshDashboard());
-    endDateInput.addEventListener('change', () => refreshDashboard());
-    driverTypeSelect.addEventListener('change', () => refreshDashboard());
+    window.sortTable = sortTable;
+    
+    areaSelect.addEventListener('change', function() {
+        updatePlantOptionsBySelectedArea();
+        refreshDashboard();
+    });
+    
+    plantSelect.addEventListener('change', function() {
+        // Jika All Plants dipilih, batalkan semua pilihan plant lainnya.
+        const selected = Array.from(plantSelect.selectedOptions).map(o => o.value);
+        if (selected.includes('all')) {
+            const nonAll = selected.filter(v => v !== 'all');
+            if (nonAll.length > 0) {
+                setSelectedPlants(nonAll);
+            } else {
+                setSelectedPlants([]);
+            }
+        }
+        refreshDashboard();
+    });
+    
+    startDateInput.addEventListener('change', function() {
+        refreshDashboard();
+    });
+    
+    endDateInput.addEventListener('change', function() {
+        refreshDashboard();
+    });
+    
+    driverTypeSelect.addEventListener('change', function() {
+        refreshDashboard();
+    });
+    
     resetBtn.addEventListener('click', resetFilters);
     exportBtn.addEventListener('click', exportToExcel);
     exportImageBtn.addEventListener('click', exportAsImage);
@@ -835,24 +1583,35 @@
                 rawRecords = records;
                 setDateFilterRange(rawRecords);
                 driverTypeSelect.value = 'all';
-                areaSelect.innerHTML = '';
-                plantSelect.innerHTML = '';
+                areaSelect.innerHTML = '<option value="all">All Areas</option>';
+                plantSelect.innerHTML = '<option value="all">All Plants</option>';
+                setSelectedPlants([]);
+                currentSortColumn = 'Total Trip';
+                currentSortDirection = 'desc';
                 updateAreaDropdown();
-                updatePlantOptionsBySelectedAreas();
+                updatePlantOptionsBySelectedArea();
                 refreshDashboard();
                 filterPanel.style.display = 'flex';
                 fileInfoSpan.innerHTML = `✅ ${file.name} (${rawRecords.length} trips)`;
-            } catch(err) { fileInfoSpan.innerHTML = `❌ Error`; document.getElementById('noDataMsg').innerHTML = `Error: ${err.message}`; filterPanel.style.display = 'none'; }
+            } catch(err) { 
+                fileInfoSpan.innerHTML = `❌ Error`; 
+                document.getElementById('noDataMsg').innerHTML = `Error: ${err.message}`; 
+                filterPanel.style.display = 'none'; 
+            }
         };
         reader.readAsArrayBuffer(file);
     }
     
-    fileInput.addEventListener('change', (e) => { if (fileInput.files.length) handleFile(fileInput.files[0]); });
+    fileInput.addEventListener('change', function(e) { 
+        if (fileInput.files.length) handleFile(fileInput.files[0]); 
+    });
     
     filterPanel.style.display = 'none';
     document.getElementById('tableContainer').style.display = 'none';
     document.getElementById('summaryArea').style.display = 'none';
+    document.getElementById('analyticsArea').style.display = 'none';
     document.getElementById('noDataMsg').style.display = 'block';
+    insightFooter.style.display = 'none';
 </script>
 </body>
 </html>
