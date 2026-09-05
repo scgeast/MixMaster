@@ -6,6 +6,11 @@
     <title>Concrete Pouring Schedule Monitoring</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
     <style>
         :root {
             --primary: #2c3e50;
@@ -43,7 +48,6 @@
         .container.expanded {
             margin-left: var(--sidebar-width);
         }
-        /* HEADER YANG DIPERBAIKI */
         header {
             background: linear-gradient(135deg, #880808 0%, #6a0dad 100%);
             color: white;
@@ -56,7 +60,6 @@
             width: 100%;
             position: relative;
         }
-
         .header-wrapper {
             display: flex;
             width: 100%;
@@ -65,11 +68,9 @@
             padding-right: 20px;
             box-sizing: border-box;
         }
-
         .container.expanded ~ header .header-wrapper {
             margin-left: var(--sidebar-width);
         }
-
         .header-content {
             display: flex;
             justify-content: space-between;
@@ -78,13 +79,11 @@
             padding: 0 20px;
             box-sizing: border-box;
         }
-
         .header-text {
             flex: 1;
             margin-left: 40px;
-            min-width: 0; /* Prevent text overflow */
+            min-width: 0;
         }
-
         header h1 {
             margin-bottom: 1px;
             font-size: 1.2rem;
@@ -94,7 +93,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
         header p {
             opacity: 0.95;
             font-size: 0.8rem;
@@ -104,7 +102,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
         .datetime {
             font-size: 0.85rem;
             font-weight: 600;
@@ -243,6 +240,33 @@
         }
         .save-targets:hover {
             background: #2980b9;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .loading-spinner {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .loading-spinner i {
+            font-size: 2rem;
+            color: var(--secondary);
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         nav {
             background-color: white;
@@ -699,8 +723,6 @@
             font-size: 0.65rem;
             margin-left: 4px;
         }
-        
-        /* Floating Toggle Button */
         .floating-toggle {
             position: fixed;
             top: 8px;
@@ -725,7 +747,6 @@
         .floating-toggle i {
             font-size: 1.1rem;
         }
-        
         @media (max-width: 1200px) {
             .single-row-form {
                 grid-template-columns: 1fr 1fr;
@@ -816,6 +837,14 @@
     </style>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner"></i>
+            <p>Memuat data...</p>
+        </div>
+    </div>
+
     <!-- Floating Toggle Button -->
     <button class="floating-toggle" id="floating-toggle">
         <i class="fas fa-bars"></i>
@@ -874,7 +903,7 @@
         </div>
     </div>
 
-    <!-- HEADER YANG DIPERBAIKI -->
+    <!-- HEADER -->
     <header>
         <div class="header-wrapper">
             <div class="header-content">
@@ -882,7 +911,7 @@
                     <h1><i class="fas fa-hard-hat"></i> Concrete Pouring Schedule Monitoring</h1>
                     <p>Manage pouring schedules for Manukan, Manyar, Gempol, Krian, Kediri, Denpasar2, and Gianyar plants</p>
                 </div>
-                <div class="datetime" id="current-date">24/11/2025</div>
+                <div class="datetime" id="current-date"></div>
             </div>
         </div>
     </header>
@@ -1022,7 +1051,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="plant-tabs">
+                <div class="plant-tabs" id="monitoring-plant-tabs">
                     <div class="plant-tab active" data-plant="all">
                         <i class="fas fa-building"></i>
                         All Plants
@@ -1072,7 +1101,7 @@
                         </tr>
                     </thead>
                     <tbody id="schedule-body">
-                        <!-- Data will be populated by JavaScript -->
+                        <tr><td colspan="10" style="text-align: center;">Memuat data...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1098,7 +1127,7 @@
                     </div>
                 </div>
                 <div class="summary-grid" id="summary-container">
-                    <!-- Summary will be populated by JavaScript -->
+                    <!-- Summary akan diisi oleh JavaScript -->
                 </div>
             </div>
         </section>
@@ -1195,7 +1224,7 @@
                             </tr>
                         </thead>
                         <tbody id="summary-detail-body">
-                            <!-- Data akan diisi oleh JavaScript -->
+                            <tr><td colspan="10" style="text-align: center;">Memuat data...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1240,9 +1269,28 @@
     </div>
 
     <script>
-        // Concrete pouring schedule data
-        let schedules = JSON.parse(localStorage.getItem('schedules')) || [];
-        let dailyTargets = JSON.parse(localStorage.getItem('dailyTargets')) || {
+        // ============================================================
+        // ===== KONFIGURASI FIREBASE - GANTI DENGAN DATA ANDA =====
+        // ============================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAurVDZrxG_SuDBNW1CgDAdcGohl6lYi3c",
+            authDomain: "order-monitoring-b3bb2.firebaseapp.com",
+            projectId: "order-monitoring-b3bb2",
+            storageBucket: "order-monitoring-b3bb2.firebasestorage.app",
+            messagingSenderId: "762661501848",
+            appId: "1:762661501848:web:5686cac2c0584881ec09ed",
+            measurementId: "G-LRQY5W0VKJ"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // ============================================================
+        // ===== VARIABEL GLOBAL =====
+        // ============================================================
+        let schedules = [];
+        let dailyTargets = {
             Manukan: 100,
             Manyar: 80,
             Gempol: 90,
@@ -1251,16 +1299,19 @@
             Denpasar2: 75,
             Gianyar: 95
         };
-        
-        // Variabel untuk menyimpan ID schedule yang sedang diedit
         let editingScheduleId = null;
+        let plantVolumeChart = null;
+        let shiftVolumeChart = null;
 
-        // DOM Elements
+        // ============================================================
+        // ===== DOM ELEMENTS =====
+        // ============================================================
         const navLinks = document.querySelectorAll('.nav-link');
         const contentSections = document.querySelectorAll('.content-section');
         const scheduleForm = document.getElementById('schedule-form');
         const scheduleBody = document.getElementById('schedule-body');
-        const plantTabs = document.querySelectorAll('.plant-tab');
+        const monitoringPlantTabs = document.querySelectorAll('#monitoring-plant-tabs .plant-tab');
+        const summaryDetailPlantTabs = document.querySelectorAll('#summary-detail-plant-tabs .plant-tab');
         const summaryContainer = document.getElementById('summary-container');
         const dailyScheduleCheckbox = document.getElementById('daily-schedule');
         const singleDateDiv = document.getElementById('single-date');
@@ -1271,6 +1322,11 @@
         const filterTime = document.getElementById('filter-time');
         const summaryStartDate = document.getElementById('summary-start-date');
         const summaryEndDate = document.getElementById('summary-end-date');
+        const summaryDetailStartDate = document.getElementById('summary-detail-start-date');
+        const summaryDetailEndDate = document.getElementById('summary-detail-end-date');
+        const summaryDetailFilterPlant = document.getElementById('summary-detail-filter-plant');
+        const summaryDetailFilterTime = document.getElementById('summary-detail-filter-time');
+        const summaryDetailBody = document.getElementById('summary-detail-body');
         const chartStartDate = document.getElementById('chart-start-date');
         const chartEndDate = document.getElementById('chart-end-date');
         const sidebar = document.querySelector('.sidebar');
@@ -1280,37 +1336,147 @@
         const saveTargetsBtn = document.getElementById('save-targets');
         const currentDateElement = document.getElementById('current-date');
         const submitBtn = document.getElementById('submit-btn');
-        
-        // DOM Elements untuk Summary Detail
-        const summaryDetailStartDate = document.getElementById('summary-detail-start-date');
-        const summaryDetailEndDate = document.getElementById('summary-detail-end-date');
-        const summaryDetailFilterPlant = document.getElementById('summary-detail-filter-plant');
-        const summaryDetailFilterTime = document.getElementById('summary-detail-filter-time');
-        const summaryDetailPlantTabs = document.querySelectorAll('#summary-detail-plant-tabs .plant-tab');
-        const summaryDetailBody = document.getElementById('summary-detail-body');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const exportExcelBtn = document.getElementById('export-excel-btn');
         const exportSummaryDetailBtn = document.getElementById('export-summary-detail-btn');
-        
-        // Chart instances
-        let plantVolumeChart = null;
-        let shiftVolumeChart = null;
-        
-        // Set default date to today
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('date').value = today;
-        document.getElementById('start-date').value = today;
-        document.getElementById('end-date').value = today;
-        filterStartDate.value = today;
-        filterEndDate.value = today;
-        summaryStartDate.value = today;
-        summaryEndDate.value = today;
-        chartStartDate.value = today;
-        chartEndDate.value = today;
-        
-        // Set default date untuk Summary Detail
-        summaryDetailStartDate.value = today;
-        summaryDetailEndDate.value = today;
-        
-        // Update date only (no time)
+
+        // ============================================================
+        // ===== FUNGSI LOADING =====
+        // ============================================================
+        function showLoading() {
+            loadingOverlay.style.display = 'flex';
+        }
+
+        function hideLoading() {
+            loadingOverlay.style.display = 'none';
+        }
+
+        // ============================================================
+        // ===== FUNGSI FIREBASE CRUD =====
+        // ============================================================
+        // Load schedules from Firestore
+        async function loadSchedulesFromFirestore() {
+            showLoading();
+            try {
+                const snapshot = await db.collection('schedules').orderBy('date', 'asc').get();
+                schedules = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    schedules.push({
+                        id: doc.id,
+                        projectName: data.projectName,
+                        plant: data.plant,
+                        volume: data.volume,
+                        date: data.date,
+                        time: data.time,
+                        notes: data.notes || '',
+                        isDaily: data.isDaily || false
+                    });
+                });
+                console.log('Data berhasil dimuat dari Firestore:', schedules.length, 'record');
+            } catch (error) {
+                console.error('Error loading schedules:', error);
+                alert('Gagal memuat data dari Firestore. Silakan refresh halaman.');
+            }
+            hideLoading();
+            renderAll();
+        }
+
+        // Save schedule to Firestore
+        async function saveScheduleToFirestore(scheduleData) {
+            showLoading();
+            try {
+                const docRef = await db.collection('schedules').add(scheduleData);
+                console.log('Schedule saved with ID:', docRef.id);
+                return docRef.id;
+            } catch (error) {
+                console.error('Error saving schedule:', error);
+                alert('Gagal menyimpan data ke Firestore.');
+                return null;
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Update schedule in Firestore
+        async function updateScheduleInFirestore(id, scheduleData) {
+            showLoading();
+            try {
+                await db.collection('schedules').doc(id).update(scheduleData);
+                console.log('Schedule updated:', id);
+                return true;
+            } catch (error) {
+                console.error('Error updating schedule:', error);
+                alert('Gagal mengupdate data di Firestore.');
+                return false;
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Delete schedule from Firestore
+        async function deleteScheduleFromFirestore(id) {
+            showLoading();
+            try {
+                await db.collection('schedules').doc(id).delete();
+                console.log('Schedule deleted:', id);
+                return true;
+            } catch (error) {
+                console.error('Error deleting schedule:', error);
+                alert('Gagal menghapus data dari Firestore.');
+                return false;
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Load daily targets from Firestore
+        async function loadDailyTargetsFromFirestore() {
+            try {
+                const doc = await db.collection('settings').doc('dailyTargets').get();
+                if (doc.exists) {
+                    dailyTargets = doc.data();
+                    console.log('Targets loaded from Firestore:', dailyTargets);
+                } else {
+                    // Create default targets in Firestore
+                    await db.collection('settings').doc('dailyTargets').set(dailyTargets);
+                    console.log('Default targets created in Firestore');
+                }
+            } catch (error) {
+                console.error('Error loading targets:', error);
+            }
+            loadDailyTargetsToUI();
+        }
+
+        // Save daily targets to Firestore
+        async function saveDailyTargetsToFirestore() {
+            showLoading();
+            try {
+                await db.collection('settings').doc('dailyTargets').set(dailyTargets);
+                console.log('Targets saved to Firestore:', dailyTargets);
+                alert('Daily targets saved successfully!');
+                renderSummary();
+            } catch (error) {
+                console.error('Error saving targets:', error);
+                alert('Gagal menyimpan target ke Firestore.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // ============================================================
+        // ===== FUNGSI UI =====
+        // ============================================================
+        function loadDailyTargetsToUI() {
+            document.getElementById('target-manukan').value = dailyTargets.Manukan || 0;
+            document.getElementById('target-manyar').value = dailyTargets.Manyar || 0;
+            document.getElementById('target-gempol').value = dailyTargets.Gempol || 0;
+            document.getElementById('target-krian').value = dailyTargets.Krian || 0;
+            document.getElementById('target-kediri').value = dailyTargets.Kediri || 0;
+            document.getElementById('target-denpasar2').value = dailyTargets.Denpasar2 || 0;
+            document.getElementById('target-gianyar').value = dailyTargets.Gianyar || 0;
+        }
+
         function updateDate() {
             const now = new Date();
             const day = String(now.getDate()).padStart(2, '0');
@@ -1318,265 +1484,16 @@
             const year = now.getFullYear();
             currentDateElement.textContent = `${day}/${month}/${year}`;
         }
-        
-        // Update date every minute
-        setInterval(updateDate, 60000);
-        updateDate(); // Initial call
-        
-        // Load daily targets
-        function loadDailyTargets() {
-            document.getElementById('target-manukan').value = dailyTargets.Manukan;
-            document.getElementById('target-manyar').value = dailyTargets.Manyar;
-            document.getElementById('target-gempol').value = dailyTargets.Gempol;
-            document.getElementById('target-krian').value = dailyTargets.Krian;
-            document.getElementById('target-kediri').value = dailyTargets.Kediri;
-            document.getElementById('target-denpasar2').value = dailyTargets.Denpasar2;
-            document.getElementById('target-gianyar').value = dailyTargets.Gianyar;
-        }
-        
-        // Save daily targets
-        function saveDailyTargets() {
-            dailyTargets = {
-                Manukan: parseFloat(document.getElementById('target-manukan').value) || 0,
-                Manyar: parseFloat(document.getElementById('target-manyar').value) || 0,
-                Gempol: parseFloat(document.getElementById('target-gempol').value) || 0,
-                Krian: parseFloat(document.getElementById('target-krian').value) || 0,
-                Kediri: parseFloat(document.getElementById('target-kediri').value) || 0,
-                Denpasar2: parseFloat(document.getElementById('target-denpasar2').value) || 0,
-                Gianyar: parseFloat(document.getElementById('target-gianyar').value) || 0
-            };
-            localStorage.setItem('dailyTargets', JSON.stringify(dailyTargets));
-            alert('Daily targets saved successfully!');
-            renderSummary();
-        }
-        
-        // Toggle sidebar
-        function toggleSidebar() {
-            sidebar.classList.toggle('collapsed');
-            sidebar.classList.toggle('expanded');
-            container.classList.toggle('expanded');
-            
-            // Update header wrapper margin
-            const headerWrapper = document.querySelector('.header-wrapper');
-            if (sidebar.classList.contains('collapsed')) {
-                headerWrapper.style.marginLeft = 'var(--sidebar-collapsed-width)';
-            } else {
-                headerWrapper.style.marginLeft = 'var(--sidebar-width)';
-            }
-            
-            const icon = toggleBtn.querySelector('i');
-            if (sidebar.classList.contains('collapsed')) {
-                icon.className = 'fas fa-chevron-right';
-            } else {
-                icon.className = 'fas fa-chevron-left';
-            }
-        }
-        
-        toggleBtn.addEventListener('click', toggleSidebar);
-        floatingToggleBtn.addEventListener('click', toggleSidebar);
-        
-        // Save targets button
-        saveTargetsBtn.addEventListener('click', saveDailyTargets);
-        
-        // Toggle date range based on checkbox
-        dailyScheduleCheckbox.addEventListener('change', function() {
-            if (this.checked) {
-                singleDateDiv.classList.add('hidden');
-                dateRangeDiv.classList.remove('hidden');
-            } else {
-                singleDateDiv.classList.remove('hidden');
-                dateRangeDiv.classList.add('hidden');
-            }
-        });
-        
-        // Navigation
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const target = link.getAttribute('data-target');
-                navLinks.forEach(nav => nav.classList.remove('active'));
-                link.classList.add('active');
-                contentSections.forEach(section => {
-                    section.classList.add('hidden');
-                });
-                document.getElementById(target).classList.remove('hidden');
-                if (target === 'monitoring-section') {
-                    renderScheduleTable();
-                } else if (target === 'summary-section') {
-                    renderSummary();
-                } else if (target === 'summary-detail-section') {
-                    renderSummaryDetail();
-                } else if (target === 'chart-section') {
-                    renderCharts();
-                }
-            });
-        });
-        
-        // Plant tabs for monitoring
-        plantTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                plantTabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                renderScheduleTable();
-            });
-        });
-        
-        // Plant tabs untuk Summary Detail
-        summaryDetailPlantTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                summaryDetailPlantTabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                renderSummaryDetail();
-            });
-        });
-        
-        // Filter event listeners
-        filterStartDate.addEventListener('change', renderScheduleTable);
-        filterEndDate.addEventListener('change', renderScheduleTable);
-        filterPlant.addEventListener('change', renderScheduleTable);
-        filterTime.addEventListener('change', renderScheduleTable);
-        
-        // Summary date range listeners
-        summaryStartDate.addEventListener('change', renderSummary);
-        summaryEndDate.addEventListener('change', renderSummary);
-        
-        // Chart date range listeners
-        chartStartDate.addEventListener('change', renderCharts);
-        chartEndDate.addEventListener('change', renderCharts);
-        
-        // Event listeners untuk Summary Detail
-        summaryDetailStartDate.addEventListener('change', renderSummaryDetail);
-        summaryDetailEndDate.addEventListener('change', renderSummaryDetail);
-        summaryDetailFilterPlant.addEventListener('change', renderSummaryDetail);
-        summaryDetailFilterTime.addEventListener('change', renderSummaryDetail);
-        
-        // Form submission - PERBAIKAN: Mendukung edit dan create
-        scheduleForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const projectName = document.getElementById('project-name').value;
-            const plant = document.getElementById('plant').value;
-            const volume = parseFloat(document.getElementById('volume').value);
-            const time = document.getElementById('time').value;
-            const notes = document.getElementById('notes').value;
-            const isDaily = dailyScheduleCheckbox.checked;
-            
-            if (editingScheduleId) {
-                // Update existing schedule
-                const scheduleIndex = schedules.findIndex(s => s.id === editingScheduleId);
-                if (scheduleIndex !== -1) {
-                    if (isDaily) {
-                        // Untuk daily schedule, kita perlu menghapus yang lama dan buat yang baru
-                        schedules = schedules.filter(s => s.id !== editingScheduleId);
-                        const startDate = new Date(document.getElementById('start-date').value);
-                        const endDate = new Date(document.getElementById('end-date').value);
-                        
-                        if (startDate > endDate) {
-                            alert('Start date cannot be after end date!');
-                            return;
-                        }
-                        
-                        const currentDate = new Date(startDate);
-                        while (currentDate <= endDate) {
-                            const dateStr = currentDate.toISOString().split('T')[0];
-                            schedules.push({
-                                id: Date.now() + Math.random(),
-                                projectName,
-                                plant,
-                                volume,
-                                date: dateStr,
-                                time,
-                                notes,
-                                isDaily: true
-                            });
-                            currentDate.setDate(currentDate.getDate() + 1);
-                        }
-                    } else {
-                        // Single date schedule
-                        const date = document.getElementById('date').value;
-                        schedules[scheduleIndex] = {
-                            id: editingScheduleId,
-                            projectName,
-                            plant,
-                            volume,
-                            date,
-                            time,
-                            notes,
-                            isDaily: false
-                        };
-                    }
-                }
-                alert('Schedule updated successfully!');
-                editingScheduleId = null;
-                submitBtn.innerHTML = '<i class="fas fa-save"></i> Save';
-            } else {
-                // Create new schedule
-                let newSchedules = [];
-                if (isDaily) {
-                    const startDate = new Date(document.getElementById('start-date').value);
-                    const endDate = new Date(document.getElementById('end-date').value);
-                    
-                    if (startDate > endDate) {
-                        alert('Start date cannot be after end date!');
-                        return;
-                    }
-                    
-                    const currentDate = new Date(startDate);
-                    while (currentDate <= endDate) {
-                        const dateStr = currentDate.toISOString().split('T')[0];
-                        newSchedules.push({
-                            id: Date.now() + Math.random(),
-                            projectName,
-                            plant,
-                            volume,
-                            date: dateStr,
-                            time,
-                            notes,
-                            isDaily: true
-                        });
-                        currentDate.setDate(currentDate.getDate() + 1);
-                    }
-                } else {
-                    const date = document.getElementById('date').value;
-                    newSchedules.push({
-                        id: Date.now(),
-                        projectName,
-                        plant,
-                        volume,
-                        date,
-                        time,
-                        notes,
-                        isDaily: false
-                    });
-                }
-                
-                schedules.push(...newSchedules);
-                alert(`Schedule saved successfully! ${newSchedules.length} entries added.`);
-            }
-            
-            saveSchedules();
-            scheduleForm.reset();
-            document.getElementById('date').value = today;
-            document.getElementById('start-date').value = today;
-            document.getElementById('end-date').value = today;
-            dailyScheduleCheckbox.checked = false;
-            singleDateDiv.classList.remove('hidden');
-            dateRangeDiv.classList.add('hidden');
-            
-            renderScheduleTable();
-            renderSummary();
-            renderSummaryDetail();
-        });
-        
-        // Get time period based on time
+
         function getTimePeriod(time) {
+            if (!time) return 'morning';
             const hour = parseInt(time.split(':')[0]);
             if (hour >= 6 && hour < 12) return 'morning';
             if (hour >= 12 && hour < 15) return 'afternoon';
             if (hour >= 15 && hour < 19) return 'evening';
             return 'night';
         }
-        
-        // Get time period label
+
         function getTimePeriodLabel(period) {
             switch(period) {
                 case 'morning': return 'Shift Pagi';
@@ -1587,26 +1504,56 @@
             }
         }
 
-        // Fungsi untuk mendapatkan nama hari dari tanggal
         function getDayName(dateString) {
             const date = new Date(dateString);
             const options = { weekday: 'long' };
             return date.toLocaleDateString('id-ID', options);
         }
 
-        // Render schedule table
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        function formatDateForTable(dateString) {
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        function getDateRange(startDate, endDate) {
+            const dates = [];
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            let currentDate = new Date(start);
+            while (currentDate <= end) {
+                dates.push(new Date(currentDate));
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            return dates;
+        }
+
+        // ============================================================
+        // ===== RENDER FUNCTIONS =====
+        // ============================================================
         function renderScheduleTable() {
-            const activePlant = document.querySelector('.plant-tab.active').getAttribute('data-plant');
+            const activePlant = document.querySelector('#monitoring-plant-tabs .plant-tab.active')?.getAttribute('data-plant') || 'all';
             const filterStartDateValue = filterStartDate.value;
             const filterEndDateValue = filterEndDate.value;
             const filterPlantValue = filterPlant.value;
             const filterTimeValue = filterTime.value;
+
             let filteredSchedules = schedules;
-            
+
             if (activePlant !== 'all') {
                 filteredSchedules = filteredSchedules.filter(schedule => schedule.plant === activePlant);
             }
-            
             if (filterStartDateValue && filterEndDateValue) {
                 filteredSchedules = filteredSchedules.filter(schedule => {
                     const scheduleDate = new Date(schedule.date);
@@ -1615,30 +1562,28 @@
                     return scheduleDate >= startDate && scheduleDate <= endDate;
                 });
             }
-            
             if (filterPlantValue !== 'all') {
                 filteredSchedules = filteredSchedules.filter(schedule => schedule.plant === filterPlantValue);
             }
-            
             if (filterTimeValue !== 'all') {
                 filteredSchedules = filteredSchedules.filter(schedule => {
                     const period = getTimePeriod(schedule.time);
                     return period === filterTimeValue;
                 });
             }
-            
+
             filteredSchedules.sort((a, b) => {
                 const dateA = new Date(a.date + ' ' + a.time);
                 const dateB = new Date(b.date + ' ' + b.time);
                 return dateA - dateB;
             });
-            
+
             scheduleBody.innerHTML = '';
             if (filteredSchedules.length === 0) {
                 scheduleBody.innerHTML = '<tr><td colspan="10" style="text-align: center;">No pouring schedules found</td></tr>';
                 return;
             }
-            
+
             filteredSchedules.forEach((schedule, index) => {
                 const row = document.createElement('tr');
                 const timePeriod = getTimePeriod(schedule.time);
@@ -1654,10 +1599,10 @@
                     <td>${schedule.notes || '-'}</td>
                     <td>
                         <div class="action-buttons">
-                            <button class="action-btn btn-edit" onclick="editSchedule(${schedule.id})" title="Edit Schedule">
+                            <button class="action-btn btn-edit" onclick="editSchedule('${schedule.id}')" title="Edit Schedule">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="action-btn btn-delete" onclick="deleteSchedule(${schedule.id})" title="Delete Schedule">
+                            <button class="action-btn btn-delete" onclick="deleteSchedule('${schedule.id}')" title="Delete Schedule">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -1666,271 +1611,13 @@
                 scheduleBody.appendChild(row);
             });
         }
-        
-        // Edit schedule - PERBAIKAN: Tidak menghapus data saat edit
-        function editSchedule(id) {
-            const schedule = schedules.find(s => s.id === id);
-            if (!schedule) return;
-            
-            document.getElementById('project-name').value = schedule.projectName;
-            document.getElementById('plant').value = schedule.plant;
-            document.getElementById('volume').value = schedule.volume;
-            document.getElementById('time').value = schedule.time;
-            document.getElementById('notes').value = schedule.notes || '';
-            
-            if (schedule.isDaily) {
-                dailyScheduleCheckbox.checked = true;
-                singleDateDiv.classList.add('hidden');
-                dateRangeDiv.classList.remove('hidden');
-                document.getElementById('start-date').value = schedule.date;
-                document.getElementById('end-date').value = schedule.date;
-            } else {
-                dailyScheduleCheckbox.checked = false;
-                singleDateDiv.classList.remove('hidden');
-                dateRangeDiv.classList.add('hidden');
-                document.getElementById('date').value = schedule.date;
-            }
-            
-            editingScheduleId = id;
-            submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Schedule';
-            
-            // Switch to input section
-            document.querySelector('.nav-link[data-target="input-section"]').click();
-        }
-        
-        // Delete schedule
-        function deleteSchedule(id, confirmDelete = true) {
-            if (confirmDelete && !confirm('Are you sure you want to delete this schedule?')) {
-                return;
-            }
-            schedules = schedules.filter(schedule => schedule.id !== id);
-            saveSchedules();
-            renderScheduleTable();
-            renderSummary();
-            renderSummaryDetail();
-        }
-        
-        // Save schedules to localStorage
-        function saveSchedules() {
-            localStorage.setItem('schedules', JSON.stringify(schedules));
-        }
-        
-        // Format date to standard format
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('en-US', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-        }
-        
-        // Fungsi untuk merender Summary Detail
-        function renderSummaryDetail() {
-            const activePlant = document.querySelector('#summary-detail-plant-tabs .plant-tab.active').getAttribute('data-plant');
-            const startDateValue = summaryDetailStartDate.value;
-            const endDateValue = summaryDetailEndDate.value;
-            const filterPlantValue = summaryDetailFilterPlant.value;
-            const filterTimeValue = summaryDetailFilterTime.value;
-            
-            let filteredSchedules = schedules;
-            
-            if (activePlant !== 'all') {
-                filteredSchedules = filteredSchedules.filter(schedule => schedule.plant === activePlant);
-            }
-            
-            if (startDateValue && endDateValue) {
-                filteredSchedules = filteredSchedules.filter(schedule => {
-                    const scheduleDate = new Date(schedule.date);
-                    const startDate = new Date(startDateValue);
-                    const endDate = new Date(endDateValue);
-                    return scheduleDate >= startDate && scheduleDate <= endDate;
-                });
-            }
-            
-            if (filterPlantValue !== 'all') {
-                filteredSchedules = filteredSchedules.filter(schedule => schedule.plant === filterPlantValue);
-            }
-            
-            if (filterTimeValue !== 'all') {
-                filteredSchedules = filteredSchedules.filter(schedule => {
-                    const period = getTimePeriod(schedule.time);
-                    return period === filterTimeValue;
-                });
-            }
-            
-            const dateRange = getDateRange(startDateValue, endDateValue);
-            const groupedData = groupDataByPlantAndProject(filteredSchedules, dateRange);
-            renderSummaryDetailTable(groupedData, dateRange);
-        }
-        
-        // Fungsi untuk mendapatkan rentang tanggal
-        function getDateRange(startDate, endDate) {
-            const dates = [];
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-            
-            let currentDate = new Date(start);
-            while (currentDate <= end) {
-                dates.push(new Date(currentDate));
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-            
-            return dates;
-        }
-        
-        // Fungsi untuk mengelompokkan data berdasarkan plant dan project
-        function groupDataByPlantAndProject(schedules, dateRange) {
-            const grouped = {};
-            
-            schedules.forEach(schedule => {
-                const plant = schedule.plant;
-                const projectName = schedule.projectName;
-                const time = schedule.time.substring(0, 5);
-                const date = schedule.date;
-                const volume = schedule.volume;
-                const isDaily = schedule.isDaily;
-                
-                if (!grouped[plant]) {
-                    grouped[plant] = {};
-                }
-                
-                if (!grouped[plant][projectName]) {
-                    grouped[plant][projectName] = {
-                        time: time,
-                        volumes: {},
-                        isDaily: isDaily
-                    };
-                }
-                
-                if (!grouped[plant][projectName].time) {
-                    grouped[plant][projectName].time = time;
-                }
-                
-                const dateKey = formatDateForTable(date);
-                if (!grouped[plant][projectName].volumes[dateKey]) {
-                    grouped[plant][projectName].volumes[dateKey] = 0;
-                }
-                grouped[plant][projectName].volumes[dateKey] += volume;
-            });
-            
-            return grouped;
-        }
-        
-        // Fungsi untuk merender tabel Summary Detail
-        function renderSummaryDetailTable(groupedData, dateRange) {
-            summaryDetailBody.innerHTML = '';
-            
-            const headerRow = document.querySelector('#summary-detail-table thead tr');
-            while (headerRow.children.length > 3) {
-                headerRow.removeChild(headerRow.lastChild);
-            }
-            
-            dateRange.forEach(date => {
-                const dateHeader = document.createElement('th');
-                dateHeader.textContent = formatDateForTable(date.toISOString().split('T')[0]);
-                headerRow.appendChild(dateHeader);
-            });
-            
-            Object.keys(groupedData).sort().forEach(plant => {
-                const plantHeaderRow = document.createElement('tr');
-                plantHeaderRow.className = 'plant-header';
-                const plantHeaderCell = document.createElement('td');
-                plantHeaderCell.textContent = plant;
-                plantHeaderCell.colSpan = dateRange.length + 3;
-                plantHeaderRow.appendChild(plantHeaderCell);
-                summaryDetailBody.appendChild(plantHeaderRow);
-                
-                Object.keys(groupedData[plant]).sort().forEach(projectName => {
-                    const projectRow = document.createElement('tr');
-                    
-                    const plantCell = document.createElement('td');
-                    plantCell.textContent = '';
-                    projectRow.appendChild(plantCell);
-                    
-                    const projectCell = document.createElement('td');
-                    projectCell.textContent = projectName;
-                    if (groupedData[plant][projectName].isDaily) {
-                        const dailyIndicator = document.createElement('span');
-                        dailyIndicator.className = 'daily-indicator';
-                        dailyIndicator.textContent = '(Daily)';
-                        projectCell.appendChild(dailyIndicator);
-                    }
-                    projectRow.appendChild(projectCell);
-                    
-                    const timeCell = document.createElement('td');
-                    timeCell.textContent = groupedData[plant][projectName].time;
-                    projectRow.appendChild(timeCell);
-                    
-                    dateRange.forEach(date => {
-                        const dateKey = formatDateForTable(date.toISOString().split('T')[0]);
-                        const volumeCell = document.createElement('td');
-                        const volume = groupedData[plant][projectName].volumes[dateKey] || '';
-                        volumeCell.textContent = volume;
-                        projectRow.appendChild(volumeCell);
-                    });
-                    
-                    summaryDetailBody.appendChild(projectRow);
-                });
-                
-                const totalRow = document.createElement('tr');
-                totalRow.className = 'total-row';
-                
-                const totalPlantCell = document.createElement('td');
-                totalPlantCell.textContent = plant + ' Total';
-                totalRow.appendChild(totalPlantCell);
-                
-                const totalProjectCell = document.createElement('td');
-                totalProjectCell.textContent = '';
-                totalRow.appendChild(totalProjectCell);
-                
-                const totalTimeCell = document.createElement('td');
-                totalTimeCell.textContent = '';
-                totalRow.appendChild(totalTimeCell);
-                
-                dateRange.forEach(date => {
-                    const dateKey = formatDateForTable(date.toISOString().split('T')[0]);
-                    let totalVolume = 0;
-                    
-                    Object.keys(groupedData[plant]).forEach(projectName => {
-                        totalVolume += groupedData[plant][projectName].volumes[dateKey] || 0;
-                    });
-                    
-                    const totalCell = document.createElement('td');
-                    totalCell.textContent = totalVolume > 0 ? totalVolume : '';
-                    totalRow.appendChild(totalCell);
-                });
-                
-                summaryDetailBody.appendChild(totalRow);
-            });
-            
-            if (Object.keys(groupedData).length === 0) {
-                const noDataRow = document.createElement('tr');
-                const noDataCell = document.createElement('td');
-                noDataCell.colSpan = dateRange.length + 3;
-                noDataCell.textContent = 'No data available for the selected filters';
-                noDataCell.style.textAlign = 'center';
-                noDataRow.appendChild(noDataCell);
-                summaryDetailBody.appendChild(noDataRow);
-            }
-        }
-        
-        // Fungsi untuk memformat tanggal untuk tabel (DD/MM/YYYY)
-        function formatDateForTable(dateString) {
-            const date = new Date(dateString);
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            return `${day}/${month}/${year}`;
-        }
-        
-        // Render summary
+
         function renderSummary() {
             const startDateValue = summaryStartDate.value;
             const endDateValue = summaryEndDate.value;
             const plants = ['Manukan', 'Manyar', 'Gempol', 'Krian', 'Kediri', 'Denpasar2', 'Gianyar'];
             summaryContainer.innerHTML = '';
-            
+
             plants.forEach(plant => {
                 let plantSchedules = schedules.filter(schedule => schedule.plant === plant);
                 
@@ -1942,38 +1629,27 @@
                         return scheduleDate >= startDate && scheduleDate <= endDate;
                     });
                 }
-                
+
                 const totalVolume = plantSchedules.reduce((sum, schedule) => sum + schedule.volume, 0);
                 const projectCount = plantSchedules.length;
                 const targetVolume = dailyTargets[plant] || 0;
                 const progressPercentage = targetVolume > 0 ? Math.min((totalVolume / targetVolume) * 100, 100) : 0;
-                
-                const shiftVolumes = {
-                    morning: 0,
-                    afternoon: 0,
-                    evening: 0,
-                    night: 0
-                };
-                
+
+                const shiftVolumes = { morning: 0, afternoon: 0, evening: 0, night: 0 };
                 plantSchedules.forEach(schedule => {
                     const period = getTimePeriod(schedule.time);
                     shiftVolumes[period] += schedule.volume;
                 });
-                
+
                 const plantCard = document.createElement('div');
                 plantCard.className = 'plant-summary-card';
                 
                 let progressClass = '';
-                if (progressPercentage >= 100) {
-                    progressClass = 'danger';
-                } else if (progressPercentage >= 80) {
-                    progressClass = 'warning';
-                }
-                
+                if (progressPercentage >= 100) progressClass = 'danger';
+                else if (progressPercentage >= 80) progressClass = 'warning';
+
                 plantCard.innerHTML = `
-                    <h3>
-                        <span><i class="fas fa-industry"></i> ${plant} Plant</span>
-                    </h3>
+                    <h3><span><i class="fas fa-industry"></i> ${plant} Plant</span></h3>
                     <div class="target-indicator">Target: ${targetVolume} m³</div>
                     <div class="progress-container">
                         <div class="progress-label">
@@ -2016,249 +1692,19 @@
                 summaryContainer.appendChild(plantCard);
             });
         }
-        
-        // Render charts
-        function renderCharts() {
-            const startDateValue = chartStartDate.value;
-            const endDateValue = chartEndDate.value;
-            const plants = ['Manukan', 'Manyar', 'Gempol', 'Krian', 'Kediri', 'Denpasar2', 'Gianyar'];
-            
-            const plantVolumes = {};
-            const shiftVolumes = {
-                morning: 0,
-                afternoon: 0,
-                evening: 0,
-                night: 0
-            };
-            
-            plants.forEach(plant => {
-                let plantSchedules = schedules.filter(schedule => schedule.plant === plant);
-                
-                if (startDateValue && endDateValue) {
-                    plantSchedules = plantSchedules.filter(schedule => {
-                        const scheduleDate = new Date(schedule.date);
-                        const startDate = new Date(startDateValue);
-                        const endDate = new Date(endDateValue);
-                        return scheduleDate >= startDate && scheduleDate <= endDate;
-                    });
-                }
-                
-                plantVolumes[plant] = plantSchedules.reduce((sum, schedule) => sum + schedule.volume, 0);
-                plantSchedules.forEach(schedule => {
-                    const period = getTimePeriod(schedule.time);
-                    shiftVolumes[period] += schedule.volume;
-                });
-            });
-            
-            if (plantVolumeChart) {
-                plantVolumeChart.destroy();
-            }
-            if (shiftVolumeChart) {
-                shiftVolumeChart.destroy();
-            }
-            
-            // Plant Volume Chart
-            const plantCtx = document.getElementById('plantVolumeChart').getContext('2d');
-            plantVolumeChart = new Chart(plantCtx, {
-                type: 'bar',
-                data: {
-                    labels: plants,
-                    datasets: [{
-                        label: 'Volume (m³)',
-                        data: plants.map(plant => plantVolumes[plant]),
-                        backgroundColor: [
-                            '#3498db', '#2ecc71', '#e74c3c', '#f39c12',
-                            '#9b59b6', '#1abc9c', '#34495e'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Volume Distribution by Plant'
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Volume (m³)'
-                            }
-                        }
-                    }
-                }
-            });
-            
-            // Shift Volume Chart
-            const shiftCtx = document.getElementById('shiftVolumeChart').getContext('2d');
-            shiftVolumeChart = new Chart(shiftCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Shift Pagi', 'Shift Siang', 'Shift Sore', 'Shift Malam'],
-                    datasets: [{
-                        label: 'Volume (m³)',
-                        data: [
-                            shiftVolumes.morning,
-                            shiftVolumes.afternoon,
-                            shiftVolumes.evening,
-                            shiftVolumes.night
-                        ],
-                        backgroundColor: [
-                            '#3498db', '#2ecc71', '#e74c3c', '#f39c12'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Volume Distribution by Shift'
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Volume (m³)'
-                            }
-                        }
-                    }
-                }
-            });
-        }
 
-        // PERBAIKAN: Fungsi untuk mengonversi data ke format CSV dengan BOM untuk encoding UTF-8
-        function convertToCSV(data, headers) {
-            if (!data || data.length === 0) return '';
-            
-            // Tambahkan BOM untuk UTF-8
-            let csv = '\uFEFF';
-            
-            const headerRow = headers.join(';');
-            csv += headerRow + '\r\n';
-            
-            data.forEach(row => {
-                const rowData = headers.map(header => {
-                    let value = row[header] || '';
-                    // Handle nilai yang mengandung titik koma, quote, atau newline
-                    if (typeof value === 'string' && (value.includes(';') || value.includes('"') || value.includes('\n') || value.includes('\r'))) {
-                        value = '"' + value.replace(/"/g, '""') + '"';
-                    }
-                    return value;
-                });
-                csv += rowData.join(';') + '\r\n';
-            });
-            
-            return csv;
-        }
-
-        // PERBAIKAN: Fungsi untuk mengunduh file CSV sebagai Excel dengan pemisah titik koma
-        function downloadCSV(csv, filename) {
-            // Ganti ekstensi menjadi .csv untuk memastikan kompatibilitas
-            if (!filename.endsWith('.csv')) {
-                filename = filename.replace(/\.[^/.]+$/, "") + '.csv';
-            }
-            
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            if (link.download !== undefined) {
-                const url = URL.createObjectURL(blob);
-                link.setAttribute('href', url);
-                link.setAttribute('download', filename);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } else {
-                alert('Browser tidak mendukung fitur download otomatis. Silakan salin data dan simpan sebagai file CSV.');
-            }
-        }
-
-        // PERBAIKAN: Event listener untuk tombol export Schedule Detail
-        document.getElementById('export-excel-btn').addEventListener('click', function() {
-            const activePlant = document.querySelector('.plant-tab.active').getAttribute('data-plant');
-            const filterStartDateValue = filterStartDate.value;
-            const filterEndDateValue = filterEndDate.value;
-            const filterPlantValue = filterPlant.value;
-            const filterTimeValue = filterTime.value;
-
-            let filteredSchedules = schedules;
-
-            if (activePlant !== 'all') {
-                filteredSchedules = filteredSchedules.filter(schedule => schedule.plant === activePlant);
-            }
-            if (filterStartDateValue && filterEndDateValue) {
-                filteredSchedules = filteredSchedules.filter(schedule => {
-                    const scheduleDate = new Date(schedule.date);
-                    const startDate = new Date(filterStartDateValue);
-                    const endDate = new Date(filterEndDateValue);
-                    return scheduleDate >= startDate && scheduleDate <= endDate;
-                });
-            }
-            if (filterPlantValue !== 'all') {
-                filteredSchedules = filteredSchedules.filter(schedule => schedule.plant === filterPlantValue);
-            }
-            if (filterTimeValue !== 'all') {
-                filteredSchedules = filteredSchedules.filter(schedule => {
-                    const period = getTimePeriod(schedule.time);
-                    return period === filterTimeValue;
-                });
-            }
-
-            filteredSchedules.sort((a, b) => {
-                const dateA = new Date(a.date + ' ' + a.time);
-                const dateB = new Date(b.date + ' ' + b.time);
-                return dateA - dateB;
-            });
-
-            if (filteredSchedules.length === 0) {
-                alert('Tidak ada data untuk diekspor.');
-                return;
-            }
-
-            // Siapkan data untuk CSV dengan kolom terpisah
-            const headers = ['No', 'Project Name', 'Plant', 'Volume (m³)', 'Day', 'Date', 'Time', 'Time Period', 'Notes'];
-            
-            const csvData = filteredSchedules.map((schedule, index) => ({
-                'No': index + 1,
-                'Project Name': schedule.projectName + (schedule.isDaily ? ' (Daily)' : ''),
-                'Plant': schedule.plant,
-                'Volume (m³)': schedule.volume,
-                'Day': getDayName(schedule.date),
-                'Date': formatDate(schedule.date),
-                'Time': schedule.time,
-                'Time Period': getTimePeriodLabel(getTimePeriod(schedule.time)),
-                'Notes': schedule.notes || '-'
-            }));
-
-            const csvString = convertToCSV(csvData, headers);
-            const filename = `Schedule_Detail_${new Date().toISOString().slice(0, 10)}.csv`;
-            downloadCSV(csvString, filename);
-        });
-
-        // PERBAIKAN: Event listener untuk export Summary Detail
-        exportSummaryDetailBtn.addEventListener('click', function() {
-            const activePlant = document.querySelector('#summary-detail-plant-tabs .plant-tab.active').getAttribute('data-plant');
+        function renderSummaryDetail() {
+            const activePlant = document.querySelector('#summary-detail-plant-tabs .plant-tab.active')?.getAttribute('data-plant') || 'all';
             const startDateValue = summaryDetailStartDate.value;
             const endDateValue = summaryDetailEndDate.value;
             const filterPlantValue = summaryDetailFilterPlant.value;
             const filterTimeValue = summaryDetailFilterTime.value;
-            
+
             let filteredSchedules = schedules;
-            
+
             if (activePlant !== 'all') {
                 filteredSchedules = filteredSchedules.filter(schedule => schedule.plant === activePlant);
             }
-            
             if (startDateValue && endDateValue) {
                 filteredSchedules = filteredSchedules.filter(schedule => {
                     const scheduleDate = new Date(schedule.date);
@@ -2267,32 +1713,489 @@
                     return scheduleDate >= startDate && scheduleDate <= endDate;
                 });
             }
-            
             if (filterPlantValue !== 'all') {
                 filteredSchedules = filteredSchedules.filter(schedule => schedule.plant === filterPlantValue);
             }
-            
             if (filterTimeValue !== 'all') {
                 filteredSchedules = filteredSchedules.filter(schedule => {
                     const period = getTimePeriod(schedule.time);
                     return period === filterTimeValue;
                 });
             }
+
+            const dateRange = getDateRange(startDateValue || new Date().toISOString().split('T')[0], endDateValue || new Date().toISOString().split('T')[0]);
+            const groupedData = groupDataByPlantAndProject(filteredSchedules, dateRange);
+            renderSummaryDetailTable(groupedData, dateRange);
+        }
+
+        function groupDataByPlantAndProject(schedules, dateRange) {
+            const grouped = {};
+            schedules.forEach(schedule => {
+                const plant = schedule.plant;
+                const projectName = schedule.projectName;
+                const time = schedule.time.substring(0, 5);
+                const date = schedule.date;
+                const volume = schedule.volume;
+                const isDaily = schedule.isDaily;
+
+                if (!grouped[plant]) grouped[plant] = {};
+                if (!grouped[plant][projectName]) {
+                    grouped[plant][projectName] = { time: time, volumes: {}, isDaily: isDaily };
+                }
+                if (!grouped[plant][projectName].time) {
+                    grouped[plant][projectName].time = time;
+                }
+                const dateKey = formatDateForTable(date);
+                if (!grouped[plant][projectName].volumes[dateKey]) {
+                    grouped[plant][projectName].volumes[dateKey] = 0;
+                }
+                grouped[plant][projectName].volumes[dateKey] += volume;
+            });
+            return grouped;
+        }
+
+        function renderSummaryDetailTable(groupedData, dateRange) {
+            summaryDetailBody.innerHTML = '';
             
+            const headerRow = document.querySelector('#summary-detail-table thead tr');
+            while (headerRow.children.length > 3) {
+                headerRow.removeChild(headerRow.lastChild);
+            }
+            
+            dateRange.forEach(date => {
+                const dateHeader = document.createElement('th');
+                dateHeader.textContent = formatDateForTable(date.toISOString().split('T')[0]);
+                headerRow.appendChild(dateHeader);
+            });
+
+            if (Object.keys(groupedData).length === 0) {
+                const noDataRow = document.createElement('tr');
+                const noDataCell = document.createElement('td');
+                noDataCell.colSpan = dateRange.length + 3;
+                noDataCell.textContent = 'No data available for the selected filters';
+                noDataCell.style.textAlign = 'center';
+                noDataRow.appendChild(noDataCell);
+                summaryDetailBody.appendChild(noDataRow);
+                return;
+            }
+
+            Object.keys(groupedData).sort().forEach(plant => {
+                const plantHeaderRow = document.createElement('tr');
+                plantHeaderRow.className = 'plant-header';
+                const plantHeaderCell = document.createElement('td');
+                plantHeaderCell.textContent = plant;
+                plantHeaderCell.colSpan = dateRange.length + 3;
+                plantHeaderRow.appendChild(plantHeaderCell);
+                summaryDetailBody.appendChild(plantHeaderRow);
+
+                Object.keys(groupedData[plant]).sort().forEach(projectName => {
+                    const projectRow = document.createElement('tr');
+                    
+                    const plantCell = document.createElement('td');
+                    plantCell.textContent = '';
+                    projectRow.appendChild(plantCell);
+                    
+                    const projectCell = document.createElement('td');
+                    projectCell.textContent = projectName;
+                    if (groupedData[plant][projectName].isDaily) {
+                        const dailyIndicator = document.createElement('span');
+                        dailyIndicator.className = 'daily-indicator';
+                        dailyIndicator.textContent = '(Daily)';
+                        projectCell.appendChild(dailyIndicator);
+                    }
+                    projectRow.appendChild(projectCell);
+                    
+                    const timeCell = document.createElement('td');
+                    timeCell.textContent = groupedData[plant][projectName].time;
+                    projectRow.appendChild(timeCell);
+                    
+                    dateRange.forEach(date => {
+                        const dateKey = formatDateForTable(date.toISOString().split('T')[0]);
+                        const volumeCell = document.createElement('td');
+                        const volume = groupedData[plant][projectName].volumes[dateKey] || '';
+                        volumeCell.textContent = volume;
+                        projectRow.appendChild(volumeCell);
+                    });
+                    
+                    summaryDetailBody.appendChild(projectRow);
+                });
+
+                const totalRow = document.createElement('tr');
+                totalRow.className = 'total-row';
+                
+                const totalPlantCell = document.createElement('td');
+                totalPlantCell.textContent = plant + ' Total';
+                totalRow.appendChild(totalPlantCell);
+                
+                const totalProjectCell = document.createElement('td');
+                totalProjectCell.textContent = '';
+                totalRow.appendChild(totalProjectCell);
+                
+                const totalTimeCell = document.createElement('td');
+                totalTimeCell.textContent = '';
+                totalRow.appendChild(totalTimeCell);
+                
+                dateRange.forEach(date => {
+                    const dateKey = formatDateForTable(date.toISOString().split('T')[0]);
+                    let totalVolume = 0;
+                    Object.keys(groupedData[plant]).forEach(projectName => {
+                        totalVolume += groupedData[plant][projectName].volumes[dateKey] || 0;
+                    });
+                    const totalCell = document.createElement('td');
+                    totalCell.textContent = totalVolume > 0 ? totalVolume : '';
+                    totalRow.appendChild(totalCell);
+                });
+                
+                summaryDetailBody.appendChild(totalRow);
+            });
+        }
+
+        function renderCharts() {
+            const startDateValue = chartStartDate.value;
+            const endDateValue = chartEndDate.value;
+            const plants = ['Manukan', 'Manyar', 'Gempol', 'Krian', 'Kediri', 'Denpasar2', 'Gianyar'];
+            
+            const plantVolumes = {};
+            const shiftVolumes = { morning: 0, afternoon: 0, evening: 0, night: 0 };
+
+            plants.forEach(plant => {
+                let plantSchedules = schedules.filter(schedule => schedule.plant === plant);
+                if (startDateValue && endDateValue) {
+                    plantSchedules = plantSchedules.filter(schedule => {
+                        const scheduleDate = new Date(schedule.date);
+                        const startDate = new Date(startDateValue);
+                        const endDate = new Date(endDateValue);
+                        return scheduleDate >= startDate && scheduleDate <= endDate;
+                    });
+                }
+                plantVolumes[plant] = plantSchedules.reduce((sum, schedule) => sum + schedule.volume, 0);
+                plantSchedules.forEach(schedule => {
+                    const period = getTimePeriod(schedule.time);
+                    shiftVolumes[period] += schedule.volume;
+                });
+            });
+
+            if (plantVolumeChart) plantVolumeChart.destroy();
+            if (shiftVolumeChart) shiftVolumeChart.destroy();
+
+            const plantCtx = document.getElementById('plantVolumeChart').getContext('2d');
+            plantVolumeChart = new Chart(plantCtx, {
+                type: 'bar',
+                data: {
+                    labels: plants,
+                    datasets: [{
+                        label: 'Volume (m³)',
+                        data: plants.map(plant => plantVolumes[plant]),
+                        backgroundColor: ['#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c', '#34495e'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { title: { display: true, text: 'Volume Distribution by Plant' } },
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Volume (m³)' } } }
+                }
+            });
+
+            const shiftCtx = document.getElementById('shiftVolumeChart').getContext('2d');
+            shiftVolumeChart = new Chart(shiftCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Shift Pagi', 'Shift Siang', 'Shift Sore', 'Shift Malam'],
+                    datasets: [{
+                        label: 'Volume (m³)',
+                        data: [shiftVolumes.morning, shiftVolumes.afternoon, shiftVolumes.evening, shiftVolumes.night],
+                        backgroundColor: ['#3498db', '#2ecc71', '#e74c3c', '#f39c12'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { title: { display: true, text: 'Volume Distribution by Shift' } },
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Volume (m³)' } } }
+                }
+            });
+        }
+
+        function renderAll() {
+            renderScheduleTable();
+            renderSummary();
+            renderSummaryDetail();
+            renderCharts();
+        }
+
+        // ============================================================
+        // ===== CRUD OPERATIONS =====
+        // ============================================================
+        window.editSchedule = function(id) {
+            const schedule = schedules.find(s => s.id === id);
+            if (!schedule) return;
+
+            document.getElementById('project-name').value = schedule.projectName;
+            document.getElementById('plant').value = schedule.plant;
+            document.getElementById('volume').value = schedule.volume;
+            document.getElementById('time').value = schedule.time;
+            document.getElementById('notes').value = schedule.notes || '';
+
+            if (schedule.isDaily) {
+                dailyScheduleCheckbox.checked = true;
+                singleDateDiv.classList.add('hidden');
+                dateRangeDiv.classList.remove('hidden');
+                document.getElementById('start-date').value = schedule.date;
+                document.getElementById('end-date').value = schedule.date;
+            } else {
+                dailyScheduleCheckbox.checked = false;
+                singleDateDiv.classList.remove('hidden');
+                dateRangeDiv.classList.add('hidden');
+                document.getElementById('date').value = schedule.date;
+            }
+
+            editingScheduleId = id;
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Schedule';
+            document.querySelector('.nav-link[data-target="input-section"]').click();
+        };
+
+        window.deleteSchedule = async function(id) {
+            if (!confirm('Are you sure you want to delete this schedule?')) return;
+            
+            const success = await deleteScheduleFromFirestore(id);
+            if (success) {
+                schedules = schedules.filter(s => s.id !== id);
+                renderAll();
+            }
+        };
+
+        // ============================================================
+        // ===== FORM SUBMISSION =====
+        // ============================================================
+        scheduleForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const projectName = document.getElementById('project-name').value;
+            const plant = document.getElementById('plant').value;
+            const volume = parseFloat(document.getElementById('volume').value);
+            const time = document.getElementById('time').value;
+            const notes = document.getElementById('notes').value;
+            const isDaily = dailyScheduleCheckbox.checked;
+
+            if (editingScheduleId) {
+                // Update existing schedule
+                let scheduleData = {
+                    projectName,
+                    plant,
+                    volume,
+                    time,
+                    notes,
+                    isDaily: isDaily
+                };
+
+                if (isDaily) {
+                    const startDate = document.getElementById('start-date').value;
+                    const endDate = document.getElementById('end-date').value;
+                    if (startDate > endDate) {
+                        alert('Start date cannot be after end date!');
+                        return;
+                    }
+                    // For daily update, we'll delete old and create new
+                    await deleteScheduleFromFirestore(editingScheduleId);
+                    schedules = schedules.filter(s => s.id !== editingScheduleId);
+                    
+                    const currentDate = new Date(startDate);
+                    const newSchedules = [];
+                    while (currentDate <= new Date(endDate)) {
+                        const dateStr = currentDate.toISOString().split('T')[0];
+                        newSchedules.push({
+                            ...scheduleData,
+                            date: dateStr
+                        });
+                        currentDate.setDate(currentDate.getDate() + 1);
+                    }
+                    
+                    for (const s of newSchedules) {
+                        const id = await saveScheduleToFirestore(s);
+                        if (id) schedules.push({ ...s, id });
+                    }
+                } else {
+                    const date = document.getElementById('date').value;
+                    scheduleData.date = date;
+                    const success = await updateScheduleInFirestore(editingScheduleId, scheduleData);
+                    if (success) {
+                        const index = schedules.findIndex(s => s.id === editingScheduleId);
+                        if (index !== -1) {
+                            schedules[index] = { ...scheduleData, id: editingScheduleId };
+                        }
+                    }
+                }
+                
+                alert('Schedule updated successfully!');
+                editingScheduleId = null;
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Save';
+            } else {
+                // Create new schedule
+                let newSchedules = [];
+                
+                if (isDaily) {
+                    const startDate = document.getElementById('start-date').value;
+                    const endDate = document.getElementById('end-date').value;
+                    if (startDate > endDate) {
+                        alert('Start date cannot be after end date!');
+                        return;
+                    }
+                    
+                    const currentDate = new Date(startDate);
+                    while (currentDate <= new Date(endDate)) {
+                        const dateStr = currentDate.toISOString().split('T')[0];
+                        newSchedules.push({
+                            projectName,
+                            plant,
+                            volume,
+                            date: dateStr,
+                            time,
+                            notes,
+                            isDaily: true
+                        });
+                        currentDate.setDate(currentDate.getDate() + 1);
+                    }
+                } else {
+                    const date = document.getElementById('date').value;
+                    newSchedules.push({
+                        projectName,
+                        plant,
+                        volume,
+                        date,
+                        time,
+                        notes,
+                        isDaily: false
+                    });
+                }
+
+                for (const s of newSchedules) {
+                    const id = await saveScheduleToFirestore(s);
+                    if (id) schedules.push({ ...s, id });
+                }
+                
+                alert(`Schedule saved successfully! ${newSchedules.length} entries added.`);
+            }
+
+            scheduleForm.reset();
+            const todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = todayStr;
+            document.getElementById('start-date').value = todayStr;
+            document.getElementById('end-date').value = todayStr;
+            dailyScheduleCheckbox.checked = false;
+            singleDateDiv.classList.remove('hidden');
+            dateRangeDiv.classList.add('hidden');
+            
+            renderAll();
+        });
+
+        // ============================================================
+        // ===== EXPORT FUNCTIONS =====
+        // ============================================================
+        function convertToCSV(data, headers) {
+            if (!data || data.length === 0) return '';
+            let csv = '\uFEFF';
+            csv += headers.join(';') + '\r\n';
+            data.forEach(row => {
+                const rowData = headers.map(header => {
+                    let value = row[header] || '';
+                    if (typeof value === 'string' && (value.includes(';') || value.includes('"') || value.includes('\n') || value.includes('\r'))) {
+                        value = '"' + value.replace(/"/g, '""') + '"';
+                    }
+                    return value;
+                });
+                csv += rowData.join(';') + '\r\n';
+            });
+            return csv;
+        }
+
+        function downloadCSV(csv, filename) {
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        exportExcelBtn.addEventListener('click', function() {
+            const activePlant = document.querySelector('#monitoring-plant-tabs .plant-tab.active')?.getAttribute('data-plant') || 'all';
+            let filteredSchedules = schedules;
+            
+            if (activePlant !== 'all') {
+                filteredSchedules = filteredSchedules.filter(s => s.plant === activePlant);
+            }
+            if (filterStartDate.value && filterEndDate.value) {
+                filteredSchedules = filteredSchedules.filter(s => {
+                    const sd = new Date(s.date);
+                    return sd >= new Date(filterStartDate.value) && sd <= new Date(filterEndDate.value);
+                });
+            }
+            if (filterPlant.value !== 'all') {
+                filteredSchedules = filteredSchedules.filter(s => s.plant === filterPlant.value);
+            }
+            if (filterTime.value !== 'all') {
+                filteredSchedules = filteredSchedules.filter(s => getTimePeriod(s.time) === filterTime.value);
+            }
+
             if (filteredSchedules.length === 0) {
                 alert('Tidak ada data untuk diekspor.');
                 return;
             }
 
-            const dateRange = getDateRange(startDateValue, endDateValue);
+            const headers = ['No', 'Project Name', 'Plant', 'Volume (m³)', 'Day', 'Date', 'Time', 'Time Period', 'Notes'];
+            const csvData = filteredSchedules.map((s, i) => ({
+                'No': i + 1,
+                'Project Name': s.projectName + (s.isDaily ? ' (Daily)' : ''),
+                'Plant': s.plant,
+                'Volume (m³)': s.volume,
+                'Day': getDayName(s.date),
+                'Date': formatDate(s.date),
+                'Time': s.time,
+                'Time Period': getTimePeriodLabel(getTimePeriod(s.time)),
+                'Notes': s.notes || '-'
+            }));
+
+            downloadCSV(convertToCSV(csvData, headers), `Schedule_Detail_${new Date().toISOString().slice(0,10)}.csv`);
+        });
+
+        exportSummaryDetailBtn.addEventListener('click', function() {
+            const activePlant = document.querySelector('#summary-detail-plant-tabs .plant-tab.active')?.getAttribute('data-plant') || 'all';
+            const startDateValue = summaryDetailStartDate.value;
+            const endDateValue = summaryDetailEndDate.value;
+            
+            let filteredSchedules = schedules;
+            if (activePlant !== 'all') {
+                filteredSchedules = filteredSchedules.filter(s => s.plant === activePlant);
+            }
+            if (startDateValue && endDateValue) {
+                filteredSchedules = filteredSchedules.filter(s => {
+                    const sd = new Date(s.date);
+                    return sd >= new Date(startDateValue) && sd <= new Date(endDateValue);
+                });
+            }
+            if (summaryDetailFilterPlant.value !== 'all') {
+                filteredSchedules = filteredSchedules.filter(s => s.plant === summaryDetailFilterPlant.value);
+            }
+            if (summaryDetailFilterTime.value !== 'all') {
+                filteredSchedules = filteredSchedules.filter(s => getTimePeriod(s.time) === summaryDetailFilterTime.value);
+            }
+
+            if (filteredSchedules.length === 0) {
+                alert('Tidak ada data untuk diekspor.');
+                return;
+            }
+
+            const dateRange = getDateRange(startDateValue || new Date().toISOString().split('T')[0], endDateValue || new Date().toISOString().split('T')[0]);
             const groupedData = groupDataByPlantAndProject(filteredSchedules, dateRange);
             
-            const headers = ['Plant', 'Project Name', 'Time', ...dateRange.map(date => 
-                formatDateForTable(date.toISOString().split('T')[0])
-            )];
-            
+            const headers = ['Plant', 'Project Name', 'Time', ...dateRange.map(d => formatDateForTable(d.toISOString().split('T')[0]))];
             const csvData = [];
-            
+
             Object.keys(groupedData).sort().forEach(plant => {
                 Object.keys(groupedData[plant]).sort().forEach(projectName => {
                     const rowData = {
@@ -2300,53 +2203,159 @@
                         'Project Name': projectName + (groupedData[plant][projectName].isDaily ? ' (Daily)' : ''),
                         'Time': groupedData[plant][projectName].time
                     };
-                    
                     dateRange.forEach(date => {
                         const dateKey = formatDateForTable(date.toISOString().split('T')[0]);
                         rowData[dateKey] = groupedData[plant][projectName].volumes[dateKey] || '';
                     });
-                    
                     csvData.push(rowData);
                 });
-                
-                const totalRow = {
-                    'Plant': plant + ' Total',
-                    'Project Name': '',
-                    'Time': ''
-                };
-                
+
+                const totalRow = { 'Plant': plant + ' Total', 'Project Name': '', 'Time': '' };
                 dateRange.forEach(date => {
                     const dateKey = formatDateForTable(date.toISOString().split('T')[0]);
-                    let totalVolume = 0;
-                    
-                    Object.keys(groupedData[plant]).forEach(projectName => {
-                        totalVolume += groupedData[plant][projectName].volumes[dateKey] || 0;
+                    let total = 0;
+                    Object.keys(groupedData[plant]).forEach(p => {
+                        total += groupedData[plant][p].volumes[dateKey] || 0;
                     });
-                    
-                    totalRow[dateKey] = totalVolume > 0 ? totalVolume : '';
+                    totalRow[dateKey] = total > 0 ? total : '';
                 });
-                
                 csvData.push(totalRow);
-                // Tambahkan baris kosong untuk pemisah antar plant
-                csvData.push({
-                    'Plant': '',
-                    'Project Name': '',
-                    'Time': '',
-                    ...Object.fromEntries(dateRange.map(date => [formatDateForTable(date.toISOString().split('T')[0]), '']))
-                });
             });
 
-            const csvString = convertToCSV(csvData, headers);
-            const filename = `Summary_Detail_${new Date().toISOString().slice(0, 10)}.csv`;
-            downloadCSV(csvString, filename);
+            downloadCSV(convertToCSV(csvData, headers), `Summary_Detail_${new Date().toISOString().slice(0,10)}.csv`);
         });
 
-        // Initial render
-        loadDailyTargets();
-        renderScheduleTable();
-        renderSummary();
-        renderSummaryDetail();
-        renderCharts();
+        // ============================================================
+        // ===== NAVIGATION =====
+        // ============================================================
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = link.getAttribute('data-target');
+                navLinks.forEach(nav => nav.classList.remove('active'));
+                link.classList.add('active');
+                contentSections.forEach(section => section.classList.add('hidden'));
+                document.getElementById(target).classList.remove('hidden');
+                if (target === 'monitoring-section') renderScheduleTable();
+                else if (target === 'summary-section') renderSummary();
+                else if (target === 'summary-detail-section') renderSummaryDetail();
+                else if (target === 'chart-section') renderCharts();
+            });
+        });
+
+        // ============================================================
+        // ===== PLANT TABS =====
+        // ============================================================
+        monitoringPlantTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                monitoringPlantTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                renderScheduleTable();
+            });
+        });
+
+        summaryDetailPlantTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                summaryDetailPlantTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                renderSummaryDetail();
+            });
+        });
+
+        // ============================================================
+        // ===== FILTER EVENT LISTENERS =====
+        // ============================================================
+        filterStartDate.addEventListener('change', renderScheduleTable);
+        filterEndDate.addEventListener('change', renderScheduleTable);
+        filterPlant.addEventListener('change', renderScheduleTable);
+        filterTime.addEventListener('change', renderScheduleTable);
+        summaryStartDate.addEventListener('change', renderSummary);
+        summaryEndDate.addEventListener('change', renderSummary);
+        summaryDetailStartDate.addEventListener('change', renderSummaryDetail);
+        summaryDetailEndDate.addEventListener('change', renderSummaryDetail);
+        summaryDetailFilterPlant.addEventListener('change', renderSummaryDetail);
+        summaryDetailFilterTime.addEventListener('change', renderSummaryDetail);
+        chartStartDate.addEventListener('change', renderCharts);
+        chartEndDate.addEventListener('change', renderCharts);
+
+        // ============================================================
+        // ===== SIDEBAR =====
+        // ============================================================
+        function toggleSidebar() {
+            sidebar.classList.toggle('collapsed');
+            sidebar.classList.toggle('expanded');
+            container.classList.toggle('expanded');
+            const headerWrapper = document.querySelector('.header-wrapper');
+            if (sidebar.classList.contains('collapsed')) {
+                headerWrapper.style.marginLeft = 'var(--sidebar-collapsed-width)';
+            } else {
+                headerWrapper.style.marginLeft = 'var(--sidebar-width)';
+            }
+            const icon = toggleBtn.querySelector('i');
+            icon.className = sidebar.classList.contains('collapsed') ? 'fas fa-chevron-right' : 'fas fa-chevron-left';
+        }
+
+        toggleBtn.addEventListener('click', toggleSidebar);
+        floatingToggleBtn.addEventListener('click', toggleSidebar);
+
+        // ============================================================
+        // ===== DAILY SCHEDULE CHECKBOX =====
+        // ============================================================
+        dailyScheduleCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                singleDateDiv.classList.add('hidden');
+                dateRangeDiv.classList.remove('hidden');
+            } else {
+                singleDateDiv.classList.remove('hidden');
+                dateRangeDiv.classList.add('hidden');
+            }
+        });
+
+        // ============================================================
+        // ===== SAVE TARGETS =====
+        // ============================================================
+        saveTargetsBtn.addEventListener('click', async function() {
+            dailyTargets = {
+                Manukan: parseFloat(document.getElementById('target-manukan').value) || 0,
+                Manyar: parseFloat(document.getElementById('target-manyar').value) || 0,
+                Gempol: parseFloat(document.getElementById('target-gempol').value) || 0,
+                Krian: parseFloat(document.getElementById('target-krian').value) || 0,
+                Kediri: parseFloat(document.getElementById('target-kediri').value) || 0,
+                Denpasar2: parseFloat(document.getElementById('target-denpasar2').value) || 0,
+                Gianyar: parseFloat(document.getElementById('target-gianyar').value) || 0
+            };
+            await saveDailyTargetsToFirestore();
+        });
+
+        // ============================================================
+        // ===== SET DEFAULT DATES =====
+        // ============================================================
+        const todayStr = new Date().toISOString().split('T')[0];
+        document.getElementById('date').value = todayStr;
+        document.getElementById('start-date').value = todayStr;
+        document.getElementById('end-date').value = todayStr;
+        filterStartDate.value = todayStr;
+        filterEndDate.value = todayStr;
+        summaryStartDate.value = todayStr;
+        summaryEndDate.value = todayStr;
+        summaryDetailStartDate.value = todayStr;
+        summaryDetailEndDate.value = todayStr;
+        chartStartDate.value = todayStr;
+        chartEndDate.value = todayStr;
+
+        // ============================================================
+        // ===== INITIALIZATION =====
+        // ============================================================
+        updateDate();
+        setInterval(updateDate, 60000);
+
+        // Load data from Firestore
+        async function init() {
+            await loadDailyTargetsFromFirestore();
+            await loadSchedulesFromFirestore();
+        }
+
+        init();
     </script>
 </body>
 </html>
