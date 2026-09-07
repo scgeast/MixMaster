@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Concrete Pouring Schedule Monitoring</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -20,126 +23,175 @@
             --danger: #e74c3c;
             --light: #ecf0f1;
             --dark: #34495e;
-            --sidebar-width: 300px;
+            --sidebar-width: 280px;
             --sidebar-collapsed-width: 0px;
+            --header-height: 50px;
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html, body {
+            height: 100%;
+            overflow: hidden;
         }
         body {
             background-color: #f5f7fa;
             color: var(--dark);
-            line-height: 1.6;
+            line-height: 1.5;
             display: flex;
-            min-height: 100vh;
             flex-direction: column;
+            position: relative;
+            -webkit-overflow-scrolling: touch;
         }
+        
+        .app-wrapper {
+            display: flex;
+            flex: 1;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        
         .container {
             flex: 1;
-            padding: 6px 10px;
+            padding: 6px 8px;
             margin-left: var(--sidebar-collapsed-width);
-            transition: margin-left 0.3s ease;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-sizing: border-box;
-            margin-top: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            height: calc(100vh - var(--header-height));
+            padding-bottom: calc(8px + var(--safe-bottom));
         }
         .container.expanded {
             margin-left: var(--sidebar-width);
         }
-
-        /* ===== HEADER LEBIH RAPAT ===== */
+        
+        /* ===== HEADER ===== */
         header {
             background: linear-gradient(135deg, #880808 0%, #6a0dad 100%);
             color: white;
-            padding: 2px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-            margin-bottom: 2px;
-            height: 44px;
+            padding: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            height: var(--header-height);
+            min-height: var(--header-height);
             display: flex;
             align-items: center;
             width: 100%;
-            position: relative;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-shrink: 0;
         }
         .header-wrapper {
             display: flex;
             width: 100%;
-            margin-left: var(--sidebar-collapsed-width);
-            transition: margin-left 0.3s ease;
-            padding-right: 20px;
+            padding: 0 8px;
             box-sizing: border-box;
-        }
-        .container.expanded ~ header .header-wrapper {
-            margin-left: var(--sidebar-width);
-        }
-        .header-content {
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            width: 100%;
-            padding: 0 15px;
-            box-sizing: border-box;
+            justify-content: space-between;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
         }
         .header-text {
             flex: 1;
-            margin-left: 40px;
             min-width: 0;
+            margin-left: 35px;
         }
         header h1 {
-            margin-bottom: 0px;
-            font-size: 1.0rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-size: 0.8rem;
             font-weight: 700;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin: 0;
         }
         header p {
-            opacity: 0.95;
-            font-size: 0.6rem;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            display: none;
         }
-        .datetime {
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-            color: rgba(255,255,255,0.95);
-            padding: 2px 8px;
-            border-radius: 4px;
-            background: none;
-            backdrop-filter: blur(5px);
-            white-space: nowrap;
-            margin-left: 10px;
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
             flex-shrink: 0;
         }
-
-        /* ===== STATUS ONLINE ===== */
+        .datetime {
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.9);
+            padding: 2px 6px;
+            white-space: nowrap;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+        }
         .status-online {
             display: flex;
             align-items: center;
-            gap: 5px;
-            font-size: 0.6rem;
+            gap: 3px;
+            font-size: 0.5rem;
             font-weight: 600;
             color: #2ecc71;
             background: rgba(46, 204, 113, 0.15);
-            padding: 2px 10px;
-            border-radius: 20px;
-            border: 1px solid rgba(46, 204, 113, 0.3);
-            margin-left: 8px;
-            flex-shrink: 0;
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(46, 204, 113, 0.2);
+            white-space: nowrap;
         }
         .status-online i {
-            font-size: 0.5rem;
+            font-size: 0.4rem;
             animation: pulse 1.5s ease-in-out infinite;
         }
         @keyframes pulse {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+            50% { opacity: 0.2; }
+        }
+
+        /* ===== GLOBAL DATE FILTER INDICATOR ===== */
+        .global-filter-info {
+            background: #e8f0fe;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 0.6rem;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+            border: 1px solid rgba(52, 152, 219, 0.2);
+        }
+        .global-filter-info i {
+            font-size: 0.6rem;
+        }
+        .global-filter-info .filter-date {
+            font-weight: 600;
+            background: white;
+            padding: 1px 8px;
+            border-radius: 4px;
+            color: var(--dark);
+        }
+        .global-filter-info .clear-filter {
+            color: var(--danger);
+            cursor: pointer;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        .global-filter-info .clear-filter:hover {
+            background: rgba(231, 76, 60, 0.1);
+        }
+        .global-filter-info .clear-filter:active {
+            transform: scale(0.95);
         }
 
         /* ===== SIDEBAR ===== */
@@ -148,93 +200,83 @@
             top: 0;
             left: 0;
             height: 100vh;
-            width: var(--sidebar-collapsed-width);
+            width: var(--sidebar-width);
             background: linear-gradient(180deg, var(--primary), #1a2530);
             color: white;
-            transition: all 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             overflow-x: hidden;
+            overflow-y: auto;
             z-index: 1000;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            box-shadow: 2px 0 20px rgba(0,0,0,0.3);
+            transform: translateX(-100%);
+            -webkit-overflow-scrolling: touch;
         }
-        .sidebar.collapsed {
-            width: var(--sidebar-collapsed-width);
+        .sidebar.open {
+            transform: translateX(0);
         }
-        .sidebar.expanded {
-            width: var(--sidebar-width);
+        .sidebar.closed {
+            transform: translateX(-100%);
         }
+        
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+        
         .sidebar-header {
-            padding: 12px 15px;
+            padding: 12px 16px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: relative;
+            position: sticky;
+            top: 0;
+            background: var(--primary);
+            z-index: 2;
         }
         .sidebar-header h3 {
-            font-size: 0.95rem;
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .sidebar.expanded .sidebar-header h3 {
-            opacity: 1;
-        }
-        .toggle-btn {
-            background: 0;
-            border: 0;
-            color: white;
             font-size: 0.9rem;
-            cursor: pointer;
-            padding: 2px;
-            border-radius: 0;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 35px;
-            height: 35px;
-            position: absolute;
-            right: 10px;
-            top: 10%;
-            transform: translateY(-50%);
+            white-space: nowrap;
         }
-        .toggle-btn:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-50%) scale(1.1);
+        .sidebar-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            touch-action: manipulation;
+        }
+        .sidebar-close:active {
+            transform: scale(0.9);
         }
         .sidebar-content {
-            padding: 10px 12px;
-            height: calc(100% - 55px);
-            overflow-y: auto;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .sidebar.expanded .sidebar-content {
-            opacity: 1;
-        }
-        .target-section h4,
-        .target-item label,
-        .save-targets,
-        .migrate-btn {
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .sidebar.expanded .target-section h4,
-        .sidebar.expanded .target-item label,
-        .sidebar.expanded .save-targets,
-        .sidebar.expanded .migrate-btn {
-            opacity: 1;
+            padding: 12px 16px;
+            padding-bottom: calc(20px + var(--safe-bottom));
         }
         .target-item {
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
         .target-item i {
             color: var(--secondary);
             font-size: 0.8rem;
-            min-width: 16px;
+            min-width: 18px;
         }
         .target-item label {
             font-size: 0.7rem;
@@ -244,54 +286,49 @@
         }
         .target-input {
             width: 65px;
-            padding: 3px 5px;
+            padding: 6px 6px;
             border: 1px solid rgba(255,255,255,0.2);
             border-radius: 4px;
             background: rgba(255,255,255,0.1);
             color: white;
             font-size: 0.7rem;
+            -webkit-appearance: none;
+            appearance: none;
         }
         .target-input:focus {
             outline: none;
             border-color: var(--secondary);
         }
-        .save-targets {
+        .save-targets, .migrate-btn {
             width: 100%;
-            padding: 6px;
-            background: var(--secondary);
-            color: white;
+            padding: 10px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.75rem;
-            margin-top: 6px;
-            transition: background 0.3s;
-            white-space: nowrap;
-        }
-        .save-targets:hover {
-            background: #2980b9;
-        }
-
-        /* ===== TOMBOL MIGRASI ===== */
-        .migrate-btn {
-            width: 100%;
-            padding: 7px;
-            background: linear-gradient(135deg, #e67e22, #d35400);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.75rem;
-            margin-top: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
+            margin-top: 6px;
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
         }
-        .migrate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(211, 84, 0, 0.4);
+        .save-targets {
+            background: var(--secondary);
+            color: white;
+        }
+        .save-targets:active {
+            transform: scale(0.97);
+        }
+        .migrate-btn {
+            background: linear-gradient(135deg, #e67e22, #d35400);
+            color: white;
+        }
+        .migrate-btn:active {
+            transform: scale(0.97);
         }
         .migrate-btn:disabled {
             opacity: 0.6;
@@ -301,9 +338,39 @@
         #migrate-status {
             font-size: 0.6rem;
             color: #2ecc71;
-            margin-top: 3px;
+            margin-top: 4px;
             text-align: center;
             display: none;
+        }
+
+        /* ===== FLOATING TOGGLE BUTTON ===== */
+        .floating-toggle {
+            position: fixed;
+            top: calc((var(--header-height) - 32px) / 2);
+            left: 6px;
+            background: rgba(0,0,0,0.2);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 101;
+            border-radius: 8px;
+            backdrop-filter: blur(4px);
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+            transition: background 0.2s;
+        }
+        .floating-toggle:active {
+            transform: scale(0.9);
+            background: rgba(0,0,0,0.4);
+        }
+        .floating-toggle i {
+            font-size: 0.9rem;
+            pointer-events: none;
         }
 
         /* ===== LOADING ===== */
@@ -313,22 +380,29 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 9999;
+            backdrop-filter: blur(4px);
         }
         .loading-spinner {
             background: white;
-            padding: 20px 30px;
-            border-radius: 10px;
+            padding: 24px 32px;
+            border-radius: 12px;
             text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         }
         .loading-spinner i {
-            font-size: 2rem;
+            font-size: 2.5rem;
             color: var(--secondary);
             animation: spin 1s linear infinite;
+        }
+        .loading-spinner p {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: var(--dark);
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -339,19 +413,20 @@
         nav {
             background-color: white;
             padding: 0;
-            margin: 3px 0 6px 0;
-            border-radius: 6px;
+            margin: 4px 0 6px 0;
+            border-radius: 8px;
             box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-            overflow: hidden;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
         nav ul {
             display: flex;
-            justify-content: center;
             list-style: none;
+            min-width: max-content;
         }
         nav ul li {
             margin: 0;
-            flex: 1;
+            flex: 1 0 auto;
             text-align: center;
         }
         nav ul li a {
@@ -360,137 +435,226 @@
             align-items: center;
             color: var(--dark);
             text-decoration: none;
-            padding: 4px 3px;
+            padding: 6px 8px;
             font-weight: 600;
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            font-size: 0.65rem;
+            font-size: 0.55rem;
+            white-space: nowrap;
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+            min-height: 44px;
+            justify-content: center;
         }
         nav ul li a i {
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             margin-bottom: 1px;
-        }
-        nav ul li a:hover {
-            background-color: #f8f9fa;
-            color: var(--secondary);
         }
         nav ul li a.active {
             background-color: var(--secondary);
             color: white;
-        }
-        nav ul li a.active:after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: var(--primary);
+            border-radius: 6px;
         }
 
         /* ===== CARD ===== */
         .card {
             background-color: white;
-            border-radius: 6px;
+            border-radius: 8px;
             box-shadow: 0 1px 6px rgba(0,0,0,0.06);
             padding: 10px;
-            margin-bottom: 6px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 8px;
             width: 100%;
-        }
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
         }
         h2 {
             color: var(--primary);
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             padding-bottom: 4px;
             border-bottom: 2px solid #f0f0f0;
-            font-size: 1.0rem;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 4px;
         }
         h2 i {
-            margin-right: 5px;
+            margin-right: 4px;
             color: var(--secondary);
+        }
+        h2 .export-btn {
+            font-size: 0.9rem;
+            padding: 4px 8px;
         }
 
         /* ===== FORM ===== */
         .form-group {
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
         label {
             display: block;
-            margin-bottom: 1px;
+            margin-bottom: 2px;
             font-weight: 600;
             color: var(--dark);
             font-size: 0.7rem;
         }
         input, select, textarea {
             width: 100%;
-            padding: 4px 6px;
+            padding: 8px 10px;
             border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 11px;
+            border-radius: 6px;
+            font-size: 14px;
             transition: border 0.3s, box-shadow 0.3s;
+            background: white;
+            -webkit-appearance: none;
+            appearance: none;
+            min-height: 44px;
+        }
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 30px;
         }
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--secondary);
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.15);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
         }
-        button {
+        button[type="submit"] {
             background: linear-gradient(to right, var(--secondary), #2980b9);
             color: white;
             border: none;
-            padding: 4px 10px;
-            border-radius: 4px;
+            padding: 10px 16px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 14px;
             font-weight: 600;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 6px rgba(52, 152, 219, 0.25);
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 6px;
+            min-height: 44px;
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
         }
-        button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 3px 8px rgba(52, 152, 219, 0.3);
+        button[type="submit"]:active {
+            transform: scale(0.97);
         }
-        .export-btn {
-            background: none;
-            border: none;
-            color: var(--secondary);
-            font-size: 0.95rem;
+        
+        .single-row-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+        .single-row-form .form-group:last-child {
+            grid-column: 1 / -1;
+        }
+        .single-row-form button[type="submit"] {
+            grid-column: 1 / -1;
+        }
+        .date-range-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-top: 4px;
+        }
+        .checkbox-group-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            gap: 6px;
+        }
+        .checkbox-group-row input {
+            width: 20px;
+            height: 20px;
+            min-height: 20px;
+            margin: 0;
+            flex-shrink: 0;
+        }
+        .checkbox-group-row label {
+            font-size: 0.75rem;
+            margin-bottom: 0;
             cursor: pointer;
+        }
+        .hidden {
+            display: none !important;
+        }
+
+        /* ===== FILTER ===== */
+        .filter-section {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .filter-section .form-group {
+            margin-bottom: 0;
+            width: 100%;
+        }
+        .date-range-filter {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+        .filter-section select,
+        .filter-section input {
+            min-height: 40px;
+            font-size: 13px;
+        }
+
+        /* ===== PLANT TABS ===== */
+        .plant-tabs {
+            display: flex;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            overflow-x: auto;
+            background-color: white;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            -webkit-overflow-scrolling: touch;
             padding: 2px;
-            transition: color 0.3s ease, transform 0.2s ease;
+            gap: 2px;
         }
-        .export-btn:hover {
-            color: #2980b9;
-            transform: scale(1.05);
+        .plant-tab {
+            padding: 6px 10px;
+            cursor: pointer;
+            flex: 0 0 auto;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            white-space: nowrap;
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
         }
-        .export-btn i {
-            pointer-events: none;
+        .plant-tab:active {
+            transform: scale(0.95);
+        }
+        .plant-tab.active {
+            background-color: var(--secondary);
+            color: white;
         }
 
         /* ===== TABLE ===== */
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 6px;
+            border-radius: 6px;
+        }
         table {
             width: 100%;
+            min-width: 600px;
             border-collapse: collapse;
-            margin-top: 6px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-            border-radius: 6px;
-            overflow: hidden;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
         }
         table th, table td {
-            padding: 4px 6px;
+            padding: 6px 8px;
             text-align: left;
             border-bottom: 1px solid #eee;
         }
@@ -499,102 +663,84 @@
             color: white;
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             letter-spacing: 0.3px;
+            position: sticky;
+            top: 0;
+            z-index: 2;
         }
-        table tr:hover {
-            background-color: #f9f9f9;
-        }
-
-        /* ===== ACTION BUTTONS ===== */
         .action-buttons {
             display: flex;
-            gap: 3px;
+            gap: 4px;
             justify-content: center;
+            flex-wrap: wrap;
         }
         .action-btn {
-            width: 22px;
-            height: 22px;
+            width: 28px;
+            height: 28px;
             border: none;
-            border-radius: 3px;
+            border-radius: 4px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
-            font-size: 10px;
+            font-size: 11px;
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
         }
-        .action-btn:hover {
-            transform: scale(1.05);
+        .action-btn:active {
+            transform: scale(0.9);
         }
         .btn-edit {
             background-color: var(--warning);
             color: white;
         }
-        .btn-edit:hover {
-            background-color: #e67e22;
-        }
         .btn-delete {
             background-color: var(--danger);
             color: white;
-        }
-        .btn-delete:hover {
-            background-color: #c0392b;
         }
 
         /* ===== SUMMARY ===== */
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            grid-template-columns: 1fr;
             gap: 8px;
             margin-top: 6px;
         }
         .plant-summary-card {
             background: linear-gradient(135deg, #fff, #f8f9fa);
-            border-radius: 6px;
+            border-radius: 8px;
             box-shadow: 0 1px 6px rgba(0,0,0,0.06);
-            padding: 10px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            padding: 12px;
             border-left: 4px solid var(--secondary);
             position: relative;
         }
-        .plant-summary-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-        }
         .plant-summary-card h3 {
-            color: var(--primary);
+            font-size: 0.85rem;
             margin-bottom: 6px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .plant-summary-card h3 i {
-            color: var(--secondary);
         }
         .target-indicator {
             position: absolute;
-            top: 6px;
-            right: 6px;
+            top: 8px;
+            right: 8px;
             background: var(--primary);
             color: white;
-            padding: 2px 5px;
-            border-radius: 3px;
+            padding: 2px 8px;
+            border-radius: 4px;
             font-size: 0.55rem;
             font-weight: 600;
         }
         .progress-container {
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
         .progress-label {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 1px;
             font-size: 0.65rem;
+            margin-bottom: 2px;
         }
         .progress-bar {
-            height: 5px;
+            height: 6px;
             background: #ecf0f1;
             border-radius: 3px;
             overflow: hidden;
@@ -605,20 +751,15 @@
             border-radius: 3px;
             transition: width 0.5s ease;
         }
-        .progress-fill.warning {
-            background: var(--warning);
-        }
-        .progress-fill.danger {
-            background: var(--danger);
-        }
+        .progress-fill.warning { background: var(--warning); }
+        .progress-fill.danger { background: var(--danger); }
         .summary-stats {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
+            justify-content: space-around;
+            margin-bottom: 8px;
         }
         .stat-item {
             text-align: center;
-            flex: 1;
         }
         .stat-value {
             font-size: 16px;
@@ -637,180 +778,51 @@
         }
         .shift-item {
             background: #f8f9fa;
-            padding: 4px;
+            padding: 4px 6px;
             border-radius: 4px;
             text-align: center;
         }
         .shift-value {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: bold;
-            color: var(--dark);
             display: block;
-            margin-bottom: 1px;
         }
         .shift-label {
             font-size: 0.55rem;
             color: #7f8c8d;
         }
 
-        /* ===== PLANT TABS ===== */
-        .plant-tabs {
-            display: flex;
-            margin-bottom: 6px;
-            border-radius: 6px;
-            overflow: hidden;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-            background-color: white;
-            flex-wrap: wrap;
-        }
-        .plant-tab {
-            padding: 3px 6px;
-            cursor: pointer;
-            flex: 1;
-            text-align: center;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            border-bottom: 2px solid transparent;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 3px;
-            font-size: 0.6rem;
-            min-width: 50px;
-        }
-        .plant-tab:hover {
-            background-color: #f8f9fa;
-        }
-        .plant-tab.active {
-            background-color: var(--secondary);
-            color: white;
-            border-bottom-color: var(--primary);
-        }
-
-        /* ===== FILTER ===== */
-        .filter-section {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 6px;
-            flex-wrap: wrap;
-            align-items: end;
-        }
-        .filter-section .form-group {
-            flex: 1;
-            min-width: 130px;
-            margin-bottom: 0;
-        }
-        .date-range-filter {
-            display: flex;
-            gap: 4px;
-            align-items: end;
-        }
-        .date-range-filter .form-group {
-            flex: 1;
-            margin-bottom: 0;
-        }
-
-        /* ===== SINGLE ROW FORM ===== */
-        .single-row-form {
-            display: grid;
-            grid-template-columns: 2fr 1.5fr 1fr 1.5fr 1.5fr 1fr 1.5fr 1fr;
-            gap: 4px;
-            align-items: end;
-        }
-        .single-row-form .form-group {
-            margin-bottom: 0;
-        }
-        .date-range-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4px;
-            margin-top: 3px;
-        }
-        .checkbox-group-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 3px;
-        }
-        .checkbox-group-row input {
-            width: auto;
-            margin-right: 3px;
-        }
-        .checkbox-group-row label {
-            font-size: 0.7rem;
-            margin-bottom: 0;
-        }
-        .hidden {
-            display: none;
-        }
-
-        /* ===== CHART ===== */
-        .chart-container {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 8px;
-            margin-top: 6px;
-        }
-        .chart-card {
-            background: white;
-            border-radius: 6px;
-            box-shadow: 0 1px 6px rgba(0,0,0,0.06);
-            padding: 10px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .chart-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-        }
-        .chart-card h3 {
-            color: var(--primary);
-            margin-bottom: 6px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-        }
-        .chart-card h3 i {
-            margin-right: 5px;
-            color: var(--secondary);
-        }
-        .chart-wrapper {
-            height: 220px;
-            position: relative;
-        }
-
-        /* ===== SUMMARY DETAIL TABLE ===== */
+        /* ===== SUMMARY DETAIL ===== */
         .summary-detail-table {
             width: 100%;
+            min-width: 400px;
             border-collapse: collapse;
-            margin-top: 6px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        .summary-detail-table th, .summary-detail-table td {
-            padding: 3px 5px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
             font-size: 0.6rem;
         }
+        .summary-detail-table th, .summary-detail-table td {
+            padding: 4px 6px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
         .summary-detail-table th {
-            background: linear-gradient(to right, var(--primary), var(--dark));
+            background: var(--primary);
             color: white;
             font-weight: 600;
+            font-size: 0.5rem;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
             position: sticky;
             top: 0;
-        }
-        .summary-detail-table tr:hover {
-            background-color: #f9f9f9;
+            z-index: 2;
         }
         .plant-header {
-            background-color: #e3f2fd !important;
-            color: var(--primary) !important;
+            background: #e3f2fd !important;
             font-weight: bold;
         }
+        .plant-header td {
+            color: var(--primary);
+        }
         .total-row {
-            background-color: #f5f5f5;
+            background: #f5f5f5;
             font-weight: bold;
         }
         .daily-indicator {
@@ -819,130 +831,162 @@
             margin-left: 2px;
         }
 
-        /* ===== FLOATING TOGGLE ===== */
-        .floating-toggle {
-            position: fixed;
-            top: 6px;
-            left: 5px;
-            background: 0;
-            color: white;
-            border: 0;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 999;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-            transition: all 0.3s ease;
+        /* ===== CHART ===== */
+        .chart-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 6px;
         }
-        .floating-toggle:hover {
-            background: rgba(41, 128, 185, 0.9);
-            transform: scale(1.05);
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+            padding: 10px;
         }
-        .floating-toggle i {
-            font-size: 0.95rem;
+        .chart-card h3 {
+            font-size: 0.8rem;
+            margin-bottom: 6px;
+        }
+        .chart-wrapper {
+            height: 200px;
+            position: relative;
         }
 
         /* ===== RESPONSIVE ===== */
-        @media (max-width: 1200px) {
-            .single-row-form {
-                grid-template-columns: 1fr 1fr;
-                gap: 6px;
-            }
-            .single-row-form button {
-                grid-column: 1 / -1;
-            }
-        }
-        @media (max-width: 768px) {
+        @media (min-width: 768px) {
             .container {
-                margin-left: 0;
-                padding: 6px;
+                padding: 10px 16px;
             }
-            .container.expanded {
-                margin-left: 0;
+            .single-row-form {
+                grid-template-columns: 2fr 1.5fr 1fr 1.5fr 1.5fr 1fr 1.5fr 1fr;
             }
-            .sidebar {
-                transform: translateX(-100%);
+            .single-row-form .form-group:last-child {
+                grid-column: auto;
             }
-            .sidebar.expanded {
-                transform: translateX(0);
-                width: var(--sidebar-width);
-            }
-            header {
-                height: auto;
-                padding: 3px 0;
-            }
-            .header-wrapper {
-                margin-left: 0 !important;
-                padding-right: 6px;
-            }
-            .header-content {
-                padding: 0 6px;
-                flex-direction: column;
-                text-align: center;
-            }
-            .header-text {
-                margin-left: 0;
-                margin-bottom: 1px;
-            }
-            .datetime {
-                margin-left: 0;
-                margin-top: 1px;
-            }
-            header h1 {
-                font-size: 0.8rem;
-                white-space: normal;
-            }
-            header p {
-                font-size: 0.5rem;
-                white-space: normal;
-            }
-            .summary-grid, .chart-container {
-                grid-template-columns: 1fr;
-            }
-            nav ul {
-                flex-direction: column;
-            }
-            nav ul li {
-                margin: 0;
-            }
-            .plant-tabs {
-                flex-wrap: wrap;
-            }
-            .plant-tab {
-                flex: 1 0 50%;
-                font-size: 0.55rem;
-                padding: 2px 3px;
+            .single-row-form button[type="submit"] {
+                grid-column: auto;
             }
             .filter-section {
-                flex-direction: column;
+                flex-direction: row;
             }
             .filter-section .form-group {
-                min-width: 100%;
+                flex: 1;
+                min-width: 150px;
+            }
+            .date-range-filter {
+                display: flex;
+                gap: 6px;
+            }
+            .summary-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+            .chart-container {
+                grid-template-columns: 1fr 1fr;
+            }
+            .chart-wrapper {
+                height: 260px;
+            }
+            header p {
+                display: block;
+                font-size: 0.6rem;
+                opacity: 0.8;
+            }
+            header h1 {
+                font-size: 1rem;
+            }
+            .sidebar {
+                transform: translateX(0) !important;
+                width: var(--sidebar-collapsed-width);
+                position: fixed;
+            }
+            .sidebar.open {
+                width: var(--sidebar-width);
+            }
+            .sidebar-overlay {
+                display: none !important;
+            }
+            .container {
+                margin-left: var(--sidebar-collapsed-width);
+            }
+            .container.expanded {
+                margin-left: var(--sidebar-width);
+            }
+            .floating-toggle {
+                display: none;
+            }
+            .sidebar-close {
+                display: none;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .container {
+                padding: 4px 6px;
+                padding-bottom: calc(8px + var(--safe-bottom));
             }
             .single-row-form {
+                grid-template-columns: 1fr;
+                gap: 4px;
+            }
+            .single-row-form button[type="submit"] {
+                grid-column: 1;
+            }
+            .date-range-row {
                 grid-template-columns: 1fr;
             }
             .date-range-filter {
                 grid-template-columns: 1fr;
             }
-            .floating-toggle {
-                top: 3px;
-                left: 3px;
-                width: 28px;
-                height: 28px;
+            .plant-tab {
+                font-size: 0.55rem;
+                padding: 4px 8px;
+            }
+            .status-online span {
+                display: none;
             }
             .status-online {
+                padding: 2px 6px;
+                border-radius: 50%;
+                width: 24px;
+                height: 24px;
+                justify-content: center;
+            }
+            .status-online i {
+                font-size: 0.6rem;
+            }
+            .datetime {
                 font-size: 0.5rem;
-                padding: 1px 5px;
+                padding: 2px 4px;
+            }
+            h2 {
+                font-size: 0.8rem;
+            }
+            .floating-toggle {
+                width: 28px;
+                height: 28px;
+                top: calc((var(--header-height) - 28px) / 2);
+                left: 4px;
+            }
+            .floating-toggle i {
+                font-size: 0.8rem;
+            }
+            .header-text {
+                margin-left: 28px;
+            }
+            .global-filter-info {
+                font-size: 0.5rem;
+                padding: 3px 6px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
+
+    <!-- ===== SIDEBAR OVERLAY ===== -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ===== LOADING OVERLAY ===== -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner">
             <i class="fas fa-spinner"></i>
@@ -950,87 +994,83 @@
         </div>
     </div>
 
-    <!-- Floating Toggle Button -->
-    <button class="floating-toggle" id="floating-toggle">
-        <i class="fas fa-bars"></i>
-    </button>
-
-    <!-- Sidebar -->
-    <div class="sidebar collapsed">
+    <!-- ===== SIDEBAR ===== -->
+    <div class="sidebar closed" id="sidebar">
         <div class="sidebar-header">
             <h3><i class="fas fa-bullseye"></i> Daily Targets</h3>
-            <button class="toggle-btn">
-                <i class="fas fa-chevron-left"></i>
+            <button class="sidebar-close" id="sidebarClose">
+                <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="sidebar-content">
-            <div class="target-section">
-                <h4 style="font-size: 0.75rem; margin-bottom: 6px;">Set Daily Volume Targets (m³)</h4>
-                <div class="target-item">
-                    <i class="fas fa-industry"></i>
-                    <label>Manukan</label>
-                    <input type="number" class="target-input" id="target-manukan" min="0" step="0.1">
-                </div>
-                <div class="target-item">
-                    <i class="fas fa-industry"></i>
-                    <label>Manyar</label>
-                    <input type="number" class="target-input" id="target-manyar" min="0" step="0.1">
-                </div>
-                <div class="target-item">
-                    <i class="fas fa-industry"></i>
-                    <label>Gempol</label>
-                    <input type="number" class="target-input" id="target-gempol" min="0" step="0.1">
-                </div>
-                <div class="target-item">
-                    <i class="fas fa-industry"></i>
-                    <label>Krian</label>
-                    <input type="number" class="target-input" id="target-krian" min="0" step="0.1">
-                </div>
-                <div class="target-item">
-                    <i class="fas fa-industry"></i>
-                    <label>Kediri</label>
-                    <input type="number" class="target-input" id="target-kediri" min="0" step="0.1">
-                </div>
-                <div class="target-item">
-                    <i class="fas fa-industry"></i>
-                    <label>Denpasar2</label>
-                    <input type="number" class="target-input" id="target-denpasar2" min="0" step="0.1">
-                </div>
-                <div class="target-item">
-                    <i class="fas fa-industry"></i>
-                    <label>Denpasar3</label>
-                    <input type="number" class="target-input" id="target-denpasar3" min="0" step="0.1">
-                </div>
-                <div class="target-item">
-                    <i class="fas fa-industry"></i>
-                    <label>Gianyar</label>
-                    <input type="number" class="target-input" id="target-gianyar" min="0" step="0.1">
-                </div>
-                <button class="save-targets" id="save-targets">
-                    <i class="fas fa-save"></i> Save Targets
-                </button>
-                
-                <!-- ===== TOMBOL MIGRASI DATA ===== -->
-                <button class="migrate-btn" id="migrate-data-btn">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    Migrate Data to Firebase
-                </button>
-                <div id="migrate-status">
-                    <i class="fas fa-check-circle"></i> Data migrated successfully!
-                </div>
+            <h4 style="font-size: 0.75rem; margin-bottom: 8px;">Set Daily Volume Targets (m³)</h4>
+            <div class="target-item">
+                <i class="fas fa-industry"></i>
+                <label>Manukan</label>
+                <input type="number" class="target-input" id="target-manukan" min="0" step="0.1">
+            </div>
+            <div class="target-item">
+                <i class="fas fa-industry"></i>
+                <label>Manyar</label>
+                <input type="number" class="target-input" id="target-manyar" min="0" step="0.1">
+            </div>
+            <div class="target-item">
+                <i class="fas fa-industry"></i>
+                <label>Gempol</label>
+                <input type="number" class="target-input" id="target-gempol" min="0" step="0.1">
+            </div>
+            <div class="target-item">
+                <i class="fas fa-industry"></i>
+                <label>Krian</label>
+                <input type="number" class="target-input" id="target-krian" min="0" step="0.1">
+            </div>
+            <div class="target-item">
+                <i class="fas fa-industry"></i>
+                <label>Kediri</label>
+                <input type="number" class="target-input" id="target-kediri" min="0" step="0.1">
+            </div>
+            <div class="target-item">
+                <i class="fas fa-industry"></i>
+                <label>Denpasar2</label>
+                <input type="number" class="target-input" id="target-denpasar2" min="0" step="0.1">
+            </div>
+            <div class="target-item">
+                <i class="fas fa-industry"></i>
+                <label>Denpasar3</label>
+                <input type="number" class="target-input" id="target-denpasar3" min="0" step="0.1">
+            </div>
+            <div class="target-item">
+                <i class="fas fa-industry"></i>
+                <label>Gianyar</label>
+                <input type="number" class="target-input" id="target-gianyar" min="0" step="0.1">
+            </div>
+            <button class="save-targets" id="save-targets">
+                <i class="fas fa-save"></i> Save Targets
+            </button>
+            <button class="migrate-btn" id="migrate-data-btn">
+                <i class="fas fa-cloud-upload-alt"></i>
+                Migrate Data to Firebase
+            </button>
+            <div id="migrate-status">
+                <i class="fas fa-check-circle"></i> Data migrated successfully!
             </div>
         </div>
     </div>
 
-    <!-- HEADER -->
+    <!-- ===== HEADER ===== -->
     <header>
         <div class="header-wrapper">
-            <div class="header-content">
+            <div class="header-left">
+                <button class="floating-toggle" id="floatingToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
                 <div class="header-text">
-                    <h1><i class="fas fa-hard-hat"></i> Concrete Pouring Schedule Monitoring</h1>
-                    <p>Manage pouring schedules for Manukan, Manyar, Gempol, Krian, Kediri, Denpasar2, Denpasar3, and Gianyar plants</p>
+                    <h1><i class="fas fa-hard-hat"></i> Concrete Pouring</h1>
+                    <p>Manukan · Manyar · Gempol · Krian · Kediri · Dps2 · Dps3 · Gianyar</p>
                 </div>
-                <div class="status-online">
+            </div>
+            <div class="header-right">
+                <div class="status-online" title="Connected to Firebase">
                     <i class="fas fa-circle"></i>
                     <span>Online</span>
                 </div>
@@ -1039,50 +1079,132 @@
         </div>
     </header>
 
-    <div class="container">
-        <nav>
-            <ul>
-                <li><a href="#" class="nav-link active" data-target="input-section">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Schedule Input</span>
-                </a></li>
-                <li><a href="#" class="nav-link" data-target="monitoring-section">
-                    <i class="fas fa-eye"></i>
-                    <span>Schedule Detail</span>
-                </a></li>
-                <li><a href="#" class="nav-link" data-target="summary-section">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>Summary</span>
-                </a></li>
-                <li><a href="#" class="nav-link" data-target="summary-detail-section">
-                    <i class="fas fa-table"></i>
-                    <span>Summary Detail</span>
-                </a></li>
-                <li><a href="#" class="nav-link" data-target="chart-section">
-                    <i class="fas fa-chart-pie"></i>
-                    <span>Chart</span>
-                </a></li>
-            </ul>
-        </nav>
-        
-        <!-- Input Section -->
-        <section id="input-section" class="content-section">
-            <div class="card">
-                <h2><i class="fas fa-pencil-alt"></i> Schedule Concrete Pouring</h2>
-                <div class="checkbox-group-row">
-                    <input type="checkbox" id="daily-schedule">
-                    <label for="daily-schedule"><i class="fas fa-calendar-day"></i> Daily recurring project</label>
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="app-wrapper">
+        <div class="container" id="mainContainer">
+
+            <!-- ===== NAVIGATION ===== -->
+            <nav>
+                <ul>
+                    <li><a href="#" class="nav-link active" data-target="input-section">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Input</span>
+                    </a></li>
+                    <li><a href="#" class="nav-link" data-target="monitoring-section">
+                        <i class="fas fa-eye"></i>
+                        <span>Detail</span>
+                    </a></li>
+                    <li><a href="#" class="nav-link" data-target="summary-section">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Summary</span>
+                    </a></li>
+                    <li><a href="#" class="nav-link" data-target="summary-detail-section">
+                        <i class="fas fa-table"></i>
+                        <span>Detail</span>
+                    </a></li>
+                    <li><a href="#" class="nav-link" data-target="chart-section">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Chart</span>
+                    </a></li>
+                </ul>
+            </nav>
+
+            <!-- ===== GLOBAL FILTER INFO ===== -->
+            <div class="global-filter-info" id="globalFilterInfo">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Filter Tanggal:</span>
+                <span class="filter-date" id="globalStartDisplay">-</span>
+                <span>s/d</span>
+                <span class="filter-date" id="globalEndDisplay">-</span>
+                <span class="clear-filter" id="clearGlobalFilter">
+                    <i class="fas fa-times-circle"></i> Reset
+                </span>
+            </div>
+
+            <!-- ===== INPUT SECTION ===== -->
+            <section id="input-section" class="content-section">
+                <div class="card">
+                    <h2><i class="fas fa-pencil-alt"></i> Schedule Concrete Pouring</h2>
+                    <div class="checkbox-group-row">
+                        <input type="checkbox" id="daily-schedule">
+                        <label for="daily-schedule"><i class="fas fa-calendar-day"></i> Daily recurring project</label>
+                    </div>
+                    <form id="schedule-form">
+                        <div class="single-row-form">
+                            <div class="form-group">
+                                <label for="project-name"><i class="fas fa-project-diagram"></i> Project Name</label>
+                                <input type="text" id="project-name" required placeholder="Enter project name">
+                            </div>
+                            <div class="form-group">
+                                <label for="plant"><i class="fas fa-industry"></i> Plant</label>
+                                <select id="plant" required>
+                                    <option value="">Select Plant</option>
+                                    <option value="Manukan">Manukan</option>
+                                    <option value="Manyar">Manyar</option>
+                                    <option value="Gempol">Gempol</option>
+                                    <option value="Krian">Krian</option>
+                                    <option value="Kediri">Kediri</option>
+                                    <option value="Denpasar2">Denpasar2</option>
+                                    <option value="Denpasar3">Denpasar3</option>
+                                    <option value="Gianyar">Gianyar</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="volume"><i class="fas fa-cube"></i> Volume (m³)</label>
+                                <input type="number" id="volume" min="0" step="0.01" required placeholder="0.00">
+                            </div>
+                            <div id="single-date" class="form-group">
+                                <label for="date"><i class="fas fa-calendar-alt"></i> Pouring Date</label>
+                                <input type="date" id="date">
+                            </div>
+                            <div class="form-group">
+                                <label for="time"><i class="fas fa-clock"></i> Pouring Time</label>
+                                <input type="time" id="time" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="notes"><i class="fas fa-sticky-note"></i> Notes</label>
+                                <input type="text" id="notes" placeholder="Optional">
+                            </div>
+                            <button type="submit" id="submit-btn">
+                                <i class="fas fa-save"></i>
+                                Save
+                            </button>
+                        </div>
+                        <div id="date-range" class="date-range-row hidden">
+                            <div class="form-group">
+                                <label for="start-date"><i class="fas fa-play-circle"></i> From Date</label>
+                                <input type="date" id="start-date">
+                            </div>
+                            <div class="form-group">
+                                <label for="end-date"><i class="fas fa-stop-circle"></i> To Date</label>
+                                <input type="date" id="end-date">
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                <form id="schedule-form">
-                    <div class="single-row-form">
+            </section>
+
+            <!-- ===== MONITORING SECTION ===== -->
+            <section id="monitoring-section" class="content-section hidden">
+                <div class="card">
+                    <h2>
+                        <span><i class="fas fa-eye"></i> Schedule Detail</span>
+                        <button id="export-excel-btn" class="export-btn" title="Export to Excel">
+                            <i class="fas fa-file-excel"></i>
+                        </button>
+                    </h2>
+                    <div class="filter-section">
                         <div class="form-group">
-                            <label for="project-name"><i class="fas fa-project-diagram"></i> Project Name</label>
-                            <input type="text" id="project-name" required>
+                            <label><i class="fas fa-calendar"></i> Date Range (Global)</label>
+                            <div class="date-range-filter">
+                                <input type="date" id="filter-start-date" placeholder="Start">
+                                <input type="date" id="filter-end-date" placeholder="End">
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="plant"><i class="fas fa-industry"></i> Plant</label>
-                            <select id="plant" required>
-                                <option value="">Select Plant</option>
+                            <label for="filter-plant"><i class="fas fa-filter"></i> Plant</label>
+                            <select id="filter-plant">
+                                <option value="all">All Plants</option>
                                 <option value="Manukan">Manukan</option>
                                 <option value="Manyar">Manyar</option>
                                 <option value="Gempol">Gempol</option>
@@ -1094,263 +1216,169 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="volume"><i class="fas fa-cube"></i> Volume (m³)</label>
-                            <input type="number" id="volume" min="0" step="0.01" required>
-                        </div>
-                        <div id="single-date" class="form-group">
-                            <label for="date"><i class="fas fa-calendar-alt"></i> Pouring Date</label>
-                            <input type="date" id="date">
-                        </div>
-                        <div class="form-group">
-                            <label for="time"><i class="fas fa-clock"></i> Pouring Time</label>
-                            <input type="time" id="time" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="notes"><i class="fas fa-sticky-note"></i> Notes</label>
-                            <input type="text" id="notes" placeholder="Optional">
-                        </div>
-                        <button type="submit" id="submit-btn">
-                            <i class="fas fa-save"></i>
-                            Save
-                        </button>
-                    </div>
-                    <div id="date-range" class="date-range-row hidden">
-                        <div class="form-group">
-                            <label for="start-date"><i class="fas fa-play-circle"></i> From Date</label>
-                            <input type="date" id="start-date">
-                        </div>
-                        <div class="form-group">
-                            <label for="end-date"><i class="fas fa-stop-circle"></i> To Date</label>
-                            <input type="date" id="end-date">
+                            <label for="filter-time"><i class="fas fa-clock"></i> Shift</label>
+                            <select id="filter-time">
+                                <option value="all">All Times</option>
+                                <option value="morning">Pagi (06-12)</option>
+                                <option value="afternoon">Siang (12-15)</option>
+                                <option value="evening">Sore (15-19)</option>
+                                <option value="night">Malam (19-24)</option>
+                            </select>
                         </div>
                     </div>
-                </form>
-            </div>
-        </section>
-        
-        <!-- Monitoring Section -->
-        <section id="monitoring-section" class="content-section hidden">
-            <div class="card">
-                <h2>
-                    <span><i class="fas fa-eye"></i> Pouring Schedule Detail</span>
-                    <button id="export-excel-btn" class="export-btn" title="Export to Excel">
-                        <i class="fas fa-file-excel"></i>
-                    </button>
-                </h2>
-                <div class="filter-section">
-                    <div class="form-group">
-                        <label><i class="fas fa-calendar"></i> Filter by Date Range</label>
-                        <div class="date-range-filter">
-                            <div class="form-group">
-                                <label style="font-size: 0.55rem; color: #7f8c8d;">Start Date</label>
-                                <input type="date" id="filter-start-date">
-                            </div>
-                            <div class="form-group">
-                                <label style="font-size: 0.55rem; color: #7f8c8d;">End Date</label>
-                                <input type="date" id="filter-end-date">
-                            </div>
-                        </div>
+                    <div class="plant-tabs" id="monitoring-plant-tabs">
+                        <div class="plant-tab active" data-plant="all">All</div>
+                        <div class="plant-tab" data-plant="Manukan">Manukan</div>
+                        <div class="plant-tab" data-plant="Manyar">Manyar</div>
+                        <div class="plant-tab" data-plant="Gempol">Gempol</div>
+                        <div class="plant-tab" data-plant="Krian">Krian</div>
+                        <div class="plant-tab" data-plant="Kediri">Kediri</div>
+                        <div class="plant-tab" data-plant="Denpasar2">Dps2</div>
+                        <div class="plant-tab" data-plant="Denpasar3">Dps3</div>
+                        <div class="plant-tab" data-plant="Gianyar">Gianyar</div>
                     </div>
-                    <div class="form-group">
-                        <label for="filter-plant"><i class="fas fa-filter"></i> Filter by Plant</label>
-                        <select id="filter-plant">
-                            <option value="all">All Plants</option>
-                            <option value="Manukan">Manukan</option>
-                            <option value="Manyar">Manyar</option>
-                            <option value="Gempol">Gempol</option>
-                            <option value="Krian">Krian</option>
-                            <option value="Kediri">Kediri</option>
-                            <option value="Denpasar2">Denpasar2</option>
-                            <option value="Denpasar3">Denpasar3</option>
-                            <option value="Gianyar">Gianyar</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="filter-time"><i class="fas fa-clock"></i> Filter by Time Period</label>
-                        <select id="filter-time">
-                            <option value="all">All Times</option>
-                            <option value="morning">Morning (06:00 - 12:00)</option>
-                            <option value="afternoon">Afternoon (12:01 - 15:00)</option>
-                            <option value="evening">Evening (15:01 - 19:00)</option>
-                            <option value="night">Night (19:01 - 24:00)</option>
-                        </select>
+                    <div class="table-wrapper">
+                        <table id="schedule-table">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Project</th>
+                                    <th>Plant</th>
+                                    <th>Vol</th>
+                                    <th>Day</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Shift</th>
+                                    <th>Notes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="schedule-body">
+                                <tr><td colspan="10" style="text-align:center;padding:20px;">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="plant-tabs" id="monitoring-plant-tabs">
-                    <div class="plant-tab active" data-plant="all">
-                        <i class="fas fa-building"></i>
-                        All
-                    </div>
-                    <div class="plant-tab" data-plant="Manukan">Manukan</div>
-                    <div class="plant-tab" data-plant="Manyar">Manyar</div>
-                    <div class="plant-tab" data-plant="Gempol">Gempol</div>
-                    <div class="plant-tab" data-plant="Krian">Krian</div>
-                    <div class="plant-tab" data-plant="Kediri">Kediri</div>
-                    <div class="plant-tab" data-plant="Denpasar2">Dps2</div>
-                    <div class="plant-tab" data-plant="Denpasar3">Dps3</div>
-                    <div class="plant-tab" data-plant="Gianyar">Gianyar</div>
-                </div>
-                <table id="schedule-table">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Project Name</th>
-                            <th>Plant</th>
-                            <th>Volume (m³)</th>
-                            <th>Day</th>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Time Period</th>
-                            <th>Notes</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="schedule-body">
-                        <tr><td colspan="10" style="text-align: center;">Memuat data...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-        
-        <!-- Summary Section -->
-        <section id="summary-section" class="content-section hidden">
-            <div class="card">
-                <h2><i class="fas fa-chart-bar"></i> Pouring Summary</h2>
-                <div class="filter-section">
-                    <div class="form-group">
-                        <label><i class="fas fa-calendar"></i> Filter by Date Range</label>
-                        <div class="date-range-filter">
-                            <div class="form-group">
-                                <label style="font-size: 0.55rem; color: #7f8c8d;">Start Date</label>
+            </section>
+
+            <!-- ===== SUMMARY SECTION ===== -->
+            <section id="summary-section" class="content-section hidden">
+                <div class="card">
+                    <h2><i class="fas fa-chart-bar"></i> Pouring Summary</h2>
+                    <div class="filter-section">
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar"></i> Date Range (Global)</label>
+                            <div class="date-range-filter">
                                 <input type="date" id="summary-start-date">
-                            </div>
-                            <div class="form-group">
-                                <label style="font-size: 0.55rem; color: #7f8c8d;">End Date</label>
                                 <input type="date" id="summary-end-date">
                             </div>
                         </div>
                     </div>
+                    <div class="summary-grid" id="summary-container"></div>
                 </div>
-                <div class="summary-grid" id="summary-container">
-                    <!-- Summary akan diisi oleh JavaScript -->
-                </div>
-            </div>
-        </section>
-        
-        <!-- Summary Detail Section -->
-        <section id="summary-detail-section" class="content-section hidden">
-            <div class="card">
-                <h2>
-                    <span><i class="fas fa-table"></i> Summary Detail</span>
-                    <button id="export-summary-detail-btn" class="export-btn" title="Export to Excel">
-                        <i class="fas fa-file-excel"></i>
-                    </button>
-                </h2>
-                <div class="filter-section">
-                    <div class="form-group">
-                        <label><i class="fas fa-calendar"></i> Filter by Date Range</label>
-                        <div class="date-range-filter">
-                            <div class="form-group">
-                                <label style="font-size: 0.55rem; color: #7f8c8d;">Start Date</label>
+            </section>
+
+            <!-- ===== SUMMARY DETAIL SECTION ===== -->
+            <section id="summary-detail-section" class="content-section hidden">
+                <div class="card">
+                    <h2>
+                        <span><i class="fas fa-table"></i> Summary Detail</span>
+                        <button id="export-summary-detail-btn" class="export-btn" title="Export to Excel">
+                            <i class="fas fa-file-excel"></i>
+                        </button>
+                    </h2>
+                    <div class="filter-section">
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar"></i> Date Range (Global)</label>
+                            <div class="date-range-filter">
                                 <input type="date" id="summary-detail-start-date">
-                            </div>
-                            <div class="form-group">
-                                <label style="font-size: 0.55rem; color: #7f8c8d;">End Date</label>
                                 <input type="date" id="summary-detail-end-date">
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label for="summary-detail-filter-plant"><i class="fas fa-filter"></i> Plant</label>
+                            <select id="summary-detail-filter-plant">
+                                <option value="all">All Plants</option>
+                                <option value="Manukan">Manukan</option>
+                                <option value="Manyar">Manyar</option>
+                                <option value="Gempol">Gempol</option>
+                                <option value="Krian">Krian</option>
+                                <option value="Kediri">Kediri</option>
+                                <option value="Denpasar2">Denpasar2</option>
+                                <option value="Denpasar3">Denpasar3</option>
+                                <option value="Gianyar">Gianyar</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="summary-detail-filter-time"><i class="fas fa-clock"></i> Shift</label>
+                            <select id="summary-detail-filter-time">
+                                <option value="all">All Times</option>
+                                <option value="morning">Pagi</option>
+                                <option value="afternoon">Siang</option>
+                                <option value="evening">Sore</option>
+                                <option value="night">Malam</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="summary-detail-filter-plant"><i class="fas fa-filter"></i> Filter by Plant</label>
-                        <select id="summary-detail-filter-plant">
-                            <option value="all">All Plants</option>
-                            <option value="Manukan">Manukan</option>
-                            <option value="Manyar">Manyar</option>
-                            <option value="Gempol">Gempol</option>
-                            <option value="Krian">Krian</option>
-                            <option value="Kediri">Kediri</option>
-                            <option value="Denpasar2">Denpasar2</option>
-                            <option value="Denpasar3">Denpasar3</option>
-                            <option value="Gianyar">Gianyar</option>
-                        </select>
+                    <div class="plant-tabs" id="summary-detail-plant-tabs">
+                        <div class="plant-tab active" data-plant="all">All</div>
+                        <div class="plant-tab" data-plant="Manukan">Manukan</div>
+                        <div class="plant-tab" data-plant="Manyar">Manyar</div>
+                        <div class="plant-tab" data-plant="Gempol">Gempol</div>
+                        <div class="plant-tab" data-plant="Krian">Krian</div>
+                        <div class="plant-tab" data-plant="Kediri">Kediri</div>
+                        <div class="plant-tab" data-plant="Denpasar2">Dps2</div>
+                        <div class="plant-tab" data-plant="Denpasar3">Dps3</div>
+                        <div class="plant-tab" data-plant="Gianyar">Gianyar</div>
                     </div>
-                    <div class="form-group">
-                        <label for="summary-detail-filter-time"><i class="fas fa-clock"></i> Filter by Time Period</label>
-                        <select id="summary-detail-filter-time">
-                            <option value="all">All Times</option>
-                            <option value="morning">Morning (06:00 - 12:00)</option>
-                            <option value="afternoon">Afternoon (12:01 - 15:00)</option>
-                            <option value="evening">Evening (15:01 - 19:00)</option>
-                            <option value="night">Night (19:01 - 24:00)</option>
-                        </select>
+                    <div class="table-wrapper">
+                        <table class="summary-detail-table" id="summary-detail-table">
+                            <thead>
+                                <tr>
+                                    <th>Plant</th>
+                                    <th>Project</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="summary-detail-body">
+                                <tr><td colspan="10" style="text-align:center;padding:20px;">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="plant-tabs" id="summary-detail-plant-tabs">
-                    <div class="plant-tab active" data-plant="all">
-                        <i class="fas fa-building"></i>
-                        All
-                    </div>
-                    <div class="plant-tab" data-plant="Manukan">Manukan</div>
-                    <div class="plant-tab" data-plant="Manyar">Manyar</div>
-                    <div class="plant-tab" data-plant="Gempol">Gempol</div>
-                    <div class="plant-tab" data-plant="Krian">Krian</div>
-                    <div class="plant-tab" data-plant="Kediri">Kediri</div>
-                    <div class="plant-tab" data-plant="Denpasar2">Dps2</div>
-                    <div class="plant-tab" data-plant="Denpasar3">Dps3</div>
-                    <div class="plant-tab" data-plant="Gianyar">Gianyar</div>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table class="summary-detail-table" id="summary-detail-table">
-                        <thead>
-                            <tr>
-                                <th>Plant</th>
-                                <th>Project Name</th>
-                                <th>Time</th>
-                            </tr>
-                        </thead>
-                        <tbody id="summary-detail-body">
-                            <tr><td colspan="10" style="text-align: center;">Memuat data...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Chart Section -->
-        <section id="chart-section" class="content-section hidden">
-            <div class="card">
-                <h2><i class="fas fa-chart-pie"></i> Pouring Charts</h2>
-                <div class="filter-section">
-                    <div class="form-group">
-                        <label><i class="fas fa-calendar"></i> Filter by Date Range</label>
-                        <div class="date-range-filter">
-                            <div class="form-group">
-                                <label style="font-size: 0.55rem; color: #7f8c8d;">Start Date</label>
+            </section>
+
+            <!-- ===== CHART SECTION ===== -->
+            <section id="chart-section" class="content-section hidden">
+                <div class="card">
+                    <h2><i class="fas fa-chart-pie"></i> Pouring Charts</h2>
+                    <div class="filter-section">
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar"></i> Date Range (Global)</label>
+                            <div class="date-range-filter">
                                 <input type="date" id="chart-start-date">
-                            </div>
-                            <div class="form-group">
-                                <label style="font-size: 0.55rem; color: #7f8c8d;">End Date</label>
                                 <input type="date" id="chart-end-date">
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="chart-container">
-                    <div class="chart-card">
-                        <h3><i class="fas fa-chart-bar"></i> Volume by Plant</h3>
-                        <div class="chart-wrapper">
-                            <canvas id="plantVolumeChart"></canvas>
+                    <div class="chart-container">
+                        <div class="chart-card">
+                            <h3><i class="fas fa-chart-bar"></i> Volume by Plant</h3>
+                            <div class="chart-wrapper">
+                                <canvas id="plantVolumeChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <h3><i class="fas fa-chart-bar"></i> Volume by Shift</h3>
+                            <div class="chart-wrapper">
+                                <canvas id="shiftVolumeChart"></canvas>
+                            </div>
                         </div>
                     </div>
-                    <div class="chart-card">
-                        <h3><i class="fas fa-chart-bar"></i> Volume by Shift</h3>
-                        <div class="chart-wrapper">
-                            <canvas id="shiftVolumeChart"></canvas>
-                        </div>
-                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+
+        </div>
     </div>
 
     <script>
@@ -1367,7 +1395,6 @@
             measurementId: "G-LRQY5W0VKJ"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
@@ -1376,18 +1403,14 @@
         // ============================================================
         let schedules = [];
         let dailyTargets = {
-            Manukan: 100,
-            Manyar: 80,
-            Gempol: 90,
-            Krian: 70,
-            Kediri: 85,
-            Denpasar2: 75,
-            Denpasar3: 70,
-            Gianyar: 95
+            Manukan: 100, Manyar: 80, Gempol: 90, Krian: 70,
+            Kediri: 85, Denpasar2: 75, Denpasar3: 70, Gianyar: 95
         };
         let editingScheduleId = null;
         let plantVolumeChart = null;
         let shiftVolumeChart = null;
+        let globalStartDate = '';
+        let globalEndDate = '';
 
         // ============================================================
         // ===== DOM ELEMENTS =====
@@ -1415,10 +1438,11 @@
         const summaryDetailBody = document.getElementById('summary-detail-body');
         const chartStartDate = document.getElementById('chart-start-date');
         const chartEndDate = document.getElementById('chart-end-date');
-        const sidebar = document.querySelector('.sidebar');
-        const toggleBtn = document.querySelector('.toggle-btn');
-        const floatingToggleBtn = document.getElementById('floating-toggle');
-        const container = document.querySelector('.container');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const sidebarClose = document.getElementById('sidebarClose');
+        const floatingToggle = document.getElementById('floatingToggle');
+        const mainContainer = document.getElementById('mainContainer');
         const saveTargetsBtn = document.getElementById('save-targets');
         const currentDateElement = document.getElementById('current-date');
         const submitBtn = document.getElementById('submit-btn');
@@ -1427,6 +1451,176 @@
         const exportSummaryDetailBtn = document.getElementById('export-summary-detail-btn');
         const migrateBtn = document.getElementById('migrate-data-btn');
         const migrateStatus = document.getElementById('migrate-status');
+        const globalStartDisplay = document.getElementById('globalStartDisplay');
+        const globalEndDisplay = document.getElementById('globalEndDisplay');
+        const clearGlobalFilter = document.getElementById('clearGlobalFilter');
+
+        // ============================================================
+        // ===== SIDEBAR TOGGLE (HANYA VIA TOMBOL) =====
+        // ============================================================
+        function toggleSidebar(open) {
+            const isMobile = window.innerWidth < 768;
+            
+            if (isMobile) {
+                if (open === true) {
+                    sidebar.classList.remove('closed');
+                    sidebar.classList.add('open');
+                    sidebarOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                } else if (open === false) {
+                    sidebar.classList.remove('open');
+                    sidebar.classList.add('closed');
+                    sidebarOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                } else {
+                    // Toggle
+                    if (sidebar.classList.contains('open')) {
+                        sidebar.classList.remove('open');
+                        sidebar.classList.add('closed');
+                        sidebarOverlay.classList.remove('active');
+                        document.body.style.overflow = '';
+                    } else {
+                        sidebar.classList.remove('closed');
+                        sidebar.classList.add('open');
+                        sidebarOverlay.classList.add('active');
+                        document.body.style.overflow = 'hidden';
+                    }
+                }
+            } else {
+                // Desktop: toggle between collapsed and expanded
+                sidebar.classList.toggle('closed');
+                sidebar.classList.toggle('open');
+                mainContainer.classList.toggle('expanded');
+            }
+        }
+
+        // Event: Tombol hamburger
+        floatingToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleSidebar();
+        });
+
+        // Event: Tombol close di sidebar
+        sidebarClose.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleSidebar(false);
+        });
+
+        // Event: Klik overlay untuk menutup
+        sidebarOverlay.addEventListener('click', function() {
+            toggleSidebar(false);
+        });
+
+        // ============================================================
+        // ===== FUNGSI GLOBAL DATE FILTER =====
+        // ============================================================
+        function updateGlobalFilterDisplay() {
+            if (globalStartDate && globalEndDate) {
+                const start = formatDateDisplay(globalStartDate);
+                const end = formatDateDisplay(globalEndDate);
+                globalStartDisplay.textContent = start;
+                globalEndDisplay.textContent = end;
+                globalStartDisplay.style.color = 'var(--dark)';
+                globalEndDisplay.style.color = 'var(--dark)';
+            } else {
+                globalStartDisplay.textContent = 'Semua';
+                globalEndDisplay.textContent = 'Semua';
+                globalStartDisplay.style.color = '#999';
+                globalEndDisplay.style.color = '#999';
+            }
+        }
+
+        function formatDateDisplay(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        function updateAllDateFilters(startDate, endDate) {
+            globalStartDate = startDate;
+            globalEndDate = endDate;
+            
+            const dateInputs = [
+                { start: filterStartDate, end: filterEndDate },
+                { start: summaryStartDate, end: summaryEndDate },
+                { start: summaryDetailStartDate, end: summaryDetailEndDate },
+                { start: chartStartDate, end: chartEndDate }
+            ];
+            
+            dateInputs.forEach(pair => {
+                if (pair.start) pair.start.value = startDate;
+                if (pair.end) pair.end.value = endDate;
+            });
+            
+            updateGlobalFilterDisplay();
+            renderAll();
+        }
+
+        function clearAllDateFilters() {
+            const today = new Date().toISOString().split('T')[0];
+            globalStartDate = today;
+            globalEndDate = today;
+            
+            const dateInputs = [
+                { start: filterStartDate, end: filterEndDate },
+                { start: summaryStartDate, end: summaryEndDate },
+                { start: summaryDetailStartDate, end: summaryDetailEndDate },
+                { start: chartStartDate, end: chartEndDate }
+            ];
+            
+            dateInputs.forEach(pair => {
+                if (pair.start) pair.start.value = today;
+                if (pair.end) pair.end.value = today;
+            });
+            
+            updateGlobalFilterDisplay();
+            renderAll();
+        }
+
+        function setupDateFilterSync() {
+            const dateFilterPairs = [
+                { start: filterStartDate, end: filterEndDate },
+                { start: summaryStartDate, end: summaryEndDate },
+                { start: summaryDetailStartDate, end: summaryDetailEndDate },
+                { start: chartStartDate, end: chartEndDate }
+            ];
+            
+            dateFilterPairs.forEach(pair => {
+                if (pair.start) {
+                    pair.start.addEventListener('change', function() {
+                        const startDate = this.value;
+                        const endDate = pair.end ? pair.end.value : startDate;
+                        if (startDate && endDate) {
+                            updateAllDateFilters(startDate, endDate);
+                        }
+                    });
+                }
+                if (pair.end) {
+                    pair.end.addEventListener('change', function() {
+                        const startDate = pair.start ? pair.start.value : this.value;
+                        const endDate = this.value;
+                        if (startDate && endDate) {
+                            updateAllDateFilters(startDate, endDate);
+                        }
+                    });
+                }
+            });
+            
+            clearGlobalFilter.addEventListener('click', function() {
+                clearAllDateFilters();
+            });
+        }
+
+        function getActiveDateRange() {
+            return {
+                startDate: globalStartDate,
+                endDate: globalEndDate
+            };
+        }
 
         // ============================================================
         // ===== FUNGSI LOADING =====
@@ -1460,10 +1654,10 @@
                         isDaily: data.isDaily || false
                     });
                 });
-                console.log('Data berhasil dimuat dari Firestore:', schedules.length, 'record');
+                console.log('Data loaded:', schedules.length, 'records');
             } catch (error) {
                 console.error('Error loading schedules:', error);
-                alert('Gagal memuat data dari Firestore. Silakan refresh halaman.');
+                alert('Gagal memuat data dari Firestore.');
             }
             hideLoading();
             renderAll();
@@ -1473,11 +1667,10 @@
             showLoading();
             try {
                 const docRef = await db.collection('schedules').add(scheduleData);
-                console.log('Schedule saved with ID:', docRef.id);
                 return docRef.id;
             } catch (error) {
-                console.error('Error saving schedule:', error);
-                alert('Gagal menyimpan data ke Firestore.');
+                console.error('Error saving:', error);
+                alert('Gagal menyimpan data.');
                 return null;
             } finally {
                 hideLoading();
@@ -1488,11 +1681,10 @@
             showLoading();
             try {
                 await db.collection('schedules').doc(id).update(scheduleData);
-                console.log('Schedule updated:', id);
                 return true;
             } catch (error) {
-                console.error('Error updating schedule:', error);
-                alert('Gagal mengupdate data di Firestore.');
+                console.error('Error updating:', error);
+                alert('Gagal mengupdate data.');
                 return false;
             } finally {
                 hideLoading();
@@ -1503,11 +1695,10 @@
             showLoading();
             try {
                 await db.collection('schedules').doc(id).delete();
-                console.log('Schedule deleted:', id);
                 return true;
             } catch (error) {
-                console.error('Error deleting schedule:', error);
-                alert('Gagal menghapus data dari Firestore.');
+                console.error('Error deleting:', error);
+                alert('Gagal menghapus data.');
                 return false;
             } finally {
                 hideLoading();
@@ -1519,10 +1710,8 @@
                 const doc = await db.collection('settings').doc('dailyTargets').get();
                 if (doc.exists) {
                     dailyTargets = doc.data();
-                    console.log('Targets loaded from Firestore:', dailyTargets);
                 } else {
                     await db.collection('settings').doc('dailyTargets').set(dailyTargets);
-                    console.log('Default targets created in Firestore');
                 }
             } catch (error) {
                 console.error('Error loading targets:', error);
@@ -1534,71 +1723,51 @@
             showLoading();
             try {
                 await db.collection('settings').doc('dailyTargets').set(dailyTargets);
-                console.log('Targets saved to Firestore:', dailyTargets);
                 alert('Daily targets saved successfully!');
                 renderSummary();
             } catch (error) {
                 console.error('Error saving targets:', error);
-                alert('Gagal menyimpan target ke Firestore.');
+                alert('Gagal menyimpan target.');
             } finally {
                 hideLoading();
             }
         }
 
         // ============================================================
-        // ===== FUNGSI MIGRASI DATA DARI LOCALSTORAGE KE FIREBASE =====
+        // ===== FUNGSI MIGRASI DATA =====
         // ============================================================
         migrateBtn.addEventListener('click', async function() {
             const btn = this;
-            const statusDiv = migrateStatus;
-            
-            // Cek apakah ada data di localStorage
             const localSchedules = localStorage.getItem('schedules');
             const localTargets = localStorage.getItem('dailyTargets');
-            
+
             if (!localSchedules && !localTargets) {
                 alert('Tidak ada data di localStorage untuk dimigrasi!');
                 return;
             }
-            
-            // Hitung jumlah data
-            let scheduleCount = 0;
-            let targetCount = 0;
-            
+
+            let scheduleCount = 0, targetCount = 0;
             if (localSchedules) {
-                try {
-                    const schedules = JSON.parse(localSchedules);
-                    scheduleCount = schedules.length;
-                } catch(e) {}
+                try { scheduleCount = JSON.parse(localSchedules).length; } catch(e) {}
             }
             if (localTargets) {
-                try {
-                    const targets = JSON.parse(localTargets);
-                    targetCount = Object.keys(targets).length;
-                } catch(e) {}
+                try { targetCount = Object.keys(JSON.parse(localTargets)).length; } catch(e) {}
             }
-            
-            if (!confirm(`Yakin ingin memigrasi data dari localStorage ke Firebase?\n\n📋 Schedule: ${scheduleCount} data\n🎯 Targets: ${targetCount} data\n\n⚠️ Data yang sama di Firebase akan dilewati (tidak diduplikasi).`)) {
+
+            if (!confirm(`Migrasi data dari localStorage ke Firebase?\n\n📋 Schedule: ${scheduleCount} data\n🎯 Targets: ${targetCount} data\n\nData yang sama akan dilewati.`)) {
                 return;
             }
-            
-            // Disable button dan show loading
+
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Migrating data...';
-            statusDiv.style.display = 'none';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Migrating...';
+            migrateStatus.style.display = 'none';
             showLoading();
-            
-            let migratedSchedules = 0;
-            let migratedTargets = 0;
-            let skippedSchedules = 0;
-            
+
+            let migratedSchedules = 0, migratedTargets = 0, skippedSchedules = 0;
+
             try {
-                // 1. MIGRASI SCHEDULES
                 if (localSchedules) {
                     const schedules = JSON.parse(localSchedules);
-                    console.log(`📋 Found ${schedules.length} schedules in localStorage`);
-                    
-                    // Ambil semua ID yang sudah ada di Firebase
                     const existingDocs = await db.collection('schedules').get();
                     const existingIds = new Set();
                     existingDocs.forEach(doc => {
@@ -1606,16 +1775,14 @@
                         const key = `${data.projectName}|${data.plant}|${data.date}|${data.time}|${data.volume}`;
                         existingIds.add(key);
                     });
-                    
+
                     for (const schedule of schedules) {
                         const key = `${schedule.projectName}|${schedule.plant}|${schedule.date}|${schedule.time}|${schedule.volume}`;
-                        
                         if (existingIds.has(key)) {
                             skippedSchedules++;
                             continue;
                         }
-                        
-                        const firebaseData = {
+                        await db.collection('schedules').add({
                             projectName: schedule.projectName,
                             plant: schedule.plant,
                             volume: schedule.volume,
@@ -1625,24 +1792,15 @@
                             isDaily: schedule.isDaily || false,
                             migratedFromLocal: true,
                             migratedAt: new Date().toISOString()
-                        };
-                        
-                        await db.collection('schedules').add(firebaseData);
+                        });
                         migratedSchedules++;
                     }
                 }
-                
-                // 2. MIGRASI TARGETS
+
                 if (localTargets) {
                     const targets = JSON.parse(localTargets);
-                    console.log(`🎯 Found targets in localStorage:`, targets);
-                    
                     const targetDoc = await db.collection('settings').doc('dailyTargets').get();
-                    let existingTargets = {};
-                    if (targetDoc.exists) {
-                        existingTargets = targetDoc.data();
-                    }
-                    
+                    let existingTargets = targetDoc.exists ? targetDoc.data() : {};
                     let needUpdate = false;
                     for (const [key, value] of Object.entries(targets)) {
                         if (!existingTargets[key] || existingTargets[key] !== value) {
@@ -1651,41 +1809,32 @@
                             needUpdate = true;
                         }
                     }
-                    
                     if (needUpdate) {
                         await db.collection('settings').doc('dailyTargets').set(existingTargets);
                     }
                 }
-                
-                // 3. TAMPILKAN HASIL
+
                 hideLoading();
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Migrate Data to Firebase';
-                
-                let message = `✅ Migrasi selesai!\n\n`;
-                message += `📋 Schedule: ${migratedSchedules} data berhasil dimigrasi\n`;
-                if (skippedSchedules > 0) {
-                    message += `⏭️ ${skippedSchedules} data dilewati (sudah ada di Firebase)\n`;
-                }
-                message += `🎯 Targets: ${migratedTargets} data berhasil dimigrasi\n\n`;
-                message += `Total: ${migratedSchedules + migratedTargets} data dimigrasi ke Firebase!`;
-                
-                alert(message);
-                
-                statusDiv.style.display = 'block';
-                statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> ✅ ${migratedSchedules + migratedTargets} data migrated!`;
-                setTimeout(() => {
-                    statusDiv.style.display = 'none';
-                }, 8000);
-                
+
+                let msg = `✅ Migrasi selesai!\n📋 Schedule: ${migratedSchedules} data\n`;
+                if (skippedSchedules > 0) msg += `⏭️ ${skippedSchedules} data dilewati\n`;
+                msg += `🎯 Targets: ${migratedTargets} data\nTotal: ${migratedSchedules + migratedTargets} data dimigrasi!`;
+                alert(msg);
+
+                migrateStatus.style.display = 'block';
+                migrateStatus.innerHTML = `<i class="fas fa-check-circle"></i> ✅ ${migratedSchedules + migratedTargets} data migrated!`;
+                setTimeout(() => migrateStatus.style.display = 'none', 8000);
+
                 await loadSchedulesFromFirestore();
-                
+
             } catch (error) {
-                console.error('Error during migration:', error);
+                console.error('Migration error:', error);
                 hideLoading();
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Migrate Data to Firebase';
-                alert(`❌ Gagal migrasi data: ${error.message}\n\nCek console untuk detail error.`);
+                alert(`❌ Gagal migrasi: ${error.message}`);
             }
         });
 
@@ -1705,10 +1854,10 @@
 
         function updateDate() {
             const now = new Date();
-            const day = String(now.getDate()).padStart(2, '0');
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const year = now.getFullYear();
-            currentDateElement.textContent = `${day}/${month}/${year}`;
+            const d = String(now.getDate()).padStart(2, '0');
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const y = now.getFullYear();
+            currentDateElement.textContent = `${d}/${m}/${y}`;
         }
 
         function getTimePeriod(time) {
@@ -1721,19 +1870,18 @@
         }
 
         function getTimePeriodLabel(period) {
-            switch(period) {
-                case 'morning': return 'Shift Pagi';
-                case 'afternoon': return 'Shift Siang';
-                case 'evening': return 'Shift Sore';
-                case 'night': return 'Shift Malam';
-                default: return 'Unknown';
-            }
+            const labels = {
+                morning: 'Shift Pagi',
+                afternoon: 'Shift Siang',
+                evening: 'Shift Sore',
+                night: 'Shift Malam'
+            };
+            return labels[period] || 'Unknown';
         }
 
         function getDayName(dateString) {
             const date = new Date(dateString);
-            const options = { weekday: 'long' };
-            return date.toLocaleDateString('id-ID', options);
+            return date.toLocaleDateString('id-ID', { weekday: 'long' });
         }
 
         function formatDate(dateString) {
@@ -1747,20 +1895,20 @@
 
         function formatDateForTable(dateString) {
             const date = new Date(dateString);
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            return `${day}/${month}/${year}`;
+            const d = String(date.getDate()).padStart(2, '0');
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const y = date.getFullYear();
+            return `${d}/${m}/${y}`;
         }
 
         function getDateRange(startDate, endDate) {
             const dates = [];
             const start = new Date(startDate);
             const end = new Date(endDate);
-            let currentDate = new Date(start);
-            while (currentDate <= end) {
-                dates.push(new Date(currentDate));
-                currentDate.setDate(currentDate.getDate() + 1);
+            let current = new Date(start);
+            while (current <= end) {
+                dates.push(new Date(current));
+                current.setDate(current.getDate() + 1);
             }
             return dates;
         }
@@ -1770,65 +1918,52 @@
         // ============================================================
         function renderScheduleTable() {
             const activePlant = document.querySelector('#monitoring-plant-tabs .plant-tab.active')?.getAttribute('data-plant') || 'all';
-            const filterStartDateValue = filterStartDate.value;
-            const filterEndDateValue = filterEndDate.value;
-            const filterPlantValue = filterPlant.value;
-            const filterTimeValue = filterTime.value;
+            let filtered = schedules;
 
-            let filteredSchedules = schedules;
+            if (globalStartDate && globalEndDate) {
+                filtered = filtered.filter(s => {
+                    const d = new Date(s.date);
+                    return d >= new Date(globalStartDate) && d <= new Date(globalEndDate);
+                });
+            }
 
             if (activePlant !== 'all') {
-                filteredSchedules = filteredSchedules.filter(schedule => schedule.plant === activePlant);
+                filtered = filtered.filter(s => s.plant === activePlant);
             }
-            if (filterStartDateValue && filterEndDateValue) {
-                filteredSchedules = filteredSchedules.filter(schedule => {
-                    const scheduleDate = new Date(schedule.date);
-                    const startDate = new Date(filterStartDateValue);
-                    const endDate = new Date(filterEndDateValue);
-                    return scheduleDate >= startDate && scheduleDate <= endDate;
-                });
+            if (filterPlant.value !== 'all') {
+                filtered = filtered.filter(s => s.plant === filterPlant.value);
             }
-            if (filterPlantValue !== 'all') {
-                filteredSchedules = filteredSchedules.filter(schedule => schedule.plant === filterPlantValue);
-            }
-            if (filterTimeValue !== 'all') {
-                filteredSchedules = filteredSchedules.filter(schedule => {
-                    const period = getTimePeriod(schedule.time);
-                    return period === filterTimeValue;
-                });
+            if (filterTime.value !== 'all') {
+                filtered = filtered.filter(s => getTimePeriod(s.time) === filterTime.value);
             }
 
-            filteredSchedules.sort((a, b) => {
-                const dateA = new Date(a.date + ' ' + a.time);
-                const dateB = new Date(b.date + ' ' + b.time);
-                return dateA - dateB;
-            });
+            filtered.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
 
             scheduleBody.innerHTML = '';
-            if (filteredSchedules.length === 0) {
-                scheduleBody.innerHTML = '<tr><td colspan="10" style="text-align: center;">No pouring schedules found</td></tr>';
+            if (filtered.length === 0) {
+                scheduleBody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:20px;">No data found</td></tr>';
                 return;
             }
 
-            filteredSchedules.forEach((schedule, index) => {
+            filtered.forEach((s, i) => {
                 const row = document.createElement('tr');
-                const timePeriod = getTimePeriod(schedule.time);
+                const period = getTimePeriod(s.time);
                 row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${schedule.projectName} ${schedule.isDaily ? '<span style="color: #e67e22; font-weight: bold;">(Daily)</span>' : ''}</td>
-                    <td><i class="fas fa-industry"></i> ${schedule.plant}</td>
-                    <td>${schedule.volume}</td>
-                    <td>${getDayName(schedule.date)}</td>
-                    <td>${formatDate(schedule.date)}</td>
-                    <td>${schedule.time}</td>
-                    <td>${getTimePeriodLabel(timePeriod)}</td>
-                    <td>${schedule.notes || '-'}</td>
+                    <td>${i + 1}</td>
+                    <td>${s.projectName} ${s.isDaily ? '📅' : ''}</td>
+                    <td>${s.plant}</td>
+                    <td>${s.volume}</td>
+                    <td>${getDayName(s.date)}</td>
+                    <td>${formatDate(s.date)}</td>
+                    <td>${s.time}</td>
+                    <td>${getTimePeriodLabel(period)}</td>
+                    <td>${s.notes || '-'}</td>
                     <td>
                         <div class="action-buttons">
-                            <button class="action-btn btn-edit" onclick="editSchedule('${schedule.id}')" title="Edit Schedule">
+                            <button class="action-btn btn-edit" onclick="editSchedule('${s.id}')">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="action-btn btn-delete" onclick="deleteSchedule('${schedule.id}')" title="Delete Schedule">
+                            <button class="action-btn btn-delete" onclick="deleteSchedule('${s.id}')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -1839,299 +1974,240 @@
         }
 
         function renderSummary() {
-            const startDateValue = summaryStartDate.value;
-            const endDateValue = summaryEndDate.value;
             const plants = ['Manukan', 'Manyar', 'Gempol', 'Krian', 'Kediri', 'Denpasar2', 'Denpasar3', 'Gianyar'];
             summaryContainer.innerHTML = '';
 
             plants.forEach(plant => {
-                let plantSchedules = schedules.filter(schedule => schedule.plant === plant);
+                let plantSchedules = schedules.filter(s => s.plant === plant);
                 
-                if (startDateValue && endDateValue) {
-                    plantSchedules = plantSchedules.filter(schedule => {
-                        const scheduleDate = new Date(schedule.date);
-                        const startDate = new Date(startDateValue);
-                        const endDate = new Date(endDateValue);
-                        return scheduleDate >= startDate && scheduleDate <= endDate;
+                if (globalStartDate && globalEndDate) {
+                    plantSchedules = plantSchedules.filter(s => {
+                        const d = new Date(s.date);
+                        return d >= new Date(globalStartDate) && d <= new Date(globalEndDate);
                     });
                 }
 
-                const totalVolume = plantSchedules.reduce((sum, schedule) => sum + schedule.volume, 0);
-                const projectCount = plantSchedules.length;
-                const targetVolume = dailyTargets[plant] || 0;
-                const progressPercentage = targetVolume > 0 ? Math.min((totalVolume / targetVolume) * 100, 100) : 0;
+                const totalVol = plantSchedules.reduce((sum, s) => sum + s.volume, 0);
+                const count = plantSchedules.length;
+                const target = dailyTargets[plant] || 0;
+                const progress = target > 0 ? Math.min((totalVol / target) * 100, 100) : 0;
 
-                const shiftVolumes = { morning: 0, afternoon: 0, evening: 0, night: 0 };
-                plantSchedules.forEach(schedule => {
-                    const period = getTimePeriod(schedule.time);
-                    shiftVolumes[period] += schedule.volume;
+                const shifts = { morning: 0, afternoon: 0, evening: 0, night: 0 };
+                plantSchedules.forEach(s => {
+                    shifts[getTimePeriod(s.time)] += s.volume;
                 });
 
-                const plantCard = document.createElement('div');
-                plantCard.className = 'plant-summary-card';
-                
-                let progressClass = '';
-                if (progressPercentage >= 100) progressClass = 'danger';
-                else if (progressPercentage >= 80) progressClass = 'warning';
+                const card = document.createElement('div');
+                card.className = 'plant-summary-card';
+                let pClass = progress >= 100 ? 'danger' : progress >= 80 ? 'warning' : '';
 
-                plantCard.innerHTML = `
-                    <h3><span><i class="fas fa-industry"></i> ${plant} Plant</span></h3>
-                    <div class="target-indicator">Target: ${targetVolume} m³</div>
+                card.innerHTML = `
+                    <h3><i class="fas fa-industry"></i> ${plant}</h3>
+                    <div class="target-indicator">Target: ${target} m³</div>
                     <div class="progress-container">
                         <div class="progress-label">
-                            <span>Daily Progress</span>
-                            <span>${progressPercentage.toFixed(1)}%</span>
+                            <span>Progress</span>
+                            <span>${progress.toFixed(1)}%</span>
                         </div>
                         <div class="progress-bar">
-                            <div class="progress-fill ${progressClass}" style="width: ${progressPercentage}%"></div>
+                            <div class="progress-fill ${pClass}" style="width:${progress}%"></div>
                         </div>
                     </div>
                     <div class="summary-stats">
                         <div class="stat-item">
-                            <span class="stat-value">${projectCount}</span>
-                            <span class="stat-label">Project Count</span>
+                            <span class="stat-value">${count}</span>
+                            <span class="stat-label">Projects</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-value">${totalVolume.toFixed(2)}</span>
-                            <span class="stat-label">Total Volume (m³)</span>
+                            <span class="stat-value">${totalVol.toFixed(1)}</span>
+                            <span class="stat-label">Total m³</span>
                         </div>
                     </div>
                     <div class="shift-stats">
-                        <div class="shift-item">
-                            <span class="shift-value">${shiftVolumes.morning.toFixed(2)}</span>
-                            <span class="shift-label">Shift Pagi</span>
-                        </div>
-                        <div class="shift-item">
-                            <span class="shift-value">${shiftVolumes.afternoon.toFixed(2)}</span>
-                            <span class="shift-label">Shift Siang</span>
-                        </div>
-                        <div class="shift-item">
-                            <span class="shift-value">${shiftVolumes.evening.toFixed(2)}</span>
-                            <span class="shift-label">Shift Sore</span>
-                        </div>
-                        <div class="shift-item">
-                            <span class="shift-value">${shiftVolumes.night.toFixed(2)}</span>
-                            <span class="shift-label">Shift Malam</span>
-                        </div>
+                        <div class="shift-item"><span class="shift-value">${shifts.morning.toFixed(1)}</span><span class="shift-label">Pagi</span></div>
+                        <div class="shift-item"><span class="shift-value">${shifts.afternoon.toFixed(1)}</span><span class="shift-label">Siang</span></div>
+                        <div class="shift-item"><span class="shift-value">${shifts.evening.toFixed(1)}</span><span class="shift-label">Sore</span></div>
+                        <div class="shift-item"><span class="shift-value">${shifts.night.toFixed(1)}</span><span class="shift-label">Malam</span></div>
                     </div>
                 `;
-                summaryContainer.appendChild(plantCard);
+                summaryContainer.appendChild(card);
             });
         }
 
         function renderSummaryDetail() {
             const activePlant = document.querySelector('#summary-detail-plant-tabs .plant-tab.active')?.getAttribute('data-plant') || 'all';
-            const startDateValue = summaryDetailStartDate.value;
-            const endDateValue = summaryDetailEndDate.value;
-            const filterPlantValue = summaryDetailFilterPlant.value;
-            const filterTimeValue = summaryDetailFilterTime.value;
+            let filtered = schedules;
 
-            let filteredSchedules = schedules;
-
-            if (activePlant !== 'all') {
-                filteredSchedules = filteredSchedules.filter(schedule => schedule.plant === activePlant);
-            }
-            if (startDateValue && endDateValue) {
-                filteredSchedules = filteredSchedules.filter(schedule => {
-                    const scheduleDate = new Date(schedule.date);
-                    const startDate = new Date(startDateValue);
-                    const endDate = new Date(endDateValue);
-                    return scheduleDate >= startDate && scheduleDate <= endDate;
-                });
-            }
-            if (filterPlantValue !== 'all') {
-                filteredSchedules = filteredSchedules.filter(schedule => schedule.plant === filterPlantValue);
-            }
-            if (filterTimeValue !== 'all') {
-                filteredSchedules = filteredSchedules.filter(schedule => {
-                    const period = getTimePeriod(schedule.time);
-                    return period === filterTimeValue;
+            if (globalStartDate && globalEndDate) {
+                filtered = filtered.filter(s => {
+                    const d = new Date(s.date);
+                    return d >= new Date(globalStartDate) && d <= new Date(globalEndDate);
                 });
             }
 
-            const dateRange = getDateRange(startDateValue || new Date().toISOString().split('T')[0], endDateValue || new Date().toISOString().split('T')[0]);
-            const groupedData = groupDataByPlantAndProject(filteredSchedules, dateRange);
-            renderSummaryDetailTable(groupedData, dateRange);
+            if (activePlant !== 'all') filtered = filtered.filter(s => s.plant === activePlant);
+            if (summaryDetailFilterPlant.value !== 'all') {
+                filtered = filtered.filter(s => s.plant === summaryDetailFilterPlant.value);
+            }
+            if (summaryDetailFilterTime.value !== 'all') {
+                filtered = filtered.filter(s => getTimePeriod(s.time) === summaryDetailFilterTime.value);
+            }
+
+            const dateRange = getDateRange(globalStartDate || new Date().toISOString().split('T')[0], globalEndDate || new Date().toISOString().split('T')[0]);
+            const grouped = groupDataByPlantAndProject(filtered, dateRange);
+            renderSummaryDetailTable(grouped, dateRange);
         }
 
         function groupDataByPlantAndProject(schedules, dateRange) {
             const grouped = {};
-            schedules.forEach(schedule => {
-                const plant = schedule.plant;
-                const projectName = schedule.projectName;
-                const time = schedule.time.substring(0, 5);
-                const date = schedule.date;
-                const volume = schedule.volume;
-                const isDaily = schedule.isDaily;
-
+            schedules.forEach(s => {
+                const plant = s.plant;
+                const project = s.projectName;
+                const time = s.time.substring(0, 5);
+                const dateKey = formatDateForTable(s.date);
                 if (!grouped[plant]) grouped[plant] = {};
-                if (!grouped[plant][projectName]) {
-                    grouped[plant][projectName] = { time: time, volumes: {}, isDaily: isDaily };
+                if (!grouped[plant][project]) {
+                    grouped[plant][project] = { time: time, volumes: {}, isDaily: s.isDaily };
                 }
-                if (!grouped[plant][projectName].time) {
-                    grouped[plant][projectName].time = time;
-                }
-                const dateKey = formatDateForTable(date);
-                if (!grouped[plant][projectName].volumes[dateKey]) {
-                    grouped[plant][projectName].volumes[dateKey] = 0;
-                }
-                grouped[plant][projectName].volumes[dateKey] += volume;
+                if (!grouped[plant][project].time) grouped[plant][project].time = time;
+                if (!grouped[plant][project].volumes[dateKey]) grouped[plant][project].volumes[dateKey] = 0;
+                grouped[plant][project].volumes[dateKey] += s.volume;
             });
             return grouped;
         }
 
         function renderSummaryDetailTable(groupedData, dateRange) {
             summaryDetailBody.innerHTML = '';
-            
+
             const headerRow = document.querySelector('#summary-detail-table thead tr');
-            while (headerRow.children.length > 3) {
-                headerRow.removeChild(headerRow.lastChild);
-            }
-            
+            while (headerRow.children.length > 3) headerRow.removeChild(headerRow.lastChild);
             dateRange.forEach(date => {
-                const dateHeader = document.createElement('th');
-                dateHeader.textContent = formatDateForTable(date.toISOString().split('T')[0]);
-                headerRow.appendChild(dateHeader);
+                const th = document.createElement('th');
+                th.textContent = formatDateForTable(date.toISOString().split('T')[0]);
+                headerRow.appendChild(th);
             });
 
             if (Object.keys(groupedData).length === 0) {
-                const noDataRow = document.createElement('tr');
-                const noDataCell = document.createElement('td');
-                noDataCell.colSpan = dateRange.length + 3;
-                noDataCell.textContent = 'No data available for the selected filters';
-                noDataCell.style.textAlign = 'center';
-                noDataRow.appendChild(noDataCell);
-                summaryDetailBody.appendChild(noDataRow);
+                summaryDetailBody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:20px;">No data</td></tr>';
                 return;
             }
 
             Object.keys(groupedData).sort().forEach(plant => {
-                const plantHeaderRow = document.createElement('tr');
-                plantHeaderRow.className = 'plant-header';
-                const plantHeaderCell = document.createElement('td');
-                plantHeaderCell.textContent = plant;
-                plantHeaderCell.colSpan = dateRange.length + 3;
-                plantHeaderRow.appendChild(plantHeaderCell);
-                summaryDetailBody.appendChild(plantHeaderRow);
+                const plantRow = document.createElement('tr');
+                plantRow.className = 'plant-header';
+                const cell = document.createElement('td');
+                cell.textContent = plant;
+                cell.colSpan = dateRange.length + 3;
+                plantRow.appendChild(cell);
+                summaryDetailBody.appendChild(plantRow);
 
-                Object.keys(groupedData[plant]).sort().forEach(projectName => {
-                    const projectRow = document.createElement('tr');
-                    
-                    const plantCell = document.createElement('td');
-                    plantCell.textContent = '';
-                    projectRow.appendChild(plantCell);
-                    
-                    const projectCell = document.createElement('td');
-                    projectCell.textContent = projectName;
-                    if (groupedData[plant][projectName].isDaily) {
-                        const dailyIndicator = document.createElement('span');
-                        dailyIndicator.className = 'daily-indicator';
-                        dailyIndicator.textContent = '(Daily)';
-                        projectCell.appendChild(dailyIndicator);
+                Object.keys(groupedData[plant]).sort().forEach(project => {
+                    const row = document.createElement('tr');
+                    const pCell = document.createElement('td');
+                    pCell.textContent = '';
+                    row.appendChild(pCell);
+
+                    const projCell = document.createElement('td');
+                    projCell.textContent = project;
+                    if (groupedData[plant][project].isDaily) {
+                        const indicator = document.createElement('span');
+                        indicator.className = 'daily-indicator';
+                        indicator.textContent = '(Daily)';
+                        projCell.appendChild(indicator);
                     }
-                    projectRow.appendChild(projectCell);
-                    
+                    row.appendChild(projCell);
+
                     const timeCell = document.createElement('td');
-                    timeCell.textContent = groupedData[plant][projectName].time;
-                    projectRow.appendChild(timeCell);
-                    
+                    timeCell.textContent = groupedData[plant][project].time;
+                    row.appendChild(timeCell);
+
                     dateRange.forEach(date => {
-                        const dateKey = formatDateForTable(date.toISOString().split('T')[0]);
-                        const volumeCell = document.createElement('td');
-                        const volume = groupedData[plant][projectName].volumes[dateKey] || '';
-                        volumeCell.textContent = volume;
-                        projectRow.appendChild(volumeCell);
+                        const key = formatDateForTable(date.toISOString().split('T')[0]);
+                        const vol = document.createElement('td');
+                        vol.textContent = groupedData[plant][project].volumes[key] || '';
+                        row.appendChild(vol);
                     });
-                    
-                    summaryDetailBody.appendChild(projectRow);
+                    summaryDetailBody.appendChild(row);
                 });
 
                 const totalRow = document.createElement('tr');
                 totalRow.className = 'total-row';
-                
-                const totalPlantCell = document.createElement('td');
-                totalPlantCell.textContent = plant + ' Total';
-                totalRow.appendChild(totalPlantCell);
-                
-                const totalProjectCell = document.createElement('td');
-                totalProjectCell.textContent = '';
-                totalRow.appendChild(totalProjectCell);
-                
-                const totalTimeCell = document.createElement('td');
-                totalTimeCell.textContent = '';
-                totalRow.appendChild(totalTimeCell);
-                
+                const t1 = document.createElement('td');
+                t1.textContent = plant + ' Total';
+                totalRow.appendChild(t1);
+                const t2 = document.createElement('td');
+                t2.textContent = '';
+                totalRow.appendChild(t2);
+                const t3 = document.createElement('td');
+                t3.textContent = '';
+                totalRow.appendChild(t3);
+
                 dateRange.forEach(date => {
-                    const dateKey = formatDateForTable(date.toISOString().split('T')[0]);
-                    let totalVolume = 0;
-                    Object.keys(groupedData[plant]).forEach(projectName => {
-                        totalVolume += groupedData[plant][projectName].volumes[dateKey] || 0;
+                    const key = formatDateForTable(date.toISOString().split('T')[0]);
+                    let total = 0;
+                    Object.keys(groupedData[plant]).forEach(p => {
+                        total += groupedData[plant][p].volumes[key] || 0;
                     });
-                    const totalCell = document.createElement('td');
-                    totalCell.textContent = totalVolume > 0 ? totalVolume : '';
-                    totalRow.appendChild(totalCell);
+                    const cell = document.createElement('td');
+                    cell.textContent = total > 0 ? total : '';
+                    totalRow.appendChild(cell);
                 });
-                
                 summaryDetailBody.appendChild(totalRow);
             });
         }
 
         function renderCharts() {
-            const startDateValue = chartStartDate.value;
-            const endDateValue = chartEndDate.value;
             const plants = ['Manukan', 'Manyar', 'Gempol', 'Krian', 'Kediri', 'Denpasar2', 'Denpasar3', 'Gianyar'];
-            
-            const plantVolumes = {};
-            const shiftVolumes = { morning: 0, afternoon: 0, evening: 0, night: 0 };
+            const plantVol = {};
+            const shiftVol = { morning: 0, afternoon: 0, evening: 0, night: 0 };
 
             plants.forEach(plant => {
-                let plantSchedules = schedules.filter(schedule => schedule.plant === plant);
-                if (startDateValue && endDateValue) {
-                    plantSchedules = plantSchedules.filter(schedule => {
-                        const scheduleDate = new Date(schedule.date);
-                        const startDate = new Date(startDateValue);
-                        const endDate = new Date(endDateValue);
-                        return scheduleDate >= startDate && scheduleDate <= endDate;
+                let ps = schedules.filter(s => s.plant === plant);
+                
+                if (globalStartDate && globalEndDate) {
+                    ps = ps.filter(s => {
+                        const d = new Date(s.date);
+                        return d >= new Date(globalStartDate) && d <= new Date(globalEndDate);
                     });
                 }
-                plantVolumes[plant] = plantSchedules.reduce((sum, schedule) => sum + schedule.volume, 0);
-                plantSchedules.forEach(schedule => {
-                    const period = getTimePeriod(schedule.time);
-                    shiftVolumes[period] += schedule.volume;
-                });
+                
+                plantVol[plant] = ps.reduce((sum, s) => sum + s.volume, 0);
+                ps.forEach(s => shiftVol[getTimePeriod(s.time)] += s.volume);
             });
 
             if (plantVolumeChart) plantVolumeChart.destroy();
             if (shiftVolumeChart) shiftVolumeChart.destroy();
 
-            const plantCtx = document.getElementById('plantVolumeChart').getContext('2d');
-            plantVolumeChart = new Chart(plantCtx, {
+            const colors = ['#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c', '#e67e22', '#34495e'];
+
+            const pCtx = document.getElementById('plantVolumeChart').getContext('2d');
+            plantVolumeChart = new Chart(pCtx, {
                 type: 'bar',
                 data: {
                     labels: plants,
                     datasets: [{
                         label: 'Volume (m³)',
-                        data: plants.map(plant => plantVolumes[plant]),
-                        backgroundColor: ['#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c', '#e67e22', '#34495e'],
+                        data: plants.map(p => plantVol[p]),
+                        backgroundColor: colors,
                         borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { title: { display: true, text: 'Volume Distribution by Plant' } },
-                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Volume (m³)' } } }
+                    plugins: { title: { display: true, text: 'Volume by Plant', font: { size: 12 } } },
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'm³', font: { size: 10 } } } }
                 }
             });
 
-            const shiftCtx = document.getElementById('shiftVolumeChart').getContext('2d');
-            shiftVolumeChart = new Chart(shiftCtx, {
+            const sCtx = document.getElementById('shiftVolumeChart').getContext('2d');
+            shiftVolumeChart = new Chart(sCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['Shift Pagi', 'Shift Siang', 'Shift Sore', 'Shift Malam'],
+                    labels: ['Pagi', 'Siang', 'Sore', 'Malam'],
                     datasets: [{
                         label: 'Volume (m³)',
-                        data: [shiftVolumes.morning, shiftVolumes.afternoon, shiftVolumes.evening, shiftVolumes.night],
+                        data: [shiftVol.morning, shiftVol.afternoon, shiftVol.evening, shiftVol.night],
                         backgroundColor: ['#3498db', '#2ecc71', '#e74c3c', '#f39c12'],
                         borderWidth: 1
                     }]
@@ -2139,8 +2215,8 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { title: { display: true, text: 'Volume Distribution by Shift' } },
-                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Volume (m³)' } } }
+                    plugins: { title: { display: true, text: 'Volume by Shift', font: { size: 12 } } },
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'm³', font: { size: 10 } } } }
                 }
             });
         }
@@ -2156,36 +2232,36 @@
         // ===== CRUD OPERATIONS =====
         // ============================================================
         window.editSchedule = function(id) {
-            const schedule = schedules.find(s => s.id === id);
-            if (!schedule) return;
+            const s = schedules.find(s => s.id === id);
+            if (!s) return;
 
-            document.getElementById('project-name').value = schedule.projectName;
-            document.getElementById('plant').value = schedule.plant;
-            document.getElementById('volume').value = schedule.volume;
-            document.getElementById('time').value = schedule.time;
-            document.getElementById('notes').value = schedule.notes || '';
+            document.getElementById('project-name').value = s.projectName;
+            document.getElementById('plant').value = s.plant;
+            document.getElementById('volume').value = s.volume;
+            document.getElementById('time').value = s.time;
+            document.getElementById('notes').value = s.notes || '';
 
-            if (schedule.isDaily) {
+            if (s.isDaily) {
                 dailyScheduleCheckbox.checked = true;
                 singleDateDiv.classList.add('hidden');
                 dateRangeDiv.classList.remove('hidden');
-                document.getElementById('start-date').value = schedule.date;
-                document.getElementById('end-date').value = schedule.date;
+                document.getElementById('start-date').value = s.date;
+                document.getElementById('end-date').value = s.date;
             } else {
                 dailyScheduleCheckbox.checked = false;
                 singleDateDiv.classList.remove('hidden');
                 dateRangeDiv.classList.add('hidden');
-                document.getElementById('date').value = schedule.date;
+                document.getElementById('date').value = s.date;
             }
 
             editingScheduleId = id;
-            submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Schedule';
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Update';
             document.querySelector('.nav-link[data-target="input-section"]').click();
+            document.getElementById('input-section').scrollIntoView({ behavior: 'smooth' });
         };
 
         window.deleteSchedule = async function(id) {
-            if (!confirm('Are you sure you want to delete this schedule?')) return;
-            
+            if (!confirm('Hapus schedule ini?')) return;
             const success = await deleteScheduleFromFirestore(id);
             if (success) {
                 schedules = schedules.filter(s => s.id !== id);
@@ -2198,7 +2274,7 @@
         // ============================================================
         scheduleForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const projectName = document.getElementById('project-name').value;
             const plant = document.getElementById('plant').value;
             const volume = parseFloat(document.getElementById('volume').value);
@@ -2207,14 +2283,7 @@
             const isDaily = dailyScheduleCheckbox.checked;
 
             if (editingScheduleId) {
-                let scheduleData = {
-                    projectName,
-                    plant,
-                    volume,
-                    time,
-                    notes,
-                    isDaily: isDaily
-                };
+                const data = { projectName, plant, volume, time, notes, isDaily };
 
                 if (isDaily) {
                     const startDate = document.getElementById('start-date').value;
@@ -2225,40 +2294,33 @@
                     }
                     await deleteScheduleFromFirestore(editingScheduleId);
                     schedules = schedules.filter(s => s.id !== editingScheduleId);
-                    
-                    const currentDate = new Date(startDate);
+
+                    const current = new Date(startDate);
                     const newSchedules = [];
-                    while (currentDate <= new Date(endDate)) {
-                        const dateStr = currentDate.toISOString().split('T')[0];
-                        newSchedules.push({
-                            ...scheduleData,
-                            date: dateStr
-                        });
-                        currentDate.setDate(currentDate.getDate() + 1);
+                    while (current <= new Date(endDate)) {
+                        newSchedules.push({ ...data, date: current.toISOString().split('T')[0] });
+                        current.setDate(current.getDate() + 1);
                     }
-                    
                     for (const s of newSchedules) {
                         const id = await saveScheduleToFirestore(s);
                         if (id) schedules.push({ ...s, id });
                     }
                 } else {
                     const date = document.getElementById('date').value;
-                    scheduleData.date = date;
-                    const success = await updateScheduleInFirestore(editingScheduleId, scheduleData);
+                    data.date = date;
+                    const success = await updateScheduleInFirestore(editingScheduleId, data);
                     if (success) {
-                        const index = schedules.findIndex(s => s.id === editingScheduleId);
-                        if (index !== -1) {
-                            schedules[index] = { ...scheduleData, id: editingScheduleId };
-                        }
+                        const idx = schedules.findIndex(s => s.id === editingScheduleId);
+                        if (idx !== -1) schedules[idx] = { ...data, id: editingScheduleId };
                     }
                 }
-                
-                alert('Schedule updated successfully!');
+
+                alert('Schedule updated!');
                 editingScheduleId = null;
                 submitBtn.innerHTML = '<i class="fas fa-save"></i> Save';
             } else {
                 let newSchedules = [];
-                
+
                 if (isDaily) {
                     const startDate = document.getElementById('start-date').value;
                     const endDate = document.getElementById('end-date').value;
@@ -2266,51 +2328,35 @@
                         alert('Start date cannot be after end date!');
                         return;
                     }
-                    
-                    const currentDate = new Date(startDate);
-                    while (currentDate <= new Date(endDate)) {
-                        const dateStr = currentDate.toISOString().split('T')[0];
+                    const current = new Date(startDate);
+                    while (current <= new Date(endDate)) {
                         newSchedules.push({
-                            projectName,
-                            plant,
-                            volume,
-                            date: dateStr,
-                            time,
-                            notes,
-                            isDaily: true
+                            projectName, plant, volume,
+                            date: current.toISOString().split('T')[0],
+                            time, notes, isDaily: true
                         });
-                        currentDate.setDate(currentDate.getDate() + 1);
+                        current.setDate(current.getDate() + 1);
                     }
                 } else {
                     const date = document.getElementById('date').value;
-                    newSchedules.push({
-                        projectName,
-                        plant,
-                        volume,
-                        date,
-                        time,
-                        notes,
-                        isDaily: false
-                    });
+                    newSchedules.push({ projectName, plant, volume, date, time, notes, isDaily: false });
                 }
 
                 for (const s of newSchedules) {
                     const id = await saveScheduleToFirestore(s);
                     if (id) schedules.push({ ...s, id });
                 }
-                
-                alert(`Schedule saved successfully! ${newSchedules.length} entries added.`);
+                alert(`${newSchedules.length} entries saved!`);
             }
 
             scheduleForm.reset();
-            const todayStr = new Date().toISOString().split('T')[0];
-            document.getElementById('date').value = todayStr;
-            document.getElementById('start-date').value = todayStr;
-            document.getElementById('end-date').value = todayStr;
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+            document.getElementById('start-date').value = today;
+            document.getElementById('end-date').value = today;
             dailyScheduleCheckbox.checked = false;
             singleDateDiv.classList.remove('hidden');
             dateRangeDiv.classList.add('hidden');
-            
             renderAll();
         });
 
@@ -2322,12 +2368,12 @@
             let csv = '\uFEFF';
             csv += headers.join(';') + '\r\n';
             data.forEach(row => {
-                const rowData = headers.map(header => {
-                    let value = row[header] || '';
-                    if (typeof value === 'string' && (value.includes(';') || value.includes('"') || value.includes('\n') || value.includes('\r'))) {
-                        value = '"' + value.replace(/"/g, '""') + '"';
+                const rowData = headers.map(h => {
+                    let val = row[h] || '';
+                    if (typeof val === 'string' && (val.includes(';') || val.includes('"') || val.includes('\n'))) {
+                        val = '"' + val.replace(/"/g, '""') + '"';
                     }
-                    return value;
+                    return val;
                 });
                 csv += rowData.join(';') + '\r\n';
             });
@@ -2337,9 +2383,8 @@
         function downloadCSV(csv, filename) {
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', filename);
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -2347,31 +2392,23 @@
 
         exportExcelBtn.addEventListener('click', function() {
             const activePlant = document.querySelector('#monitoring-plant-tabs .plant-tab.active')?.getAttribute('data-plant') || 'all';
-            let filteredSchedules = schedules;
-            
-            if (activePlant !== 'all') {
-                filteredSchedules = filteredSchedules.filter(s => s.plant === activePlant);
-            }
-            if (filterStartDate.value && filterEndDate.value) {
-                filteredSchedules = filteredSchedules.filter(s => {
-                    const sd = new Date(s.date);
-                    return sd >= new Date(filterStartDate.value) && sd <= new Date(filterEndDate.value);
+            let filtered = schedules;
+
+            if (globalStartDate && globalEndDate) {
+                filtered = filtered.filter(s => {
+                    const d = new Date(s.date);
+                    return d >= new Date(globalStartDate) && d <= new Date(globalEndDate);
                 });
             }
-            if (filterPlant.value !== 'all') {
-                filteredSchedules = filteredSchedules.filter(s => s.plant === filterPlant.value);
-            }
-            if (filterTime.value !== 'all') {
-                filteredSchedules = filteredSchedules.filter(s => getTimePeriod(s.time) === filterTime.value);
-            }
 
-            if (filteredSchedules.length === 0) {
-                alert('Tidak ada data untuk diekspor.');
-                return;
-            }
+            if (activePlant !== 'all') filtered = filtered.filter(s => s.plant === activePlant);
+            if (filterPlant.value !== 'all') filtered = filtered.filter(s => s.plant === filterPlant.value);
+            if (filterTime.value !== 'all') filtered = filtered.filter(s => getTimePeriod(s.time) === filterTime.value);
+
+            if (filtered.length === 0) { alert('Tidak ada data'); return; }
 
             const headers = ['No', 'Project Name', 'Plant', 'Volume (m³)', 'Day', 'Date', 'Time', 'Time Period', 'Notes'];
-            const csvData = filteredSchedules.map((s, i) => ({
+            const data = filtered.map((s, i) => ({
                 'No': i + 1,
                 'Project Name': s.projectName + (s.isDaily ? ' (Daily)' : ''),
                 'Plant': s.plant,
@@ -2382,65 +2419,50 @@
                 'Time Period': getTimePeriodLabel(getTimePeriod(s.time)),
                 'Notes': s.notes || '-'
             }));
-
-            downloadCSV(convertToCSV(csvData, headers), `Schedule_Detail_${new Date().toISOString().slice(0,10)}.csv`);
+            downloadCSV(convertToCSV(data, headers), `Schedule_${new Date().toISOString().slice(0,10)}.csv`);
         });
 
         exportSummaryDetailBtn.addEventListener('click', function() {
             const activePlant = document.querySelector('#summary-detail-plant-tabs .plant-tab.active')?.getAttribute('data-plant') || 'all';
-            const startDateValue = summaryDetailStartDate.value;
-            const endDateValue = summaryDetailEndDate.value;
-            
-            let filteredSchedules = schedules;
-            if (activePlant !== 'all') {
-                filteredSchedules = filteredSchedules.filter(s => s.plant === activePlant);
-            }
-            if (startDateValue && endDateValue) {
-                filteredSchedules = filteredSchedules.filter(s => {
-                    const sd = new Date(s.date);
-                    return sd >= new Date(startDateValue) && sd <= new Date(endDateValue);
+            let filtered = schedules;
+
+            if (globalStartDate && globalEndDate) {
+                filtered = filtered.filter(s => {
+                    const d = new Date(s.date);
+                    return d >= new Date(globalStartDate) && d <= new Date(globalEndDate);
                 });
             }
-            if (summaryDetailFilterPlant.value !== 'all') {
-                filteredSchedules = filteredSchedules.filter(s => s.plant === summaryDetailFilterPlant.value);
-            }
-            if (summaryDetailFilterTime.value !== 'all') {
-                filteredSchedules = filteredSchedules.filter(s => getTimePeriod(s.time) === summaryDetailFilterTime.value);
-            }
 
-            if (filteredSchedules.length === 0) {
-                alert('Tidak ada data untuk diekspor.');
-                return;
-            }
+            if (activePlant !== 'all') filtered = filtered.filter(s => s.plant === activePlant);
+            if (summaryDetailFilterPlant.value !== 'all') filtered = filtered.filter(s => s.plant === summaryDetailFilterPlant.value);
+            if (summaryDetailFilterTime.value !== 'all') filtered = filtered.filter(s => getTimePeriod(s.time) === summaryDetailFilterTime.value);
 
-            const dateRange = getDateRange(startDateValue || new Date().toISOString().split('T')[0], endDateValue || new Date().toISOString().split('T')[0]);
-            const groupedData = groupDataByPlantAndProject(filteredSchedules, dateRange);
-            
+            if (filtered.length === 0) { alert('Tidak ada data'); return; }
+
+            const dateRange = getDateRange(globalStartDate || new Date().toISOString().split('T')[0], globalEndDate || new Date().toISOString().split('T')[0]);
+            const grouped = groupDataByPlantAndProject(filtered, dateRange);
             const headers = ['Plant', 'Project Name', 'Time', ...dateRange.map(d => formatDateForTable(d.toISOString().split('T')[0]))];
             const csvData = [];
 
-            Object.keys(groupedData).sort().forEach(plant => {
-                Object.keys(groupedData[plant]).sort().forEach(projectName => {
-                    const rowData = {
+            Object.keys(grouped).sort().forEach(plant => {
+                Object.keys(grouped[plant]).sort().forEach(project => {
+                    const row = {
                         'Plant': plant,
-                        'Project Name': projectName + (groupedData[plant][projectName].isDaily ? ' (Daily)' : ''),
-                        'Time': groupedData[plant][projectName].time
+                        'Project Name': project + (grouped[plant][project].isDaily ? ' (Daily)' : ''),
+                        'Time': grouped[plant][project].time
                     };
                     dateRange.forEach(date => {
-                        const dateKey = formatDateForTable(date.toISOString().split('T')[0]);
-                        rowData[dateKey] = groupedData[plant][projectName].volumes[dateKey] || '';
+                        const key = formatDateForTable(date.toISOString().split('T')[0]);
+                        row[key] = grouped[plant][project].volumes[key] || '';
                     });
-                    csvData.push(rowData);
+                    csvData.push(row);
                 });
-
                 const totalRow = { 'Plant': plant + ' Total', 'Project Name': '', 'Time': '' };
                 dateRange.forEach(date => {
-                    const dateKey = formatDateForTable(date.toISOString().split('T')[0]);
+                    const key = formatDateForTable(date.toISOString().split('T')[0]);
                     let total = 0;
-                    Object.keys(groupedData[plant]).forEach(p => {
-                        total += groupedData[plant][p].volumes[dateKey] || 0;
-                    });
-                    totalRow[dateKey] = total > 0 ? total : '';
+                    Object.keys(grouped[plant]).forEach(p => total += grouped[plant][p].volumes[key] || 0);
+                    totalRow[key] = total > 0 ? total : '';
                 });
                 csvData.push(totalRow);
             });
@@ -2455,10 +2477,11 @@
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const target = link.getAttribute('data-target');
-                navLinks.forEach(nav => nav.classList.remove('active'));
+                navLinks.forEach(n => n.classList.remove('active'));
                 link.classList.add('active');
-                contentSections.forEach(section => section.classList.add('hidden'));
+                contentSections.forEach(s => s.classList.add('hidden'));
                 document.getElementById(target).classList.remove('hidden');
+                if (window.innerWidth < 768) toggleSidebar(false);
                 if (target === 'monitoring-section') renderScheduleTable();
                 else if (target === 'summary-section') renderSummary();
                 else if (target === 'summary-detail-section') renderSummaryDetail();
@@ -2488,38 +2511,10 @@
         // ============================================================
         // ===== FILTER EVENT LISTENERS =====
         // ============================================================
-        filterStartDate.addEventListener('change', renderScheduleTable);
-        filterEndDate.addEventListener('change', renderScheduleTable);
         filterPlant.addEventListener('change', renderScheduleTable);
         filterTime.addEventListener('change', renderScheduleTable);
-        summaryStartDate.addEventListener('change', renderSummary);
-        summaryEndDate.addEventListener('change', renderSummary);
-        summaryDetailStartDate.addEventListener('change', renderSummaryDetail);
-        summaryDetailEndDate.addEventListener('change', renderSummaryDetail);
         summaryDetailFilterPlant.addEventListener('change', renderSummaryDetail);
         summaryDetailFilterTime.addEventListener('change', renderSummaryDetail);
-        chartStartDate.addEventListener('change', renderCharts);
-        chartEndDate.addEventListener('change', renderCharts);
-
-        // ============================================================
-        // ===== SIDEBAR =====
-        // ============================================================
-        function toggleSidebar() {
-            sidebar.classList.toggle('collapsed');
-            sidebar.classList.toggle('expanded');
-            container.classList.toggle('expanded');
-            const headerWrapper = document.querySelector('.header-wrapper');
-            if (sidebar.classList.contains('collapsed')) {
-                headerWrapper.style.marginLeft = 'var(--sidebar-collapsed-width)';
-            } else {
-                headerWrapper.style.marginLeft = 'var(--sidebar-width)';
-            }
-            const icon = toggleBtn.querySelector('i');
-            icon.className = sidebar.classList.contains('collapsed') ? 'fas fa-chevron-right' : 'fas fa-chevron-left';
-        }
-
-        toggleBtn.addEventListener('click', toggleSidebar);
-        floatingToggleBtn.addEventListener('click', toggleSidebar);
 
         // ============================================================
         // ===== DAILY SCHEDULE CHECKBOX =====
@@ -2554,24 +2549,30 @@
         // ============================================================
         // ===== SET DEFAULT DATES =====
         // ============================================================
-        const todayStr = new Date().toISOString().split('T')[0];
-        document.getElementById('date').value = todayStr;
-        document.getElementById('start-date').value = todayStr;
-        document.getElementById('end-date').value = todayStr;
-        filterStartDate.value = todayStr;
-        filterEndDate.value = todayStr;
-        summaryStartDate.value = todayStr;
-        summaryEndDate.value = todayStr;
-        summaryDetailStartDate.value = todayStr;
-        summaryDetailEndDate.value = todayStr;
-        chartStartDate.value = todayStr;
-        chartEndDate.value = todayStr;
+        const today = new Date().toISOString().split('T')[0];
+        globalStartDate = today;
+        globalEndDate = today;
+        
+        document.getElementById('date').value = today;
+        document.getElementById('start-date').value = today;
+        document.getElementById('end-date').value = today;
+        filterStartDate.value = today;
+        filterEndDate.value = today;
+        summaryStartDate.value = today;
+        summaryEndDate.value = today;
+        summaryDetailStartDate.value = today;
+        summaryDetailEndDate.value = today;
+        chartStartDate.value = today;
+        chartEndDate.value = today;
 
         // ============================================================
         // ===== INITIALIZATION =====
         // ============================================================
         updateDate();
         setInterval(updateDate, 60000);
+
+        setupDateFilterSync();
+        updateGlobalFilterDisplay();
 
         async function init() {
             await loadDailyTargetsFromFirestore();
