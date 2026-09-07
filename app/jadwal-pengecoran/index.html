@@ -186,9 +186,7 @@
             padding: 1px 6px;
             border-radius: 4px;
             transition: background 0.3s;
-        }
-        .global-filter-info .clear-filter:hover {
-            background: rgba(231, 76, 60, 0.1);
+            touch-action: manipulation;
         }
         .global-filter-info .clear-filter:active {
             transform: scale(0.95);
@@ -1411,6 +1409,7 @@
         let shiftVolumeChart = null;
         let globalStartDate = '';
         let globalEndDate = '';
+        let isUpdatingGlobally = false;
 
         // ============================================================
         // ===== DOM ELEMENTS =====
@@ -1456,7 +1455,7 @@
         const clearGlobalFilter = document.getElementById('clearGlobalFilter');
 
         // ============================================================
-        // ===== SIDEBAR TOGGLE (HANYA VIA TOMBOL) =====
+        // ===== SIDEBAR TOGGLE =====
         // ============================================================
         function toggleSidebar(open) {
             const isMobile = window.innerWidth < 768;
@@ -1473,7 +1472,6 @@
                     sidebarOverlay.classList.remove('active');
                     document.body.style.overflow = '';
                 } else {
-                    // Toggle
                     if (sidebar.classList.contains('open')) {
                         sidebar.classList.remove('open');
                         sidebar.classList.add('closed');
@@ -1487,40 +1485,43 @@
                     }
                 }
             } else {
-                // Desktop: toggle between collapsed and expanded
                 sidebar.classList.toggle('closed');
                 sidebar.classList.toggle('open');
                 mainContainer.classList.toggle('expanded');
             }
         }
 
-        // Event: Tombol hamburger
         floatingToggle.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
             toggleSidebar();
         });
 
-        // Event: Tombol close di sidebar
         sidebarClose.addEventListener('click', function(e) {
             e.stopPropagation();
             toggleSidebar(false);
         });
 
-        // Event: Klik overlay untuk menutup
         sidebarOverlay.addEventListener('click', function() {
             toggleSidebar(false);
         });
 
         // ============================================================
-        // ===== FUNGSI GLOBAL DATE FILTER =====
+        // ===== GLOBAL DATE FILTER - PERBAIKAN UTAMA =====
         // ============================================================
+        function formatDateDisplay(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
         function updateGlobalFilterDisplay() {
             if (globalStartDate && globalEndDate) {
-                const start = formatDateDisplay(globalStartDate);
-                const end = formatDateDisplay(globalEndDate);
-                globalStartDisplay.textContent = start;
-                globalEndDisplay.textContent = end;
+                globalStartDisplay.textContent = formatDateDisplay(globalStartDate);
+                globalEndDisplay.textContent = formatDateDisplay(globalEndDate);
                 globalStartDisplay.style.color = 'var(--dark)';
                 globalEndDisplay.style.color = 'var(--dark)';
             } else {
@@ -1531,57 +1532,42 @@
             }
         }
 
-        function formatDateDisplay(dateStr) {
-            if (!dateStr) return '-';
-            const d = new Date(dateStr);
-            const day = String(d.getDate()).padStart(2, '0');
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const year = d.getFullYear();
-            return `${day}/${month}/${year}`;
-        }
-
-        function updateAllDateFilters(startDate, endDate) {
+        function syncAllDateInputs(startDate, endDate) {
+            isUpdatingGlobally = true;
+            
             globalStartDate = startDate;
             globalEndDate = endDate;
             
-            const dateInputs = [
+            // Update semua input date di semua tab
+            const dateInputPairs = [
                 { start: filterStartDate, end: filterEndDate },
                 { start: summaryStartDate, end: summaryEndDate },
                 { start: summaryDetailStartDate, end: summaryDetailEndDate },
                 { start: chartStartDate, end: chartEndDate }
             ];
             
-            dateInputs.forEach(pair => {
-                if (pair.start) pair.start.value = startDate;
-                if (pair.end) pair.end.value = endDate;
+            dateInputPairs.forEach(pair => {
+                if (pair.start && startDate) pair.start.value = startDate;
+                if (pair.end && endDate) pair.end.value = endDate;
             });
             
             updateGlobalFilterDisplay();
+            
+            setTimeout(() => {
+                isUpdatingGlobally = false;
+            }, 100);
+            
+            // Render ulang semua tampilan
             renderAll();
         }
 
         function clearAllDateFilters() {
             const today = new Date().toISOString().split('T')[0];
-            globalStartDate = today;
-            globalEndDate = today;
-            
-            const dateInputs = [
-                { start: filterStartDate, end: filterEndDate },
-                { start: summaryStartDate, end: summaryEndDate },
-                { start: summaryDetailStartDate, end: summaryDetailEndDate },
-                { start: chartStartDate, end: chartEndDate }
-            ];
-            
-            dateInputs.forEach(pair => {
-                if (pair.start) pair.start.value = today;
-                if (pair.end) pair.end.value = today;
-            });
-            
-            updateGlobalFilterDisplay();
-            renderAll();
+            syncAllDateInputs(today, today);
         }
 
         function setupDateFilterSync() {
+            // Setup untuk setiap pasangan date input
             const dateFilterPairs = [
                 { start: filterStartDate, end: filterEndDate },
                 { start: summaryStartDate, end: summaryEndDate },
@@ -1592,24 +1578,27 @@
             dateFilterPairs.forEach(pair => {
                 if (pair.start) {
                     pair.start.addEventListener('change', function() {
+                        if (isUpdatingGlobally) return;
                         const startDate = this.value;
                         const endDate = pair.end ? pair.end.value : startDate;
                         if (startDate && endDate) {
-                            updateAllDateFilters(startDate, endDate);
+                            syncAllDateInputs(startDate, endDate);
                         }
                     });
                 }
                 if (pair.end) {
                     pair.end.addEventListener('change', function() {
+                        if (isUpdatingGlobally) return;
                         const startDate = pair.start ? pair.start.value : this.value;
                         const endDate = this.value;
                         if (startDate && endDate) {
-                            updateAllDateFilters(startDate, endDate);
+                            syncAllDateInputs(startDate, endDate);
                         }
                     });
                 }
             });
             
+            // Clear filter button
             clearGlobalFilter.addEventListener('click', function() {
                 clearAllDateFilters();
             });
@@ -1920,6 +1909,7 @@
             const activePlant = document.querySelector('#monitoring-plant-tabs .plant-tab.active')?.getAttribute('data-plant') || 'all';
             let filtered = schedules;
 
+            // Filter by global date
             if (globalStartDate && globalEndDate) {
                 filtered = filtered.filter(s => {
                     const d = new Date(s.date);
@@ -2571,6 +2561,7 @@
         updateDate();
         setInterval(updateDate, 60000);
 
+        // Setup global date filter sync
         setupDateFilterSync();
         updateGlobalFilterDisplay();
 
